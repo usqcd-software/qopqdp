@@ -7,7 +7,7 @@
 static int ndim=4;
 static int *lattice_size;
 static int seed;
-static int nit=11;
+static int nit=5;
 static QDP_RandomState *rs;
 
 static const int sta[] = {0, 1};
@@ -17,7 +17,7 @@ static const int nsn = sizeof(nsa)/sizeof(int);
 //static const int nma[] = {2, 4, 8, 16};
 static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
-static const int bsa[] = {32, 64, 128, 256, 512, 1024};
+static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 static const int bsn = sizeof(bsa)/sizeof(int);
 
 #define printf0 if(QDP_this_node==0) printf

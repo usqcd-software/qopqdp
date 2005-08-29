@@ -34,10 +34,10 @@ typedef struct QOP_invert_arg_i {
   double rsqmin;
   double final_rsq;
   double final_sec;
+  double final_flop;
   int max_iter;
   int restart;
   int final_iter;
-  int final_flop;
   QOP_evenodd_t evenodd;
 } QOP_invert_arg;
 
