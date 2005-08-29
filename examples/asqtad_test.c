@@ -327,7 +327,7 @@ start(void)
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);
 	  mf = bench_inv(&inv_arg, out, in);
-	  printf0("st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
+	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
 		  ns, nm, bs, inv_arg.final_iter, inv_arg.final_sec, mf);
 	  if(mf>best_mf) {
 	    best_mf = mf;
@@ -342,8 +342,8 @@ start(void)
   }
 
   printf0("best:\n");
-  printf0("st%2i ns%2i nm%2i bs%5i mflops = %g\n", best_st, best_ns, best_nm,
-	  best_bs, best_mf);
+  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i mflops = %g\n", best_st, best_ns,
+	  best_nm, best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
   QOP_F_asqtad_invert_unload_links();
