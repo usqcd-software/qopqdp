@@ -9,19 +9,25 @@
 #define REAL float
 #endif
 
-static int nsvec = 8;
-static int nvec = 8;
+extern int QOP_style;
+extern int QOP_nsvec;
+extern int QOP_nvec;
 static int congrad_setup = 0;
 static QDP_ColorVector *ttt, *tttt, *r, *p;
 static int have_rawlinks = 0;
 static QDP_ColorMatrix *raw_fatlinks[4], *raw_longlinks[4];
 static QDP_ColorMatrix *fwdlinks[8];
+static QDP_ColorMatrix *bcklinks[8], *dbllinks[16];
 static QDP_ColorVector *temp1[16], *temp2[16];
 static QDP_ColorVector *fb_tempvec[8];
 static int temps_inited = 0;
 static int fb_tempvec_inited = 0;
+static int dblstore_inited = 0;
+static int dblstored = 0;
 static QDP_Shift asqtad_shifts[8], neighbor3[4];
+static QDP_Shift dbl_shifts[16];
 static QDP_ShiftDir shiftfwd[8], shiftbck[8];
+static QDP_ShiftDir dbl_sd[16];
 
 static void PREC(asqtad_mdslash2)(QDP_ColorVector *out, QDP_ColorVector *in,
 				  QDP_Subset subset, QDP_Subset othersubset,
@@ -80,6 +86,8 @@ PREC(asqtad_invert_load_links_qdp)(QDP_ColorMatrix *fatlnk[],
 {
   int i;
 
+  dblstored = 0;
+
   for(i=0; i<4; i++) {
     fwdlinks[2*i] = fatlnk[i];
     fwdlinks[2*i+1] = longlnk[i];
@@ -102,6 +110,16 @@ PREC(asqtad_invert_load_links_qdp)(QDP_ColorMatrix *fatlnk[],
     for(i=0; i<8; i++) {
       shiftfwd[i] = QDP_forward;
       shiftbck[i] = QDP_backward;
+    }
+    for(i=0; i<4; i++) {
+      dbl_shifts[4*i] = asqtad_shifts[2*i];
+      dbl_shifts[4*i+1] = asqtad_shifts[2*i+1];
+      dbl_shifts[4*i+2] = asqtad_shifts[2*i];
+      dbl_shifts[4*i+3] = asqtad_shifts[2*i+1];
+      dbl_sd[4*i] = QDP_forward;
+      dbl_sd[4*i+1] = QDP_forward;
+      dbl_sd[4*i+2] = QDP_backward;
+      dbl_sd[4*i+3] = QDP_backward;
     }
   }
 
@@ -198,7 +216,11 @@ PREC(asqtad_inv_qdp)(QOP_invert_arg *inv_arg,
 
   if( rsq <= rsqstop ) {
     dtimec += dclock();
-    if(QDP_this_node==0) {
+    inv_arg->final_rsq = rsq;
+    inv_arg->final_iter = iteration;
+    inv_arg->final_sec = dtimec;
+    inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
+    if(QDP_this_node==-1) {
       printf("CONGRAD5: time = %g iters = %i mflops = %g\n",
              dtimec, iteration,
              (double) ( nflop*iteration*QDP_sites_on_node / (1.0e6*dtimec) ));
@@ -218,6 +240,7 @@ PREC(asqtad_inv_qdp)(QOP_invert_arg *inv_arg,
 QOP_status_t
 PREC(asqtad_invert_unload_links)(void)
 {
+  dblstored = 0;
   return QOP_SUCCESS;
 }
 
@@ -225,9 +248,9 @@ PREC(asqtad_invert_unload_links)(void)
 /* internal functions */
 
 static void
-PREC(asqtad_dslash)(QDP_ColorVector *dest, QDP_Subset dsubset,
-		    QDP_ColorVector *src, QDP_Subset ssubset,
-		    QDP_ColorVector *temp[])
+PREC(asqtad_dslash0)(QDP_ColorVector *dest, QDP_Subset dsubset,
+		     QDP_ColorVector *src, QDP_Subset ssubset,
+		     QDP_ColorVector *temp[])
 {
   QDP_ColorVector *vsrc[8], *vdest[8];
   int i;
@@ -245,37 +268,89 @@ PREC(asqtad_dslash)(QDP_ColorVector *dest, QDP_Subset dsubset,
   }
 
   /* Start gathers from positive directions */
-  for(i=0; i<8; i+=nsvec) {
-    QDP_V_veq_sV(temp+i, vsrc+i, asqtad_shifts+i, shiftfwd+i, dsubset, nsvec);
+  for(i=0; i<8; i+=QOP_nsvec) {
+    QDP_V_veq_sV(temp+i, vsrc+i, asqtad_shifts+i, shiftfwd+i, dsubset, QOP_nsvec);
   }
 
   /* Multiply by adjoint matrix at other sites */
   /* Start gathers from negative directions */
-  for(i=0; i<8; i+=nsvec) {
-    QDP_V_veq_Ma_times_V(fb_tempvec+i, fwdlinks+i, vsrc+i, ssubset, nsvec);
-    QDP_V_veq_sV(temp+8+i, fb_tempvec+i, asqtad_shifts+i, shiftbck+i, dsubset, nsvec);
+  for(i=0; i<8; i+=QOP_nsvec) {
+    QDP_V_veq_Ma_times_V(fb_tempvec+i, fwdlinks+i, vsrc+i, ssubset, QOP_nsvec);
+    QDP_V_veq_sV(temp+8+i, fb_tempvec+i, asqtad_shifts+i, shiftbck+i, dsubset, QOP_nsvec);
   }
 
   /* Wait gathers from positive directions, multiply by matrix and
      accumulate */
   QDP_V_eq_zero(dest, dsubset);
-  for(i=0; i<8; i+=nvec) {
-    QDP_V_vpeq_M_times_V(vdest+i, fwdlinks+i, temp+i, dsubset, nvec);
+  for(i=0; i<8; i+=QOP_nvec) {
+    QDP_V_vpeq_M_times_V(vdest+i, fwdlinks+i, temp+i, dsubset, QOP_nvec);
   }
   for(i=0; i<8; i++) QDP_discard_V(temp[i]);
 
   /* Wait gathers from negative directions, accumulate (negative) */
-  for(i=0; i<8; i+=nvec) {
-    QDP_V_vmeq_V(vdest+i, temp+8+i, dsubset, nvec);
+  for(i=0; i<8; i+=QOP_nvec) {
+    QDP_V_vmeq_V(vdest+i, temp+8+i, dsubset, QOP_nvec);
   }
   for(i=0; i<8; ++i) QDP_discard_V(temp[i+8]);
+}
+
+static void
+PREC(asqtad_dslash1)(QDP_ColorVector *dest, QDP_Subset dsubset,
+		     QDP_ColorVector *src, QDP_Subset ssubset,
+		     QDP_ColorVector *temp[])
+{
+  QDP_ColorVector *vsrc[16], *vdest[16];
+  int i;
+
+  for(i=0; i<16; i++) {
+    vsrc[i] = src;
+    vdest[i] = dest;
+  }
+
+  if(!dblstored) {
+    dblstored = 1;
+    if(!dblstore_inited) {
+      dblstore_inited = 1;
+      for(i=0; i<8; i++) {
+	bcklinks[i] = QDP_create_M();
+      }
+      for(i=0; i<4; i++) {
+	dbllinks[4*i] = fwdlinks[2*i];
+	dbllinks[4*i+1] = fwdlinks[2*i+1];
+	dbllinks[4*i+2] = bcklinks[2*i];
+	dbllinks[4*i+3] = bcklinks[2*i+1];
+      }
+    }
+    QDP_ColorMatrix *m = QDP_create_M();
+    for(i=0; i<8; i++) {
+      QDP_M_eq_sM(m, fwdlinks[i], asqtad_shifts[i], QDP_backward, QDP_all);
+      QDP_M_eqm_Ma(bcklinks[i], m, QDP_all);
+    }
+  }
+
+  /* Start gathers from all directions */
+  for(i=0; i<16; i+=QOP_nsvec) {
+    QDP_V_veq_sV(temp+i, vsrc+i, dbl_shifts+i, dbl_sd+i, dsubset, QOP_nsvec);
+  }
+
+  /* Wait gathers from all directions, multiply by matrix and accumulate */
+  QDP_V_eq_zero(dest, dsubset);
+  for(i=0; i<16; i+=QOP_nvec) {
+    QDP_V_vpeq_M_times_V(vdest+i, dbllinks+i, temp+i, dsubset, QOP_nvec);
+  }
+  for(i=0; i<16; ++i) QDP_discard_V(temp[i]);
 }
 
 static void
 PREC(asqtad_mdslash2)(QDP_ColorVector *out, QDP_ColorVector *in,
 		      QDP_Subset subset, QDP_Subset othersubset, QLA_Real m2x4)
 {
-  PREC(asqtad_dslash)(tttt, othersubset, in, subset, temp1);
-  PREC(asqtad_dslash)(out, subset, tttt, othersubset, temp2);
+  if(QOP_style==0) {
+    PREC(asqtad_dslash0)(tttt, othersubset, in, subset, temp1);
+    PREC(asqtad_dslash0)(out, subset, tttt, othersubset, temp2);
+  } else {
+    PREC(asqtad_dslash1)(tttt, othersubset, in, subset, temp1);
+    PREC(asqtad_dslash1)(out, subset, tttt, othersubset, temp2);
+  }
   QDP_V_meq_r_times_V(out, &m2x4, in, subset);
 }

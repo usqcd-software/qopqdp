@@ -10,6 +10,18 @@ static int seed;
 static int nit=11;
 static QDP_RandomState *rs;
 
+static const int sta[] = {0, 1};
+static const int stn = sizeof(sta)/sizeof(int);
+static const int nsa[] = {2, 4, 8, 16};
+static const int nsn = sizeof(nsa)/sizeof(int);
+//static const int nma[] = {2, 4, 8, 16};
+static const int nma[] = {0};
+static const int nmn = sizeof(nma)/sizeof(int);
+static const int bsa[] = {32, 64, 128, 256, 512, 1024};
+static const int bsn = sizeof(bsa)/sizeof(int);
+
+#define printf0 if(QDP_this_node==0) printf
+
 void
 lex_int(QLA_Int *li, int coords[])
 {
@@ -225,12 +237,37 @@ get_links(QDP_ColorMatrix **u)
   make_unitary(u, ndim);
 }
 
+double
+bench_inv(QOP_invert_arg *inv_arg, QDP_ColorVector *out, QDP_ColorVector *in)
+{
+  double sec=0, flop=0, mf=0;
+  int i, iter=0;
+
+  for(i=0; i<=nit; i++) {
+    int invit;
+    QDP_V_eq_zero(out, QDP_all);
+    invit = QOP_F_asqtad_inv_qdp(inv_arg, out, in);
+    if(i>0) {
+      iter += inv_arg->final_iter;
+      sec += inv_arg->final_sec;
+      flop += inv_arg->final_flop;
+      mf += inv_arg->final_flop/(1e6*inv_arg->final_sec);
+    }
+  }
+  inv_arg->final_iter = iter/nit;
+  inv_arg->final_sec = sec/nit;
+  inv_arg->final_flop = flop/nit;
+  return mf/nit;
+}
+
 void
 start(void)
 {
+  double mf, best_mf;
   QLA_Real plaq;
   QDP_ColorMatrix **u;
-  int i;
+  int i, st, ns, nm, bs, sti, nsi, nmi, bsi,
+    best_st, best_ns, best_nm, best_bs;
 
   u = (QDP_ColorMatrix **) malloc(ndim*sizeof(QDP_ColorMatrix *));
   for(i=0; i<ndim; i++) u[i] = QDP_create_M();
@@ -269,14 +306,44 @@ start(void)
   QOP_asqtad_invert_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   QOP_asqtad_invert_load_links_qdp(fatlinks, longlinks);
+  if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
 
-  for(i=0; i<nit; i++) {
-    int invit;
-    QDP_V_eq_zero(out, QDP_all);
-    if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
-    invit = QOP_F_asqtad_inv_qdp(&inv_arg, out, in);
-    if(QDP_this_node==0) printf("number of iterations = %i\n", invit);
+  best_mf = 0;
+  best_st = sta[0];
+  best_ns = nsa[0];
+  best_nm = nma[0];
+  best_bs = bsa[0];
+  for(sti=0; sti<stn; sti++) {
+    st = sta[sti];
+    if(QOP_asqtad_set_opt("st", st)==QOP_FAIL) continue;
+    for(nsi=0; nsi<nsn; nsi++) {
+      ns = nsa[nsi];
+      if(QOP_asqtad_set_opt("ns", ns)==QOP_FAIL) continue;
+      for(nmi=0; nmi<nmn; nmi++) {
+	nm = nma[nmi];
+	if(nm==0) nm = ns;
+	if(QOP_asqtad_set_opt("nm", nm)==QOP_FAIL) continue;
+	for(bsi=0; bsi<bsn; bsi++) {
+	  bs = bsa[bsi];
+	  QDP_set_block_size(bs);
+	  mf = bench_inv(&inv_arg, out, in);
+	  printf0("st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
+		  ns, nm, bs, inv_arg.final_iter, inv_arg.final_sec, mf);
+	  if(mf>best_mf) {
+	    best_mf = mf;
+	    best_st = st;
+	    best_ns = ns;
+	    best_nm = nm;
+	    best_bs = bs;
+	  }
+	}
+      }
+    }
   }
+
+  printf0("best:\n");
+  printf0("st%2i ns%2i nm%2i bs%5i mflops = %g\n", best_st, best_ns, best_nm,
+	  best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
   QOP_F_asqtad_invert_unload_links();
