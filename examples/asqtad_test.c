@@ -4,24 +4,11 @@
 #include <qdp.h>
 #include <qop.h>
 
-typedef struct param_struct {
-  QLA_Real beta;
-  int ndim;
-  int nc;
-  int *lattice_size;
-  int seed;
-} param_t;
-
-static param_t params;
-
-typedef struct field_struct {
-  QDP_RandomState *rs;
-} field_t;
-
-static field_t fields;
-
-static int nit;
-static char *ifn, *ofn;
+static int ndim=4;
+static int *lattice_size;
+static int seed;
+static int nit=11;
+static QDP_RandomState *rs;
 
 void
 lex_int(QLA_Int *li, int coords[])
@@ -29,7 +16,7 @@ lex_int(QLA_Int *li, int coords[])
   int i,t;
 
   t = coords[0];
-  for(i=1; i<params.ndim; i++) {
+  for(i=1; i<ndim; i++) {
     t = t*QDP_coord_size(i) + coords[i];
   }
   *li = t;
@@ -183,8 +170,8 @@ get_plaq(QDP_ColorMatrix *link[])
   temp3 = QDP_create_M();
   temp4 = QDP_create_M();
 
-  for(mu=0; mu<params.ndim-1; ++mu) {
-    for(nu=mu+1; nu<params.ndim; ++nu) {
+  for(mu=0; mu<ndim-1; ++mu) {
+    for(nu=mu+1; nu<ndim; ++nu) {
 
       QDP_M_eq_sM(temp1, link[nu], QDP_neighbor[mu], QDP_forward, QDP_all);
       QDP_M_eq_sM(temp2, link[mu], QDP_neighbor[nu], QDP_forward, QDP_all);
@@ -218,73 +205,39 @@ get_plaq(QDP_ColorMatrix *link[])
   QDP_destroy_M(temp3);
   QDP_destroy_M(temp4);
 
-  return plaq/(0.5*params.ndim*(params.ndim-1)*QDP_volume());
+  return plaq/(0.5*ndim*(ndim-1)*QDP_volume());
+}
+
+void
+get_links(QDP_ColorMatrix **u)
+{
+  int i;
+  for(i=0; i<ndim; i++) {
+    if(1) {
+      QDP_M_eq_gaussian_S(u[i], rs, QDP_all);
+    } else {
+      QLA_Complex z;
+      QLA_real(z) = 1;
+      QLA_imag(z) = 0;
+      QDP_M_eq_c(u[i], &z, QDP_all);
+    }
+  }
+  make_unitary(u, ndim);
 }
 
 void
 start(void)
 {
-  int i;
-  QDP_ColorMatrix **u;
-  QDP_RandomState *rs;
   QLA_Real plaq;
+  QDP_ColorMatrix **u;
+  int i;
 
-  rs = QDP_create_S();
-  seed_rand(rs, params.seed);
-  fields.rs = rs;
+  u = (QDP_ColorMatrix **) malloc(ndim*sizeof(QDP_ColorMatrix *));
+  for(i=0; i<ndim; i++) u[i] = QDP_create_M();
+  get_links(u);
 
-  u = (QDP_ColorMatrix **) malloc(params.ndim*sizeof(QDP_ColorMatrix *));
-  for(i=0; i<params.ndim; i++) {
-    u[i] = QDP_create_M();
-    if(ifn==NULL) {
-      if(1) {
-	QDP_M_eq_gaussian_S(u[i], rs, QDP_all);
-      } else {
-	QLA_Complex z;
-	QLA_real(z) = 1;
-	QLA_imag(z) = 0;
-	QDP_M_eq_c(u[i], &z, QDP_all);
-      }
-    }
-  }
-  if(ifn!=NULL) {
-    QDP_String *md;
-    QDP_Reader *qr;
-    md = QDP_string_create();
-    qr = QDP_open_read(md, ifn);
-    //QDP_FN_vread_M(params.nc, qr, md, u, params.ndim);
-    QDP_F3_vread_M(qr, md, u, params.ndim);
-    QDP_close_read(qr);
-    QDP_string_destroy(md);
-  }
-  make_unitary(u, params.ndim);
-
-  //plaq = get_plaq(u)/(0.5*params.ndim*(params.ndim-1));
   plaq = get_plaq(u);
-  //printf("%-8i%-14g%-14g\n", 0, plaq, QLA_real(get_ploop(u)));
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
-  //plaq = get_plaq2(u)/(0.5*params.ndim*(params.ndim-1));
-  //plaq = get_plaq2(u);
-  //printf("%-8i%-14g\n", 0, plaq);
-
-#if 0
-  for(i=1; i<=nit; i++) {
-    update(u);
-    make_unitary(u, params.ndim);
-    //plaq = get_plaq(u)/(0.5*params.ndim*(params.ndim-1));
-    plaq = get_plaq(u);
-    if(QDP_this_node==0) {
-      printf("%-8i%-14g%-14g\n", i, plaq, QLA_real(get_ploop(u)));
-    }
-  }
-#endif
-
-  QOP_layout qoplayout;
-  qoplayout.ndims = params.ndim;
-  for(i=0; i<params.ndim; i++) {
-    qoplayout.sites[i] = params.lattice_size[i];
-    qoplayout.bc[i] = 1;
-  }
 
   QDP_ColorMatrix *fatlinks[4], *longlinks[4];
   QDP_ColorVector *out, *in;
@@ -295,7 +248,13 @@ start(void)
     longlinks[i] = u[i];
   }
   QDP_V_eq_gaussian_S(in, rs, QDP_all);
-  QDP_V_eq_zero(out, QDP_all);
+
+  QOP_layout qoplayout;
+  qoplayout.ndims = ndim;
+  for(i=0; i<ndim; i++) {
+    qoplayout.sites[i] = lattice_size[i];
+    qoplayout.bc[i] = 1;
+  }
 
   QOP_invert_arg inv_arg;
   inv_arg.mass = 0.1;
@@ -308,40 +267,27 @@ start(void)
   QOP_asqtad_invert_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   QOP_asqtad_invert_load_links_qdp(fatlinks, longlinks);
-  if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
-  nit = QOP_F_asqtad_inv_qdp(&inv_arg, out, in);
+
+  for(i=0; i<nit; i++) {
+    int invit;
+    QDP_V_eq_zero(out, QDP_all);
+    if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
+    invit = QOP_F_asqtad_inv_qdp(&inv_arg, out, in);
+    if(QDP_this_node==0) printf("number of iterations = %i\n", invit);
+  }
+
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
   QOP_F_asqtad_invert_unload_links();
   if(QDP_this_node==0) { printf("begin finalize\n"); fflush(stdout); }
   QOP_asqtad_invert_finalize();
-
-  if(QDP_this_node==0) printf("number of iterations = %i\n", nit);
-
-  if(ofn!=NULL) {
-    QDP_String *md;
-    QDP_Writer *qw;
-    md = QDP_string_create();
-    QDP_string_set(md, "test");
-    qw = QDP_open_write(md, ofn, QDP_SINGLEFILE);
-    //QDP_FN_vwrite_M(params.nc, qw, md, u, params.ndim);
-    QDP_F3_vwrite_M(qw, md, u, params.ndim);
-    QDP_close_write(qw);
-    QDP_string_destroy(md);
-  }
-
 }
 
 void
 usage(char *s)
 {
-  printf("%s [b#] [c#] [d#] [i<fn>] [n#] [o<fn>] [s#] [x# [# ...]]\n",s);
+  printf("%s [n#] [s#] [x# [# ...]]\n",s);
   printf("\n");
-  printf("b\tbeta\n");
-  printf("c\tnumber of colors\n");
-  printf("d\tnumber of dimensions\n");
-  printf("i\tinput file\n");
   printf("n\tnumber of iterations\n");
-  printf("o\toutput file\n");
   printf("s\tseed\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
@@ -355,59 +301,50 @@ main(int argc, char *argv[])
 
   QDP_initialize(&argc, &argv);
 
-  params.ndim = 4;
-  params.nc = 3;
-  params.beta = 6.0;
-  nit = 10;
-  params.seed = time(NULL);
-  ifn = NULL;
-  ofn = NULL;
+  seed = time(NULL);
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
-    case 'b' : params.beta=atof(&argv[i][1]); break;
-    case 'c' : params.nc=atoi(&argv[i][1]); break;
-    case 'd' : params.ndim=atoi(&argv[i][1]); break;
-    case 'i' : ifn=&argv[i][1]; break;
     case 'n' : nit=atoi(&argv[i][1]); break;
-    case 'o' : ofn=&argv[i][1]; break;
-    case 's' : params.seed=atoi(&argv[i][1]); break;
+    case 's' : seed=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     default : usage(argv[0]);
     }
   }
 
-  params.lattice_size = (int *) malloc(params.ndim*sizeof(int));
+  lattice_size = (int *) malloc(ndim*sizeof(int));
   if(j==0) {
-    for(i=0; i<params.ndim; ++i) params.lattice_size[i] = 8;
+    for(i=0; i<ndim; ++i) lattice_size[i] = 8;
   } else {
     if(!isdigit(argv[j][1])) usage(argv[0]);
-    params.lattice_size[0] = atoi(&argv[j][1]);
-    for(i=1; i<params.ndim; ++i) {
+    lattice_size[0] = atoi(&argv[j][1]);
+    for(i=1; i<ndim; ++i) {
       if((++j<argc)&&(isdigit(argv[j][0]))) {
-        params.lattice_size[i] = atoi(&argv[j][0]);
+        lattice_size[i] = atoi(&argv[j][0]);
       } else {
-        params.lattice_size[i] = params.lattice_size[i-1];
+        lattice_size[i] = lattice_size[i-1];
       }
     }
   }
 
   if(QDP_this_node==0) {
-    printf("ndims = %i\n", params.ndim);
-    printf("size = %i", params.lattice_size[0]);
-    for(i=1; i<params.ndim; i++) {
-      printf(" %i", params.lattice_size[i]);
+    printf("size = %i", lattice_size[0]);
+    for(i=1; i<ndim; i++) {
+      printf(" %i", lattice_size[i]);
     }
     printf("\n");
-    printf("Nc = %i\n", params.nc);
-    printf("seed = %i\n", params.seed);
+    printf("seed = %i\n", seed);
   }
 
-  QDP_set_latsize(params.ndim, params.lattice_size);
+  QDP_set_latsize(ndim, lattice_size);
   QDP_create_layout();
+
+  rs = QDP_create_S();
+  seed_rand(rs, seed);
 
   start();
 
+  QDP_finalize();
   return 0;
 }
 
