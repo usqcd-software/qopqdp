@@ -9,6 +9,8 @@
 #define REAL float
 #endif
 
+static int nsvec = 8;
+static int nvec = 8;
 static int congrad_setup = 0;
 static QDP_ColorVector *ttt, *tttt, *r, *p;
 static int have_rawlinks = 0;
@@ -227,12 +229,12 @@ PREC(asqtad_dslash)(QDP_ColorVector *dest, QDP_Subset dsubset,
 		    QDP_ColorVector *src, QDP_Subset ssubset,
 		    QDP_ColorVector *temp[])
 {
-  QDP_ColorVector *srcvec[8], *destvec[8];
+  QDP_ColorVector *vsrc[8], *vdest[8];
   int i;
 
   for(i=0; i<8; i++) {
-    srcvec[i] = src;
-    destvec[i] = dest;
+    vsrc[i] = src;
+    vdest[i] = dest;
   }
 
   if(!fb_tempvec_inited) {
@@ -243,22 +245,29 @@ PREC(asqtad_dslash)(QDP_ColorVector *dest, QDP_Subset dsubset,
   }
 
   /* Start gathers from positive directions */
-  QDP_V_veq_sV(temp, srcvec, asqtad_shifts, shiftfwd, dsubset, 8);
+  for(i=0; i<8; i+=nsvec) {
+    QDP_V_veq_sV(temp+i, vsrc+i, asqtad_shifts+i, shiftfwd+i, dsubset, nsvec);
+  }
 
   /* Multiply by adjoint matrix at other sites */
-  QDP_V_veq_Ma_times_V(fb_tempvec, fwdlinks, srcvec, ssubset, 8);
-
   /* Start gathers from negative directions */
-  QDP_V_veq_sV(temp+8, fb_tempvec, asqtad_shifts, shiftbck, dsubset, 8);
+  for(i=0; i<8; i+=nsvec) {
+    QDP_V_veq_Ma_times_V(fb_tempvec+i, fwdlinks+i, vsrc+i, ssubset, nsvec);
+    QDP_V_veq_sV(temp+8+i, fb_tempvec+i, asqtad_shifts+i, shiftbck+i, dsubset, nsvec);
+  }
 
   /* Wait gathers from positive directions, multiply by matrix and
      accumulate */
   QDP_V_eq_zero(dest, dsubset);
-  QDP_V_vpeq_M_times_V(destvec, fwdlinks, temp, dsubset, 8);
-  for(i=0; i<8; ++i) QDP_discard_V(temp[i]);
+  for(i=0; i<8; i+=nvec) {
+    QDP_V_vpeq_M_times_V(vdest+i, fwdlinks+i, temp+i, dsubset, nvec);
+  }
+  for(i=0; i<8; i++) QDP_discard_V(temp[i]);
 
   /* Wait gathers from negative directions, accumulate (negative) */
-  QDP_V_vmeq_V(destvec, temp+8, dsubset, 8);
+  for(i=0; i<8; i+=nvec) {
+    QDP_V_vmeq_V(vdest+i, temp+8+i, dsubset, nvec);
+  }
   for(i=0; i<8; ++i) QDP_discard_V(temp[i+8]);
 }
 

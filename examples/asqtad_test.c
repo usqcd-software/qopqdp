@@ -244,8 +244,10 @@ start(void)
   out = QDP_create_V();
   in = QDP_create_V();
   for(i=0; i<4; i++) {
-    fatlinks[i] = u[i];
-    longlinks[i] = u[i];
+    fatlinks[i] = QDP_create_M();
+    QDP_M_eq_M(fatlinks[i], u[i], QDP_all);
+    longlinks[i] = QDP_create_M();
+    QDP_M_eq_M(longlinks[i], u[i], QDP_all);
   }
   QDP_V_eq_gaussian_S(in, rs, QDP_all);
 
@@ -257,7 +259,7 @@ start(void)
   }
 
   QOP_invert_arg inv_arg;
-  inv_arg.mass = 0.1;
+  inv_arg.mass = 0.05;
   inv_arg.rsqmin = 1e-3;
   inv_arg.max_iter = 500;
   inv_arg.restart = 100;
