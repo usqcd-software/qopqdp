@@ -4,9 +4,9 @@ ALL_LDADD = -L$(top_builddir)/lib -L$(QDPDIR)/lib  -L$(QLADIR)/lib -L$(QIODIR)/l
 F3_CFLAGS = -DQOP_Precision=1 -DQDP_Precision=1 -DQDP_Nc=3 $(ALL_CFLAGS)
 F3_LDADD = -lqopqdp_f -lqdp_f -lqdp_f3 -lqla_f -lqla_f3 -lqla_d -lqla_d3 -lqla_df -lqla_df3 $(ALL_LDADD)
 
-check_PROGRAMS = ks_invert_f3
+check_PROGRAMS = asqtad_test_f3
 
-ks_invert_f3_SOURCES = ks_invert.c
-ks_invert_f3_CFLAGS = $(F3_CFLAGS)
-ks_invert_f3_LDADD = $(F3_LDADD)
+asqtad_test_f3_SOURCES = asqtad_test.c
+asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
+asqtad_test_f3_LDADD = $(F3_LDADD)
 

@@ -13,7 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
-SOURCES = $(ks_invert_f3_SOURCES)
+SOURCES = $(asqtad_test_f3_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -35,7 +35,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-check_PROGRAMS = ks_invert_f3$(EXEEXT)
+check_PROGRAMS = asqtad_test_f3$(EXEEXT)
 subdir = examples
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -45,11 +45,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/include/qop_config.h
 CONFIG_CLEAN_FILES =
-am_ks_invert_f3_OBJECTS = ks_invert_f3-ks_invert.$(OBJEXT)
-ks_invert_f3_OBJECTS = $(am_ks_invert_f3_OBJECTS)
+am_asqtad_test_f3_OBJECTS = asqtad_test_f3-asqtad_test.$(OBJEXT)
+asqtad_test_f3_OBJECTS = $(am_asqtad_test_f3_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
-ks_invert_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+asqtad_test_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -57,8 +57,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(ks_invert_f3_SOURCES)
-DIST_SOURCES = $(ks_invert_f3_SOURCES)
+SOURCES = $(asqtad_test_f3_SOURCES)
+DIST_SOURCES = $(asqtad_test_f3_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -157,9 +157,9 @@ ALL_CFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include -I$(QDPDIR)/inclu
 ALL_LDADD = -L$(top_builddir)/lib -L$(QDPDIR)/lib  -L$(QLADIR)/lib -L$(QIODIR)/lib -L$(QMPDIR)/lib -lqopqdp_common -lqdp_common -lqdp_int -lqla_int -lqla_random -lqio -llime -lqmp -lm
 F3_CFLAGS = -DQOP_Precision=1 -DQDP_Precision=1 -DQDP_Nc=3 $(ALL_CFLAGS)
 F3_LDADD = -lqopqdp_f -lqdp_f -lqdp_f3 -lqla_f -lqla_f3 -lqla_d -lqla_d3 -lqla_df -lqla_df3 $(ALL_LDADD)
-ks_invert_f3_SOURCES = ks_invert.c
-ks_invert_f3_CFLAGS = $(F3_CFLAGS)
-ks_invert_f3_LDADD = $(F3_LDADD)
+asqtad_test_f3_SOURCES = asqtad_test.c
+asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
+asqtad_test_f3_LDADD = $(F3_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -196,9 +196,9 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
-ks_invert_f3$(EXEEXT): $(ks_invert_f3_OBJECTS) $(ks_invert_f3_DEPENDENCIES) 
-	@rm -f ks_invert_f3$(EXEEXT)
-	$(LINK) $(ks_invert_f3_LDFLAGS) $(ks_invert_f3_OBJECTS) $(ks_invert_f3_LDADD) $(LIBS)
+asqtad_test_f3$(EXEEXT): $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_DEPENDENCIES) 
+	@rm -f asqtad_test_f3$(EXEEXT)
+	$(LINK) $(asqtad_test_f3_LDFLAGS) $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -206,7 +206,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ks_invert_f3-ks_invert.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f3-asqtad_test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -222,19 +222,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
-ks_invert_f3-ks_invert.o: ks_invert.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ks_invert_f3_CFLAGS) $(CFLAGS) -MT ks_invert_f3-ks_invert.o -MD -MP -MF "$(DEPDIR)/ks_invert_f3-ks_invert.Tpo" -c -o ks_invert_f3-ks_invert.o `test -f 'ks_invert.c' || echo '$(srcdir)/'`ks_invert.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/ks_invert_f3-ks_invert.Tpo" "$(DEPDIR)/ks_invert_f3-ks_invert.Po"; else rm -f "$(DEPDIR)/ks_invert_f3-ks_invert.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ks_invert.c' object='ks_invert_f3-ks_invert.o' libtool=no @AMDEPBACKSLASH@
+asqtad_test_f3-asqtad_test.o: asqtad_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f3_CFLAGS) $(CFLAGS) -MT asqtad_test_f3-asqtad_test.o -MD -MP -MF "$(DEPDIR)/asqtad_test_f3-asqtad_test.Tpo" -c -o asqtad_test_f3-asqtad_test.o `test -f 'asqtad_test.c' || echo '$(srcdir)/'`asqtad_test.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/asqtad_test_f3-asqtad_test.Tpo" "$(DEPDIR)/asqtad_test_f3-asqtad_test.Po"; else rm -f "$(DEPDIR)/asqtad_test_f3-asqtad_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_f3-asqtad_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ks_invert_f3_CFLAGS) $(CFLAGS) -c -o ks_invert_f3-ks_invert.o `test -f 'ks_invert.c' || echo '$(srcdir)/'`ks_invert.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f3_CFLAGS) $(CFLAGS) -c -o asqtad_test_f3-asqtad_test.o `test -f 'asqtad_test.c' || echo '$(srcdir)/'`asqtad_test.c
 
-ks_invert_f3-ks_invert.obj: ks_invert.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ks_invert_f3_CFLAGS) $(CFLAGS) -MT ks_invert_f3-ks_invert.obj -MD -MP -MF "$(DEPDIR)/ks_invert_f3-ks_invert.Tpo" -c -o ks_invert_f3-ks_invert.obj `if test -f 'ks_invert.c'; then $(CYGPATH_W) 'ks_invert.c'; else $(CYGPATH_W) '$(srcdir)/ks_invert.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/ks_invert_f3-ks_invert.Tpo" "$(DEPDIR)/ks_invert_f3-ks_invert.Po"; else rm -f "$(DEPDIR)/ks_invert_f3-ks_invert.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ks_invert.c' object='ks_invert_f3-ks_invert.obj' libtool=no @AMDEPBACKSLASH@
+asqtad_test_f3-asqtad_test.obj: asqtad_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f3_CFLAGS) $(CFLAGS) -MT asqtad_test_f3-asqtad_test.obj -MD -MP -MF "$(DEPDIR)/asqtad_test_f3-asqtad_test.Tpo" -c -o asqtad_test_f3-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/asqtad_test_f3-asqtad_test.Tpo" "$(DEPDIR)/asqtad_test_f3-asqtad_test.Po"; else rm -f "$(DEPDIR)/asqtad_test_f3-asqtad_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_f3-asqtad_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ks_invert_f3_CFLAGS) $(CFLAGS) -c -o ks_invert_f3-ks_invert.obj `if test -f 'ks_invert.c'; then $(CYGPATH_W) 'ks_invert.c'; else $(CYGPATH_W) '$(srcdir)/ks_invert.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f3_CFLAGS) $(CFLAGS) -c -o asqtad_test_f3-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

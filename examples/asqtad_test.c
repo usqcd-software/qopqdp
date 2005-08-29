@@ -259,15 +259,13 @@ start(void)
   }
   make_unitary(u, params.ndim);
 
-  if(QDP_this_node==0) {
-    //plaq = get_plaq(u)/(0.5*params.ndim*(params.ndim-1));
-    plaq = get_plaq(u);
-    //printf("%-8i%-14g%-14g\n", 0, plaq, QLA_real(get_ploop(u)));
-    printf("plaquette = %g\n", plaq);
-    //plaq = get_plaq2(u)/(0.5*params.ndim*(params.ndim-1));
-    //plaq = get_plaq2(u);
-    //printf("%-8i%-14g\n", 0, plaq);
-  }
+  //plaq = get_plaq(u)/(0.5*params.ndim*(params.ndim-1));
+  plaq = get_plaq(u);
+  //printf("%-8i%-14g%-14g\n", 0, plaq, QLA_real(get_ploop(u)));
+  if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
+  //plaq = get_plaq2(u)/(0.5*params.ndim*(params.ndim-1));
+  //plaq = get_plaq2(u);
+  //printf("%-8i%-14g\n", 0, plaq);
 
 #if 0
   for(i=1; i<=nit; i++) {
