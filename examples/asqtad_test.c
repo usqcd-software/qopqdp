@@ -11,8 +11,8 @@ static int nit=5;
 static double mass=0.1;
 static QDP_RandomState *rs;
 
-//static const int sta[] = {0, 1};
-static const int sta[] = {1};
+static const int sta[] = {0, 1};
+//static const int sta[] = {1};
 static const int stn = sizeof(sta)/sizeof(int);
 static const int nsa[] = {2, 4, 8, 16};
 static const int nsn = sizeof(nsa)/sizeof(int);
