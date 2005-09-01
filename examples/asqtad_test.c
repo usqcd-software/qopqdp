@@ -8,14 +8,16 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
+static double mass=0.1;
 static QDP_RandomState *rs;
 
-static const int sta[] = {0, 1};
+//static const int sta[] = {0, 1};
+static const int sta[] = {1};
 static const int stn = sizeof(sta)/sizeof(int);
 static const int nsa[] = {2, 4, 8, 16};
 static const int nsn = sizeof(nsa)/sizeof(int);
-//static const int nma[] = {2, 4, 8, 16};
-static const int nma[] = {0};
+static const int nma[] = {2, 4, 8, 16};
+//static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
 static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 static const int bsn = sizeof(bsa)/sizeof(int);
@@ -296,10 +298,10 @@ start(void)
   }
 
   QOP_invert_arg inv_arg;
-  inv_arg.mass = 0.05;
-  inv_arg.rsqmin = 1e-3;
-  inv_arg.max_iter = 500;
-  inv_arg.restart = 100;
+  inv_arg.mass = mass;
+  inv_arg.rsqmin = 1e-4;
+  inv_arg.max_iter = 600;
+  inv_arg.restart = 200;
   inv_arg.evenodd = QOP_EVEN;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
@@ -374,6 +376,7 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
