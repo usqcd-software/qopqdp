@@ -286,12 +286,12 @@ PREC(asqtad_inv_qdp)(QOP_invert_arg *inv_arg,
 
   } while( (rsq>rsqstop) && (iteration<inv_arg->max_iter) );
 
+  dtimec += dclock();
+  inv_arg->final_rsq = rsq;
+  inv_arg->final_iter = iteration;
+  inv_arg->final_sec = dtimec;
+  inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
   if( rsq <= rsqstop ) {
-    dtimec += dclock();
-    inv_arg->final_rsq = rsq;
-    inv_arg->final_iter = iteration;
-    inv_arg->final_sec = dtimec;
-    inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
     if(QDP_this_node==-1) {
       printf("CONGRAD5: time = %g iters = %i mflops = %g\n",
              dtimec, iteration,

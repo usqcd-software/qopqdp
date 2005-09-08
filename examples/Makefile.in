@@ -13,7 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
-SOURCES = $(asqtad_test_f3_SOURCES)
+SOURCES = $(asqtad_test_f3_SOURCES) $(wilson_test_f3_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -35,7 +35,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-check_PROGRAMS = asqtad_test_f3$(EXEEXT)
+check_PROGRAMS = asqtad_test_f3$(EXEEXT) wilson_test_f3$(EXEEXT)
 subdir = examples
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -50,6 +50,9 @@ asqtad_test_f3_OBJECTS = $(am_asqtad_test_f3_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
 asqtad_test_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_wilson_test_f3_OBJECTS = wilson_test_f3-wilson_test.$(OBJEXT)
+wilson_test_f3_OBJECTS = $(am_wilson_test_f3_OBJECTS)
+wilson_test_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -57,8 +60,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(asqtad_test_f3_SOURCES)
-DIST_SOURCES = $(asqtad_test_f3_SOURCES)
+SOURCES = $(asqtad_test_f3_SOURCES) $(wilson_test_f3_SOURCES)
+DIST_SOURCES = $(asqtad_test_f3_SOURCES) $(wilson_test_f3_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -160,6 +163,9 @@ F3_LDADD = -lqopqdp_f -lqdp_f -lqdp_f3 -lqla_f -lqla_f3 -lqla_d -lqla_d3 -lqla_d
 asqtad_test_f3_SOURCES = asqtad_test.c
 asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
 asqtad_test_f3_LDADD = $(F3_LDADD)
+wilson_test_f3_SOURCES = wilson_test.c
+wilson_test_f3_CFLAGS = $(F3_CFLAGS)
+wilson_test_f3_LDADD = $(F3_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -199,6 +205,9 @@ clean-checkPROGRAMS:
 asqtad_test_f3$(EXEEXT): $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_DEPENDENCIES) 
 	@rm -f asqtad_test_f3$(EXEEXT)
 	$(LINK) $(asqtad_test_f3_LDFLAGS) $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_LDADD) $(LIBS)
+wilson_test_f3$(EXEEXT): $(wilson_test_f3_OBJECTS) $(wilson_test_f3_DEPENDENCIES) 
+	@rm -f wilson_test_f3$(EXEEXT)
+	$(LINK) $(wilson_test_f3_LDFLAGS) $(wilson_test_f3_OBJECTS) $(wilson_test_f3_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -207,6 +216,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f3-asqtad_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f3-wilson_test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -235,6 +245,20 @@ asqtad_test_f3-asqtad_test.obj: asqtad_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_f3-asqtad_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f3_CFLAGS) $(CFLAGS) -c -o asqtad_test_f3-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
+
+wilson_test_f3-wilson_test.o: wilson_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -MT wilson_test_f3-wilson_test.o -MD -MP -MF "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" -c -o wilson_test_f3-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" "$(DEPDIR)/wilson_test_f3-wilson_test.Po"; else rm -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_f3-wilson_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_test_f3-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+
+wilson_test_f3-wilson_test.obj: wilson_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -MT wilson_test_f3-wilson_test.obj -MD -MP -MF "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" -c -o wilson_test_f3-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" "$(DEPDIR)/wilson_test_f3-wilson_test.Po"; else rm -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_f3-wilson_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_test_f3-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

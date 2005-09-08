@@ -8,7 +8,8 @@ LIBCOMMONSOURCE = \
 
 LIBPSOURCE = \
   ../include/qop.h \
-  asqtadp.c
+  asqtadp.c \
+  wilsonp.c
 
 libqopqdp_common_a_SOURCES = $(LIBCOMMONSOURCE)
 libqopqdp_common_a_CFLAGS = $(AM_CFLAGS)

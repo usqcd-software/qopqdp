@@ -8,7 +8,7 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
-static double mass=-1;
+static double kappa=0;
 static QDP_RandomState *rs;
 
 static const int sta[] = {0, 1};
@@ -233,7 +233,7 @@ get_links(QDP_ColorMatrix **u)
     QLA_imag(z) = 0;
     QDP_M_eq_c(u[i], &z, QDP_all);
     if(1) {
-      QLA_Real r = 0.3;
+      QLA_Real r = 0.2;
       QDP_M_eq_gaussian_S(cm, rs, QDP_all);
       QDP_M_peq_r_times_M(u[i], &r, cm, QDP_all);
     }
@@ -243,15 +243,15 @@ get_links(QDP_ColorMatrix **u)
 }
 
 double
-bench_inv(QOP_invert_arg *inv_arg, QDP_ColorVector *out, QDP_ColorVector *in)
+bench_inv(QOP_invert_arg *inv_arg, QDP_DiracFermion *out, QDP_DiracFermion *in)
 {
   double sec=0, flop=0, mf=0;
   int i, iter=0;
 
   for(i=0; i<=nit; i++) {
     int invit;
-    QDP_V_eq_zero(out, QDP_all);
-    invit = QOP_F_asqtad_inv_qdp(inv_arg, out, in);
+    QDP_D_eq_zero(out, QDP_all);
+    invit = QOP_F_wilson_inv_qdp(inv_arg, out, in);
     if(i>0) {
       iter += inv_arg->final_iter;
       sec += inv_arg->final_sec;
@@ -282,16 +282,16 @@ start(void)
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
 
   QDP_ColorMatrix *fatlinks[4], *longlinks[4];
-  QDP_ColorVector *out, *in;
-  out = QDP_create_V();
-  in = QDP_create_V();
+  QDP_DiracFermion *out, *in;
+  out = QDP_create_D();
+  in = QDP_create_D();
   for(i=0; i<4; i++) {
     fatlinks[i] = QDP_create_M();
     QDP_M_eq_M(fatlinks[i], u[i], QDP_all);
     longlinks[i] = QDP_create_M();
     QDP_M_eq_M(longlinks[i], u[i], QDP_all);
   }
-  QDP_V_eq_gaussian_S(in, rs, QDP_all);
+  QDP_D_eq_gaussian_S(in, rs, QDP_all);
 
   QOP_layout qoplayout;
   qoplayout.ndims = ndim;
@@ -301,16 +301,16 @@ start(void)
   }
 
   QOP_invert_arg inv_arg;
-  inv_arg.mass = mass;
+  inv_arg.mass = kappa;
   inv_arg.rsqmin = 1e-4;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.evenodd = QOP_EVEN;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
-  QOP_asqtad_invert_init(&qoplayout);
+  QOP_wilson_invert_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
-  QOP_asqtad_invert_load_links_qdp(fatlinks, longlinks);
+  QOP_wilson_invert_load_links_qdp(u);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
 
   best_mf = 0;
@@ -320,14 +320,14 @@ start(void)
   best_bs = bsa[0];
   for(sti=0; sti<stn; sti++) {
     st = sta[sti];
-    if(QOP_asqtad_set_opt("st", st)==QOP_FAIL) continue;
+    if(QOP_wilson_set_opt("st", st)==QOP_FAIL) continue;
     for(nsi=0; nsi<nsn; nsi++) {
       ns = nsa[nsi];
-      if(QOP_asqtad_set_opt("ns", ns)==QOP_FAIL) continue;
+      if(QOP_wilson_set_opt("ns", ns)==QOP_FAIL) continue;
       for(nmi=0; nmi<nmn; nmi++) {
 	nm = nma[nmi];
 	if(nm==0) nm = ns;
-	if(QOP_asqtad_set_opt("nm", nm)==QOP_FAIL) continue;
+	if(QOP_wilson_set_opt("nm", nm)==QOP_FAIL) continue;
 	for(bsi=0; bsi<bsn; bsi++) {
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);
@@ -351,9 +351,9 @@ start(void)
 	  best_nm, best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
-  QOP_F_asqtad_invert_unload_links();
+  QOP_F_wilson_invert_unload_links();
   if(QDP_this_node==0) { printf("begin finalize\n"); fflush(stdout); }
-  QOP_asqtad_invert_finalize();
+  QOP_wilson_invert_finalize();
 }
 
 void
@@ -379,7 +379,7 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
-    case 'm' : mass=atof(&argv[i][1]); break;
+    case 'm' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
@@ -401,12 +401,6 @@ main(int argc, char *argv[])
       }
     }
   }
-  QDP_set_latsize(ndim, lattice_size);
-  QDP_create_layout();
-
-  if(mass<0) {
-    mass = 0.05 * pow(QDP_volume(),0.1);
-  }
 
   if(QDP_this_node==0) {
     printf("size = %i", lattice_size[0]);
@@ -414,9 +408,11 @@ main(int argc, char *argv[])
       printf(" %i", lattice_size[i]);
     }
     printf("\n");
-    printf("mass = %g\n", mass);
     printf("seed = %i\n", seed);
   }
+
+  QDP_set_latsize(ndim, lattice_size);
+  QDP_create_layout();
 
   rs = QDP_create_S();
   seed_rand(rs, seed);
@@ -426,4 +422,3 @@ main(int argc, char *argv[])
   QDP_finalize();
   return 0;
 }
-
