@@ -4,10 +4,14 @@ lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
 
 LIBCOMMONSOURCE = \
   ../include/qop.h \
-  asqtad.c
+  ../include/qop_internal.h \
+  common.c \
+  asqtad.c \
+  wilson.c
 
 LIBPSOURCE = \
   ../include/qop.h \
+  ../include/qop_internal.h \
   asqtadp.c \
   wilsonp.c
 

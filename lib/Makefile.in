@@ -57,7 +57,9 @@ LIBRARIES = $(lib_LIBRARIES)
 ARFLAGS = cru
 libqopqdp_common_a_AR = $(AR) $(ARFLAGS)
 libqopqdp_common_a_LIBADD =
-am__objects_1 = libqopqdp_common_a-asqtad.$(OBJEXT)
+am__objects_1 = libqopqdp_common_a-common.$(OBJEXT) \
+	libqopqdp_common_a-asqtad.$(OBJEXT) \
+	libqopqdp_common_a-wilson.$(OBJEXT)
 am_libqopqdp_common_a_OBJECTS = $(am__objects_1)
 libqopqdp_common_a_OBJECTS = $(am_libqopqdp_common_a_OBJECTS)
 libqopqdp_d_a_AR = $(AR) $(ARFLAGS)
@@ -181,10 +183,14 @@ AM_CFLAGS = -I@top_srcdir@/include
 lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
 LIBCOMMONSOURCE = \
   ../include/qop.h \
-  asqtad.c
+  ../include/qop_internal.h \
+  common.c \
+  asqtad.c \
+  wilson.c
 
 LIBPSOURCE = \
   ../include/qop.h \
+  ../include/qop_internal.h \
   asqtadp.c \
   wilsonp.c
 
@@ -276,6 +282,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqopqdp_common_a-asqtad.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqopqdp_common_a-common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqopqdp_common_a-wilson.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqopqdp_d_a-asqtadp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqopqdp_d_a-wilsonp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqopqdp_f_a-asqtadp.Po@am__quote@
@@ -295,6 +303,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
+libqopqdp_common_a-common.o: common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -MT libqopqdp_common_a-common.o -MD -MP -MF "$(DEPDIR)/libqopqdp_common_a-common.Tpo" -c -o libqopqdp_common_a-common.o `test -f 'common.c' || echo '$(srcdir)/'`common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libqopqdp_common_a-common.Tpo" "$(DEPDIR)/libqopqdp_common_a-common.Po"; else rm -f "$(DEPDIR)/libqopqdp_common_a-common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='libqopqdp_common_a-common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -c -o libqopqdp_common_a-common.o `test -f 'common.c' || echo '$(srcdir)/'`common.c
+
+libqopqdp_common_a-common.obj: common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -MT libqopqdp_common_a-common.obj -MD -MP -MF "$(DEPDIR)/libqopqdp_common_a-common.Tpo" -c -o libqopqdp_common_a-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libqopqdp_common_a-common.Tpo" "$(DEPDIR)/libqopqdp_common_a-common.Po"; else rm -f "$(DEPDIR)/libqopqdp_common_a-common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='libqopqdp_common_a-common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -c -o libqopqdp_common_a-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
+
 libqopqdp_common_a-asqtad.o: asqtad.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -MT libqopqdp_common_a-asqtad.o -MD -MP -MF "$(DEPDIR)/libqopqdp_common_a-asqtad.Tpo" -c -o libqopqdp_common_a-asqtad.o `test -f 'asqtad.c' || echo '$(srcdir)/'`asqtad.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libqopqdp_common_a-asqtad.Tpo" "$(DEPDIR)/libqopqdp_common_a-asqtad.Po"; else rm -f "$(DEPDIR)/libqopqdp_common_a-asqtad.Tpo"; exit 1; fi
@@ -308,6 +330,20 @@ libqopqdp_common_a-asqtad.obj: asqtad.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad.c' object='libqopqdp_common_a-asqtad.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -c -o libqopqdp_common_a-asqtad.obj `if test -f 'asqtad.c'; then $(CYGPATH_W) 'asqtad.c'; else $(CYGPATH_W) '$(srcdir)/asqtad.c'; fi`
+
+libqopqdp_common_a-wilson.o: wilson.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -MT libqopqdp_common_a-wilson.o -MD -MP -MF "$(DEPDIR)/libqopqdp_common_a-wilson.Tpo" -c -o libqopqdp_common_a-wilson.o `test -f 'wilson.c' || echo '$(srcdir)/'`wilson.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libqopqdp_common_a-wilson.Tpo" "$(DEPDIR)/libqopqdp_common_a-wilson.Po"; else rm -f "$(DEPDIR)/libqopqdp_common_a-wilson.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson.c' object='libqopqdp_common_a-wilson.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -c -o libqopqdp_common_a-wilson.o `test -f 'wilson.c' || echo '$(srcdir)/'`wilson.c
+
+libqopqdp_common_a-wilson.obj: wilson.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -MT libqopqdp_common_a-wilson.obj -MD -MP -MF "$(DEPDIR)/libqopqdp_common_a-wilson.Tpo" -c -o libqopqdp_common_a-wilson.obj `if test -f 'wilson.c'; then $(CYGPATH_W) 'wilson.c'; else $(CYGPATH_W) '$(srcdir)/wilson.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libqopqdp_common_a-wilson.Tpo" "$(DEPDIR)/libqopqdp_common_a-wilson.Po"; else rm -f "$(DEPDIR)/libqopqdp_common_a-wilson.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson.c' object='libqopqdp_common_a-wilson.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_common_a_CFLAGS) $(CFLAGS) -c -o libqopqdp_common_a-wilson.obj `if test -f 'wilson.c'; then $(CYGPATH_W) 'wilson.c'; else $(CYGPATH_W) '$(srcdir)/wilson.c'; fi`
 
 libqopqdp_d_a-asqtadp.o: asqtadp.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqopqdp_d_a_CFLAGS) $(CFLAGS) -MT libqopqdp_d_a-asqtadp.o -MD -MP -MF "$(DEPDIR)/libqopqdp_d_a-asqtadp.Tpo" -c -o libqopqdp_d_a-asqtadp.o `test -f 'asqtadp.c' || echo '$(srcdir)/'`asqtadp.c; \

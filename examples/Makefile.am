@@ -6,10 +6,10 @@ F3_LDADD = -lqopqdp_f -lqdp_f -lqdp_f3 -lqla_f -lqla_f3 -lqla_d -lqla_d3 -lqla_d
 
 check_PROGRAMS = asqtad_test_f3 wilson_test_f3
 
-asqtad_test_f3_SOURCES = asqtad_test.c
+asqtad_test_f3_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
 asqtad_test_f3_LDADD = $(F3_LDADD)
 
-wilson_test_f3_SOURCES = wilson_test.c
+wilson_test_f3_SOURCES = test_common.h test_common.c wilson_test.c
 wilson_test_f3_CFLAGS = $(F3_CFLAGS)
 wilson_test_f3_LDADD = $(F3_LDADD)

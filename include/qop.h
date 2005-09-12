@@ -1,5 +1,5 @@
-#ifndef _QOP_QDP_H
-#define _QOP_QDP_H
+#ifndef _QOPQDP_H
+#define _QOPQDP_H
 
 #include <qdp.h>
 
@@ -125,4 +125,4 @@ QOP_status_t QOP_D_wilson_invert_unload_links(void);
 }
 #endif
 
-#endif /* _QOP_QDP_H */
+#endif /* _QOPQDP_H */

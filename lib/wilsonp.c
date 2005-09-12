@@ -1,3 +1,8 @@
+/* adapted from MILC version 6 */
+
+/**********************
+** original comments **
+**********************/
 /******* d_congrad2.c - conjugate gradient for SU3/fermions ****/
 /* MIMD version 6 */
 /* Wilson fermions */
@@ -12,6 +17,9 @@
    with LU:
    M = 1 - kappa^2 * Dslash_eo * Dslash_oe
 */
+/**************************
+** end original comments **
+**************************/
 
 //#define QDP_PROFILE
 
@@ -25,10 +33,10 @@
 
 #define printf0 if(QDP_this_node==0) printf
 
-int QOP_asqtad_inited;
-int QOP_style;
-int QOP_nsvec;
-int QOP_nvec;
+extern int QOP_wilson_inited;
+extern int QOP_wilson_style;
+extern int QOP_wilson_nsvec;
+extern int QOP_wilson_nvec;
 
 static int old_style=0;
 static int old_nsvec=0;
@@ -51,7 +59,7 @@ static int old_nvec=0;
    rsqmin = desired rsq, quit when we reach rsq = rsqmin*source_norm.
 */
 
-#include <qop.h>
+#include <qop_internal.h>
 
 static QDP_ColorMatrix *gaugelink[8];
 //static QDP_HalfFermion *dtemp0, *dtemp1[8], *temp1[8], *temp2[8];
@@ -60,33 +68,6 @@ static QDP_DiracFermion *psi, *chi, *cgp, *cgr, *mp, *ttt, *tt1, *tt2, *t1, *t2,
 
 #define PRESHIFT_LINKS
 #define SHIFT_D
-
-extern double
-dclock(void);
-#if 0
-{
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return tv.tv_sec + 1e-6*tv.tv_usec;
-}
-#endif
-
-QOP_status_t
-QOP_wilson_invert_init(QOP_layout *layout) {
-  return QOP_SUCCESS;
-}
-
-QOP_status_t
-QOP_wilson_invert_finalize(void)
-{
-  return QOP_SUCCESS;
-}
-
-QOP_status_t
-QOP_wilson_set_opt(char *tag, double value) {
-  if((value==0)||(value==2)) return QOP_SUCCESS;
-  return QOP_FAIL;
-}
 
 static void
 setup_cg(void)

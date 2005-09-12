@@ -1,10 +1,10 @@
-#include <qop.h>
+#include <qop_internal.h>
 #include <string.h>
 
 int QOP_asqtad_inited = 0;
-int QOP_style = 0;
-int QOP_nsvec = 8;
-int QOP_nvec = 8;
+int QOP_asqtad_style = 0;
+int QOP_asqtad_nsvec = 8;
+int QOP_asqtad_nvec = 8;
 QDP_Shift QOP_asqtad_shifts[8], QOP_neighbor3[4];
 QDP_Shift QOP_asqtad_shifts_dbl[16];
 QDP_ShiftDir QOP_shiftfwd[8], QOP_shiftbck[8];
@@ -59,19 +59,19 @@ QOP_asqtad_set_opt(char *tag, double value)
 {
   if(!strcmp(tag,"ns")) {
     if( (value==1)||(value==2)||(value==4)||(value==8)||
-	((QOP_style==1)&&(value==16)) ) {
-      QOP_nsvec = (int) value;
+	((QOP_asqtad_style==1)&&(value==16)) ) {
+      QOP_asqtad_nsvec = (int) value;
       return QOP_SUCCESS;
     }
   } else if(!strcmp(tag,"nm")) {
     if( (value==1)||(value==2)||(value==4)||(value==8)||
-	((QOP_style==1)&&(value==16)) ) {
-      QOP_nvec = (int) value;
+	((QOP_asqtad_style==1)&&(value==16)) ) {
+      QOP_asqtad_nvec = (int) value;
       return QOP_SUCCESS;
     }
   } else if(!strcmp(tag,"st")) {
     if((value==0)||(value==1)) {
-      QOP_style = (int) value;
+      QOP_asqtad_style = (int) value;
       return QOP_SUCCESS;
     }
   }
