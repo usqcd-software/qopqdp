@@ -42,6 +42,7 @@ static int old_style=0;
 static int old_nsvec=0;
 static int old_nvec=0;
 
+#define LU
 
 #ifdef LU
 #define FORMYSITES FOREVENSITES
@@ -61,13 +62,17 @@ static int old_nvec=0;
 
 #include <qop_internal.h>
 
-static QDP_ColorMatrix *gaugelink[8];
-//static QDP_HalfFermion *dtemp0, *dtemp1[8], *temp1[8], *temp2[8];
-static QDP_DiracFermion *temp1[8], *temp2[8], *temp3[8], *temp4[8];
-static QDP_DiracFermion *psi, *chi, *cgp, *cgr, *mp, *ttt, *tt1, *tt2, *t1, *t2, *t3;
-
 #define PRESHIFT_LINKS
-#define SHIFT_D
+//#define SHIFT_D
+
+static QDP_ColorMatrix *gaugelink[8];
+static QDP_HalfFermion *htemp0, *htemp1[8];
+#ifdef SHIFT_D
+static QDP_DiracFermion *temp1[8], *temp2[8], *temp3[8], *temp4[8];
+#else
+static QDP_HalfFermion *temp1[8], *temp2[8], *temp3[8], *temp4[8];
+#endif
+static QDP_DiracFermion *psi, *chi, *cgp, *cgr, *mp, *ttt, *tt1, *tt2, *t1, *t2, *t3;
 
 static void
 setup_cg(void)
@@ -87,7 +92,7 @@ setup_cg(void)
     t1 = QDP_create_D();
     t2 = QDP_create_D();
     t3 = QDP_create_D();
-    //dtemp0 = QDP_create_H();
+    htemp0 = QDP_create_H();
     for(i=0; i<4; i++) {
 #ifndef PRESHIFT_LINKS
       //gaugelink[i] = QDP_create_M();
@@ -97,13 +102,18 @@ setup_cg(void)
 #ifdef PRESHIFT_LINKS
       if(i>=4) gaugelink[i] = QDP_create_M();
 #endif
-      //dtemp1[i] = QDP_create_H();
-      //temp1[i] = QDP_create_H();
-      //temp2[i] = QDP_create_H();
+      htemp1[i] = QDP_create_H();
+#ifdef SHIFT_D
       temp1[i] = QDP_create_D();
       temp2[i] = QDP_create_D();
       temp3[i] = QDP_create_D();
       temp4[i] = QDP_create_D();
+#else
+      temp1[i] = QDP_create_H();
+      temp2[i] = QDP_create_H();
+      temp3[i] = QDP_create_H();
+      temp4[i] = QDP_create_H();
+#endif
     }
   }
 }
@@ -143,15 +153,16 @@ PREC(wilson_invert_unload_links)(void)
   return QOP_SUCCESS;
 }
 
-#if 0
+#ifdef SHIFT_D
+void
+dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
+		   int sign, QDP_Subset subset, QDP_DiracFermion *temp[]);
+#else
 void
 dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
 		   int sign, QDP_Subset subset, QDP_HalfFermion *temp[]);
 #endif
 
-void
-dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
-		   int sign, QDP_Subset subset, QDP_DiracFermion *temp[]);
 
 int
 PREC(wilson_inv_qdp)(QOP_invert_arg *inv_arg,
@@ -346,9 +357,15 @@ PREC(wilson_inv_qdp)(QOP_invert_arg *inv_arg,
    Argument "tag" is a vector of a msg_tag *'s to use for
    the gathers.
    The calling program must clean up the gathers! */
+#ifdef SHIFT_D
 void
 dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
 		   int sign, QDP_Subset subset, QDP_DiracFermion *temp[])
+#else
+void
+dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
+		   int sign, QDP_Subset subset, QDP_HalfFermion *temp[])
+#endif
 {
   int mu;
   QDP_DiracFermion *vsrc[8];
@@ -387,8 +404,8 @@ dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   QDP_D_veq_sD(temp, vsrc, sh, sd, subset, 8);
 #else
   for(mu=0; mu<8; mu++) {
-    QDP_H_eq_spproj_D(dtemp1[mu], vsrc[mu], dir[mu], sgn[mu], othersubset);
-    QDP_H_eq_sH(temp[mu], dtemp1[mu], sh[mu], sd[mu], subset);
+    QDP_H_eq_spproj_D(htemp1[mu], vsrc[mu], dir[mu], sgn[mu], othersubset);
+    QDP_H_eq_sH(temp[mu], htemp1[mu], sh[mu], sd[mu], subset);
   }
 #endif
   //QDP_H_veq_spproj_D(dtemp1, vsrc, dir, sgn, othersubset, 8);
@@ -413,8 +430,11 @@ dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
      to dest */
 
   QDP_D_eq_zero(dest, subset);
-  //QDP_D_vpeq_sprecon_M_times_H(vdest, gaugelink, temp, dir, sgn, subset, 8);
+#ifdef SHIFT_D
   QDP_D_vpeq_wilsonspin_M_times_D(vdest, gaugelink, temp, dir, sgn, subset, 8);
+#else
+  QDP_D_vpeq_sprecon_M_times_H(vdest, gaugelink, temp, dir, sgn, subset, 8);
+#endif
 #if 0
   for(mu=0; mu<8; mu++) {
     QDP_D_peq_wilsonspin_M_times_D(dest, gaugelink[mu], temp[mu], dir[mu], sgn[mu], subset);
@@ -437,7 +457,11 @@ dslash_special_qdp(QDP_DiracFermion *dest, QDP_DiracFermion *src,
 #endif
 
   for(mu=0; mu<8; mu++) {
+#ifdef SHIFT_D
     QDP_discard_D(temp[mu]);
+#else
+    QDP_discard_H(temp[mu]);
+#endif
   }
 } /* end of dslash_special_qdp() */
 

@@ -7,7 +7,7 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
-static double kappa=0;
+static double kappa=0.12;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -157,7 +157,7 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
-    case 'm' : kappa=atof(&argv[i][1]); break;
+    case 'k' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
