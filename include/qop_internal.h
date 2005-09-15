@@ -5,6 +5,14 @@
 
 #define printf0 if(QDP_this_node==0) printf
 
+#if QOP_Precision == 2
+#define PREC(x) QOP_D_##x
+#define REAL double
+#else
+#define PREC(x) QOP_F_##x
+#define REAL float
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

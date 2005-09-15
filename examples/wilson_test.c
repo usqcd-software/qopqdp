@@ -9,12 +9,12 @@ static int seed;
 static int nit=5;
 static double kappa=0.12;
 
-static const int sta[] = {0, 1};
+static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
 static const int stn = sizeof(sta)/sizeof(int);
-static const int nsa[] = {2, 4, 8, 16};
+static const int nsa[] = {1, 2, 4, 8};
 static const int nsn = sizeof(nsa)/sizeof(int);
-static const int nma[] = {2, 4, 8, 16};
+static const int nma[] = {1, 2, 4, 8};
 //static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
 static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
@@ -49,6 +49,7 @@ start(void)
   double mf, best_mf;
   QLA_Real plaq;
   QDP_ColorMatrix **u;
+  QDP_DiracFermion *out, *in;
   int i, st, ns, nm, bs, sti, nsi, nmi, bsi,
     best_st, best_ns, best_nm, best_bs;
 
@@ -59,16 +60,8 @@ start(void)
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
 
-  QDP_ColorMatrix *fatlinks[4], *longlinks[4];
-  QDP_DiracFermion *out, *in;
   out = QDP_create_D();
   in = QDP_create_D();
-  for(i=0; i<4; i++) {
-    fatlinks[i] = QDP_create_M();
-    QDP_M_eq_M(fatlinks[i], u[i], QDP_all);
-    longlinks[i] = QDP_create_M();
-    QDP_M_eq_M(longlinks[i], u[i], QDP_all);
-  }
   QDP_D_eq_gaussian_S(in, rs, QDP_all);
 
   QOP_layout qoplayout;
@@ -186,6 +179,7 @@ main(int argc, char *argv[])
       printf(" %i", lattice_size[i]);
     }
     printf("\n");
+    printf("kappa = %g\n", kappa);
     printf("seed = %i\n", seed);
   }
 

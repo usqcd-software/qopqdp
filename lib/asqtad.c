@@ -72,6 +72,10 @@ QOP_asqtad_set_opt(char *tag, double value)
   } else if(!strcmp(tag,"st")) {
     if((value==0)||(value==1)) {
       QOP_asqtad_style = (int) value;
+      if(QOP_asqtad_style==0) {
+	if(QOP_asqtad_nsvec>8) QOP_asqtad_nsvec = 8;
+	if(QOP_asqtad_nvec>8) QOP_asqtad_nvec = 8;
+      }
       return QOP_SUCCESS;
     }
   }
