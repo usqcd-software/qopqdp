@@ -351,6 +351,7 @@ PREC(wilson_inv_qdp)(QOP_invert_arg *inv_arg,
   QDP_D_eq_D(out, psi, QDP_all);
 
   if( iteration < inv_arg->max_iter ) goto start;
+  dtime += dclock();
   inv_arg->final_rsq = (float)rsq;
   inv_arg->final_flop = 0.5*6480.0*iteration*QDP_sites_on_node;
   inv_arg->final_sec = dtime;
