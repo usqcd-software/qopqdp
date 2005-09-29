@@ -55,7 +55,7 @@ QOP_asqtad_invert_finalize(void)
 }
 
 QOP_status_t
-QOP_asqtad_set_opt(char *tag, double value)
+QOP_asqtad_invert_set_opt(char *tag, double value)
 {
   if(!strcmp(tag,"ns")) {
     if( (value==1)||(value==2)||(value==4)||(value==8)||

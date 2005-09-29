@@ -29,7 +29,7 @@ bench_inv(QOP_invert_arg *inv_arg, QDP_ColorVector *out, QDP_ColorVector *in)
   for(i=0; i<=nit; i++) {
     int invit;
     QDP_V_eq_zero(out, QDP_all);
-    invit = QOP_F_asqtad_inv_qdp(inv_arg, out, in);
+    invit = QOP_F_asqtad_invert_qdp(inv_arg, out, in);
     if(i>0) {
       iter += inv_arg->final_iter;
       sec += inv_arg->final_sec;
@@ -98,14 +98,14 @@ start(void)
   best_bs = bsa[0];
   for(sti=0; sti<stn; sti++) {
     st = sta[sti];
-    if(QOP_asqtad_set_opt("st", st)==QOP_FAIL) continue;
+    if(QOP_asqtad_invert_set_opt("st", st)==QOP_FAIL) continue;
     for(nsi=0; nsi<nsn; nsi++) {
       ns = nsa[nsi];
-      if(QOP_asqtad_set_opt("ns", ns)==QOP_FAIL) continue;
+      if(QOP_asqtad_invert_set_opt("ns", ns)==QOP_FAIL) continue;
       for(nmi=0; nmi<nmn; nmi++) {
 	nm = nma[nmi];
 	if(nm==0) nm = ns;
-	if(QOP_asqtad_set_opt("nm", nm)==QOP_FAIL) continue;
+	if(QOP_asqtad_invert_set_opt("nm", nm)==QOP_FAIL) continue;
 	for(bsi=0; bsi<bsn; bsi++) {
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);

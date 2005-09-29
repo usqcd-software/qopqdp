@@ -205,8 +205,8 @@ static void wilson_mdslash2(QDP_DiracFermion *out, QDP_DiracFermion *in,
 			    QLA_Real mkappa);
 
 int
-PREC(wilson_inv_qdp)(QOP_invert_arg *inv_arg,
-		     QDP_DiracFermion *out, QDP_DiracFermion *in)
+PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg,
+			QDP_DiracFermion *out, QDP_DiracFermion *in)
 {
   double source_norm;
   double rsqstop;
@@ -448,13 +448,11 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
       QDP_D_vpeq_wilsonspin_M_times_D(vdest+mu, fwdlinks+mu, dtemp[ntmp]+mu,
 				      dir+mu, sgn+mu, subset, QOP_wilson_nvec);
-      QDP_discard_D(dtemp[ntmp][mu]);
     }
   } else {
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
       QDP_D_vpeq_sprecon_M_times_H(vdest+mu, fwdlinks+mu, htemp[ntmp]+mu,
 				   dir+mu, sgn+mu, subset, QOP_wilson_nvec);
-      QDP_discard_H(htemp[ntmp][mu]);
     }
   }
 
@@ -464,16 +462,23 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   if(shiftd_style(QOP_wilson_style)) {
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
       QDP_D_vpeq_D(vdest+mu, dtemp[ntmp]+4+mu, subset, QOP_wilson_nvec);
-      QDP_discard_D(dtemp[ntmp][4+mu]);
     }
   } else {
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
       QDP_D_vpeq_sprecon_H(vdest+mu, htemp[ntmp]+4+mu, dir+mu, msgn+mu, subset,
 			   QOP_wilson_nvec);
-      QDP_discard_H(htemp[ntmp][4+mu]);
     }
   }
 
+  if(shiftd_style(QOP_wilson_style)) {
+    for(mu=0; mu<8; mu++) {
+      QDP_discard_D(dtemp[ntmp][mu]);
+    }
+  } else {
+    for(mu=0; mu<8; mu++) {
+      QDP_discard_H(htemp[ntmp][mu]);
+    }
+  }
 } /* end of dslash_special_qdp() */
 
 /* Special dslash for use by congrad.  Uses restart_gather() when
@@ -493,7 +498,7 @@ wilson_dslash1(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   QDP_Shift sh[8];
   QDP_ShiftDir sd[8];
   int dir[8], sgn[8];
-  QDP_Subset othersubset;
+  QDP_Subset othersubset=QDP_all;
 
   if(!shiftd_style(QOP_wilson_style)) {
     if(subset==QDP_even) othersubset = QDP_odd;

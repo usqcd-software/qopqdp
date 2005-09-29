@@ -1,7 +1,5 @@
-#ifndef _QOPQDP_H
-#define _QOPQDP_H
-
-#include <qdp.h>
+#ifndef _QOP_H
+#define _QOP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,30 +39,23 @@ typedef struct QOP_invert_arg_i {
   QOP_evenodd_t evenodd;
 } QOP_invert_arg;
 
+
   /*  Asqtad routines  */
 
 QOP_status_t QOP_asqtad_invert_init(QOP_layout *layout);
 QOP_status_t QOP_asqtad_invert_finalize(void);
-QOP_status_t QOP_asqtad_set_opt(char *tag, double value);
+QOP_status_t QOP_asqtad_invert_set_opt(char *tag, double value);
 
 QOP_status_t QOP_F_asqtad_invert_load_links_raw(float *fatlinks[],
                                                 float *longlinks[]);
-QOP_status_t QOP_F_asqtad_invert_load_links_qdp(QDP_F3_ColorMatrix *fatlnk[],
-                                                QDP_F3_ColorMatrix *longlnk[]);
-int QOP_F_asqtad_inv_raw(QOP_invert_arg *inv_arg,
-                         float *out_pt, float *in_pt);
-int QOP_F_asqtad_inv_qdp(QOP_invert_arg *inv_arg,
-                         QDP_F3_ColorVector *out, QDP_F3_ColorVector *in);
+int QOP_F_asqtad_invert_raw(QOP_invert_arg *inv_arg,
+			    float *out_pt, float *in_pt);
 QOP_status_t QOP_F_asqtad_invert_unload_links(void);
 
 QOP_status_t QOP_D_asqtad_invert_load_links_raw(double *fatlinks[],
                                                 double *longlinks[]);
-QOP_status_t QOP_D_asqtad_invert_load_links_qdp(QDP_D3_ColorMatrix *fatlnk[],
-                                                QDP_D3_ColorMatrix *longlnk[]);
-int QOP_D_asqtad_inv_raw(QOP_invert_arg *inv_arg,
-                         double *out_pt, double *in_pt);
-int QOP_D_asqtad_inv_qdp(QOP_invert_arg *inv_arg,
-                         QDP_D3_ColorVector *out, QDP_D3_ColorVector *in);
+int QOP_D_asqtad_invert_raw(QOP_invert_arg *inv_arg,
+			    double *out_pt, double *in_pt);
 QOP_status_t QOP_D_asqtad_invert_unload_links(void);
 
 
@@ -72,50 +63,43 @@ QOP_status_t QOP_D_asqtad_invert_unload_links(void);
 
 QOP_status_t QOP_wilson_invert_init(QOP_layout *layout);
 QOP_status_t QOP_wilson_invert_finalize(void);
-QOP_status_t QOP_wilson_set_opt(char *tag, double value);
+QOP_status_t QOP_wilson_invert_set_opt(char *tag, double value);
 
 QOP_status_t QOP_F_wilson_invert_load_links_raw(float *links[]);
-QOP_status_t QOP_F_wilson_invert_load_links_qdp(QDP_F3_ColorMatrix *links[]);
-int QOP_F_wilson_inv_raw(QOP_invert_arg *inv_arg, float *out_pt, float *in_pt);
-int QOP_F_wilson_inv_qdp(QOP_invert_arg *inv_arg,
-                         QDP_F3_DiracFermion *out, QDP_F3_DiracFermion *in);
+int QOP_F_wilson_invert_raw(QOP_invert_arg *inv_arg,
+			    float *out_pt, float *in_pt);
 QOP_status_t QOP_F_wilson_invert_unload_links(void);
 
 QOP_status_t QOP_D_wilson_invert_load_links_raw(double *links[]);
-QOP_status_t QOP_D_wilson_invert_load_links_qdp(QDP_D3_ColorMatrix *links[]);
-int QOP_D_wilson_inv_raw(QOP_invert_arg *inv_arg,
-			 double *out_pt, double *in_pt);
-int QOP_D_wilson_inv_qdp(QOP_invert_arg *inv_arg,
-                         QDP_D3_DiracFermion *out, QDP_D3_DiracFermion *in);
+int QOP_D_wilson_invert_raw(QOP_invert_arg *inv_arg,
+			    double *out_pt, double *in_pt);
 QOP_status_t QOP_D_wilson_invert_unload_links(void);
 
+
+  /* Mapping of generic names to specific precision */
+
+#ifndef QOP_Precision
+#define QOP_Precision 1
+#endif
 
 #if QOP_Precision == 1
 
 #define QOP_asqtad_invert_load_links_raw QOP_F_asqtad_invert_load_links_raw
-#define QOP_asqtad_invert_load_links_qdp QOP_F_asqtad_invert_load_links_qdp
-#define QOP_asqtad_inv_raw QOP_F_asqtad_inv_raw
-#define QOP_asqtad_inv_qdp QOP_F_asqtad_inv_qdp
+#define QOP_asqtad_invert_raw QOP_F_asqtad_invert_raw
 #define QOP_asqtad_invert_unload_links QOP_F_asqtad_invert_unload_links
 
 #define QOP_wilson_invert_load_links_raw QOP_F_wilson_invert_load_links_raw
-#define QOP_wilson_invert_load_links_qdp QOP_F_wilson_invert_load_links_qdp
-#define QOP_wilson_inv_raw QOP_F_wilson_inv_raw
-#define QOP_wilson_inv_qdp QOP_F_wilson_inv_qdp
+#define QOP_wilson_invert_raw QOP_F_wilson_invert_raw
 #define QOP_wilson_invert_unload_links QOP_F_wilson_invert_unload_links
 
 #else
 
 #define QOP_asqtad_invert_load_links_raw QOP_D_asqtad_invert_load_links_raw
-#define QOP_asqtad_invert_load_links_qdp QOP_D_asqtad_invert_load_links_qdp
-#define QOP_asqtad_inv_raw QOP_D_asqtad_inv_raw
-#define QOP_asqtad_inv_qdp QOP_D_asqtad_inv_qdp
+#define QOP_asqtad_invert_raw QOP_D_asqtad_invert_raw
 #define QOP_asqtad_invert_unload_links QOP_D_asqtad_invert_unload_links
 
 #define QOP_wilson_invert_load_links_raw QOP_D_wilson_invert_load_links_raw
-#define QOP_wilson_invert_load_links_qdp QOP_D_wilson_invert_load_links_qdp
-#define QOP_wilson_inv_raw QOP_D_wilson_inv_raw
-#define QOP_wilson_inv_qdp QOP_D_wilson_inv_qdp
+#define QOP_wilson_invert_raw QOP_D_wilson_invert_raw
 #define QOP_wilson_invert_unload_links QOP_D_wilson_invert_unload_links
 
 #endif
@@ -125,4 +109,4 @@ QOP_status_t QOP_D_wilson_invert_unload_links(void);
 }
 #endif
 
-#endif /* _QOPQDP_H */
+#endif /* _QOP_H */

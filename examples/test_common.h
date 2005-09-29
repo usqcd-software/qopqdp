@@ -1,8 +1,7 @@
 #ifndef _TEST_COMMON_H
 #define _TEST_COMMON_H
 
-#include <qdp.h>
-#include <qop.h>
+#include <qop_qdp.h>
 
 #define printf0 if(QDP_this_node==0) printf
 

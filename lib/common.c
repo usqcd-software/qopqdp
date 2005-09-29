@@ -1,4 +1,5 @@
 #include <qop_internal.h>
+#include <stdlib.h>
 #include <sys/time.h>
 
 double

@@ -184,7 +184,7 @@ PREC(asqtad_invert_load_links_qdp)(QDP_ColorMatrix *fatlnk[],
 }
 
 int
-PREC(asqtad_inv_raw)(QOP_invert_arg *inv_arg, REAL *out_pt, REAL *in_pt)
+PREC(asqtad_invert_raw)(QOP_invert_arg *inv_arg, REAL *out_pt, REAL *in_pt)
 {
   QDP_ColorVector *in, *out;
   int nit;
@@ -193,15 +193,15 @@ PREC(asqtad_inv_raw)(QOP_invert_arg *inv_arg, REAL *out_pt, REAL *in_pt)
   out = QDP_create_V();
   set_V_from_real(in, in_pt);
   set_V_from_real(out, out_pt);
-  nit = PREC(asqtad_inv_qdp)(inv_arg, out, in);
+  nit = PREC(asqtad_invert_qdp)(inv_arg, out, in);
   set_real_from_V(out_pt, out);
 
   return nit;
 }
 
 int
-PREC(asqtad_inv_qdp)(QOP_invert_arg *inv_arg,
-		     QDP_ColorVector *out, QDP_ColorVector *in)
+PREC(asqtad_invert_qdp)(QOP_invert_arg *inv_arg,
+			QDP_ColorVector *out, QDP_ColorVector *in)
 {
   QLA_Real a, b;
   QLA_Real rsq, oldrsq, pkp;

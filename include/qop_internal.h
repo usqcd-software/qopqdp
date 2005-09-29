@@ -1,7 +1,7 @@
 #ifndef _QOPQDP_INTERNAL_H
 #define _QOPQDP_INTERNAL_H
 
-#include <qop.h>
+#include <qop_qdp.h>
 
 #define printf0 if(QDP_this_node==0) printf
 
