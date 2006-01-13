@@ -150,7 +150,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 include_HEADERS = qop.h qop_qdp.h
-EXTRA_DIST = qop_internal.h
+EXTRA_DIST = qop_internal.h qop_internal_p.h
 all: qop_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

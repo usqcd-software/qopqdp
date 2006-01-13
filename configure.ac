@@ -1,9 +1,9 @@
-AC_INIT(qopqdp, 0.4.0, josborn@physics.bu.edu)
+AC_INIT(qopqdp, 0.5.0, josborn@physics.bu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_SRCDIR(include/qop.h)
-AC_CONFIG_SRCDIR(lib/asqtad.c)
+AC_CONFIG_SRCDIR(lib/common.c)
 AM_CONFIG_HEADER(include/qop_config.h)
 
 AC_ARG_WITH(
@@ -41,12 +41,12 @@ AC_SUBST(QMPDIR)
 AC_SUBST(QDP_CFLAGS, "-I${QDPDIR}/include")
 AC_SUBST(QDP_LDFLAGS, "-L${QDPDIR}/lib")
 #AC_SUBST(QDP_LIBS, "-lqdp_fn -lqdp_f -lqdp_int -lqdp_common")
-AC_SUBST(QDP_LIBS, "-lqdp_f3 -lqdp_f -lqdp_int -lqdp_common")
+AC_SUBST(QDP_LIBS, "-lqdp_f3 -lqdp_f -lqdp_d3 -lqdp_d -lqdp_int -lqdp_common")
 
 AC_SUBST(QLA_CFLAGS, "-I${QLADIR}/include")
 AC_SUBST(QLA_LDFLAGS, "-L${QLADIR}/lib")
 #AC_SUBST(QLA_LIBS, "-lqla_dfn -lqla_df -lqla_dn -lqla_d -lqla_fn -lqla_f -lqla_int -lqla_random -lqla_cmath -lm")
-AC_SUBST(QLA_LIBS, "-lqla_df3 -lqla_df -lqla_d3 -lqla_d -lqla_f3 -lqla_f -lqla_int -lqla_random -lqla_cmath -lm")
+AC_SUBST(QLA_LIBS, "-lqla_df3 -lqla_df -lqla_f3 -lqla_f -lqla_d3 -lqla_d -lqla_int -lqla_random -lqla_cmath -lm")
 
 AC_SUBST(QIO_CFLAGS, "-I${QIODIR}/include")
 AC_SUBST(QIO_LDFLAGS, "-L${QIODIR}/lib")

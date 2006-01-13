@@ -1,30 +1,40 @@
 AM_CFLAGS = -I@top_srcdir@/include
 
-lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
+lib_LIBRARIES = libqopqdp.a
 
-LIBCOMMONSOURCE = \
-  ../include/qop.h \
-  ../include/qop_qdp.h \
-  ../include/qop_internal.h \
-  common.c \
-  asqtad.c \
-  wilson.c
+libqopqdp_a_SOURCES = \
+  common.c common_f.c common_d.c \
+  asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
+  asqtad_force_f.c asqtad_force_d.c
 
-LIBPSOURCE = \
-  ../include/qop.h \
-  ../include/qop_qdp.h \
-  ../include/qop_internal.h \
-  asqtadp.c \
-  wilsonp.c
+common_f.o: common_p.c
+asqtad_force_f.o: asqtad_force_p.c
 
-libqopqdp_common_a_SOURCES = $(LIBCOMMONSOURCE)
-libqopqdp_common_a_CFLAGS = $(AM_CFLAGS)
+#lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
 
-libqopqdp_f_a_SOURCES = $(LIBPSOURCE)
-libqopqdp_f_a_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=1 -DQDP_Precision=1
+#LIBCOMMONSOURCE = \
+#  ../include/qop.h \
+#  ../include/qop_qdp.h \
+#  ../include/qop_internal.h \
+#  common.c \
+#  asqtad.c \
+#  wilson.c
 
-libqopqdp_d_a_SOURCES = $(LIBPSOURCE)
-libqopqdp_d_a_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=2 -DQDP_Precision=2
+#LIBPSOURCE = \
+#  ../include/qop.h \
+#  ../include/qop_qdp.h \
+#  ../include/qop_internal.h \
+#  asqtadp.c \
+#  wilsonp.c
+
+#libqopqdp_common_a_SOURCES = $(LIBCOMMONSOURCE)
+#libqopqdp_common_a_CFLAGS = $(AM_CFLAGS)
+
+#libqopqdp_f_a_SOURCES = $(LIBPSOURCE)
+#libqopqdp_f_a_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=1 -DQDP_Precision=1
+
+#libqopqdp_d_a_SOURCES = $(LIBPSOURCE)
+#libqopqdp_d_a_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=2 -DQDP_Precision=2
 
 
 

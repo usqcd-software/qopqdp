@@ -7,7 +7,8 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
-static double kappa=0.12;
+static QLA_Real kappa=0.12;
+static double rsqmin=1e-4;
 
 static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
@@ -23,13 +24,13 @@ static const int bsn = sizeof(bsa)/sizeof(int);
 double
 bench_inv(QOP_invert_arg *inv_arg, QDP_DiracFermion *out, QDP_DiracFermion *in)
 {
+  static QLA_Real r2s=-1, r2;
   double sec=0, flop=0, mf=0;
   int i, iter=0;
 
   for(i=0; i<=nit; i++) {
-    int invit;
     QDP_D_eq_zero(out, QDP_all);
-    invit = QOP_F_wilson_invert_qdp(inv_arg, out, in);
+    QOP_wilson_invert_qdp(inv_arg, kappa, out, in);
     if(i>0) {
       iter += inv_arg->final_iter;
       sec += inv_arg->final_sec;
@@ -40,6 +41,11 @@ bench_inv(QOP_invert_arg *inv_arg, QDP_DiracFermion *out, QDP_DiracFermion *in)
   inv_arg->final_iter = iter/nit;
   inv_arg->final_sec = sec/nit;
   inv_arg->final_flop = flop/nit;
+  QDP_r_eq_norm2_D(&r2, out, QDP_even);
+  if(r2s<0) r2s = r2;
+  if(fabs(1-r2/r2s)>1e-3) {
+    printf0("first norm = %g  this norn = %g\n", r2s, r2);
+  }
   return mf/nit;
 }
 
@@ -72,8 +78,7 @@ start(void)
   }
 
   QOP_invert_arg inv_arg;
-  inv_arg.mass = kappa;
-  inv_arg.rsqmin = 1e-4;
+  inv_arg.rsqmin = rsqmin;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.evenodd = QOP_EVEN;
@@ -117,12 +122,22 @@ start(void)
     }
   }
 
-  printf0("best:\n");
-  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i mflops = %g\n", best_st, best_ns,
-	  best_nm, best_bs, best_mf);
+  QOP_wilson_invert_set_opt("st", best_st);
+  QOP_wilson_invert_set_opt("ns", best_ns);
+  QOP_wilson_invert_set_opt("nm", best_nm);
+  QDP_set_block_size(best_bs);
+  QDP_profcontrol(1);
+  mf = bench_inv(&inv_arg, out, in);
+  QDP_profcontrol(0);
+  printf0("prof: CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n",
+          best_st, best_ns, best_nm, best_bs,
+          inv_arg.final_iter, inv_arg.final_sec, mf);
+
+  printf0("best: CONGRAD: st%2i ns%2i nm%2i bs%5i mflops = %g\n",
+          best_st, best_ns, best_nm, best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
-  QOP_F_wilson_invert_unload_links();
+  QOP_wilson_invert_unload_links();
   if(QDP_this_node==0) { printf("begin finalize\n"); fflush(stdout); }
   QOP_wilson_invert_finalize();
 }
@@ -145,6 +160,7 @@ main(int argc, char *argv[])
   int i, j;
 
   QDP_initialize(&argc, &argv);
+  QDP_profcontrol(0);
 
   seed = time(NULL);
   j = 0;
