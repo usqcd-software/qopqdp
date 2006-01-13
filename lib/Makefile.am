@@ -8,7 +8,13 @@ libqopqdp_a_SOURCES = \
   asqtad_force_f.c asqtad_force_d.c
 
 common_f.o: common_p.c
+common_d.o: common_p.c
+asqtad_invert_f.o: asqtad_invert_p.c
+asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c
+asqtad_force_d.o: asqtad_force_p.c
+
+EXTRA_DIST = common_p.c asqtad_invert_p.c asqtad_force_p.c
 
 #lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
 
