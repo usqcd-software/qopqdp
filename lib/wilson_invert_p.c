@@ -21,6 +21,9 @@
 ** end original comments **
 **************************/
 
+//#define printf0 QOP_printf0
+#define printf0(...)
+
 #define LU
 
 #ifdef LU
@@ -48,20 +51,17 @@ extern int QOP_wilson_style;
 extern int QOP_wilson_nsvec;
 extern int QOP_wilson_nvec;
 
-static int old_style=0;
-static int old_nsvec=0;
-static int old_nvec=0;
+static int old_style=-1;
+static int old_nsvec=-1;
+static int old_nvec=-1;
 
 static int congrad_setup = 0;
-static int dblstored = 0;
-static QDP_ColorMatrix *fwdlinks[4];
-static QDP_ColorMatrix *bcklinks[4], *dbllinks[8];
 static QDP_HalfFermion *htemp[4][20];
 static QDP_DiracFermion *dtemp[4][12];
 static QDP_DiracFermion *psi, *chi, *cgp, *cgr, *mp, *ttt, *tt1, *tt2, *t1, *t2, *t3;
 
 static void
-free_temps(void)
+free_temps(QOP_FermionLinksWilson *flw)
 {
   if(congrad_setup) {
     int i, j;
@@ -96,22 +96,22 @@ free_temps(void)
 }
 
 static void
-double_store(void)
+double_store(QOP_FermionLinksWilson *flw)
 {
-  if( dblstore_style(QOP_wilson_style) && (!dblstored) ) {
+  if( dblstore_style(QOP_wilson_style) && (!flw->dblstored) ) {
     int i;
     QDP_ColorMatrix *m = QDP_create_M();
     for(i=0; i<4; i++) {
-      QDP_M_eq_sM(m, fwdlinks[i], QDP_neighbor[i], QDP_backward, QDP_all);
-      QDP_M_eq_Ma(bcklinks[i], m, QDP_all);
+      QDP_M_eq_sM(m, flw->links[i], QDP_neighbor[i], QDP_backward, QDP_all);
+      QDP_M_eq_Ma(flw->bcklinks[i], m, QDP_all);
     }
     QDP_destroy_M(m);
-    dblstored = 1;
+    flw->dblstored = 1;
   }
 }
 
 static void
-reset_temps(void)
+reset_temps(QOP_FermionLinksWilson *flw)
 {
   int i, j;
 
@@ -119,23 +119,23 @@ reset_temps(void)
     if(!dblstore_style(QOP_wilson_style)) {
       if(congrad_setup) {
         for(i=0; i<4; i++) {
-          QDP_destroy_M(bcklinks[i]);
+          QDP_destroy_M(flw->bcklinks[i]);
         }
       }
     } else {
       for(i=0; i<4; i++) {
-        bcklinks[i] = QDP_create_M();
+        flw->bcklinks[i] = QDP_create_M();
       }
       for(i=0; i<4; i++) {
-        dbllinks[2*i] = fwdlinks[i];
-        dbllinks[2*i+1] = bcklinks[i];
+        flw->dbllinks[2*i] = flw->links[i];
+        flw->dbllinks[2*i+1] = flw->bcklinks[i];
       }
     }
-    dblstored = 0;
+    flw->dblstored = 0;
   }
-  double_store();
+  double_store(flw);
 
-  free_temps();
+  free_temps(flw);
 
   psi = QDP_create_D();
   chi = QDP_create_D();
@@ -165,48 +165,152 @@ reset_temps(void)
   congrad_setup = 1;
 }
 
-QOP_status_t
-PREC(wilson_invert_load_links_qdp)(QDP_ColorMatrix *lnk[])
+QOP_FermionLinksWilson *
+QOP_wilson_create_L_from_raw(REAL *links[], QOP_evenodd_t evenodd)
 {
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+QOP_FermionLinksWilson *
+QOP_wilson_create_L_from_G(QOP_GaugeField *gauge)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+void
+QOP_wilson_extract_L_to_raw(REAL *links[], QOP_FermionLinksWilson *src,
+			       QOP_evenodd_t evenodd)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+}
+
+void
+QOP_wilson_destroy_L(QOP_FermionLinksWilson *field)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+}
+
+QOP_FermionLinksWilson *
+QOP_wilson_convert_L_from_raw(REAL *links[], QOP_evenodd_t evenodd)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+REAL **
+QOP_wilson_convert_L_to_raw(QOP_FermionLinksWilson *src,
+			    QOP_evenodd_t evenodd)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+QOP_FermionLinksWilson *
+QOP_wilson_convert_L_from_G(QOP_GaugeField *gauge)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+QOP_GaugeField *
+QOP_wilson_convert_L_to_G(QOP_FermionLinksWilson *links)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+QOP_FermionLinksWilson *
+QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[])
+{
+  QOP_FermionLinksWilson *flw;
   int i;
 
-  dblstored = 0;
+  QOP_malloc(flw, QOPPC(FermionLinksWilson), 1);
+  QOP_malloc(flw->links, QDPPC(ColorMatrix) *, 4);
+  QOP_malloc(flw->bcklinks, QDPPC(ColorMatrix) *, 4);
+  QOP_malloc(flw->dbllinks, QDPPC(ColorMatrix) *, 8);
+
+  flw->dblstored = 0;
   for(i=0; i<4; i++) {
-    fwdlinks[i] = lnk[i];
+    flw->links[i] = QDP_create_M();
+    QDP_M_eq_M(flw->links[i], links[i], QDP_all);
   }
 
-  if(!congrad_setup) {
-    reset_temps();
-  }
-
-  if( (QOP_wilson_style != old_style) ||
+  if( (!congrad_setup) ||
+      (QOP_wilson_style != old_style) ||
       (QOP_wilson_nsvec != old_nsvec) ||
       (QOP_wilson_nvec != old_nvec) ) {
-    reset_temps();
+    reset_temps(flw);
     old_style = QOP_wilson_style;
     old_nsvec = QOP_wilson_nsvec;
     old_nvec = QOP_wilson_nvec;
   }
 
-  double_store();
+  double_store(flw);
 
-  return QOP_SUCCESS;
+  return flw;
 }
 
-QOP_status_t
-PREC(wilson_invert_unload_links)(void)
+void
+QOP_wilson_extract_L_to_qdp(QDP_ColorMatrix *links[],
+			    QOP_FermionLinksWilson *src)
 {
-  dblstored = 0;
-  return QOP_SUCCESS;
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
 }
 
-static void wilson_mdslash2(QDP_DiracFermion *out, QDP_DiracFermion *in,
+QOP_FermionLinksWilson *
+QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[])
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+QDP_ColorMatrix **
+QOP_wilson_convert_L_to_qdp(QOP_FermionLinksWilson *src)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return NULL;
+}
+
+static void wilson_mdslash2(QOP_FermionLinksWilson *flw,
+			    QDP_DiracFermion *out, QDP_DiracFermion *in,
 			    QDP_Subset subset, QDP_Subset othersubset,
 			    QLA_Real mkappa);
 
 QOP_status_t
-PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
-			QDP_DiracFermion *out, QDP_DiracFermion *in)
+QOP_wilson_invert_multi(QOP_FermionLinksWilson *links,
+			QOP_invert_arg_t *inv_arg,
+			QOP_resid_arg_t **res_arg[],
+			REAL *kappas[], int nkappa[],
+			QOP_DiracFermion **out_pt[],
+			QOP_DiracFermion *in_pt[],
+			int nsrc)
+{
+  fprintf(stderr, "unimpleented\n");
+  QDP_abort();
+  return QOP_SUCCESS;
+}
+
+QOP_status_t
+QOPPC(wilson_invert)(QOP_FermionLinksWilson *flw,
+		     QOP_invert_arg_t *inv_arg,
+		     QOP_resid_arg_t *res_arg,
+		     REAL kappa,
+		     QOP_DiracFermion *out_pt,
+		     QOP_DiracFermion *in_pt)
 {
   double source_norm;
   double rsqstop;
@@ -218,6 +322,9 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
   double dtime;
   double nflop = 0.5 * 6096;
   int iteration;	/* counter for iterations */
+  QDP_DiracFermion *in, *out;
+  in = in_pt->df;
+  out = out_pt->df;
 #ifdef LU
   mkappa = -kappa*kappa;
 #else
@@ -227,7 +334,7 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
   if( (QOP_wilson_style != old_style) ||
       (QOP_wilson_nsvec != old_nsvec) ||
       (QOP_wilson_nvec != old_nvec) ) {
-    reset_temps();
+    reset_temps(flw);
     old_style = QOP_wilson_style;
     old_nsvec = QOP_wilson_nsvec;
     old_nvec = QOP_wilson_nvec;
@@ -238,7 +345,7 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
   QDP_D_eq_D(psi, out, QDP_all);
   //printf0("here2\n");
 
-  dtime = -dclock();
+  dtime = -QOP_time();
 
   iteration=0;
  start:
@@ -253,7 +360,9 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
 
 #ifdef LU
 
-  wilson_mdslash2(mp, cgp, QDP_even, QDP_odd, mkappa);
+  printf0("test0\n");
+  wilson_mdslash2(flw, mp, cgp, QDP_even, QDP_odd, mkappa);
+  printf0("test1\n");
 
   QDP_D_eq_D_minus_D(cgr, chi, mp, QDP_even);
   QDP_D_eq_D(cgp, cgr, QDP_even);
@@ -266,7 +375,7 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
 
 #else
 
-  wilson_mdslash2(mp, cgp, QDP_all, QDP_all, mkappa);
+  wilson_mdslash2(flw, mp, cgp, QDP_all, QDP_all, mkappa);
 
   //printf0("here8\n");
   QDP_D_eq_D_minus_D(cgr, chi, mp, QDP_all);
@@ -286,9 +395,9 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
   /**if(this_node==0)printf("congrad2: source_norm = %e\n",source_norm);
      if(this_node==0)printf("congrad2: iter %d, rsq %e, pkp %e, a %e\n",
      iteration,(double)rsq,(double)pkp,(double)a );**/
-  rsqstop = inv_arg->rsqmin * source_norm;
+  rsqstop = res_arg->rsqmin * source_norm;
   if( rsq <= rsqstop ){
-    inv_arg->final_rsq = (float)rsq;
+    res_arg->final_rsq = (float)rsq;
     return (iteration);
   }
 
@@ -308,12 +417,12 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
     //if(iteration%10==0) printf0("%i %g\n", iteration, rsq);
     oldrsq = rsq;
 #ifdef LU
-    wilson_mdslash2(mp, cgp, QDP_even, QDP_odd, mkappa);
+    wilson_mdslash2(flw, mp, cgp, QDP_even, QDP_odd, mkappa);
 
     QDP_r_eq_re_D_dot_D(&sum, cgp, mp, QDP_even);
     pkp = sum;
 #else
-    wilson_mdslash2(mp, cgp, QDP_all, QDP_all, mkappa);
+    wilson_mdslash2(flw, mp, cgp, QDP_all, QDP_all, mkappa);
 
     QDP_r_eq_re_D_dot_D(&sum, cgp, mp, QDP_all);
     pkp = sum;
@@ -329,8 +438,8 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
     /**if(this_node==0)printf("congrad2: iter %d, rsq %e, pkp %e, a %e\n",
        iteration,(double)rsq,(double)pkp,(double)a );**/
     if( rsq <= rsqstop ){
-      inv_arg->final_rsq = (float)rsq;
-      dtime += dclock();
+      res_arg->final_rsq = (float)rsq;
+      dtime += QOP_time();
 #if 0
       printf0("CONGRAD2: time = %.2e size_r= %.2e iters= %d MF = %.1f\n",
 	      dtime, rsq, iteration,
@@ -340,7 +449,7 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
       QDP_D_eq_D(out, psi, QDP_all);
       inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
       inv_arg->final_sec = dtime;
-      inv_arg->final_iter = iteration;
+      res_arg->final_iter = iteration;
       return (iteration);
     }
 
@@ -352,11 +461,11 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
   QDP_D_eq_D(out, psi, QDP_all);
 
   if( iteration < inv_arg->max_iter ) goto start;
-  dtime += dclock();
-  inv_arg->final_rsq = (float)rsq;
+  dtime += QOP_time();
+  res_arg->final_rsq = (float)rsq;
   inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
   inv_arg->final_sec = dtime;
-  inv_arg->final_iter = iteration;
+  res_arg->final_iter = iteration;
 
   return QOP_SUCCESS;
 }
@@ -371,7 +480,8 @@ PREC(wilson_invert_qdp)(QOP_invert_arg *inv_arg, QLA_Real kappa,
    the gathers.
    The calling program must clean up the gathers! */
 static void
-wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
+wilson_dslash0(QOP_FermionLinksWilson *flw,
+	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
 	       int sign, QDP_Subset subset, int ntmp)
 {
   int mu;
@@ -398,32 +508,37 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   /* Take Wilson projection for src displaced in up direction, gather
      it to "our site" */
 
-  //printf0("dslash0\n");
+  printf0("dslash0\n");
   if(shiftd_style(QOP_wilson_style)) {
     for(mu=0; mu<4; mu+=QOP_wilson_nsvec) {
-  //printf0("QDP_D_veq_sD\n");
+  printf0("QDP_D_veq_sD\n");
       QDP_D_veq_sD(dtemp[ntmp]+mu, vsrc+mu, QDP_neighbor+mu, fwd+mu, subset,
 		   QOP_wilson_nsvec);
-  //printf0("end QDP_D_veq_sD\n");
+  printf0("end QDP_D_veq_sD\n");
     }
   } else {
     for(mu=0; mu<4; mu+=QOP_wilson_nsvec) {
+      printf0("QDP_H_veq_spproj_D\n");
       QDP_H_veq_spproj_D(htemp[ntmp]+8+mu, vsrc+mu, dir+mu, sgn+mu,
 			 othersubset, QOP_wilson_nsvec);
+      printf0("QDP_H_veq_sH\n");
       QDP_H_veq_sH(htemp[ntmp]+mu, htemp[ntmp]+8+mu, QDP_neighbor+mu, fwd+mu,
 		   subset, QOP_wilson_nsvec);
+      printf0("end QDP_H_veq_sH\n");
     }
   }
 
   /* Take Wilson projection for src displaced in down direction,
      multiply it by adjoint link matrix, gather it "up" */
 
+  printf0("dslash0 - back\n");
   if(shiftd_style(QOP_wilson_style)) {
- QDP_HalfFermion *hf[4];
- for(mu=0; mu<4; mu++) hf[mu] = QDP_create_H();
+    //QDP_HalfFermion *hf[4];
+    //for(mu=0; mu<4; mu++) hf[mu] = QDP_create_H();
     for(mu=0; mu<4; mu+=QOP_wilson_nsvec) {
-      QDP_D_veq_spproj_Ma_times_D(dtemp[ntmp]+8+mu, fwdlinks+mu, vsrc+mu,
-                               dir+mu, msgn+mu, othersubset, QOP_wilson_nsvec);
+      QDP_D_veq_spproj_Ma_times_D(dtemp[ntmp]+8+mu, flw->links+mu, vsrc+mu,
+				  dir+mu, msgn+mu, othersubset,
+				  QOP_wilson_nsvec);
 #if 0
       QDP_H_veq_spproj_Ma_times_D(hf+mu, fwdlinks+mu, vsrc+mu,
                                dir+mu, msgn+mu, othersubset, QOP_wilson_nsvec);
@@ -433,13 +548,17 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
       QDP_D_veq_sD(dtemp[ntmp]+4+mu, dtemp[ntmp]+8+mu, QDP_neighbor+mu,
 		   bck+mu, subset, QOP_wilson_nsvec);
     }
- for(mu=0; mu<4; mu++) QDP_destroy_H(hf[mu]);
+    //for(mu=0; mu<4; mu++) QDP_destroy_H(hf[mu]);
   } else {
     for(mu=0; mu<4; mu+=QOP_wilson_nsvec) {
-      QDP_H_veq_spproj_Ma_times_D(htemp[ntmp]+12+mu, fwdlinks+mu, vsrc+mu,
-                               dir+mu, msgn+mu, othersubset, QOP_wilson_nsvec);
+      printf0("QDP_H_veq_spproj_Ma_times_D\n");
+      QDP_H_veq_spproj_Ma_times_D(htemp[ntmp]+12+mu, flw->links+mu, vsrc+mu,
+				  dir+mu, msgn+mu, othersubset,
+				  QOP_wilson_nsvec);
+      printf0("QDP_H_veq_sH\n");
       QDP_H_veq_sH(htemp[ntmp]+4+mu, htemp[ntmp]+12+mu, QDP_neighbor+mu,
 		   bck+mu, subset, QOP_wilson_nsvec);
+      printf0("end QDP_H_veq_sH\n");
     }
   }
 
@@ -448,25 +567,26 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
      multiply it by link matrix, expand it, and add.
      to dest */
 
+  printf0("dslash0 - fwd\n");
   QDP_D_eq_zero(dest, subset);
 
   if(shiftd_style(QOP_wilson_style)) {
  QDP_HalfFermion *hf[4];
  for(mu=0; mu<4; mu++) hf[mu] = QDP_create_H();
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
-      QDP_D_vpeq_spproj_M_times_D(vdest+mu, fwdlinks+mu, dtemp[ntmp]+mu,
+      QDP_D_vpeq_spproj_M_times_D(vdest+mu, flw->links+mu, dtemp[ntmp]+mu,
 				  dir+mu, sgn+mu, subset, QOP_wilson_nvec);
 #if 0
-      QDP_H_veq_spproj_M_times_D(hf+mu, fwdlinks+mu, dtemp[ntmp]+mu,
-				  dir+mu, sgn+mu, subset, QOP_wilson_nvec);
+      QDP_H_veq_spproj_M_times_D(hf+mu, flw->links+mu, dtemp[ntmp]+mu,
+				 dir+mu, sgn+mu, subset, QOP_wilson_nvec);
       QDP_D_vpeq_sprecon_H(vdest+mu, hf+mu,
-				  dir+mu, sgn+mu, subset, QOP_wilson_nvec);
+			   dir+mu, sgn+mu, subset, QOP_wilson_nvec);
 #endif
     }
  for(mu=0; mu<4; mu++) QDP_destroy_H(hf[mu]);
   } else {
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
-      QDP_D_vpeq_sprecon_M_times_H(vdest+mu, fwdlinks+mu, htemp[ntmp]+mu,
+      QDP_D_vpeq_sprecon_M_times_H(vdest+mu, flw->links+mu, htemp[ntmp]+mu,
 				   dir+mu, sgn+mu, subset, QOP_wilson_nvec);
     }
   }
@@ -474,6 +594,7 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   /* Take Wilson projection for src displaced in down direction,
      expand it, and add to dest */
 
+  printf0("dslash0 - back\n");
   if(shiftd_style(QOP_wilson_style)) {
     for(mu=0; mu<4; mu+=QOP_wilson_nvec) {
       QDP_D_vpeq_D(vdest+mu, dtemp[ntmp]+4+mu, subset, QOP_wilson_nvec);
@@ -504,7 +625,8 @@ wilson_dslash0(QDP_DiracFermion *dest, QDP_DiracFermion *src,
    the gathers.
    The calling program must clean up the gathers! */
 static void
-wilson_dslash1(QDP_DiracFermion *dest, QDP_DiracFermion *src,
+wilson_dslash1(QOP_FermionLinksWilson *flw,
+	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
 	       int sign, QDP_Subset subset, int ntmp)
 {
   int mu;
@@ -563,12 +685,12 @@ wilson_dslash1(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   //printf0("ds1 3\n");
   if(shiftd_style(QOP_wilson_style)) {
     for(mu=0; mu<8; mu+=QOP_wilson_nvec) {
-      QDP_D_vpeq_spproj_M_times_D(vdest+mu, dbllinks+mu, dtemp[ntmp]+mu,
+      QDP_D_vpeq_spproj_M_times_D(vdest+mu, flw->dbllinks+mu, dtemp[ntmp]+mu,
 			          dir+mu, sgn+mu, subset, QOP_wilson_nvec);
     }
   } else {
     for(mu=0; mu<8; mu+=QOP_wilson_nvec) {
-      QDP_D_vpeq_sprecon_M_times_H(vdest+mu, dbllinks+mu, htemp[ntmp]+mu,
+      QDP_D_vpeq_sprecon_M_times_H(vdest+mu, flw->dbllinks+mu, htemp[ntmp]+mu,
 				   dir+mu, sgn+mu, subset, QOP_wilson_nvec);
     }
   }
@@ -585,12 +707,14 @@ wilson_dslash1(QDP_DiracFermion *dest, QDP_DiracFermion *src,
   }
 } /* end of dslash_special_qdp() */
 
-static void (*dslash_special_qdp)(QDP_DiracFermion *dest,
+static void (*dslash_special_qdp)(QOP_FermionLinksWilson *flw,
+				  QDP_DiracFermion *dest,
 				  QDP_DiracFermion *src,
 				  int sign, QDP_Subset subset, int ntmp);
 
 static void
-wilson_mdslash2(QDP_DiracFermion *out, QDP_DiracFermion *in,
+wilson_mdslash2(QOP_FermionLinksWilson *flw,
+		QDP_DiracFermion *out, QDP_DiracFermion *in,
 		QDP_Subset subset, QDP_Subset othersubset,
 		QLA_Real mkappa)
 {
@@ -603,21 +727,21 @@ wilson_mdslash2(QDP_DiracFermion *out, QDP_DiracFermion *in,
 #ifdef LU
 
   //printf0("here3\n");
-  dslash_special_qdp(tt1, cgp, 1, QDP_odd, 0);
-  dslash_special_qdp(ttt, tt1, 1, QDP_even, 1);
+  dslash_special_qdp(flw, tt1, cgp, 1, QDP_odd, 0);
+  dslash_special_qdp(flw, ttt, tt1, 1, QDP_even, 1);
   QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, cgp, QDP_even);
   //printf0("here4\n");
-  dslash_special_qdp(tt2, ttt, -1, QDP_odd, 2);
-  dslash_special_qdp(mp, tt2, -1, QDP_even, 3);
+  dslash_special_qdp(flw, tt2, ttt, -1, QDP_odd, 2);
+  dslash_special_qdp(flw, mp, tt2, -1, QDP_even, 3);
   QDP_D_eq_r_times_D_plus_D(mp, &mkappa, mp, ttt, QDP_even);
 
 #else
 
   //printf0("here6\n");
-  dslash_special_qdp(ttt, cgp, 1, QDP_all, 0);
+  dslash_special_qdp(flw, ttt, cgp, 1, QDP_all, 0);
   QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, cgp, QDP_all);
   //printf0("here7\n");
-  dslash_special_qdp(mp, ttt, -1, QDP_all, 1);
+  dslash_special_qdp(flw, mp, ttt, -1, QDP_all, 1);
   QDP_D_eq_r_times_D_plus_D(mp, &mkappa, mp, ttt, QDP_all);
 
 #endif

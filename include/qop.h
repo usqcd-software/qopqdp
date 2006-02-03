@@ -36,11 +36,16 @@ typedef struct {
   void *extra;
 } QOP_opt_t;
 
+typedef struct {
+  double final_sec;        /* total number of seconds used */
+  double final_flop;       /* total number of flops performed */
+  QOP_status_t status;
+} QOP_info_t;
+
   /* these are quantities that apply to all masses in the multi inverter */
 typedef struct {
-  double final_sec;        /* (out) total number of seconds used */
-  double final_flop;       /* (out) total number of flops performed */
-  int final_iter;          /* (out) total number of iterations done */
+  double final_sec;        /* total number of seconds used */
+  double final_flop;       /* total number of flops performed */
   int max_iter;            /* (in) max number of iterations before restart */
   int restart;             /* (in) number of restarts allowed */
   QOP_evenodd_t evenodd;   /* (in) subset of source vector */

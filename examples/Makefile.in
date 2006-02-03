@@ -13,7 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
-SOURCES = $(asqtad_force_bench_d3_SOURCES) $(asqtad_force_bench_f3_SOURCES) $(asqtad_invert_bench_d3_SOURCES) $(asqtad_invert_bench_f3_SOURCES) $(asqtad_test_d3_SOURCES) $(asqtad_test_f3_SOURCES)
+SOURCES = $(asqtad_force_bench_d3_SOURCES) $(asqtad_force_bench_f3_SOURCES) $(asqtad_invert_bench_d3_SOURCES) $(asqtad_invert_bench_f3_SOURCES) $(asqtad_test_d3_SOURCES) $(asqtad_test_f3_SOURCES) $(wilson_invert_bench_d3_SOURCES) $(wilson_invert_bench_f3_SOURCES) $(wilson_test_d3_SOURCES) $(wilson_test_f3_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,7 +38,9 @@ POST_UNINSTALL = :
 check_PROGRAMS = asqtad_test_f3$(EXEEXT) asqtad_test_d3$(EXEEXT) \
 	asqtad_invert_bench_f3$(EXEEXT) \
 	asqtad_invert_bench_d3$(EXEEXT) asqtad_force_bench_f3$(EXEEXT) \
-	asqtad_force_bench_d3$(EXEEXT)
+	asqtad_force_bench_d3$(EXEEXT) wilson_test_f3$(EXEEXT) \
+	wilson_test_d3$(EXEEXT) wilson_invert_bench_f3$(EXEEXT) \
+	wilson_invert_bench_d3$(EXEEXT)
 subdir = examples
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -78,6 +80,24 @@ am_asqtad_test_f3_OBJECTS = asqtad_test_f3-test_common.$(OBJEXT) \
 	asqtad_test_f3-asqtad_test.$(OBJEXT)
 asqtad_test_f3_OBJECTS = $(am_asqtad_test_f3_OBJECTS)
 asqtad_test_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_wilson_invert_bench_d3_OBJECTS =  \
+	wilson_invert_bench_d3-test_common.$(OBJEXT) \
+	wilson_invert_bench_d3-wilson_invert_bench.$(OBJEXT)
+wilson_invert_bench_d3_OBJECTS = $(am_wilson_invert_bench_d3_OBJECTS)
+wilson_invert_bench_d3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_wilson_invert_bench_f3_OBJECTS =  \
+	wilson_invert_bench_f3-test_common.$(OBJEXT) \
+	wilson_invert_bench_f3-wilson_invert_bench.$(OBJEXT)
+wilson_invert_bench_f3_OBJECTS = $(am_wilson_invert_bench_f3_OBJECTS)
+wilson_invert_bench_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_wilson_test_d3_OBJECTS = wilson_test_d3-test_common.$(OBJEXT) \
+	wilson_test_d3-wilson_test.$(OBJEXT)
+wilson_test_d3_OBJECTS = $(am_wilson_test_d3_OBJECTS)
+wilson_test_d3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_wilson_test_f3_OBJECTS = wilson_test_f3-test_common.$(OBJEXT) \
+	wilson_test_f3-wilson_test.$(OBJEXT)
+wilson_test_f3_OBJECTS = $(am_wilson_test_f3_OBJECTS)
+wilson_test_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -89,12 +109,16 @@ SOURCES = $(asqtad_force_bench_d3_SOURCES) \
 	$(asqtad_force_bench_f3_SOURCES) \
 	$(asqtad_invert_bench_d3_SOURCES) \
 	$(asqtad_invert_bench_f3_SOURCES) $(asqtad_test_d3_SOURCES) \
-	$(asqtad_test_f3_SOURCES)
+	$(asqtad_test_f3_SOURCES) $(wilson_invert_bench_d3_SOURCES) \
+	$(wilson_invert_bench_f3_SOURCES) $(wilson_test_d3_SOURCES) \
+	$(wilson_test_f3_SOURCES)
 DIST_SOURCES = $(asqtad_force_bench_d3_SOURCES) \
 	$(asqtad_force_bench_f3_SOURCES) \
 	$(asqtad_invert_bench_d3_SOURCES) \
 	$(asqtad_invert_bench_f3_SOURCES) $(asqtad_test_d3_SOURCES) \
-	$(asqtad_test_f3_SOURCES)
+	$(asqtad_test_f3_SOURCES) $(wilson_invert_bench_d3_SOURCES) \
+	$(wilson_invert_bench_f3_SOURCES) $(wilson_test_d3_SOURCES) \
+	$(wilson_test_f3_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -195,8 +219,6 @@ F3_CFLAGS = -DQOP_Precision=1 -DQDP_Precision=1 -DQDP_Nc=3 $(ALL_CFLAGS)
 F3_LDADD = -lqopqdp -lqdp_f -lqdp_f3 -lqla_f -lqla_f3 -lqla_d -lqla_d3 -lqla_df -lqla_df3 $(ALL_LDADD)
 D3_CFLAGS = -DQOP_Precision=2 -DQDP_Precision=2 -DQDP_Nc=3 $(ALL_CFLAGS)
 D3_LDADD = -lqopqdp -lqdp_d -lqdp_d3 -lqla_d -lqla_d3 -lqla_q -lqla_q3 -lqla_dq -lqla_dq3 $(ALL_LDADD)
-
-#  wilson_test_f3 wilson_test_d3
 asqtad_test_f3_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
 asqtad_test_f3_LDADD = $(F3_LDADD)
@@ -215,6 +237,18 @@ asqtad_invert_bench_d3_LDADD = $(D3_LDADD)
 asqtad_force_bench_d3_SOURCES = test_common.h test_common.c asqtad_force_bench.c
 asqtad_force_bench_d3_CFLAGS = $(D3_CFLAGS)
 asqtad_force_bench_d3_LDADD = $(D3_LDADD)
+wilson_test_f3_SOURCES = test_common.h test_common.c wilson_test.c
+wilson_test_f3_CFLAGS = $(F3_CFLAGS)
+wilson_test_f3_LDADD = $(F3_LDADD)
+wilson_invert_bench_f3_SOURCES = test_common.h test_common.c wilson_invert_bench.c
+wilson_invert_bench_f3_CFLAGS = $(F3_CFLAGS)
+wilson_invert_bench_f3_LDADD = $(F3_LDADD)
+wilson_test_d3_SOURCES = test_common.h test_common.c wilson_test.c
+wilson_test_d3_CFLAGS = $(D3_CFLAGS)
+wilson_test_d3_LDADD = $(D3_LDADD)
+wilson_invert_bench_d3_SOURCES = test_common.h test_common.c wilson_invert_bench.c
+wilson_invert_bench_d3_CFLAGS = $(D3_CFLAGS)
+wilson_invert_bench_d3_LDADD = $(D3_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -269,6 +303,18 @@ asqtad_test_d3$(EXEEXT): $(asqtad_test_d3_OBJECTS) $(asqtad_test_d3_DEPENDENCIES
 asqtad_test_f3$(EXEEXT): $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_DEPENDENCIES) 
 	@rm -f asqtad_test_f3$(EXEEXT)
 	$(LINK) $(asqtad_test_f3_LDFLAGS) $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_LDADD) $(LIBS)
+wilson_invert_bench_d3$(EXEEXT): $(wilson_invert_bench_d3_OBJECTS) $(wilson_invert_bench_d3_DEPENDENCIES) 
+	@rm -f wilson_invert_bench_d3$(EXEEXT)
+	$(LINK) $(wilson_invert_bench_d3_LDFLAGS) $(wilson_invert_bench_d3_OBJECTS) $(wilson_invert_bench_d3_LDADD) $(LIBS)
+wilson_invert_bench_f3$(EXEEXT): $(wilson_invert_bench_f3_OBJECTS) $(wilson_invert_bench_f3_DEPENDENCIES) 
+	@rm -f wilson_invert_bench_f3$(EXEEXT)
+	$(LINK) $(wilson_invert_bench_f3_LDFLAGS) $(wilson_invert_bench_f3_OBJECTS) $(wilson_invert_bench_f3_LDADD) $(LIBS)
+wilson_test_d3$(EXEEXT): $(wilson_test_d3_OBJECTS) $(wilson_test_d3_DEPENDENCIES) 
+	@rm -f wilson_test_d3$(EXEEXT)
+	$(LINK) $(wilson_test_d3_LDFLAGS) $(wilson_test_d3_OBJECTS) $(wilson_test_d3_LDADD) $(LIBS)
+wilson_test_f3$(EXEEXT): $(wilson_test_f3_OBJECTS) $(wilson_test_f3_DEPENDENCIES) 
+	@rm -f wilson_test_f3$(EXEEXT)
+	$(LINK) $(wilson_test_f3_LDFLAGS) $(wilson_test_f3_OBJECTS) $(wilson_test_f3_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -288,6 +334,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f3-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d3-wilson_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f3-wilson_test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -470,6 +524,118 @@ asqtad_test_f3-asqtad_test.obj: asqtad_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_f3-asqtad_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f3_CFLAGS) $(CFLAGS) -c -o asqtad_test_f3-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
+
+wilson_invert_bench_d3-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d3-test_common.o -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo" -c -o wilson_invert_bench_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo" "$(DEPDIR)/wilson_invert_bench_d3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_d3-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_invert_bench_d3-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d3-test_common.obj -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo" -c -o wilson_invert_bench_d3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo" "$(DEPDIR)/wilson_invert_bench_d3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_d3-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_invert_bench_d3-wilson_invert_bench.o: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d3-wilson_invert_bench.o -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Tpo" -c -o wilson_invert_bench_d3-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Tpo" "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_d3-wilson_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d3-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c
+
+wilson_invert_bench_d3-wilson_invert_bench.obj: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d3-wilson_invert_bench.obj -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Tpo" -c -o wilson_invert_bench_d3-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Tpo" "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_d3-wilson_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d3-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
+
+wilson_invert_bench_f3-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f3-test_common.o -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_f3-test_common.Tpo" -c -o wilson_invert_bench_f3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_f3-test_common.Tpo" "$(DEPDIR)/wilson_invert_bench_f3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_f3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_f3-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_invert_bench_f3-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f3-test_common.obj -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_f3-test_common.Tpo" -c -o wilson_invert_bench_f3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_f3-test_common.Tpo" "$(DEPDIR)/wilson_invert_bench_f3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_f3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_f3-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_invert_bench_f3-wilson_invert_bench.o: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f3-wilson_invert_bench.o -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Tpo" -c -o wilson_invert_bench_f3-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Tpo" "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_f3-wilson_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f3-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c
+
+wilson_invert_bench_f3-wilson_invert_bench.obj: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f3-wilson_invert_bench.obj -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Tpo" -c -o wilson_invert_bench_f3-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Tpo" "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Po"; else rm -f "$(DEPDIR)/wilson_invert_bench_f3-wilson_invert_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_f3-wilson_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f3_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f3-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
+
+wilson_test_d3-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -MT wilson_test_d3-test_common.o -MD -MP -MF "$(DEPDIR)/wilson_test_d3-test_common.Tpo" -c -o wilson_test_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_d3-test_common.Tpo" "$(DEPDIR)/wilson_test_d3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_test_d3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_d3-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -c -o wilson_test_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_test_d3-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -MT wilson_test_d3-test_common.obj -MD -MP -MF "$(DEPDIR)/wilson_test_d3-test_common.Tpo" -c -o wilson_test_d3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_d3-test_common.Tpo" "$(DEPDIR)/wilson_test_d3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_test_d3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_d3-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -c -o wilson_test_d3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_test_d3-wilson_test.o: wilson_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -MT wilson_test_d3-wilson_test.o -MD -MP -MF "$(DEPDIR)/wilson_test_d3-wilson_test.Tpo" -c -o wilson_test_d3-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_d3-wilson_test.Tpo" "$(DEPDIR)/wilson_test_d3-wilson_test.Po"; else rm -f "$(DEPDIR)/wilson_test_d3-wilson_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_d3-wilson_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -c -o wilson_test_d3-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+
+wilson_test_d3-wilson_test.obj: wilson_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -MT wilson_test_d3-wilson_test.obj -MD -MP -MF "$(DEPDIR)/wilson_test_d3-wilson_test.Tpo" -c -o wilson_test_d3-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_d3-wilson_test.Tpo" "$(DEPDIR)/wilson_test_d3-wilson_test.Po"; else rm -f "$(DEPDIR)/wilson_test_d3-wilson_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_d3-wilson_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d3_CFLAGS) $(CFLAGS) -c -o wilson_test_d3-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
+
+wilson_test_f3-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -MT wilson_test_f3-test_common.o -MD -MP -MF "$(DEPDIR)/wilson_test_f3-test_common.Tpo" -c -o wilson_test_f3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_f3-test_common.Tpo" "$(DEPDIR)/wilson_test_f3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_test_f3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_f3-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_test_f3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_test_f3-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -MT wilson_test_f3-test_common.obj -MD -MP -MF "$(DEPDIR)/wilson_test_f3-test_common.Tpo" -c -o wilson_test_f3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_f3-test_common.Tpo" "$(DEPDIR)/wilson_test_f3-test_common.Po"; else rm -f "$(DEPDIR)/wilson_test_f3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_f3-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_test_f3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_test_f3-wilson_test.o: wilson_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -MT wilson_test_f3-wilson_test.o -MD -MP -MF "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" -c -o wilson_test_f3-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" "$(DEPDIR)/wilson_test_f3-wilson_test.Po"; else rm -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_f3-wilson_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_test_f3-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+
+wilson_test_f3-wilson_test.obj: wilson_test.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -MT wilson_test_f3-wilson_test.obj -MD -MP -MF "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" -c -o wilson_test_f3-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo" "$(DEPDIR)/wilson_test_f3-wilson_test.Po"; else rm -f "$(DEPDIR)/wilson_test_f3-wilson_test.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_f3-wilson_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_test_f3-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -636,14 +802,6 @@ uninstall-am: uninstall-info-am
 	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-info-am
 
-
-#wilson_test_f3_SOURCES = test_common.h test_common.c wilson_test.c
-#wilson_test_f3_CFLAGS = $(F3_CFLAGS)
-#wilson_test_f3_LDADD = $(F3_LDADD)
-
-#wilson_test_d3_SOURCES = test_common.h test_common.c wilson_test.c
-#wilson_test_d3_CFLAGS = $(D3_CFLAGS)
-#wilson_test_d3_LDADD = $(D3_LDADD)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

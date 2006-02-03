@@ -5,7 +5,8 @@ lib_LIBRARIES = libqopqdp.a
 libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
-  asqtad_force_f.c asqtad_force_d.c
+  asqtad_force_f.c asqtad_force_d.c \
+  wilson_invert.c wilson_invert_f.c wilson_invert_d.c
 
 common_f.o: common_p.c
 common_d.o: common_p.c
@@ -13,8 +14,10 @@ asqtad_invert_f.o: asqtad_invert_p.c
 asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c
 asqtad_force_d.o: asqtad_force_p.c
+wilson_invert_f.o: wilson_invert_p.c
+wilson_invert_d.o: wilson_invert_p.c
 
-EXTRA_DIST = common_p.c asqtad_invert_p.c asqtad_force_p.c
+EXTRA_DIST = common_p.c asqtad_invert_p.c asqtad_force_p.c wilson_invert_p.c
 
 #lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
 

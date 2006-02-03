@@ -490,7 +490,7 @@ QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
   dtimec += QDP_time();
   res_arg->final_rsq = rsq;
   res_arg->final_iter = iteration;
-  inv_arg->final_iter = iteration;
+  //inv_arg->final_iter = iteration;
   inv_arg->final_sec = dtimec;
   inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
   if( rsq <= rsqstop ) {
@@ -614,14 +614,14 @@ QOPPC(asqtad_invert_multi)(QOP_FermionLinksAsqtad *asqtad,
   QOP_invert_arg_t tinvarg;
   int i, j;
 
-  inv_arg->final_iter = 0;
+  //inv_arg->final_iter = 0;
   inv_arg->final_sec = 0;
   inv_arg->final_flop = 0;
   for(i=0; i<nsrc; i++) {
     for(j=0; j<nmass[i]; j++) {
       QOPPC(asqtad_invert)(asqtad, &tinvarg, res_arg[i][j], masses[i][j],
 			   out_pt[i][j], in_pt[i]);
-      inv_arg->final_iter += tinvarg.final_iter;
+      //inv_arg->final_iter += tinvarg.final_iter;
       inv_arg->final_sec += tinvarg.final_sec;
       inv_arg->final_flop += tinvarg.final_flop;
     }
