@@ -285,3 +285,14 @@ QOPPC(convert_G_from_qdp)(QDP_ColorMatrix *links[])
   return qopgf;
 }
 
+void
+QOPPC(extract_V_to_qdp)(QDP_ColorVector *dest, QOPPC(ColorVector) *src)
+{
+  QDP_V_eq_V(dest, src->cv, QDP_all);
+}
+
+void
+QOPPC(extract_D_to_qdp)(QDP_DiracFermion *dest, QOPPC(DiracFermion) *src)
+{
+  QDP_D_eq_D(dest, src->df, QDP_all);
+}
