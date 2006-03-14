@@ -83,6 +83,7 @@ start(void)
   for(i=0; i<ndim; i++) {
     qoplayout.latsize[i] = lattice_size[i];
   }
+  qoplayout.machdim = -1;
 
   QOP_GaugeField *gf;
   QOP_asqtad_coeffs_t coeffs;

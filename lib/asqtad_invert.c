@@ -1,5 +1,5 @@
-#include <qop_internal.h>
 #include <string.h>
+#include <qop_internal.h>
 
 QOP_asqtad_t QOP_asqtad = {.inited=0};
 
@@ -38,42 +38,38 @@ QOP_asqtad_invert_init(void)
   return QOP_SUCCESS;
 }
 
+#define setvar(_var, _type, _tag, _opts, _nopts)			\
+  { int i; for(i=0; i<_nopts; i++) {					\
+      if(!strcmp(_opts[i].tag,_tag)) _var = (_type) _opts[i].value;	\
+    } }
+
+#define valid_style(st) ( (st>=0) && (st<=3) )
+#define valid_nvec(nv,st) \
+  ((nv==1)||(nv==2)||(nv==4)||(nv==8)||((st==1)&&(nv==16)))
+#define fix_nvec(nv,st) { if(nv<1) nv=1; else nv=8; }
+
 QOP_status_t
 QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
-  int i;
-  for(i=0; i<nopts; i++) {
-    char *tag = opts[i].tag;
-    double value = opts[i].value;
+  int st, ns, nm;
+  st = QOP_asqtad.style;
+  ns = QOP_asqtad.nsvec;
+  nm = QOP_asqtad.nvec;
 
-    if(!strcmp(tag,"ns")) {
-      if( (value==1)||(value==2)||(value==4)||(value==8)||
-	  ((QOP_asqtad.style==1)&&(value==16)) ) {
-	QOP_asqtad.nsvec = (int) value;
-      } else {
-	return QOP_FAIL;
-      }
-    } else if(!strcmp(tag,"nm")) {
-      if( (value==1)||(value==2)||(value==4)||(value==8)||
-	  ((QOP_asqtad.style==1)&&(value==16)) ) {
-	QOP_asqtad.nvec = (int) value;
-      } else {
-	return QOP_FAIL;
-      }
-    } else if(!strcmp(tag,"st")) {
-      if((value==0)||(value==1)) {
-	QOP_asqtad.style = (int) value;
-	if(QOP_asqtad.style==0) {
-	  if(QOP_asqtad.nsvec>8) QOP_asqtad.nsvec = 8;
-	  if(QOP_asqtad.nvec>8) QOP_asqtad.nvec = 8;
-	}
-      } else {
-	return QOP_FAIL;
-      }
-    } else {
-      return QOP_FAIL;
-    }
-  }
+  setvar(st, int, "st", opts, nopts);
+  if(!valid_style(st)) return QOP_FAIL;
+
+  if(!valid_nvec(ns,st)) fix_nvec(ns,st);
+  if(!valid_nvec(nm,st)) fix_nvec(nm,st);
+
+  setvar(ns, int, "ns", opts, nopts);
+  setvar(nm, int, "nm", opts, nopts);
+  if(!valid_nvec(ns,st)) return QOP_FAIL;
+  if(!valid_nvec(nm,st)) return QOP_FAIL;
+
+  QOP_asqtad.style = st;
+  QOP_asqtad.nsvec = ns;
+  QOP_asqtad.nvec = nm;
 
   return QOP_SUCCESS;
 }

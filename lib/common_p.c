@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <sys/time.h>
 #include <qop_internal.h>
 
 
@@ -228,6 +227,7 @@ QOPPC(create_V_from_qdp)(QDP_ColorVector *src)
   QOP_malloc(qopcv, QOPPC(ColorVector), 1);
   qopcv->cv = QDP_create_V();
   QDP_V_eq_V(qopcv->cv, src, QDP_all);
+  qopcv->raw = NULL;
   return qopcv;
 }
 
@@ -238,6 +238,7 @@ QOPPC(create_D_from_qdp)(QDP_DiracFermion *src)
   QOP_malloc(qopdf, QOPPC(DiracFermion), 1);
   qopdf->df = QDP_create_D();
   QDP_D_eq_D(qopdf->df, src, QDP_all);
+  qopdf->raw = NULL;
   return qopdf;
 }
 
@@ -271,6 +272,56 @@ QOPPC(create_F_from_qdp)(QDP_ColorMatrix *force[])
   return qopf;
 }
 
+void
+QOPPC(extract_V_to_qdp)(QDP_ColorVector *dest, QOPPC(ColorVector) *src)
+{
+  QDP_V_eq_V(dest, src->cv, QDP_all);
+}
+
+void
+QOPPC(extract_D_to_qdp)(QDP_DiracFermion *dest, QOPPC(DiracFermion) *src)
+{
+  QDP_D_eq_D(dest, src->df, QDP_all);
+}
+
+void
+QOPPC(extract_G_to_qdp)(QDP_ColorMatrix *d[], QOPPC(GaugeField) *src)
+{
+  int i;
+  for(i=0; i<QOP_common.ndim; i++) {
+    QDP_M_eq_M(d[i], src->links[i], QDP_all);
+  }
+}
+
+void
+QOPPC(extract_F_to_qdp)(QDP_ColorMatrix *d[], QOPPC(Force) *src)
+{
+  int i;
+  for(i=0; i<QOP_common.ndim; i++) {
+    QDP_M_eq_M(d[i], src->force[i], QDP_all);
+  }
+}
+
+QOPPC(ColorVector) *
+QOPPC(convert_V_from_qdp)(QDP_ColorVector *src)
+{
+  QOPPC(ColorVector) *qopcv;
+  QOP_malloc(qopcv, QOPPC(ColorVector), 1);
+  qopcv->cv = src;
+  qopcv->raw = NULL;
+  return qopcv;
+}
+
+QOPPC(DiracFermion) *
+QOPPC(convert_D_from_qdp)(QDP_DiracFermion *src)
+{
+  QOPPC(DiracFermion) *qopdf;
+  QOP_malloc(qopdf, QOPPC(DiracFermion), 1);
+  qopdf->df = src;
+  qopdf->raw = NULL;
+  return qopdf;
+}
+
 QOPPC(GaugeField) *
 QOPPC(convert_G_from_qdp)(QDP_ColorMatrix *links[])
 {
@@ -285,14 +336,52 @@ QOPPC(convert_G_from_qdp)(QDP_ColorMatrix *links[])
   return qopgf;
 }
 
-void
-QOPPC(extract_V_to_qdp)(QDP_ColorVector *dest, QOPPC(ColorVector) *src)
+QOPPC(Force) *
+QOPPC(convert_F_from_qdp)(QDP_ColorMatrix *force[])
 {
-  QDP_V_eq_V(dest, src->cv, QDP_all);
+  QOPPC(Force) *qopf;
+  int i;
+  QOP_malloc(qopf, QOPPC(Force), 1);
+  QOP_malloc(qopf->force, QDPPC(ColorMatrix) *, QOP_common.ndim);
+  for(i=0; i<QOP_common.ndim; i++) {
+    qopf->force[i] = force[i];
+  }
+  qopf->raw = NULL;
+  return qopf;
 }
 
-void
-QOPPC(extract_D_to_qdp)(QDP_DiracFermion *dest, QOPPC(DiracFermion) *src)
+QDP_ColorVector *
+QOPPC(convert_V_to_qdp)(QOPPC(ColorVector) *src)
 {
-  QDP_D_eq_D(dest, src->df, QDP_all);
+  QDP_ColorVector *ret;
+  ret = src->cv;
+  free(src);
+  return ret;
+}
+
+QDP_DiracFermion *
+QOPPC(convert_D_to_qdp)(QOPPC(DiracFermion) *src)
+{
+  QDP_DiracFermion *ret;
+  ret = src->df;
+  free(src);
+  return ret;
+}
+
+QDP_ColorMatrix **
+QOPPC(convert_G_to_qdp)(QOPPC(GaugeField) *src)
+{
+  QDP_ColorMatrix **ret;
+  ret = src->links;
+  free(src);
+  return ret;
+}
+
+QDP_ColorMatrix **
+QOPPC(convert_F_to_qdp)(QOPPC(Force) *src)
+{
+  QDP_ColorMatrix **ret;
+  ret = src->force;
+  free(src);
+  return ret;
 }

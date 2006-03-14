@@ -120,6 +120,33 @@ QDP_D3_ColorMatrix **
   QOP_D3_wilson_convert_L_to_qdp(QOP_D3_FermionLinksWilson *src);
 
 
+  /**************************/
+  /*  Domain Wall routines  */
+  /**************************/
+
+  /* single precision */
+
+QOP_F3_FermionLinksDW *
+  QOP_F3_dw_create_L_from_qdp(QDP_F3_ColorMatrix *links[]);
+void QOP_F3_dw_extract_L_to_qdp(QDP_F3_ColorMatrix *links[],
+				    QOP_F3_FermionLinksDW *src);
+QOP_F3_FermionLinksDW *
+  QOP_F3_dw_convert_L_from_qdp(QDP_F3_ColorMatrix *links[]);
+QDP_F3_ColorMatrix **
+  QOP_F3_dw_convert_L_to_qdp(QOP_F3_FermionLinksDW *src);
+
+  /* double precision */
+
+QOP_D3_FermionLinksDW *
+  QOP_D3_dw_create_L_from_qdp(QDP_D3_ColorMatrix *links[]);
+void QOP_D3_dw_extract_L_to_qdp(QDP_D3_ColorMatrix *links[],
+				    QOP_D3_FermionLinksDW *src);
+QOP_D3_FermionLinksDW *
+  QOP_D3_dw_convert_L_from_qdp(QDP_D3_ColorMatrix *links[]);
+QDP_D3_ColorMatrix **
+  QOP_D3_dw_convert_L_to_qdp(QOP_D3_FermionLinksDW *src);
+
+
   /**************************************************/
   /* Mapping of generic names to specific precision */
   /**************************************************/
@@ -156,6 +183,11 @@ QDP_D3_ColorMatrix **
 #define QOP_wilson_convert_L_from_qdp QOP_F3_wilson_convert_L_from_qdp
 #define QOP_wilson_convert_L_to_qdp   QOP_F3_wilson_convert_L_to_qdp
 
+#define QOP_dw_create_L_from_qdp  QOP_F3_dw_create_L_from_qdp
+#define QOP_dw_extract_L_to_qdp   QOP_F3_dw_extract_L_to_qdp
+#define QOP_dw_convert_L_from_qdp QOP_F3_dw_convert_L_from_qdp
+#define QOP_dw_convert_L_to_qdp   QOP_F3_dw_convert_L_to_qdp
+
 #else
 
 #define QOP_create_V_from_qdp QOP_D3_create_V_from_qdp
@@ -187,6 +219,11 @@ QDP_D3_ColorMatrix **
 #define QOP_wilson_extract_L_to_qdp   QOP_D3_wilson_extract_L_to_qdp
 #define QOP_wilson_convert_L_from_qdp QOP_D3_wilson_convert_L_from_qdp
 #define QOP_wilson_convert_L_to_qdp   QOP_D3_wilson_convert_L_to_qdp
+
+#define QOP_dw_create_L_from_qdp  QOP_D3_dw_create_L_from_qdp
+#define QOP_dw_extract_L_to_qdp   QOP_D3_dw_extract_L_to_qdp
+#define QOP_dw_convert_L_from_qdp QOP_D3_dw_convert_L_from_qdp
+#define QOP_dw_convert_L_to_qdp   QOP_D3_dw_convert_L_to_qdp
 
 #endif
 

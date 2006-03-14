@@ -5,7 +5,7 @@ static int old_nsvec=0;
 static int old_nvec=0;
 
 static int congrad_setup = 0;
-static QDP_ColorVector *ttt, *tttt, *r, *p;
+static QDP_ColorVector *tttt;
 static QDP_ColorVector *temp1[24], *temp2[24];
 
 static void QOPPC(asqtad_mdslash2)(QOPPC(FermionLinksAsqtad) *,
@@ -19,10 +19,7 @@ free_temps(void)
   if(congrad_setup) {
     int i, n;
 
-    QDP_destroy_V(ttt);
     QDP_destroy_V(tttt);
-    QDP_destroy_V(r);
-    QDP_destroy_V(p);
 
     if(old_style==0) n = 24;
     else n = 16;
@@ -79,10 +76,7 @@ reset_temps(QOPPC(FermionLinksAsqtad) *fla)
 
   free_temps();
 
-  ttt = QDP_create_V();
   tttt = QDP_create_V();
-  r = QDP_create_V();
-  p = QDP_create_V();
 
   if(QOP_asqtad.style==0) n = 24;
   else n = 16;
@@ -324,108 +318,33 @@ QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *field)
 }
 
 
+/* inverter */
 
+QOPPC(linop_t_V) QOP_asqtad_dslash2;
+static QOPPC(FermionLinksAsqtad) *gl_fla;
+static QDP_Subset gl_osubset;
+static QLA_Real gl_m2x4;
 
-
-
-
-
-#if 0
-QOP_status_t
-QOPPC(asqtad_invert_load_links_raw)(REAL *fatlinks[], REAL *longlinks[])
+void
+QOPPC(asqtad_dslash2)(QDP_ColorVector *out, QDP_ColorVector *in,
+		      QDP_Subset subset)
 {
-  int i;
-
-  if(!have_rawlinks) {
-    have_rawlinks = 1;
-    for(i=0; i<4; i++) {
-      raw_fatlinks[i] = QDP_create_M();
-      raw_longlinks[i] = QDP_create_M();
-    }
-  }
-  for(i=0; i<4; i++) {
-    load_link(raw_fatlinks[i], fatlinks[i]);
-    load_link(raw_longlinks[i], longlinks[i]);
-  }
-  QOPPC(asqtad_invert_load_links_qdp)(raw_fatlinks, raw_longlinks);
-
-  return QOP_SUCCESS;
+  QOPPC(asqtad_mdslash2)(gl_fla, out, in, subset, gl_osubset, gl_m2x4);
 }
-#endif
-
-#if 0
-QOP_status_t
-QOPPC(asqtad_invert_load_links_qdp)(QDP_ColorMatrix *fatlnk[],
-				    QDP_ColorMatrix *longlnk[])
-{
-  int i;
-
-  dblstored = 0;
-  for(i=0; i<4; i++) {
-    fwdlinks[2*i] = fatlnk[i];
-    fwdlinks[2*i+1] = longlnk[i];
-  }
-
-  if(!congrad_setup) {
-    reset_temps();
-  }
-
-  if( (QOP_asqtad_style != old_style) ||
-      (QOP_asqtad_nsvec != old_nsvec) ||
-      (QOP_asqtad_nvec != old_nvec) ) {
-    reset_temps();
-    old_style = QOP_asqtad_style;
-    old_nsvec = QOP_asqtad_nsvec;
-    old_nvec = QOP_asqtad_nvec;
-  }
-
-  double_store();
-
-  return QOP_SUCCESS;
-}
-#endif
-
-#if 0
-QOP_status_t
-QOPPC(asqtad_invert_raw)(QOP_invert_arg_t *inv_arg, REAL mass, REAL *out_pt, REAL *in_pt)
-{
-  QDP_ColorVector *in, *out;
-  QOP_status_t status;
-
-  in = QDP_create_V();
-  out = QDP_create_V();
-  set_V_from_real(in, in_pt);
-  set_V_from_real(out, out_pt);
-  status = QOPPC(asqtad_invert_qdp)(inv_arg, mass, out, in);
-  set_real_from_V(out_pt, out);
-
-  return status;
-}
-QOP_status_t
-QOPPC(asqtad_invert_qdp)(QOP_invert_arg_t *inv_arg, QLA_Real mass,
-			QDP_ColorVector *out, QDP_ColorVector *in){}
-#endif
 
 QOP_status_t
 QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
 		     QOP_invert_arg_t *inv_arg,
 		     QOP_resid_arg_t *res_arg,
 		     REAL mass,
-		     QOPPC(ColorVector) *out_pt,
-		     QOPPC(ColorVector) *in_pt)
+		     QOPPC(ColorVector) *out,
+		     QOPPC(ColorVector) *in)
 {
-  QLA_Real a, b;
-  QLA_Real rsq, oldrsq, pkp;
-  QLA_Real m2x4;
-  QLA_Real insq;
-  QLA_Real rsqstop;
-  QDP_ColorVector *out = out_pt->cv;
-  QDP_ColorVector *in = in_pt->cv;
-  QDP_Subset subset, othersubset;
-  int iteration=0;
-
+  /* cg has 5 * 12 = 60 flops/site/it */
+  /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
   double dtimec;
   double nflop = 0.5 * 2364;
+  QDP_Subset subset, othersubset;
 
   if(inv_arg->evenodd==QOP_EVEN) {
     subset = QDP_even;
@@ -438,8 +357,10 @@ QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
     othersubset = QDP_all;
     nflop *= 2;
   }
+  gl_osubset = othersubset;
 
-  m2x4 = 4*mass*mass;
+  gl_m2x4 = 4*mass*mass;
+  gl_fla = fla;
 
   if( (QOP_asqtad.style != old_style) ||
       (QOP_asqtad.nsvec != old_nsvec) ||
@@ -449,67 +370,54 @@ QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
     old_nsvec = QOP_asqtad.nsvec;
     old_nvec = QOP_asqtad.nvec;
   }
+  //QOPPC(invert_cg_init_V)();
 
   dtimec = -QDP_time();
 
-  do {
-    QDP_V_eq_V(p, out, subset);
-    //printf0("first dirac op\n"); fflush(stdout);
-    QOPPC(asqtad_mdslash2)(fla, ttt, p, subset, othersubset, m2x4);
-    //printf0("done first dirac op\n"); fflush(stdout);
-    iteration++;
-
-    QDP_V_eq_V_plus_V(r, in, ttt, subset);
-    QDP_r_eq_norm2_V(&insq, in, subset);
-    QDP_r_eq_norm2_V(&rsq, r, subset);
-    oldrsq = rsq;
-    QDP_V_eq_zero(p, subset);
-    rsqstop = res_arg->rsqmin * insq;
-
-    while( (rsq>rsqstop) && (iteration%inv_arg->restart!=0) ) {
-      //printf0("iteration = %-5i resid = %g\n", iteration, rsq);
-      b = rsq / oldrsq;
-      QDP_V_eq_r_times_V_plus_V(p, &b, p, r, subset);
-
-      oldrsq = rsq;
-
-      QOPPC(asqtad_mdslash2)(fla, ttt, p, subset, othersubset, m2x4);
-      iteration++;
-
-      QDP_r_eq_re_V_dot_V(&pkp, p, ttt, subset);
-
-      a = - rsq / pkp;
-
-      QDP_V_peq_r_times_V(out, &a, p, subset);
-      QDP_V_peq_r_times_V(r, &a, ttt, subset);
-      QDP_r_eq_norm2_V(&rsq, r, subset);
-    }
-
-  } while( (rsq>rsqstop) && (iteration<inv_arg->max_iter) );
+  QOPPC(invert_cg_V)(QOPPC(asqtad_dslash2), inv_arg, res_arg,
+		     out->cv, in->cv, subset);
 
   dtimec += QDP_time();
-  res_arg->final_rsq = rsq;
-  res_arg->final_iter = iteration;
+
+  //res_arg->final_rsq = rsq;
+  //res_arg->final_iter = iteration;
   //inv_arg->final_iter = iteration;
   inv_arg->final_sec = dtimec;
-  inv_arg->final_flop = nflop*iteration*QDP_sites_on_node;
-  if( rsq <= rsqstop ) {
-    if(QDP_this_node==-1) {
-      printf("CONGRAD5: time = %g iters = %i mflops = %g\n",
-             dtimec, iteration,
-             (double) ( nflop*iteration*QDP_sites_on_node / (1.0e6*dtimec) ));
-      fflush(stdout);
-    }
-  } else {
-    if(QDP_this_node==0) {
-      printf("CG not converged after %d iterations, res. = %e wanted %e\n",
-             iteration, rsq, rsqstop);
-      fflush(stdout);
+  inv_arg->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
+
+  return QOP_SUCCESS;
+}
+
+QOP_status_t
+QOPPC(asqtad_invert_multi)(QOP_FermionLinksAsqtad *asqtad,
+			   QOP_invert_arg_t *inv_arg,
+			   QOP_resid_arg_t **res_arg[],
+			   REAL *masses[], int nmass[],
+			   QOP_ColorVector **out_pt[],
+			   QOP_ColorVector *in_pt[],
+			   int nsrc)
+{
+  QOP_invert_arg_t tinvarg;
+  int i, j;
+
+  //inv_arg->final_iter = 0;
+  inv_arg->final_sec = 0;
+  inv_arg->final_flop = 0;
+  for(i=0; i<nsrc; i++) {
+    for(j=0; j<nmass[i]; j++) {
+      QOPPC(asqtad_invert)(asqtad, &tinvarg, res_arg[i][j], masses[i][j],
+			   out_pt[i][j], in_pt[i]);
+      //inv_arg->final_iter += tinvarg.final_iter;
+      inv_arg->final_sec += tinvarg.final_sec;
+      inv_arg->final_flop += tinvarg.final_flop;
     }
   }
 
   return QOP_SUCCESS;
 }
+
+
+
 
 /* internal functions */
 
@@ -599,34 +507,6 @@ QOPPC(asqtad_mdslash2)(QOPPC(FermionLinksAsqtad) *fla,
     QOPPC(asqtad_dslash1)(fla, tttt, othersubset, in, subset, temp1);
     QOPPC(asqtad_dslash1)(fla, out, subset, tttt, othersubset, temp2);
   }
-  QDP_V_meq_r_times_V(out, &m2x4, in, subset);
+  //QDP_V_meq_r_times_V(out, &m2x4, in, subset);
+  QDP_V_eq_r_times_V_minus_V(out, &m2x4, in, out, subset);
 }
-
-QOP_status_t
-QOPPC(asqtad_invert_multi)(QOP_FermionLinksAsqtad *asqtad,
-			   QOP_invert_arg_t *inv_arg,
-			   QOP_resid_arg_t **res_arg[],
-			   REAL *masses[], int nmass[],
-			   QOP_ColorVector **out_pt[],
-			   QOP_ColorVector *in_pt[],
-			   int nsrc)
-{
-  QOP_invert_arg_t tinvarg;
-  int i, j;
-
-  //inv_arg->final_iter = 0;
-  inv_arg->final_sec = 0;
-  inv_arg->final_flop = 0;
-  for(i=0; i<nsrc; i++) {
-    for(j=0; j<nmass[i]; j++) {
-      QOPPC(asqtad_invert)(asqtad, &tinvarg, res_arg[i][j], masses[i][j],
-			   out_pt[i][j], in_pt[i]);
-      //inv_arg->final_iter += tinvarg.final_iter;
-      inv_arg->final_sec += tinvarg.final_sec;
-      inv_arg->final_flop += tinvarg.final_flop;
-    }
-  }
-
-  return QOP_SUCCESS;
-}
-
