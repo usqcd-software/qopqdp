@@ -11,9 +11,9 @@ static QLA_Real m0=1.4;
 static QLA_Real M=0.1;
 static int Ls=8;
 static double rsqmin=1e-4;
+static int style=-1;
 
-//static const int sta[] = {0, 1, 2, 3};
-static const int sta[] = {3};
+static const int sta[] = {0, 1, 2, 3};
 static const int stn = sizeof(sta)/sizeof(int);
 static const int nsa[] = {1, 2, 4, 8};
 static const int nsn = sizeof(nsa)/sizeof(int);
@@ -128,6 +128,7 @@ start(void)
   QOP_opt_t optnm;
   optnm.tag = "nm";
   for(sti=0; sti<stn; sti++) {
+    if((style>0)&&(sti!=style)) continue;
     st = sta[sti];
     optst.value = st;
     if(QOP_dw_invert_set_opts(&optst, 1)==QOP_FAIL) continue;
@@ -184,10 +185,11 @@ start(void)
 void
 usage(char *s)
 {
-  printf("%s [n#] [s#] [k#] [m#] [x# [# ...]] [l#]\n",s);
+  printf("%s [n#] [s#] [S#] [k#] [m#] [x# [# ...]] [l#]\n",s);
   printf("\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
+  printf("S\tstyle\n");
   printf("k\tm0\n");
   printf("m\tM\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
@@ -212,6 +214,7 @@ main(int argc, char *argv[])
     case 'm' : M=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
+    case 'S' : style=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     case 'l' : Ls=atoi(&argv[i][1]); break;
     default : usage(argv[0]);
