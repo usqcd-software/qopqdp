@@ -89,7 +89,7 @@ AC_PROG_CC(cc gcc)
 AC_CHECK_TOOL(AR, ar, [ar])
 
 # pass configuration to distcheck target
-DISTCHECK_CONFIGURE_FLAGS=""
+DISTCHECK_CONFIGURE_FLAGS="CC=\"$CC\" CFLAGS=\"$CFLAGS\" LDFLAGS=\"$LDFLAGS\" LIBS=\"$LIBS\""
 if test -n "$WITH_QMP"; then
   DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS --with-qmp=$QMPDIR"
 fi
