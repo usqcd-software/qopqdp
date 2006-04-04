@@ -400,13 +400,14 @@ QOPPC(wilson_invert)(QOP_FermionLinksWilson *flw,
   qdpin = QDP_create_D();
 
   {
+    QLA_Real kappa2 = 2.0*kappa;
 #ifdef LU
     QDP_D_eq_D(tt1, in->df, osubset);
     dslash_special_qdp(flw, ttt, tt1, 1, subset, 1);
     QDP_D_eq_r_times_D_plus_D(ttt, &kappa, ttt, in->df, subset);
+    QDP_D_eq_r_times_D(ttt, &kappa2, ttt, subset);
     wilson_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
 #else
-    QLA_Real kappa2 = 2.0*kappa;
     QDP_D_eq_r_times_D(ttt, &kappa2, in->df, subset);
     wilson_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
 #endif
@@ -421,11 +422,10 @@ QOPPC(wilson_invert)(QOP_FermionLinksWilson *flw,
 
 #ifdef LU
       {
-	QLA_Real kappa2 = 2.0*kappa;
 	QDP_D_eq_D(ttt, out->df, subset);
 	dslash_special_qdp(flw, tt2, ttt, 1, osubset, 2);
 	QDP_D_eq_r_times_D_plus_D(ttt, &kappa, tt2, in->df, osubset);
-	QDP_D_eq_r_times_D(out->df, &kappa2, ttt, QDP_all);
+	QDP_D_eq_D(out->df, ttt, QDP_all);
       }
 #endif
 
