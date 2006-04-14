@@ -435,6 +435,8 @@ QOPPC(wilson_invert)(QOP_FermionLinksWilson *flw,
   inv_arg->final_sec = dtime;
   inv_arg->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
 
+  QDP_destroy_D(qdpin);
+
   return QOP_SUCCESS;
 }
 

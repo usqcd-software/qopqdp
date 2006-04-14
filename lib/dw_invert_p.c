@@ -683,18 +683,28 @@ wilson_dslash1(QOP_FermionLinksDW *flw,
 } /* end of dslash_special_qdp() */
 
 static QLA_Real mw;
-static int dirs[2], signs[2];
+static int dirs[2], signs[2], lupass=0;
 static QDP_DiracFermion *vout[2], *vin[2], *out0, *in0;
+static QDP_Subset lusubset;
 
 static void
 set_out(void)
 {
+#ifdef LU
+  if(lupass==0) {
+    QDP_D_eq_zero(out0, lusubset);
+  } else {
+    QDP_D_eq_r_times_D(out0, &mw, in0, lusubset);
+    QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, lusubset, 2);
+  }
+#else
   //QDP_D_eq_r_times_D(out0, &mw, in0, QDP_all);
   //QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_all, 2);
   QDP_D_eq_r_times_D(out0, &mw, in0, QDP_even);
   QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_even, 2);
   QDP_D_eq_r_times_D(out0, &mw, in0, QDP_odd);
   QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_odd, 2);
+#endif
 }
 
 static void
@@ -705,10 +715,43 @@ dw_dslash1(QOP_FermionLinksDW *flw,
 {
 #ifdef LU
 
-  //printf0("here3\n");
-  dslash_special_qdp(flw, tt2, in, sign, QDP_odd, 2);
-  dslash_special_qdp(flw, out, tt2, sign, QDP_even, 3);
-  QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_even);
+  QLA_Real half = -0.5;
+  QLA_Real mf = -M;
+  int i;
+
+  lupass = 0;
+  lusubset = osubset;
+  for(i=0; i<Ls; i++) {
+    out0 = out[i];
+    QDP_D_eq_r_times_D(tt1, &half, in[i], subset);
+    wilson_dslash(flw, out[i], tt1, sign, osubset, 0);
+  }
+
+  //Qoo-1(out);
+
+  lupass = 1;
+  lusubset = subset;
+  mw = m0;
+  dirs[0] = dirs[1] = 4;
+  signs[0] = -sign;
+  signs[1] = sign;
+  for(i=0; i<Ls; i++) {
+    vout[0] = vout[1] = out[i];
+    vin[0] = in[(i+1)%Ls];
+    vin[1] = in[(i-1+Ls)%Ls];
+    out0 = out[i];
+    in0 = in[i];
+    if(i==0) {
+      QDP_D_eq_r_times_D(tt2, &mf, in[Ls-1], subset);
+      vin[1] = tt2;
+    } else if(i==Ls-1) {
+      QDP_D_eq_r_times_D(tt2, &mf, in[0], subset);
+      vin[0] = tt2;
+    }
+
+    QDP_D_eq_r_times_D(tt1, &half, out[i], osubset);
+    wilson_dslash(flw, out[i], tt1, sign, subset, 1);
+  }
 
 #else
 
