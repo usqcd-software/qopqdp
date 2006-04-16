@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.6.3, [josborn at physics.bu.edu])
+AC_INIT(qopqdp, 0.6.4, [josborn at physics.bu.edu])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 

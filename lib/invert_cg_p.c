@@ -4,6 +4,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 		  QOP_resid_arg_t *res_arg,
 		  Vector *out,
 		  Vector *in,
+		  Vector *p,
 		  QDP_Subset subset)
 {
   QLA_Real a, b;
@@ -11,10 +12,9 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   QLA_Real insq;
   QLA_Real rsqstop;
   int iteration=0;
-  Vector *r, *p, *Mp;
+  Vector *r, *Mp;
 
   r = create_V();
-  p = create_V();
   Mp = create_V();
 
   r_eq_norm2_V(&insq, in, subset);
@@ -60,7 +60,6 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   }
 
   destroy_V(r);
-  destroy_V(p);
   destroy_V(Mp);
 
   res_arg->final_rsq = rsq;

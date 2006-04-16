@@ -191,6 +191,7 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
   if(flw->dblstored) {
     for(i=0; i<4; i++) QDP_destroy_M(flw->bcklinks[i]);
   }
+  QDP_destroy_D(flw->cgp);
   free(flw->bcklinks);
   free(flw->dbllinks);
   free(flw);
@@ -269,6 +270,7 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[])
   for(i=0; i<4; i++) {
     flw->links[i] = links[i];
   }
+  flw->cgp = QDP_create_D();
 
   if( (!congrad_setup) ||
       (QOP_wilson_style != old_style) ||
@@ -416,7 +418,7 @@ QOPPC(wilson_invert)(QOP_FermionLinksWilson *flw,
   dtime = -QOP_time();
 
   QOPPC(invert_cg_D)(QOPPC(wilson_dslash2), inv_arg, res_arg,
-		     out->df, qdpin, subset);
+		     out->df, qdpin, flw->cgp, subset);
 
   dtime += QOP_time();
 

@@ -65,6 +65,7 @@ struct QOPPC(FermionLinksAsqtad_struct) {
   QDPPC(ColorMatrix) **fwdlinks;
   QDPPC(ColorMatrix) **bcklinks;
   QDPPC(ColorMatrix) **dbllinks;
+  QDPPC(ColorVector) *cgp;
 };
 
   /* Wilson datatypes */
@@ -75,6 +76,7 @@ struct QOPPC(FermionLinksWilson_struct) {
   QDPPC(ColorMatrix) **bcklinks;
   QDPPC(ColorMatrix) **dbllinks;
   QOPPC(GaugeField) *qopgf;
+  QDPPC(DiracFermion) *cgp;
   REAL **raw;
 };
 
@@ -106,6 +108,7 @@ QOPPC(invert_cg_V)(QOPPC(linop_t_V) *linop,
 		   QOP_resid_arg_t *res_arg,
 		   QDP_ColorVector *out,
 		   QDP_ColorVector *in,
+		   QDP_ColorVector *p,
 		   QDP_Subset subset);
 
 QOP_status_t
@@ -114,11 +117,12 @@ QOPPC(invert_cg_D)(QOPPC(linop_t_D) *linop,
 		   QOP_resid_arg_t *res_arg,
 		   QDP_DiracFermion *out,
 		   QDP_DiracFermion *in,
+		   QDP_DiracFermion *p,
 		   QDP_Subset subset);
 
 
 typedef void (QOPPC(linopv_t_V))(QDP_ColorVector *out[], QDP_ColorVector *in[],
-				QDP_Subset subset);
+				 QDP_Subset subset);
 
 typedef void (QOPPC(linopv_t_D))(QDP_DiracFermion *out[],
 				 QDP_DiracFermion *in[], QDP_Subset subset);

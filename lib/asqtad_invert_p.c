@@ -84,6 +84,10 @@ reset_temps(QOPPC(FermionLinksAsqtad) *fla)
     temp1[i] = QDP_create_V();
     temp2[i] = QDP_create_V();
   }
+
+  QDP_destroy_V(fla->cgp);
+  fla->cgp = QDP_create_V();
+
   congrad_setup = 1;
 }
 
@@ -98,26 +102,29 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
 {
   int i;
   QOPPC(FermionLinksAsqtad) *fla;
+
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
+
   QOP_malloc(fla, QOPPC(FermionLinksAsqtad), 1);
   QOP_malloc(fla->fatlinks, QDPPC(ColorMatrix) *, 4);
   QOP_malloc(fla->longlinks, QDPPC(ColorMatrix) *, 4);
   QOP_malloc(fla->fwdlinks, QDPPC(ColorMatrix) *, 8);
   QOP_malloc(fla->bcklinks, QDPPC(ColorMatrix) *, 8);
   QOP_malloc(fla->dbllinks, QDPPC(ColorMatrix) *, 16);
+
   for(i=0; i<4; i++) {
     fla->fatlinks[i] = fatlinks[i];
     fla->longlinks[i] = longlinks[i];
   }
-
-  fla->dblstored = 0;
   for(i=0; i<4; i++) {
     fla->fwdlinks[2*i] = fatlinks[i];
     fla->fwdlinks[2*i+1] = longlinks[i];
   }
+  fla->dblstored = 0;
+  fla->cgp = QDP_create_V();
+
   congrad_setup = 0;
   old_style = 0;
-
   if( (!congrad_setup) ||
       (QOP_asqtad.style != old_style) ||
       (QOP_asqtad.nsvec != old_nsvec) ||
@@ -308,13 +315,14 @@ QOPPC(asqtad_extract_L_to_raw)(REAL *fatlinks[], REAL *longlinks[],
 }
 
 void
-QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *field)
+QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *fla)
 {
   int i;
   for(i=0; i<4; i++) {
-    QDP_destroy_M(field->fatlinks[i]);
-    QDP_destroy_M(field->longlinks[i]);
+    QDP_destroy_M(fla->fatlinks[i]);
+    QDP_destroy_M(fla->longlinks[i]);
   }
+  QDP_destroy_V(fla->cgp);
 }
 
 
@@ -375,7 +383,7 @@ QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
   dtimec = -QDP_time();
 
   QOPPC(invert_cg_V)(QOPPC(asqtad_dslash2), inv_arg, res_arg,
-		     out->cv, in->cv, subset);
+		     out->cv, in->cv, fla->cgp, subset);
 
   dtimec += QDP_time();
 
