@@ -2,6 +2,7 @@
 #define _TEST_COMMON_H
 
 #include <qop_qdp.h>
+#include <qmp.h>
 
 #define printf0 if(QDP_this_node==0) printf
 
