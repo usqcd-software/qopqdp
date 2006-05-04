@@ -128,7 +128,7 @@ start(void)
   QOP_opt_t optnm;
   optnm.tag = "nm";
   for(sti=0; sti<stn; sti++) {
-    if((style>0)&&(sti!=style)) continue;
+    if((style>=0)&&(sti!=style)) continue;
     st = sta[sti];
     optst.value = st;
     if(QOP_dw_invert_set_opts(&optst, 1)==QOP_FAIL) continue;
