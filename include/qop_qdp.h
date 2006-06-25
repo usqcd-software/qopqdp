@@ -67,12 +67,15 @@ QDP_D3_ColorMatrix  **QOP_D3_convert_F_to_qdp(QOP_D3_Force *src);
 QOP_F3_FermionLinksAsqtad *
   QOP_F3_asqtad_create_L_from_qdp(QDP_F3_ColorMatrix *fatlinks[],
 				  QDP_F3_ColorMatrix *longlinks[]);
+
 void QOP_F3_asqtad_extract_L_to_qdp(QDP_F3_ColorMatrix *fatlinks[],
 				    QDP_F3_ColorMatrix *longlinks[],
 				    QOP_F3_FermionLinksAsqtad *src);
+
 QOP_F3_FermionLinksAsqtad *
   QOP_F3_asqtad_convert_L_from_qdp(QDP_F3_ColorMatrix *fatlinks[],
 				   QDP_F3_ColorMatrix *longlinks[]);
+
 void QOP_F3_asqtad_convert_L_to_qdp(QDP_F3_ColorMatrix ***fatlinks,
 				    QDP_F3_ColorMatrix ***longlinks,
 				    QOP_F3_FermionLinksAsqtad *src);
@@ -82,12 +85,15 @@ void QOP_F3_asqtad_convert_L_to_qdp(QDP_F3_ColorMatrix ***fatlinks,
 QOP_D3_FermionLinksAsqtad *
   QOP_D3_asqtad_create_L_from_qdp(QDP_D3_ColorMatrix *fatlinks[],
 				  QDP_D3_ColorMatrix *longlinks[]);
+
 void QOP_D3_asqtad_extract_L_to_qdp(QDP_D3_ColorMatrix *fatlinks[],
 				    QDP_D3_ColorMatrix *longlinks[],
 				    QOP_D3_FermionLinksAsqtad *src);
+
 QOP_D3_FermionLinksAsqtad *
   QOP_D3_asqtad_convert_L_from_qdp(QDP_D3_ColorMatrix *fatlinks[],
 				   QDP_D3_ColorMatrix *longlinks[]);
+
 void QOP_D3_asqtad_convert_L_to_qdp(QDP_D3_ColorMatrix ***fatlinks,
 				    QDP_D3_ColorMatrix ***longlinks,
 				    QOP_D3_FermionLinksAsqtad *src);
@@ -100,24 +106,38 @@ void QOP_D3_asqtad_convert_L_to_qdp(QDP_D3_ColorMatrix ***fatlinks,
   /* single precision */
 
 QOP_F3_FermionLinksWilson *
-  QOP_F3_wilson_create_L_from_qdp(QDP_F3_ColorMatrix *links[]);
+  QOP_F3_wilson_create_L_from_qdp(QDP_F3_ColorMatrix *links[],
+				  QDP_F3_DiracPropagator *clov[]);
+
 void QOP_F3_wilson_extract_L_to_qdp(QDP_F3_ColorMatrix *links[],
+				    QDP_F3_DiracPropagator *clov[],
 				    QOP_F3_FermionLinksWilson *src);
+
 QOP_F3_FermionLinksWilson *
-  QOP_F3_wilson_convert_L_from_qdp(QDP_F3_ColorMatrix *links[]);
-QDP_F3_ColorMatrix **
-  QOP_F3_wilson_convert_L_to_qdp(QOP_F3_FermionLinksWilson *src);
+  QOP_F3_wilson_convert_L_from_qdp(QDP_F3_ColorMatrix *links[],
+				   QDP_F3_DiracPropagator *clov[]);
+
+void QOP_F3_wilson_convert_L_to_qdp(QDP_F3_ColorMatrix ***links,
+				    QDP_F3_DiracPropagator ***clov,
+				    QOP_F3_FermionLinksWilson *src);
 
   /* double precision */
 
 QOP_D3_FermionLinksWilson *
-  QOP_D3_wilson_create_L_from_qdp(QDP_D3_ColorMatrix *links[]);
+  QOP_D3_wilson_create_L_from_qdp(QDP_D3_ColorMatrix *links[],
+				  QDP_D3_DiracPropagator *clov[]);
+
 void QOP_D3_wilson_extract_L_to_qdp(QDP_D3_ColorMatrix *links[],
+				    QDP_D3_DiracPropagator *clov[],
 				    QOP_D3_FermionLinksWilson *src);
+
 QOP_D3_FermionLinksWilson *
-  QOP_D3_wilson_convert_L_from_qdp(QDP_D3_ColorMatrix *links[]);
-QDP_D3_ColorMatrix **
-  QOP_D3_wilson_convert_L_to_qdp(QOP_D3_FermionLinksWilson *src);
+  QOP_D3_wilson_convert_L_from_qdp(QDP_D3_ColorMatrix *links[],
+				   QDP_D3_DiracPropagator *clov[]);
+
+void QOP_D3_wilson_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
+				    QDP_D3_DiracPropagator ***clov,
+				    QOP_D3_FermionLinksWilson *src);
 
 
   /**************************/
@@ -127,24 +147,38 @@ QDP_D3_ColorMatrix **
   /* single precision */
 
 QOP_F3_FermionLinksDW *
-  QOP_F3_dw_create_L_from_qdp(QDP_F3_ColorMatrix *links[]);
+  QOP_F3_dw_create_L_from_qdp(QDP_F3_ColorMatrix *links[],
+			      QDP_F3_DiracPropagator *clov[]);
+
 void QOP_F3_dw_extract_L_to_qdp(QDP_F3_ColorMatrix *links[],
-				    QOP_F3_FermionLinksDW *src);
+				QDP_F3_DiracPropagator *clov[],
+				QOP_F3_FermionLinksDW *src);
+
 QOP_F3_FermionLinksDW *
-  QOP_F3_dw_convert_L_from_qdp(QDP_F3_ColorMatrix *links[]);
-QDP_F3_ColorMatrix **
-  QOP_F3_dw_convert_L_to_qdp(QOP_F3_FermionLinksDW *src);
+  QOP_F3_dw_convert_L_from_qdp(QDP_F3_ColorMatrix *links[],
+			       QDP_F3_DiracPropagator *clov[]);
+
+void QOP_F3_dw_convert_L_to_qdp(QDP_F3_ColorMatrix ***links,
+				QDP_F3_DiracPropagator ***clov,
+				QOP_F3_FermionLinksDW *src);
 
   /* double precision */
 
 QOP_D3_FermionLinksDW *
-  QOP_D3_dw_create_L_from_qdp(QDP_D3_ColorMatrix *links[]);
+  QOP_D3_dw_create_L_from_qdp(QDP_D3_ColorMatrix *links[],
+			      QDP_D3_DiracPropagator *clov[]);
+
 void QOP_D3_dw_extract_L_to_qdp(QDP_D3_ColorMatrix *links[],
-				    QOP_D3_FermionLinksDW *src);
+				QDP_D3_DiracPropagator *clov[],
+				QOP_D3_FermionLinksDW *src);
+
 QOP_D3_FermionLinksDW *
-  QOP_D3_dw_convert_L_from_qdp(QDP_D3_ColorMatrix *links[]);
-QDP_D3_ColorMatrix **
-  QOP_D3_dw_convert_L_to_qdp(QOP_D3_FermionLinksDW *src);
+  QOP_D3_dw_convert_L_from_qdp(QDP_D3_ColorMatrix *links[],
+			       QDP_D3_DiracPropagator *clov[]);
+
+void QOP_D3_dw_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
+				QDP_D3_DiracPropagator ***clov,
+				QOP_D3_FermionLinksDW *src);
 
 
   /**************************************************/

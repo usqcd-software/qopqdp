@@ -26,11 +26,11 @@ double
 bench_force(QOP_asqtad_coeffs_t *asqcoef,
 	    QOP_Force *out, QDP_ColorVector *in)
 {
-  double sec=0, flop=0, mf=0, dtime;
+  double sec=0, flop=0, mf=0;
   int i;
   QOP_ColorVector *qopin[2];
-  double nflop = 433968*QDP_volume();
   QLA_Real eps[2];
+  QOP_info_t info;
 
   eps[0] = 0.1;
   eps[1] = 0.2;
@@ -38,14 +38,12 @@ bench_force(QOP_asqtad_coeffs_t *asqcoef,
   qopin[1] = QOP_create_V_from_qdp(in);
   for(i=0; i<=nit; i++) {
 
-    dtime = -QDP_time();
-    QOP_asqtad_force_multi(gauge, out, asqcoef, eps, qopin, 2);
-    dtime += QDP_time();
+    QOP_asqtad_force_multi(&info, gauge, out, asqcoef, eps, qopin, 2);
 
     if(i>0) {
-      sec += dtime;
-      flop += nflop;
-      mf += nflop/(1e6*dtime);
+      sec += info.final_sec;
+      flop += info.final_flop;
+      mf += info.final_flop/(1e6*info.final_sec);
     }
   }
   //printf("test1\n");
@@ -83,6 +81,7 @@ start(void)
   for(i=0; i<ndim; i++) {
     qoplayout.latsize[i] = lattice_size[i];
   }
+  qoplayout.machdim = -1;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
@@ -115,6 +114,7 @@ start(void)
     mf = bench_force(&asqcoef, force, in);
     printf0("FF: bs%5i sec%7.4f mflops = %g\n", bs, secs, mf);
     if(mf>best_mf) {
+      best_mf = mf;
       best_bs = bs;
     }
   }

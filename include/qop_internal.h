@@ -26,6 +26,10 @@
 
 #define QOP_printf0 if(QDP_this_node==0) printf
 
+#define QOP_error(str) \
+  fprintf(stderr, "QOP error: %s\n", str); \
+  QDP_abort();
+
 typedef struct {
   int inited;
   int verbosity;

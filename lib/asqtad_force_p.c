@@ -82,22 +82,18 @@ static QDP_Shift fbshift[8];
 static QDP_ShiftDir fbshiftdir[8];
 static QDP_ColorVector **tv;
 
-QOP_status_t
-QOPPC(asqtad_force)(QOP_GaugeField *gauge, QOP_Force *force,
+void
+QOPPC(asqtad_force)(QOP_info_t *info, QOP_GaugeField *gauge, QOP_Force *force,
 		    QOP_asqtad_coeffs_t *coeffs, REAL eps,
 		    QOP_ColorVector *in_pt)
 {
-  return QOPPC(asqtad_force_multi)(gauge, force, coeffs, &eps, &in_pt, 1);
+  QOPPC(asqtad_force_multi)(info, gauge, force, coeffs, &eps, &in_pt, 1);
 }
 
-//void
-//eo_fermion_force_3f(REAL eps, int nflav1, field_offset x1_off, 
-//		    int nflav2, field_offset x2_off)
-
-QOP_status_t
-QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
-			  QOP_asqtad_coeffs_t *coef, REAL eps[],
-			  QOP_ColorVector *in_pt[], int nsrc)
+void
+QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
+			  QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+			  REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
 {
   REAL coeff[nsrc];
   REAL OneLink[nsrc], Lepage[nsrc], Naik[nsrc], FiveSt[nsrc], ThreeSt[nsrc], SevenSt[nsrc];
@@ -173,13 +169,28 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
       Prhonumutmp[dir][i] = QDP_create_V();
       P7tmp[dir][i] = QDP_create_V();
     }
+#if 1
     for(mu=0; mu<4; mu++) {
       P5s[mu][i] = QDP_create_V();
       for(dir=0; dir<8; dir++) {
 	P5tmps[mu][dir][i] = QDP_create_V();
       }
     }
+#else
+    for(mu=0; mu<8; mu++) {
+      P5[mu][i] = QDP_create_V();
+      for(dir=0; dir<8; dir++) {
+	P5tmp[mu][dir][i] = QDP_create_V();
+	//printf("%p %p\n", P5tmp[mu][dir][i], &(P5tmp[mu][dir][i])); fflush(stdout);
+	if(P5tmp[mu][dir][i]==NULL) {
+	  fprintf(stderr, "error: can't create V\n");
+	  QDP_abort();
+	}
+      }
+    }
+#endif
   }
+  //printf("%p\n", P5tmp[0][4][0]); fflush(stdout);
 
   for(mu=0; mu<8; mu++) {
     for(i=0; i<nsrc; i++) {
@@ -237,10 +248,12 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
       u_shift_color_vecs(Pmu, Pnumu, OPP_DIR(nu), nsrc, Pmutmp[OPP_DIR(nu)]);
       for(sig=0; sig<8; sig++) if( (sig!=mu)&&(sig!=OPP_DIR(mu)) &&
 				   (sig!=nu)&&(sig!=OPP_DIR(nu)) ) {
-	for(i=0; i<2; i++) {
+#if 1
+	for(i=0; i<nsrc; i++) {
 	  P5[sig][i] = P5s[nP5][i];
 	  for(dir=0; dir<8; dir++) P5tmp[sig][dir][i] = P5tmps[nP5][dir][i];
 	}
+#endif
 	nP5++;
 	//u_shift_hw_fermion(Pnumu, P5[sig], sig, temp_hw[sig]);
 	u_shift_color_vecs(Pnumu, P5[sig], sig, nsrc, Pnumutmp[sig]);
@@ -253,16 +266,16 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
 	  add_forces_to_mom(P5[sig], Pnumu, sig, FiveSt, nsrc);
 	}
       }
-  QOP_trace("test 4\n");
+      QOP_trace("test 4\n");
       for(rho=0; rho<8; rho++) if( (rho!=mu)&&(rho!=OPP_DIR(mu)) &&
 				   (rho!=nu)&&(rho!=OPP_DIR(nu)) ) {
 	//Prhonumu = hw_qdp[OPP_DIR(rho)];
 	//u_shift_hw_fermion(Pnumu, Prhonumu, OPP_DIR(rho), 
 	//		 temp_hw[OPP_DIR(rho)] );
-  QOP_trace("test 41\n");
+	QOP_trace("test 41\n");
 	u_shift_color_vecs(Pnumu, Prhonumu, OPP_DIR(rho), nsrc,
 			   Pnumutmp[OPP_DIR(rho)]);
-  QOP_trace("test 42\n");
+	QOP_trace("test 42\n");
 	for(sig=0; sig<8; sig++) if( (sig!=mu )&&(sig!=OPP_DIR(mu )) &&
 				     (sig!=nu )&&(sig!=OPP_DIR(nu )) &&
 				     (sig!=rho)&&(sig!=OPP_DIR(rho)) ) {
@@ -413,7 +426,8 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
     QDP_M_eqm_M(tempmom_qdp[mu], tempmom_qdp[mu], QDP_odd);
   }
 
-  //if(QDP_this_node==0) { printf("here2\n"); fflush(stdout); }
+  //printf("%p\n", P5tmp[0][4][0]); fflush(stdout);
+  //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
   /* Free temporary vectors */
   for(i=0; i<nsrc; i++) {
     QDP_destroy_V(Pmu[i]);
@@ -421,6 +435,7 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
     QDP_destroy_V(Prhonumu[i]);
     QDP_destroy_V(P7[i]);
     QDP_destroy_V(P7rho[i]);
+    //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
     for(dir=0; dir<8; dir++) {
       QDP_destroy_V(xintmp[dir][i]);
       QDP_destroy_V(Pmutmp[dir][i]);
@@ -428,12 +443,22 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
       QDP_destroy_V(Prhonumutmp[dir][i]);
       QDP_destroy_V(P7tmp[dir][i]);
     }
+    //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
     for(mu=0; mu<4; mu++) {
+      //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
       QDP_destroy_V(P5s[mu][i]);
+      //QDP_destroy_V(P5[mu][i]);
+      //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
       for(dir=0; dir<8; dir++) {
+	//if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
 	QDP_destroy_V(P5tmps[mu][dir][i]);
+	//printf("%p\n", P5tmp[mu][dir][i]); fflush(stdout);
+	//QDP_destroy_V(P5tmp[mu][dir][i]);
+	//if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
       }
+      //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
     }
+    //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
   }
 
   //if(QDP_this_node==0) { printf("here3\n"); fflush(stdout); }
@@ -455,11 +480,11 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
   }
 
   dtime += QOP_time();
-  QOP_printf0("FFTIME:  time = %e mflops = %e\n", dtime,
-	      nflop*QDP_volume()/(1e6*dtime*QMP_get_number_of_nodes()) );
-  /**printf("TLENGTH: %d\n",tlength);**/
-  return QOP_SUCCESS;
-} /* eo_fermion_force_3f */
+
+  info->final_sec = dtime;
+  info->final_flop = nflop*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+}
 
 #undef Pmu          
 #undef Pnumu        
@@ -467,7 +492,7 @@ QOPPC(asqtad_force_multi)(QOP_GaugeField *gauge, QOP_Force *force,
 #undef P7           
 #undef P7rho        
 #undef P7rhonu      
-#undef P5           
+//#undef P5
 #undef P3           
 #undef P5nu         
 #undef P3mu         

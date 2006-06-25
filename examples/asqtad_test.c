@@ -22,8 +22,8 @@ static const int bsn = sizeof(bsa)/sizeof(int);
 QOP_FermionLinksAsqtad *fla;
 
 double
-bench_inv(QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,
-	  QDP_ColorVector *out, QDP_ColorVector *in)
+bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
+	  QOP_resid_arg_t *res_arg, QDP_ColorVector *out, QDP_ColorVector *in)
 {
   double sec=0, flop=0, mf=0;
   int i, iter=0;
@@ -33,19 +33,19 @@ bench_inv(QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,
     QDP_V_eq_zero(out, QDP_all);
     qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
-    QOP_asqtad_invert(fla, inv_arg, res_arg, mass, qopout, qopin);
+    QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
     if(i>0) {
       iter += res_arg->final_iter;
-      sec += inv_arg->final_sec;
-      flop += inv_arg->final_flop;
-      mf += inv_arg->final_flop/(1e6*inv_arg->final_sec);
+      sec += info->final_sec;
+      flop += info->final_flop;
+      mf += info->final_flop/(1e6*info->final_sec);
     }
     QOP_destroy_V(qopout);
     QOP_destroy_V(qopin);
   }
   res_arg->final_iter = iter/nit;
-  inv_arg->final_sec = sec/nit;
-  inv_arg->final_flop = flop/nit;
+  info->final_sec = sec/nit;
+  info->final_flop = flop/nit;
   return mf/nit;
 }
 
@@ -84,6 +84,7 @@ start(void)
     qoplayout.latsize[i] = lattice_size[i];
   }
 
+  QOP_info_t info;
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
   res_arg.rsqmin = 1e-4;
@@ -124,9 +125,9 @@ start(void)
 	for(bsi=0; bsi<bsn; bsi++) {
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);
-	  mf = bench_inv(&inv_arg, &res_arg, out, in);
+	  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
 	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
-		  ns, nm, bs, res_arg.final_iter, inv_arg.final_sec, mf);
+		  ns, nm, bs, res_arg.final_iter, info.final_sec, mf);
 	  if(mf>best_mf) {
 	    best_mf = mf;
 	    best_st = st;
@@ -147,11 +148,11 @@ start(void)
   QOP_asqtad_invert_set_opts(&optnm, 1);
   QDP_set_block_size(best_bs);
   QDP_profcontrol(1);
-  mf = bench_inv(&inv_arg, &res_arg, out, in);
+  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
   QDP_profcontrol(0);
   printf0("prof: CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n",
           best_st, best_ns, best_nm, best_bs,
-          res_arg.final_iter, inv_arg.final_sec, mf);
+          res_arg.final_iter, info.final_sec, mf);
 
   printf0("best: CONGRAD: st%2i ns%2i nm%2i bs%5i mflops = %g\n",
           best_st, best_ns, best_nm, best_bs, best_mf);

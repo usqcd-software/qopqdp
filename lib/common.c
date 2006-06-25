@@ -4,6 +4,32 @@
 
 QOP_common_t QOP_common = {.inited=0};
 
+static int
+compare_sizes(int n1, int *v1, char *s1, int n2, int *v2, char *s2)
+{
+  int i, n, error=0;
+
+  n = n1;
+  if(n2>n1) n = n2;
+  for(i=0; i<n; i++) {
+    int t1=1, t2=1;
+    if(i<n1) t1 = v1[i];
+    if(i<n2) t2 = v2[i];
+    if(t1!=t2) error = 1;
+  }
+  if(error) {
+    if(QDP_this_node==0) {
+      printf("QOP Warning: %s != %s\n", s1, s2);
+      printf("%s =", s1);
+      for(i=0; i<n1; i++) printf(" %i", v1[i]);
+      printf("\n%s =", s2);
+      for(i=0; i<n2; i++) printf(" %i", v2[i]);
+      printf("\n");
+      fflush(stdout);
+    }
+  }
+  return error;
+}
 
   /*********************/
   /*  Public routines  */
@@ -13,43 +39,40 @@ QOP_status_t
 QOP_init(QOP_layout_t *layout)
 {
   QOP_status_t retval = QOP_SUCCESS;
+
   CHECK_NOT_INIT;
   QOP_common.inited = 1;
   QOP_common.verbosity = 0;
   QOP_common.proflevel = 0;
   QOP_common.we_inited_qdp = 0;
   QOP_common.ndim = layout->latdim;
+
   if(!QDP_is_initialized()) {
     QDP_initialize(NULL, NULL);
     QDP_set_latsize(layout->latdim, layout->latsize);
     QDP_create_layout();
     QOP_common.we_inited_qdp = 1;
+  } else {
+    int error;
+    int qdplatdim = QDP_ndim();
+    int qdplatsize[qdplatdim];
+    QDP_latsize(qdplatsize);
+    error = compare_sizes(layout->latdim, layout->latsize, "QOP lattice",
+			  qdplatdim, qdplatsize, "QDP lattice");
+    if(error) retval = QOP_FAIL;
   }
+
   if( (layout->machdim>=0) && (QMP_logical_topology_is_declared()) ) {
-    int i, n, qmpndim, error=0;
+    int error;
+    int qmpndim;
     const int *qmpdims;
-    n = layout->machdim;
     qmpndim = QMP_get_logical_number_of_dimensions();
-    if(qmpndim>n) n = qmpndim;
     qmpdims = QMP_get_logical_dimensions();
-    for(i=0; i<n; i++) {
-      int qopsize=1, qmpsize=1;
-      if(i<layout->machdim) qopsize = layout->machsize[i];
-      if(i<qmpndim) qmpsize = qmpdims[i];
-      if(qopsize!=qmpsize) error = 1;
-    }
-    if(error) {
-      if(QDP_this_node==0) {
-	printf("QOP Warning: QOP machine != QMP logical topology\n");
-	printf("QOP machsize =");
-	for(i=0; i<layout->machdim; i++) printf(" %i", layout->machsize[i]);
-	printf("\nQMP topology =");
-	for(i=0; i<qmpndim; i++) printf(" %i", qmpdims[i]);
-	printf("\n");
-	fflush(stdout);
-      }
-    }
+    error = compare_sizes(layout->machdim, layout->machsize, "QOP machsize",
+			  qmpndim, (int *)qmpdims, "QMP topology");
+    if(error) retval = QOP_FAIL;
   }
+
   return retval;
 }
 

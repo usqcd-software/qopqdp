@@ -25,8 +25,9 @@ static const int bsn = sizeof(bsa)/sizeof(int);
 QOP_FermionLinksDW *flw;
 
 double
-bench_inv(QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,
-	  QDP_DiracFermion *out[], QDP_DiracFermion *in[])
+bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
+	  QOP_resid_arg_t *res_arg, QDP_DiracFermion *out[],
+	  QDP_DiracFermion *in[])
 {
   static QLA_Real r2s=-1;
   QLA_Real r2, rt;
@@ -42,12 +43,12 @@ bench_inv(QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,
       qopout[k] = QOP_create_D_from_qdp(out[k]);
       qopin[k] = QOP_create_D_from_qdp(in[k]);
     }
-    QOP_dw_invert(flw, inv_arg, res_arg, m0, M, qopout, qopin, Ls);
+    QOP_dw_invert(info, flw, inv_arg, res_arg, m0, M, qopout, qopin, Ls);
     if(i>0) {
       iter += res_arg->final_iter;
-      sec += inv_arg->final_sec;
-      flop += inv_arg->final_flop;
-      mf += inv_arg->final_flop/(1e6*inv_arg->final_sec);
+      sec += info->final_sec;
+      flop += info->final_flop;
+      mf += info->final_flop/(1e6*info->final_sec);
     }
     for(k=0; k<Ls; k++) {
       QOP_destroy_D(qopout[k]);
@@ -55,8 +56,8 @@ bench_inv(QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,
     }
   }
   res_arg->final_iter = iter/nit;
-  inv_arg->final_sec = sec/nit;
-  inv_arg->final_flop = flop/nit;
+  info->final_sec = sec/nit;
+  info->final_flop = flop/nit;
   
   r2 = 0;
   for(k=0; k<Ls; k++) {
@@ -103,6 +104,7 @@ start(void)
   }
   qoplayout.machdim = -1;
 
+  QOP_info_t info;
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
   res_arg.rsqmin = 1e-4;
@@ -113,7 +115,7 @@ start(void)
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
-  flw = QOP_dw_create_L_from_qdp(u);
+  flw = QOP_dw_create_L_from_qdp(u, NULL);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
 
   best_mf = 0;
@@ -144,9 +146,9 @@ start(void)
 	for(bsi=0; bsi<bsn; bsi++) {
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);
-	  mf = bench_inv(&inv_arg, &res_arg, out, in);
+	  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
 	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
-		  ns, nm, bs, res_arg.final_iter, inv_arg.final_sec, mf);
+		  ns, nm, bs, res_arg.final_iter, info.final_sec, mf);
 	  if(mf>best_mf) {
 	    best_mf = mf;
 	    best_st = st;
@@ -167,11 +169,11 @@ start(void)
   QOP_dw_invert_set_opts(&optnm, 1);
   QDP_set_block_size(best_bs);
   QDP_profcontrol(1);
-  mf = bench_inv(&inv_arg, &res_arg, out, in);
+  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
   QDP_profcontrol(0);
   printf0("prof: CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n",
           best_st, best_ns, best_nm, best_bs,
-          res_arg.final_iter, inv_arg.final_sec, mf);
+          res_arg.final_iter, info.final_sec, mf);
 
   printf0("best: CONGRAD: st%2i ns%2i nm%2i bs%5i mflops = %g\n",
           best_st, best_ns, best_nm, best_bs, best_mf);

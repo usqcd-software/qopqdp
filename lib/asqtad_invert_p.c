@@ -235,7 +235,8 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
 } /* compute_gen_staple */
 
 QOPPC(FermionLinksAsqtad) *
-QOPPC(asqtad_create_L_from_G)(QOP_asqtad_coeffs_t *coeffs,
+QOPPC(asqtad_create_L_from_G)(QOP_info_t *info,
+			      QOP_asqtad_coeffs_t *coeffs,
 			      QOPPC(GaugeField) *gauge)
 {
   QOPPC(FermionLinksAsqtad) *fla;
@@ -244,7 +245,7 @@ QOPPC(asqtad_create_L_from_G)(QOP_asqtad_coeffs_t *coeffs,
   QDP_ColorMatrix *staple, *tempmat1;
   int  nu,rho,sig ;
   QLA_Real one_link;
-  int nflop = 61632;
+  double nflop = 61632;
   double dtime;
 
   for(i=0; i<4; i++) {
@@ -297,6 +298,10 @@ QOPPC(asqtad_create_L_from_G)(QOP_asqtad_coeffs_t *coeffs,
   //node0_printf("LLTIME(Fat): time = %e (Asqtad opt) mflops = %e\n",dtime,
   //       (Real)nflop*volume/(1e6*dtime*numnodes()) );
 
+  info->final_sec = dtime;
+  info->final_flop = nflop*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+
   fla = QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
 
   return fla;
@@ -340,8 +345,9 @@ QOPPC(asqtad_dslash2)(QDP_ColorVector *out, QDP_ColorVector *in,
   QOPPC(asqtad_mdslash2)(gl_fla, out, in, subset, gl_osubset, gl_m2x4);
 }
 
-QOP_status_t
-QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
+void
+QOPPC(asqtad_invert)(QOP_info_t *info,
+		     QOPPC(FermionLinksAsqtad) *fla,
 		     QOP_invert_arg_t *inv_arg,
 		     QOP_resid_arg_t *res_arg,
 		     REAL mass,
@@ -390,14 +396,15 @@ QOPPC(asqtad_invert)(QOPPC(FermionLinksAsqtad) *fla,
   //res_arg->final_rsq = rsq;
   //res_arg->final_iter = iteration;
   //inv_arg->final_iter = iteration;
-  inv_arg->final_sec = dtimec;
-  inv_arg->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
 
-  return QOP_SUCCESS;
+  info->final_sec = dtimec;
+  info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
 }
 
-QOP_status_t
-QOPPC(asqtad_invert_multi)(QOP_FermionLinksAsqtad *asqtad,
+void
+QOPPC(asqtad_invert_multi)(QOP_info_t *info,
+			   QOP_FermionLinksAsqtad *asqtad,
 			   QOP_invert_arg_t *inv_arg,
 			   QOP_resid_arg_t **res_arg[],
 			   REAL *masses[], int nmass[],
@@ -405,26 +412,19 @@ QOPPC(asqtad_invert_multi)(QOP_FermionLinksAsqtad *asqtad,
 			   QOP_ColorVector *in_pt[],
 			   int nsrc)
 {
-  QOP_invert_arg_t tinvarg;
+  QOP_info_t tinfo;
   int i, j;
 
-  //inv_arg->final_iter = 0;
-  inv_arg->final_sec = 0;
-  inv_arg->final_flop = 0;
   for(i=0; i<nsrc; i++) {
     for(j=0; j<nmass[i]; j++) {
-      QOPPC(asqtad_invert)(asqtad, &tinvarg, res_arg[i][j], masses[i][j],
-			   out_pt[i][j], in_pt[i]);
-      //inv_arg->final_iter += tinvarg.final_iter;
-      inv_arg->final_sec += tinvarg.final_sec;
-      inv_arg->final_flop += tinvarg.final_flop;
+      QOPPC(asqtad_invert)(&tinfo, asqtad, inv_arg, res_arg[i][j],
+			   masses[i][j], out_pt[i][j], in_pt[i]);
+      info->final_sec += tinfo.final_sec;
+      info->final_flop += tinfo.final_flop;
     }
   }
-
-  return QOP_SUCCESS;
+  info->status = QOP_SUCCESS;
 }
-
-
 
 
 /* internal functions */
