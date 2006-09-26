@@ -96,7 +96,7 @@ start(void)
     bs = bsa[bsi];
     QDP_set_block_size(bs);
     mf = bench_force(&gcoeffs, force);
-    printf0("FF: bs%5i sec%7.4f mflops = %g\n", bs, secs, mf);
+    printf0("GF: bs%5i sec%7.4f mflops = %g\n", bs, secs, mf);
     if(mf>best_mf) {
       best_mf = mf;
       best_bs = bs;
@@ -107,9 +107,9 @@ start(void)
   QDP_profcontrol(1);
   mf = bench_force(&gcoeffs, force);
   QDP_profcontrol(0);
-  printf0("prof: FF: bs%5i sec%7.4f mflops = %g\n", best_bs, secs, mf);
+  printf0("prof: GF: bs%5i sec%7.4f mflops = %g\n", best_bs, secs, mf);
 
-  printf0("best: FF: bs%5i mflops = %g\n", best_bs, best_mf);
+  printf0("best: GF: bs%5i mflops = %g\n", best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
   //QOP_asqtad_invert_unload_links();
