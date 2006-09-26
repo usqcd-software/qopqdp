@@ -56,7 +56,8 @@ ARFLAGS = cru
 libqopqdp_a_AR = $(AR) $(ARFLAGS)
 libqopqdp_a_LIBADD =
 am_libqopqdp_a_OBJECTS = common.$(OBJEXT) common_f.$(OBJEXT) \
-	common_d.$(OBJEXT) asqtad_invert.$(OBJEXT) \
+	common_d.$(OBJEXT) symanzik_1loop_gauge_force_f.$(OBJEXT) \
+	symanzik_1loop_gauge_force_d.$(OBJEXT) asqtad_invert.$(OBJEXT) \
 	asqtad_invert_f.$(OBJEXT) asqtad_invert_d.$(OBJEXT) \
 	asqtad_force_f.$(OBJEXT) asqtad_force_d.$(OBJEXT) \
 	wilson_invert.$(OBJEXT) wilson_invert_f.$(OBJEXT) \
@@ -172,6 +173,7 @@ AM_CFLAGS = -I@top_srcdir@/include
 lib_LIBRARIES = libqopqdp.a
 libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
+  symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
   asqtad_force_f.c asqtad_force_d.c \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
@@ -275,6 +277,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_D_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_V_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_V_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_f.Po@am__quote@
@@ -463,6 +467,8 @@ uninstall-am: uninstall-info-am uninstall-libLIBRARIES
 
 common_f.o: common_p.c
 common_d.o: common_p.c
+symanzik_1loop_gauge_force_f.c: symanzik_1loop_gauge_force_p.c
+symanzik_1loop_gauge_force_d.c: symanzik_1loop_gauge_force_p.c
 asqtad_invert_f.o: asqtad_invert_p.c
 asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c

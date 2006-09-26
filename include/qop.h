@@ -85,6 +85,15 @@ typedef struct QOP_D3_DiracFermion_struct QOP_D3_DiracFermion;
 typedef struct QOP_D3_GaugeField_struct   QOP_D3_GaugeField;
 typedef struct QOP_D3_Force_struct        QOP_D3_Force;
 
+   /* Imp gauge */
+typedef struct{  
+   double plaquette;
+   double rectangle;
+   double parallelogram;
+} QOP_gauge_coeffs_t;
+
+
+
   /* Asqtad datatypes */
   /* to follow the convetion defined in Orginos, et al (PRD 60, 045403) */
 typedef struct {
@@ -379,6 +388,19 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
 			       double eps[],
 			       QOP_D3_ColorVector *in_pt[],
 			       int nsrc);
+/*  gauge force routines */
+
+void QOP_F3_symanzik_1loop_gauge_force(QOP_info_t *info, 
+                            QOP_F3_GaugeField *gauge, 
+                            QOP_F3_Force *force,
+			    QOP_gauge_coeffs_t *coeffs,
+                            float eps);
+
+void QOP_D3_symanzik_1loop_gauge_force(QOP_info_t *info, 
+                            QOP_D3_GaugeField *gauge, 
+                            QOP_D3_Force *force,
+                            QOP_gauge_coeffs_t *coeffs,
+                            double eps);
 
 
   /*********************/
@@ -731,6 +753,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_invert_multi QOP_F3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_F3_asqtad_force
 #define QOP_asqtad_force_multi  QOP_F3_asqtad_force_multi
+#define QOP_symanzik_1loop_gauge_force     QOP_F3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksWilson        QOP_F3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_F3_wilson_create_L_from_raw
@@ -806,6 +829,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_invert_multi QOP_D3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_D3_asqtad_force
 #define QOP_asqtad_force_multi  QOP_D3_asqtad_force_multi
+#define QOP_symanzik_1loop_gauge_force     QOP_D3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksWilson        QOP_D3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_D3_wilson_create_L_from_raw

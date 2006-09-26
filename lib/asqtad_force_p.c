@@ -123,9 +123,9 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
   int i, dir;
   int mu, nu, rho, sig;
 
-  int nflop1 = 253935;
-  int nflop2 = 433968;
-  int nflop = nflop1 + (nflop2-nflop1)*(nsrc-1);
+  double nflop1 = 253935;
+  double nflop2 = 433968;
+  double nflop = nflop1 + (nflop2-nflop1)*(nsrc-1);
   double dtime;
 
   dtime = -QOP_time();

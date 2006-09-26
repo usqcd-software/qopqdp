@@ -33,8 +33,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-check_PROGRAMS = asqtad_test_f3$(EXEEXT) asqtad_test_d3$(EXEEXT) \
-	asqtad_invert_bench_f3$(EXEEXT) \
+check_PROGRAMS = imp_gauge_force_bench_f3$(EXEEXT) \
+	imp_gauge_force_bench_d3$(EXEEXT) asqtad_test_f3$(EXEEXT) \
+	asqtad_test_d3$(EXEEXT) asqtad_invert_bench_f3$(EXEEXT) \
 	asqtad_invert_bench_d3$(EXEEXT) asqtad_force_bench_f3$(EXEEXT) \
 	asqtad_force_bench_d3$(EXEEXT) wilson_test_f3$(EXEEXT) \
 	wilson_test_d3$(EXEEXT) wilson_invert_bench_f3$(EXEEXT) \
@@ -89,6 +90,18 @@ am_dw_invert_bench_f3_OBJECTS =  \
 	dw_invert_bench_f3-dw_invert_bench.$(OBJEXT)
 dw_invert_bench_f3_OBJECTS = $(am_dw_invert_bench_f3_OBJECTS)
 dw_invert_bench_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_imp_gauge_force_bench_d3_OBJECTS =  \
+	imp_gauge_force_bench_d3-test_common.$(OBJEXT) \
+	imp_gauge_force_bench_d3-imp_gauge_force_bench.$(OBJEXT)
+imp_gauge_force_bench_d3_OBJECTS =  \
+	$(am_imp_gauge_force_bench_d3_OBJECTS)
+imp_gauge_force_bench_d3_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_imp_gauge_force_bench_f3_OBJECTS =  \
+	imp_gauge_force_bench_f3-test_common.$(OBJEXT) \
+	imp_gauge_force_bench_f3-imp_gauge_force_bench.$(OBJEXT)
+imp_gauge_force_bench_f3_OBJECTS =  \
+	$(am_imp_gauge_force_bench_f3_OBJECTS)
+imp_gauge_force_bench_f3_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am_wilson_invert_bench_d3_OBJECTS =  \
 	wilson_invert_bench_d3-test_common.$(OBJEXT) \
 	wilson_invert_bench_d3-wilson_invert_bench.$(OBJEXT)
@@ -120,6 +133,8 @@ SOURCES = $(asqtad_force_bench_d3_SOURCES) \
 	$(asqtad_invert_bench_f3_SOURCES) $(asqtad_test_d3_SOURCES) \
 	$(asqtad_test_f3_SOURCES) $(dw_invert_bench_d3_SOURCES) \
 	$(dw_invert_bench_f3_SOURCES) \
+	$(imp_gauge_force_bench_d3_SOURCES) \
+	$(imp_gauge_force_bench_f3_SOURCES) \
 	$(wilson_invert_bench_d3_SOURCES) \
 	$(wilson_invert_bench_f3_SOURCES) $(wilson_test_d3_SOURCES) \
 	$(wilson_test_f3_SOURCES)
@@ -129,6 +144,8 @@ DIST_SOURCES = $(asqtad_force_bench_d3_SOURCES) \
 	$(asqtad_invert_bench_f3_SOURCES) $(asqtad_test_d3_SOURCES) \
 	$(asqtad_test_f3_SOURCES) $(dw_invert_bench_d3_SOURCES) \
 	$(dw_invert_bench_f3_SOURCES) \
+	$(imp_gauge_force_bench_d3_SOURCES) \
+	$(imp_gauge_force_bench_f3_SOURCES) \
 	$(wilson_invert_bench_d3_SOURCES) \
 	$(wilson_invert_bench_f3_SOURCES) $(wilson_test_d3_SOURCES) \
 	$(wilson_test_f3_SOURCES)
@@ -232,6 +249,12 @@ F3_CFLAGS = -DQOP_Precision=1 -DQDP_Precision=1 -DQDP_Nc=3 $(ALL_CFLAGS)
 F3_LDADD = -lqopqdp -lqdp_f -lqdp_f3 -lqla_f -lqla_f3 -lqla_d -lqla_d3 -lqla_df -lqla_df3 $(ALL_LDADD)
 D3_CFLAGS = -DQOP_Precision=2 -DQDP_Precision=2 -DQDP_Nc=3 $(ALL_CFLAGS)
 D3_LDADD = -lqopqdp -lqdp_d -lqdp_d3 -lqla_d -lqla_d3 -lqla_q -lqla_q3 -lqla_dq -lqla_dq3 $(ALL_LDADD)
+imp_gauge_force_bench_f3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_f3_CFLAGS = $(F3_CFLAGS)
+imp_gauge_force_bench_f3_LDADD = $(F3_LDADD)
+imp_gauge_force_bench_d3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_d3_CFLAGS = $(D3_CFLAGS)
+imp_gauge_force_bench_d3_LDADD = $(D3_LDADD)
 asqtad_test_f3_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
 asqtad_test_f3_LDADD = $(F3_LDADD)
@@ -328,6 +351,12 @@ dw_invert_bench_d3$(EXEEXT): $(dw_invert_bench_d3_OBJECTS) $(dw_invert_bench_d3_
 dw_invert_bench_f3$(EXEEXT): $(dw_invert_bench_f3_OBJECTS) $(dw_invert_bench_f3_DEPENDENCIES) 
 	@rm -f dw_invert_bench_f3$(EXEEXT)
 	$(LINK) $(dw_invert_bench_f3_LDFLAGS) $(dw_invert_bench_f3_OBJECTS) $(dw_invert_bench_f3_LDADD) $(LIBS)
+imp_gauge_force_bench_d3$(EXEEXT): $(imp_gauge_force_bench_d3_OBJECTS) $(imp_gauge_force_bench_d3_DEPENDENCIES) 
+	@rm -f imp_gauge_force_bench_d3$(EXEEXT)
+	$(LINK) $(imp_gauge_force_bench_d3_LDFLAGS) $(imp_gauge_force_bench_d3_OBJECTS) $(imp_gauge_force_bench_d3_LDADD) $(LIBS)
+imp_gauge_force_bench_f3$(EXEEXT): $(imp_gauge_force_bench_f3_OBJECTS) $(imp_gauge_force_bench_f3_DEPENDENCIES) 
+	@rm -f imp_gauge_force_bench_f3$(EXEEXT)
+	$(LINK) $(imp_gauge_force_bench_f3_LDFLAGS) $(imp_gauge_force_bench_f3_OBJECTS) $(imp_gauge_force_bench_f3_LDADD) $(LIBS)
 wilson_invert_bench_d3$(EXEEXT): $(wilson_invert_bench_d3_OBJECTS) $(wilson_invert_bench_d3_DEPENDENCIES) 
 	@rm -f wilson_invert_bench_d3$(EXEEXT)
 	$(LINK) $(wilson_invert_bench_d3_LDFLAGS) $(wilson_invert_bench_d3_OBJECTS) $(wilson_invert_bench_d3_LDADD) $(LIBS)
@@ -363,6 +392,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f3-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f3-test_common.Po@am__quote@
@@ -609,6 +642,62 @@ dw_invert_bench_f3-dw_invert_bench.obj: dw_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dw_invert_bench.c' object='dw_invert_bench_f3-dw_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f3_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_f3-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
+
+imp_gauge_force_bench_d3-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d3-test_common.o -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Tpo" -c -o imp_gauge_force_bench_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Tpo" "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_d3-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+imp_gauge_force_bench_d3-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d3-test_common.obj -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Tpo" -c -o imp_gauge_force_bench_d3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Tpo" "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_d3-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+imp_gauge_force_bench_d3-imp_gauge_force_bench.o: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d3-imp_gauge_force_bench.o -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Tpo" -c -o imp_gauge_force_bench_d3-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Tpo" "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_d3-imp_gauge_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d3-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c
+
+imp_gauge_force_bench_d3-imp_gauge_force_bench.obj: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d3-imp_gauge_force_bench.obj -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Tpo" -c -o imp_gauge_force_bench_d3-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Tpo" "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_d3-imp_gauge_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d3-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
+
+imp_gauge_force_bench_f3-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f3-test_common.o -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Tpo" -c -o imp_gauge_force_bench_f3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Tpo" "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_f3-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+imp_gauge_force_bench_f3-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f3-test_common.obj -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Tpo" -c -o imp_gauge_force_bench_f3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Tpo" "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_f3-test_common.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_f3-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f3-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+imp_gauge_force_bench_f3-imp_gauge_force_bench.o: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f3-imp_gauge_force_bench.o -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Tpo" -c -o imp_gauge_force_bench_f3-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Tpo" "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_f3-imp_gauge_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f3-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c
+
+imp_gauge_force_bench_f3-imp_gauge_force_bench.obj: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f3-imp_gauge_force_bench.obj -MD -MP -MF "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Tpo" -c -o imp_gauge_force_bench_f3-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Tpo" "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Po"; else rm -f "$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_f3-imp_gauge_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f3_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f3-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
 
 wilson_invert_bench_d3-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d3_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d3-test_common.o -MD -MP -MF "$(DEPDIR)/wilson_invert_bench_d3-test_common.Tpo" -c -o wilson_invert_bench_d3-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c; \

@@ -4,6 +4,7 @@ lib_LIBRARIES = libqopqdp.a
 
 libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
+  symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
   asqtad_force_f.c asqtad_force_d.c \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
@@ -13,6 +14,8 @@ libqopqdp_a_SOURCES = \
 
 common_f.o: common_p.c
 common_d.o: common_p.c
+symanzik_1loop_gauge_force_f.c: symanzik_1loop_gauge_force_p.c
+symanzik_1loop_gauge_force_d.c: symanzik_1loop_gauge_force_p.c
 asqtad_invert_f.o: asqtad_invert_p.c
 asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c

@@ -8,12 +8,21 @@ D3_CFLAGS = -DQOP_Precision=2 -DQDP_Precision=2 -DQDP_Nc=3 $(ALL_CFLAGS)
 D3_LDADD = -lqopqdp -lqdp_d -lqdp_d3 -lqla_d -lqla_d3 -lqla_q -lqla_q3 -lqla_dq -lqla_dq3 $(ALL_LDADD)
 
 check_PROGRAMS = \
+  imp_gauge_force_bench_f3 imp_gauge_force_bench_d3 \
   asqtad_test_f3 asqtad_test_d3 \
   asqtad_invert_bench_f3 asqtad_invert_bench_d3 \
   asqtad_force_bench_f3 asqtad_force_bench_d3 \
   wilson_test_f3 wilson_test_d3 \
   wilson_invert_bench_f3 wilson_invert_bench_d3 \
   dw_invert_bench_f3 dw_invert_bench_d3
+
+imp_gauge_force_bench_f3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_f3_CFLAGS = $(F3_CFLAGS)
+imp_gauge_force_bench_f3_LDADD = $(F3_LDADD)
+
+imp_gauge_force_bench_d3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_d3_CFLAGS = $(D3_CFLAGS)
+imp_gauge_force_bench_d3_LDADD = $(D3_LDADD)
 
 asqtad_test_f3_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
