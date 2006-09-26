@@ -183,6 +183,7 @@ libqopqdp_a_SOURCES = \
 
 EXTRA_DIST = \
   common_p.c \
+  symanzik_1loop_gauge_force_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \
   wilson_invert_p.c \
