@@ -1,3 +1,20 @@
+2006-09-26 19:23  tag qopqdp0-7-1
+
+2006-09-26 19:23  osborn
+
+	* lib/Makefile.am: Fix Makefile.am.
+
+2006-09-26 19:16  osborn
+
+	* examples/imp_gauge_force_bench.c: Changed FF to GF in output.
+
+2006-09-26 19:12  osborn
+
+	* examples/imp_gauge_force_bench.c,
+	  lib/symanzik_1loop_gauge_force_d.c,
+	  lib/symanzik_1loop_gauge_force_f.c,
+	  lib/symanzik_1loop_gauge_force_p.c: Really add files.
+
 2006-09-26 19:09  osborn
 
 	* AUTHORS, NEWS, configure, configure.ac, examples/Makefile.am,
