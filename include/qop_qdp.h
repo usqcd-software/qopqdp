@@ -80,6 +80,10 @@ void QOP_F3_asqtad_convert_L_to_qdp(QDP_F3_ColorMatrix ***fatlinks,
 				    QDP_F3_ColorMatrix ***longlinks,
 				    QOP_F3_FermionLinksAsqtad *src);
 
+void QOP_F3_asqtad_load_L_from_qdp(QOP_F3_FermionLinksAsqtad *asqtad,
+				   QDP_F3_ColorMatrix *fatlinks[],
+				   QDP_F3_ColorMatrix *longlinks[]);
+
   /* double precision */
 
 QOP_D3_FermionLinksAsqtad *
@@ -97,6 +101,10 @@ QOP_D3_FermionLinksAsqtad *
 void QOP_D3_asqtad_convert_L_to_qdp(QDP_D3_ColorMatrix ***fatlinks,
 				    QDP_D3_ColorMatrix ***longlinks,
 				    QOP_D3_FermionLinksAsqtad *src);
+
+void QOP_D3_asqtad_load_L_from_qdp(QOP_D3_FermionLinksAsqtad *asqtad,
+				   QDP_D3_ColorMatrix *fatlinks[],
+				   QDP_D3_ColorMatrix *longlinks[]);
 
 
   /*********************/
@@ -121,6 +129,10 @@ void QOP_F3_wilson_convert_L_to_qdp(QDP_F3_ColorMatrix ***links,
 				    QDP_F3_DiracPropagator ***clov,
 				    QOP_F3_FermionLinksWilson *src);
 
+void QOP_F3_wilson_load_L_from_qdp(QOP_F3_FermionLinksWilson *wilson,
+				   QDP_F3_ColorMatrix *links[],
+				   QDP_F3_DiracPropagator *clov[]);
+
   /* double precision */
 
 QOP_D3_FermionLinksWilson *
@@ -138,6 +150,10 @@ QOP_D3_FermionLinksWilson *
 void QOP_D3_wilson_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
 				    QDP_D3_DiracPropagator ***clov,
 				    QOP_D3_FermionLinksWilson *src);
+
+void QOP_D3_wilson_load_L_from_qdp(QOP_D3_FermionLinksWilson *wilson,
+				   QDP_D3_ColorMatrix *links[],
+				   QDP_D3_DiracPropagator *clov[]);
 
 
   /**************************/
@@ -162,6 +178,10 @@ void QOP_F3_dw_convert_L_to_qdp(QDP_F3_ColorMatrix ***links,
 				QDP_F3_DiracPropagator ***clov,
 				QOP_F3_FermionLinksDW *src);
 
+void QOP_F3_dw_load_L_from_qdp(QOP_F3_FermionLinksDW *dw,
+			       QDP_F3_ColorMatrix *links[],
+			       QDP_F3_DiracPropagator *clov[]);
+
   /* double precision */
 
 QOP_D3_FermionLinksDW *
@@ -179,6 +199,10 @@ QOP_D3_FermionLinksDW *
 void QOP_D3_dw_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
 				QDP_D3_DiracPropagator ***clov,
 				QOP_D3_FermionLinksDW *src);
+
+void QOP_D3_dw_load_L_from_qdp(QOP_D3_FermionLinksDW *dw,
+			       QDP_D3_ColorMatrix *links[],
+			       QDP_D3_DiracPropagator *clov[]);
 
 
   /**************************************************/
@@ -211,16 +235,19 @@ void QOP_D3_dw_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
 #define QOP_asqtad_extract_L_to_qdp   QOP_F3_asqtad_extract_L_to_qdp
 #define QOP_asqtad_convert_L_from_qdp QOP_F3_asqtad_convert_L_from_qdp
 #define QOP_asqtad_convert_L_to_qdp   QOP_F3_asqtad_convert_L_to_qdp
+#define QOP_asqtad_load_L_from_qdp    QOP_F3_asqtad_load_L_from_qdp
 
 #define QOP_wilson_create_L_from_qdp  QOP_F3_wilson_create_L_from_qdp
 #define QOP_wilson_extract_L_to_qdp   QOP_F3_wilson_extract_L_to_qdp
 #define QOP_wilson_convert_L_from_qdp QOP_F3_wilson_convert_L_from_qdp
 #define QOP_wilson_convert_L_to_qdp   QOP_F3_wilson_convert_L_to_qdp
+#define QOP_wilson_load_L_from_qdp    QOP_F3_wilson_load_L_from_qdp
 
 #define QOP_dw_create_L_from_qdp  QOP_F3_dw_create_L_from_qdp
 #define QOP_dw_extract_L_to_qdp   QOP_F3_dw_extract_L_to_qdp
 #define QOP_dw_convert_L_from_qdp QOP_F3_dw_convert_L_from_qdp
 #define QOP_dw_convert_L_to_qdp   QOP_F3_dw_convert_L_to_qdp
+#define QOP_dw_load_L_from_qdp    QOP_F3_dw_load_L_from_qdp
 
 #else
 
@@ -248,16 +275,19 @@ void QOP_D3_dw_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
 #define QOP_asqtad_extract_L_to_qdp   QOP_D3_asqtad_extract_L_to_qdp
 #define QOP_asqtad_convert_L_from_qdp QOP_D3_asqtad_convert_L_from_qdp
 #define QOP_asqtad_convert_L_to_qdp   QOP_D3_asqtad_convert_L_to_qdp
+#define QOP_asqtad_load_L_from_qdp    QOP_D3_asqtad_load_L_from_qdp
 
 #define QOP_wilson_create_L_from_qdp  QOP_D3_wilson_create_L_from_qdp
 #define QOP_wilson_extract_L_to_qdp   QOP_D3_wilson_extract_L_to_qdp
 #define QOP_wilson_convert_L_from_qdp QOP_D3_wilson_convert_L_from_qdp
 #define QOP_wilson_convert_L_to_qdp   QOP_D3_wilson_convert_L_to_qdp
+#define QOP_wilson_load_L_from_qdp    QOP_D3_wilson_load_L_from_qdp
 
 #define QOP_dw_create_L_from_qdp  QOP_D3_dw_create_L_from_qdp
 #define QOP_dw_extract_L_to_qdp   QOP_D3_dw_extract_L_to_qdp
 #define QOP_dw_convert_L_from_qdp QOP_D3_dw_convert_L_from_qdp
 #define QOP_dw_convert_L_to_qdp   QOP_D3_dw_convert_L_to_qdp
+#define QOP_dw_load_L_from_qdp    QOP_D3_dw_load_L_from_qdp
 
 #endif
 

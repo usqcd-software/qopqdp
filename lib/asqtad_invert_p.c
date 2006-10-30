@@ -160,6 +160,35 @@ QOPPC(asqtad_create_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   return fla;
 }
 
+void
+QOPPC(asqtad_load_L_from_qdp)(QOPPC(FermionLinksAsqtad) *fla,
+			      QDP_ColorMatrix *fatlinks[],
+			      QDP_ColorMatrix *longlinks[])
+{
+  int i;
+  for(i=0; i<4; i++) {
+    QDP_M_eq_M(fla->fatlinks[i], fatlinks[i], QDP_all);
+    QDP_M_eq_M(fla->longlinks[i], longlinks[i], QDP_all);
+  }
+  fla->dblstored = 0;
+  double_store(fla);
+}
+
+QOPPC(FermionLinksAsqtad) *
+QOPPC(asqtad_convert_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
+				 QOP_evenodd_t evenodd)
+{
+  QDP_ColorMatrix *fl[4], *ll[4];
+  int i;
+  for(i=0; i<4; i++) {
+    fl[i] = QDP_create_M();
+    QDP_insert_M(fl[i], (QLA_ColorMatrix *)fatlinks[i], QDP_all);
+    ll[i] = QDP_create_M();
+    QDP_insert_M(ll[i], (QLA_ColorMatrix *)longlinks[i], QDP_all);
+  }
+  return QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
+}
+
 QOPPC(FermionLinksAsqtad) *
 QOPPC(asqtad_create_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
 				QOP_evenodd_t evenodd)
@@ -172,7 +201,21 @@ QOPPC(asqtad_create_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
     ll[i] = QDP_create_M();
     QOP_qdp_eq_raw(M, ll[i], longlinks[i], evenodd);
   }
-  return QOPPC(asqtad_create_L_from_qdp)(fl, ll);
+  return QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
+}
+
+void
+QOPPC(asqtad_load_L_from_raw)(QOPPC(FermionLinksAsqtad) *fla,
+			      REAL *fatlinks[], REAL *longlinks[],
+			      QOP_evenodd_t evenodd)
+{
+  int i;
+  for(i=0; i<4; i++) {
+    QOP_qdp_eq_raw(M, fla->fatlinks[i], fatlinks[i], evenodd);
+    QOP_qdp_eq_raw(M, fla->longlinks[i], longlinks[i], evenodd);
+  }
+  fla->dblstored = 0;
+  double_store(fla);
 }
 
 /* Computes the staple :
@@ -234,27 +277,19 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
   QDP_destroy_M(tempmat);
 } /* compute_gen_staple */
 
-QOPPC(FermionLinksAsqtad) *
-QOPPC(asqtad_create_L_from_G)(QOP_info_t *info,
-			      QOP_asqtad_coeffs_t *coeffs,
-			      QOPPC(GaugeField) *gauge)
+static void
+make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
+	       QOP_asqtad_coeffs_t *coeffs, QDP_ColorMatrix *gf[])
 {
-  QOPPC(FermionLinksAsqtad) *fla;
-  QDP_ColorMatrix *fl[4], *ll[4], **gf;
-  int i, dir;
-  QDP_ColorMatrix *staple, *tempmat1;
-  int  nu,rho,sig ;
   QLA_Real one_link;
+  QDP_ColorMatrix *staple, *tempmat1;
+  int dir;
+  int nu,rho,sig ;
   double nflop = 61632;
   double dtime;
 
-  for(i=0; i<4; i++) {
-    fl[i] = QDP_create_M();
-    ll[i] = QDP_create_M();
-  }
   staple = QDP_create_M();
   tempmat1 = QDP_create_M();
-  gf = gauge->links;
 
   dtime = -QOP_time();
 
@@ -301,10 +336,47 @@ QOPPC(asqtad_create_L_from_G)(QOP_info_t *info,
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+}
 
+QOPPC(FermionLinksAsqtad) *
+QOPPC(asqtad_create_L_from_G)(QOP_info_t *info,
+			      QOP_asqtad_coeffs_t *coeffs,
+			      QOPPC(GaugeField) *gauge)
+{
+  QOPPC(FermionLinksAsqtad) *fla;
+  QDP_ColorMatrix *fl[4], *ll[4];
+  int i;
+
+  for(i=0; i<4; i++) {
+    fl[i] = QDP_create_M();
+    ll[i] = QDP_create_M();
+  }
+  make_imp_links(info, fl, ll, coeffs, gauge->links);
   fla = QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
-
   return fla;
+}
+
+void
+QOPPC(asqtad_load_L_from_G)(QOP_info_t *info,
+			    QOPPC(FermionLinksAsqtad) *fla,
+			    QOP_asqtad_coeffs_t *coeffs,
+			    QOPPC(GaugeField) *gauge)
+{
+  make_imp_links(info, fla->fatlinks, fla->longlinks, coeffs, gauge->links);
+  fla->dblstored = 0;
+  double_store(fla);
+}
+
+void
+QOPPC(asqtad_extract_L_to_qdp)(QDP_ColorMatrix *fatlinks[],
+			       QDP_ColorMatrix *longlinks[],
+			       QOP_FermionLinksAsqtad *src)
+{
+  int i;
+  for(i=0; i<4; i++) {
+    QDP_M_eq_M(fatlinks[i], src->fatlinks[i], QDP_all);
+    QDP_M_eq_M(longlinks[i], src->longlinks[i], QDP_all);
+  }
 }
 
 void

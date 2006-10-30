@@ -7,9 +7,10 @@
 
 
 static QDP_ColorMatrix *fblink[8];
-extern REAL beta;
+//extern REAL beta;
 
 
+#if 0
 void Print(QDP_ColorMatrix * field){
   QLA_ColorMatrix *mom0;
   const int x[4] = {0,0,0,0};
@@ -20,12 +21,16 @@ void Print(QDP_ColorMatrix * field){
 
   QDP_reset_M(field);
 }
+#endif
 
 void 
-QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge, QOP_Force *force,
-			QOP_gauge_coeffs_t *coeffs, REAL eps)
+QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge,
+	                          QOP_Force *force, QOP_gauge_coeffs_t *coeffs,
+				  REAL eps)
 {
-  REAL Plaq, Rect, Pgm ;
+  REAL Plaq, Rect, Pgm;
+  //REAL eb3 = -eps*beta/3.0;
+  REAL eb3 = -eps/3.0;
   QDP_ColorMatrix *tempmom_qdp[4];
   QDP_ColorMatrix *Amu[6]; // products of 2 links Unu(x)*Umu(x+nu)
   //QDP_ColorMatrix *Smu[6]; // staples Unu(x)*Umu(x+nu)*Unu^+(x+mu)
@@ -37,7 +42,7 @@ QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge, QOP_
   int i, k;
   int mu, nu, sig;
   double dtime;
-  REAL eb3 = -eps*beta/3.0;
+  double nflop = 112624;
 
   int j[3][2] = {{1,2},
                  {0,2},
@@ -338,12 +343,9 @@ QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge, QOP_
 
   dtime += QOP_time();
 
-  int nflop = 112624;
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node; 
   info->status = QOP_SUCCESS;
   //QOP_printf0("Time in slow g_force: %e\n", info->final_sec);
 } 
-
-
 

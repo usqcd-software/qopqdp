@@ -85,14 +85,13 @@ typedef struct QOP_D3_DiracFermion_struct QOP_D3_DiracFermion;
 typedef struct QOP_D3_GaugeField_struct   QOP_D3_GaugeField;
 typedef struct QOP_D3_Force_struct        QOP_D3_Force;
 
-   /* Imp gauge */
-typedef struct{  
+  /* Improved gauge datatypes */
+
+typedef struct {
    double plaquette;
    double rectangle;
    double parallelogram;
 } QOP_gauge_coeffs_t;
-
-
 
   /* Asqtad datatypes */
   /* to follow the convetion defined in Orginos, et al (PRD 60, 045403) */
@@ -258,6 +257,23 @@ void QOP_D3_rephase_G(QOP_D3_GaugeField *links,
 		      QOP_staggered_sign_t *sign);
 
 
+  /********************/
+  /*  Gauge routines  */
+  /********************/
+
+void QOP_F3_symanzik_1loop_gauge_force(QOP_info_t *info, 
+				       QOP_F3_GaugeField *gauge, 
+				       QOP_F3_Force *force,
+				       QOP_gauge_coeffs_t *coeffs,
+				       float eps);
+
+void QOP_D3_symanzik_1loop_gauge_force(QOP_info_t *info, 
+				       QOP_D3_GaugeField *gauge, 
+				       QOP_D3_Force *force,
+				       QOP_gauge_coeffs_t *coeffs,
+				       double eps);
+
+
   /*********************/
   /*  Asqtad routines  */
   /*********************/
@@ -290,6 +306,15 @@ void QOP_F3_asqtad_convert_L_to_raw(float ***fatlinks, float ***longlinks,
 				    QOP_F3_FermionLinksAsqtad *,
 				    QOP_evenodd_t evenodd);
 
+void QOP_F3_asqtad_load_L_from_raw(QOP_F3_FermionLinksAsqtad *asqtad,
+				   float *fatlinks[], float *longlinks[],
+				   QOP_evenodd_t evenodd);
+
+void QOP_F3_asqtad_load_L_from_G(QOP_info_t *info,
+				 QOP_F3_FermionLinksAsqtad *asqtad,
+				 QOP_asqtad_coeffs_t *coeffs,
+				 QOP_F3_GaugeField *gauge);
+
   /* double precision */
 
 QOP_D3_FermionLinksAsqtad *
@@ -314,6 +339,15 @@ QOP_D3_FermionLinksAsqtad *
 void QOP_D3_asqtad_convert_L_to_raw(double ***fatlinks, double ***longlinks,
 				    QOP_D3_FermionLinksAsqtad *,
 				    QOP_evenodd_t evenodd);
+
+void QOP_D3_asqtad_load_L_from_raw(QOP_D3_FermionLinksAsqtad *asqtad,
+				   double *fatlinks[], double *longlinks[],
+				   QOP_evenodd_t evenodd);
+
+void QOP_D3_asqtad_load_L_from_G(QOP_info_t *info,
+				 QOP_D3_FermionLinksAsqtad *asqtad,
+				 QOP_asqtad_coeffs_t *coeffs,
+				 QOP_D3_GaugeField *gauge);
 
   /* inverter routines */
 
@@ -388,19 +422,6 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
 			       double eps[],
 			       QOP_D3_ColorVector *in_pt[],
 			       int nsrc);
-/*  gauge force routines */
-
-void QOP_F3_symanzik_1loop_gauge_force(QOP_info_t *info, 
-                            QOP_F3_GaugeField *gauge, 
-                            QOP_F3_Force *force,
-			    QOP_gauge_coeffs_t *coeffs,
-                            float eps);
-
-void QOP_D3_symanzik_1loop_gauge_force(QOP_info_t *info, 
-                            QOP_D3_GaugeField *gauge, 
-                            QOP_D3_Force *force,
-                            QOP_gauge_coeffs_t *coeffs,
-                            double eps);
 
 
   /*********************/
@@ -440,6 +461,15 @@ QOP_F3_FermionLinksWilson *
 QOP_F3_GaugeField *
   QOP_F3_wilson_convert_L_to_G(QOP_F3_FermionLinksWilson *links);
 
+void QOP_F3_wilson_load_L_from_raw(QOP_F3_FermionLinksWilson *wilson,
+				   float *links[], float *clov[],
+				   QOP_evenodd_t evenodd);
+
+void QOP_F3_wilson_load_L_from_G(QOP_info_t *info,
+				 QOP_F3_FermionLinksWilson *wilson,
+				 QOP_wilson_coeffs_t *coeffs,
+				 QOP_F3_GaugeField *gauge);
+
   /* double precision */
 
 QOP_D3_FermionLinksWilson *
@@ -472,6 +502,15 @@ QOP_D3_FermionLinksWilson *
 
 QOP_D3_GaugeField *
   QOP_D3_wilson_convert_L_to_G(QOP_D3_FermionLinksWilson *links);
+
+void QOP_D3_wilson_load_L_from_raw(QOP_D3_FermionLinksWilson *wilson,
+				   double *links[], double *clov[],
+				   QOP_evenodd_t evenodd);
+
+void QOP_D3_wilson_load_L_from_G(QOP_info_t *info,
+				 QOP_D3_FermionLinksWilson *wilson,
+				 QOP_wilson_coeffs_t *coeffs,
+				 QOP_D3_GaugeField *gauge);
 
   /* inverter routines */
 
@@ -585,6 +624,16 @@ QOP_F3_FermionLinksDW *
 QOP_F3_GaugeField *
   QOP_F3_dw_convert_L_to_G(QOP_F3_FermionLinksDW *links);
 
+void QOP_F3_dw_load_L_from_raw(QOP_F3_FermionLinksDW *dw,
+			       float *links[], float *clov[],
+			       QOP_evenodd_t evenodd);
+
+void QOP_F3_dw_load_L_from_G(QOP_info_t *info,
+			     QOP_F3_FermionLinksDW *dw,
+			     QOP_dw_coeffs_t *coeffs,
+			     QOP_F3_GaugeField *gauge);
+
+
   /* double precision */
 
 QOP_D3_FermionLinksDW *
@@ -617,6 +666,15 @@ QOP_D3_FermionLinksDW *
 
 QOP_D3_GaugeField *
   QOP_D3_dw_convert_L_to_G(QOP_D3_FermionLinksDW *links);
+
+void QOP_D3_dw_load_L_from_raw(QOP_D3_FermionLinksDW *dw,
+			       double *links[], double *clov[],
+			       QOP_evenodd_t evenodd);
+
+void QOP_D3_dw_load_L_from_G(QOP_info_t *info,
+			     QOP_D3_FermionLinksDW *dw,
+			     QOP_dw_coeffs_t *coeffs,
+			     QOP_D3_GaugeField *gauge);
 
   /* inverter routines */
 
@@ -741,6 +799,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_convert_G_to_raw QOP_F3_convert_G_to_raw
 #define QOP_convert_F_to_raw QOP_F3_convert_F_to_raw
 
+#define QOP_symanzik_1loop_gauge_force  QOP_F3_symanzik_1loop_gauge_force
+
 #define QOP_FermionLinksAsqtad        QOP_F3_FermionLinksAsqtad
 #define QOP_asqtad_create_L_from_raw  QOP_F3_asqtad_create_L_from_raw
 #define QOP_asqtad_create_L_from_G    QOP_F3_asqtad_create_L_from_G
@@ -748,12 +808,13 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_destroy_L          QOP_F3_asqtad_destroy_L
 #define QOP_asqtad_convert_L_from_raw QOP_F3_asqtad_convert_L_from_raw
 #define QOP_asqtad_convert_L_to_raw   QOP_F3_asqtad_convert_L_to_raw
+#define QOP_asqtad_load_L_from_raw    QOP_F3_asqtad_load_L_from_raw
+#define QOP_asqtad_load_L_from_G      QOP_F3_asqtad_load_L_from_G
 
 #define QOP_asqtad_invert       QOP_F3_asqtad_invert
 #define QOP_asqtad_invert_multi QOP_F3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_F3_asqtad_force
 #define QOP_asqtad_force_multi  QOP_F3_asqtad_force_multi
-#define QOP_symanzik_1loop_gauge_force     QOP_F3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksWilson        QOP_F3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_F3_wilson_create_L_from_raw
@@ -764,6 +825,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_wilson_convert_L_to_raw   QOP_F3_wilson_convert_L_to_raw
 #define QOP_wilson_convert_L_from_G   QOP_F3_wilson_convert_L_from_G
 #define QOP_wilson_convert_L_to_G     QOP_F3_wilson_convert_L_to_G
+#define QOP_wilson_load_L_from_raw    QOP_F3_wilson_load_L_from_raw
+#define QOP_wilson_load_L_from_G      QOP_F3_wilson_load_L_from_G
 
 #define QOP_wilson_invert       QOP_F3_wilson_invert
 #define QOP_wilson_invert_multi QOP_F3_wilson_invert_multi
@@ -779,6 +842,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_dw_convert_L_to_raw   QOP_F3_dw_convert_L_to_raw
 #define QOP_dw_convert_L_from_G   QOP_F3_dw_convert_L_from_G
 #define QOP_dw_convert_L_to_G     QOP_F3_dw_convert_L_to_G
+#define QOP_dw_load_L_from_raw    QOP_F3_dw_load_L_from_raw
+#define QOP_dw_load_L_from_G      QOP_F3_dw_load_L_from_G
 
 #define QOP_dw_invert       QOP_F3_dw_invert
 #define QOP_dw_invert_multi QOP_F3_dw_invert_multi
@@ -817,6 +882,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_convert_G_to_raw QOP_D3_convert_G_to_raw
 #define QOP_convert_F_to_raw QOP_D3_convert_F_to_raw
 
+#define QOP_symanzik_1loop_gauge_force  QOP_D3_symanzik_1loop_gauge_force
+
 #define QOP_FermionLinksAsqtad       QOP_D3_FermionLinksAsqtad
 #define QOP_asqtad_create_L_from_raw QOP_D3_asqtad_create_L_from_raw
 #define QOP_asqtad_create_L_from_G   QOP_D3_asqtad_create_L_from_G
@@ -824,12 +891,13 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_destroy_L         QOP_D3_asqtad_destroy_L
 #define QOP_asqtad_convert_L_from_raw QOP_D3_asqtad_convert_L_from_raw
 #define QOP_asqtad_convert_L_to_raw   QOP_D3_asqtad_convert_L_to_raw
+#define QOP_asqtad_load_L_from_raw    QOP_D3_asqtad_load_L_from_raw
+#define QOP_asqtad_load_L_from_G      QOP_D3_asqtad_load_L_from_G
 
 #define QOP_asqtad_invert       QOP_D3_asqtad_invert
 #define QOP_asqtad_invert_multi QOP_D3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_D3_asqtad_force
 #define QOP_asqtad_force_multi  QOP_D3_asqtad_force_multi
-#define QOP_symanzik_1loop_gauge_force     QOP_D3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksWilson        QOP_D3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_D3_wilson_create_L_from_raw
@@ -840,6 +908,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_wilson_convert_L_to_raw   QOP_D3_wilson_convert_L_to_raw
 #define QOP_wilson_convert_L_from_G   QOP_D3_wilson_convert_L_from_G
 #define QOP_wilson_convert_L_to_G     QOP_D3_wilson_convert_L_to_G
+#define QOP_wilson_load_L_from_raw    QOP_D3_wilson_load_L_from_raw
+#define QOP_wilson_load_L_from_G      QOP_D3_wilson_load_L_from_G
 
 #define QOP_wilson_invert       QOP_D3_wilson_invert
 #define QOP_wilson_invert_multi QOP_D3_wilson_invert_multi
@@ -855,6 +925,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_dw_convert_L_to_raw   QOP_D3_dw_convert_L_to_raw
 #define QOP_dw_convert_L_from_G   QOP_D3_dw_convert_L_from_G
 #define QOP_dw_convert_L_to_G     QOP_D3_dw_convert_L_to_G
+#define QOP_dw_load_L_from_raw    QOP_D3_dw_load_L_from_raw
+#define QOP_dw_load_L_from_G      QOP_D3_dw_load_L_from_G
 
 #define QOP_dw_invert       QOP_D3_dw_invert
 #define QOP_dw_invert_multi QOP_D3_dw_invert_multi
