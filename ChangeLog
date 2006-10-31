@@ -1,3 +1,12 @@
+2006-10-30 18:02  tag qopqdp0-7-2
+
+2006-10-30 18:02  osborn
+
+	* NEWS, configure, configure.ac, include/qop.h, include/qop_qdp.h,
+	  lib/asqtad_invert_p.c, lib/symanzik_1loop_gauge_force_p.c:
+	  Changed meaning of eps parameter to gauge force.  Added gauge
+	  loading functions.
+
 2006-09-26 19:23  tag qopqdp0-7-1
 
 2006-09-26 19:23  osborn
