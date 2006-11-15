@@ -123,8 +123,8 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   fla->dblstored = 0;
   fla->cgp = QDP_create_V();
 
-  congrad_setup = 0;
-  old_style = 0;
+  //congrad_setup = 0;
+  old_style = -99;
   if( (!congrad_setup) ||
       (QOP_asqtad.style != old_style) ||
       (QOP_asqtad.nsvec != old_nsvec) ||
@@ -395,11 +395,21 @@ void
 QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *fla)
 {
   int i;
-  for(i=0; i<4; i++) {
-    QDP_destroy_M(fla->fatlinks[i]);
-    QDP_destroy_M(fla->longlinks[i]);
+  for(i=0; i<8; i++) {
+    QDP_destroy_M(fla->fwdlinks[i]);
+  }
+  if(fla->dblstored) {
+    for(i=0; i<8; i++) {
+      QDP_destroy_M(fla->bcklinks[i]);
+    }
   }
   QDP_destroy_V(fla->cgp);
+  free(fla->fatlinks);
+  free(fla->longlinks);
+  free(fla->fwdlinks);
+  free(fla->bcklinks);
+  free(fla->dbllinks);
+  free(fla);
 }
 
 

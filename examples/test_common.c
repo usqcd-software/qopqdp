@@ -209,8 +209,7 @@ get_random_links(QDP_ColorMatrix **u, int n, QLA_Real r)
 
   for(i=0; i<n; i++) {
     QLA_Complex z;
-    QLA_real(z) = 1;
-    QLA_imag(z) = 0;
+    QLA_c_eq_r(z, 1);
     QDP_M_eq_c(u[i], &z, QDP_all);
     QDP_M_eq_gaussian_S(cm, rs, QDP_all);
     QDP_M_peq_r_times_M(u[i], &r, cm, QDP_all);

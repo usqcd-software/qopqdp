@@ -7,8 +7,9 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
-static QLA_Real kappa=0.12;
-static double rsqmin=1e-4;
+static QLA_Real kappa=0.15;
+static double rsqmin=1e-8;
+static int style=-1;
 
 static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
@@ -84,11 +85,12 @@ start(void)
   for(i=0; i<ndim; i++) {
     qoplayout.latsize[i] = lattice_size[i];
   }
+  qoplayout.machdim = -1;
 
   QOP_info_t info;
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
-  res_arg.rsqmin = 1e-4;
+  res_arg.rsqmin = rsqmin;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.evenodd = QOP_EVEN;
@@ -96,7 +98,7 @@ start(void)
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
-  flw = QOP_wilson_create_L_from_qdp(u, NULL);
+  //flw = QOP_wilson_create_L_from_qdp(u, NULL);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
 
   best_mf = 0;
@@ -111,6 +113,7 @@ start(void)
   QOP_opt_t optnm;
   optnm.tag = "nm";
   for(sti=0; sti<stn; sti++) {
+    if((style>=0)&&(sti!=style)) continue;
     st = sta[sti];
     optst.value = st;
     if(QOP_wilson_invert_set_opts(&optst, 1)==QOP_FAIL) continue;
@@ -126,7 +129,9 @@ start(void)
 	for(bsi=0; bsi<bsn; bsi++) {
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);
+  flw = QOP_wilson_create_L_from_qdp(u, NULL);
 	  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
+  QOP_wilson_destroy_L(flw);
 	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
 		  ns, nm, bs, res_arg.final_iter, info.final_sec, mf);
 	  if(mf>best_mf) {
@@ -140,6 +145,7 @@ start(void)
       }
     }
   }
+  flw = QOP_wilson_create_L_from_qdp(u, NULL);
 
   optst.value = best_st;
   optns.value = best_ns;
@@ -167,10 +173,11 @@ start(void)
 void
 usage(char *s)
 {
-  printf("%s [n#] [s#] [x# [# ...]]\n",s);
+  printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
   printf("\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
+  printf("S\tstyle\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
   exit(1);
@@ -191,6 +198,7 @@ main(int argc, char *argv[])
     case 'k' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
+    case 'S' : style=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     default : usage(argv[0]);
     }

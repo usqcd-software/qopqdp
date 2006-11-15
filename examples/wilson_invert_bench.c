@@ -7,8 +7,8 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
-static QLA_Real kappa=0.14;
-static double rsqmin=1e-4;
+static QLA_Real kappa=0.15;
+static double rsqmin=1e-8;
 static int style=-1;
 
 static const int sta[] = {0, 1, 2, 3};
@@ -90,7 +90,7 @@ start(void)
   QOP_info_t info;
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
-  res_arg.rsqmin = 1e-4;
+  res_arg.rsqmin = rsqmin;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.evenodd = QOP_EVEN;

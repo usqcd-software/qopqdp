@@ -104,9 +104,11 @@ reset_temps(QOP_FermionLinksWilson *flw)
   if(QOP_wilson_style!=old_style) {
     if(!dblstore_style(QOP_wilson_style)) {
       if(congrad_setup) {
-        for(i=0; i<4; i++) {
-          QDP_destroy_M(flw->bcklinks[i]);
-        }
+	if(flw->dblstored) {
+	  for(i=0; i<4; i++) {
+	    QDP_destroy_M(flw->bcklinks[i]);
+	  }
+	}
       }
     } else {
       for(i=0; i<4; i++) {
@@ -296,6 +298,7 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   double_store(flw);
 
   flw->raw = NULL;
+  flw->qopgf = NULL;
   return flw;
 }
 
