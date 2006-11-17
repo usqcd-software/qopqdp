@@ -64,7 +64,8 @@ am_libqopqdp_a_OBJECTS = common.$(OBJEXT) common_f.$(OBJEXT) \
 	wilson_invert_d.$(OBJEXT) dw_invert.$(OBJEXT) \
 	dw_invert_f.$(OBJEXT) dw_invert_d.$(OBJEXT) \
 	invert_cg_V_f.$(OBJEXT) invert_cg_V_d.$(OBJEXT) \
-	invert_cg_D_f.$(OBJEXT) invert_cg_D_d.$(OBJEXT)
+	invert_cg_D_f.$(OBJEXT) invert_cg_D_d.$(OBJEXT) \
+	invert_cg_vD_f.$(OBJEXT) invert_cg_vD_d.$(OBJEXT)
 libqopqdp_a_OBJECTS = $(am_libqopqdp_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -179,7 +180,8 @@ libqopqdp_a_SOURCES = \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
   dw_invert.c dw_invert_f.c dw_invert_d.c \
   invert_cg_V_f.c invert_cg_V_d.c \
-  invert_cg_D_f.c invert_cg_D_d.c
+  invert_cg_D_f.c invert_cg_D_d.c \
+  invert_cg_vD_f.c invert_cg_vD_d.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -278,6 +280,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_D_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_V_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_V_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_vD_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_vD_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert.Po@am__quote@
@@ -482,6 +486,8 @@ invert_cg_V_f.o: invert_cg_p.c
 invert_cg_V_d.o: invert_cg_p.c
 invert_cg_D_f.o: invert_cg_p.c
 invert_cg_D_d.o: invert_cg_p.c
+invert_cg_vD_f.o: invert_cg_p.c
+invert_cg_vD_d.o: invert_cg_p.c
 
 #lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
 

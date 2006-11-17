@@ -10,7 +10,8 @@ libqopqdp_a_SOURCES = \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
   dw_invert.c dw_invert_f.c dw_invert_d.c \
   invert_cg_V_f.c invert_cg_V_d.c \
-  invert_cg_D_f.c invert_cg_D_d.c
+  invert_cg_D_f.c invert_cg_D_d.c \
+  invert_cg_vD_f.c invert_cg_vD_d.c
 
 common_f.o: common_p.c
 common_d.o: common_p.c
@@ -28,6 +29,8 @@ invert_cg_V_f.o: invert_cg_p.c
 invert_cg_V_d.o: invert_cg_p.c
 invert_cg_D_f.o: invert_cg_p.c
 invert_cg_D_d.o: invert_cg_p.c
+invert_cg_vD_f.o: invert_cg_p.c
+invert_cg_vD_d.o: invert_cg_p.c
 
 EXTRA_DIST = \
   common_p.c \

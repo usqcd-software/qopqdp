@@ -1,4 +1,5 @@
 #include <test_common.h>
+#include <string.h>
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
@@ -9,6 +10,7 @@ static int seed;
 static int nit=5;
 static QLA_Real mass=-1;
 static int style=-1;
+static int nmass=1;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -27,21 +29,36 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
 	  QOP_resid_arg_t *res_arg, QDP_ColorVector *out, QDP_ColorVector *in)
 {
   double sec=0, flop=0, mf=0;
-  int i, iter=0;
-  QOP_ColorVector *qopout, *qopin;
+  int i, j, iter=0;
+  QOP_ColorVector *qopout[nmass], **pqo, *qopin;
+  QLA_Real masses[nmass], *pm;
+  QOP_resid_arg_t *ra[nmass], **pra;
 
+  pqo = qopout;
+  pm = masses;
+  pra = ra;
   for(i=0; i<=nit; i++) {
     QDP_V_eq_zero(out, QDP_all);
-    qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
-    QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+    for(j=0; j<nmass; j++) {
+      qopout[j] = QOP_create_V_from_qdp(out);
+      masses[j] = mass*(j+1);
+      ra[j] = res_arg;
+    }
+    if(nmass == 1) {
+      QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
+    } else {
+      QOP_asqtad_invert_multi(info, fla, inv_arg, &pra, &pm, &nmass, &pqo, &qopin, 1);
+    }
     if(i>0) {
       iter += res_arg->final_iter;
       sec += info->final_sec;
       flop += info->final_flop;
       mf += info->final_flop/(1e6*info->final_sec);
     }
-    QOP_destroy_V(qopout);
+    for(j=0; j<nmass; j++) {
+      QOP_destroy_V(qopout[j]);
+    }
     QOP_destroy_V(qopin);
   }
   res_arg->final_iter = iter/nit;
@@ -184,8 +201,10 @@ start(void)
 void
 usage(char *s)
 {
-  printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
+  printf("%s [m#] [M#] [n#] [s#] [S#] [x# [# ...]]\n",s);
   printf("\n");
+  printf("m\tlightest mass\n");
+  printf("M\tnumber of masses\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
@@ -207,6 +226,7 @@ main(int argc, char *argv[])
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
     case 'm' : mass=atof(&argv[i][1]); break;
+    case 'M' : nmass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;

@@ -102,6 +102,9 @@ typedef void (QOPPC(linop_t_V))(QDP_ColorVector *out, QDP_ColorVector *in,
 typedef void (QOPPC(linop_t_D))(QDP_DiracFermion *out, QDP_DiracFermion *in,
 				QDP_Subset subset);
 
+typedef void (QOPPC(linop_t_vD))(QDP_DiracFermion **out, QDP_DiracFermion **in,
+				 QDP_Subset subset);
+
 QOP_status_t
 QOPPC(invert_cg_V)(QOPPC(linop_t_V) *linop,
 		   QOP_invert_arg_t *inv_arg,
@@ -120,28 +123,49 @@ QOPPC(invert_cg_D)(QOPPC(linop_t_D) *linop,
 		   QDP_DiracFermion *p,
 		   QDP_Subset subset);
 
-
-typedef void (QOPPC(linopv_t_V))(QDP_ColorVector *out[], QDP_ColorVector *in[],
-				 QDP_Subset subset);
-
-typedef void (QOPPC(linopv_t_D))(QDP_DiracFermion *out[],
-				 QDP_DiracFermion *in[], QDP_Subset subset);
-
 QOP_status_t
-QOPPC(invert_cgv_V)(QOPPC(linopv_t_V) *linop,
+QOPPC(invert_cg_vD)(QOPPC(linop_t_vD) *linop,
 		    QOP_invert_arg_t *inv_arg,
 		    QOP_resid_arg_t *res_arg,
-		    QDP_ColorVector *out[],
-		    QDP_ColorVector *in[],
-		    QDP_Subset subset, int n);
+		    QDP_DiracFermion **out,
+		    QDP_DiracFermion **in,
+		    QDP_DiracFermion **p,
+		    QDP_Subset subset,
+		    int _n);
 
 QOP_status_t
-QOPPC(invert_cgv_D)(QOPPC(linopv_t_D) *linop,
-		    QOP_invert_arg_t *inv_arg,
-		    QOP_resid_arg_t *res_arg,
-		    QDP_DiracFermion *out[],
-		    QDP_DiracFermion *in[],
-		    QDP_Subset subset, int n);
+QOPPC(invert_cgms_V)(QOPPC(linop_t_V) *linop,
+		     QOP_invert_arg_t *inv_arg,
+		     QOP_resid_arg_t **res_arg,
+		     QLA_Real *shifts,
+		     int nshifts,
+		     QDP_ColorVector **out,
+		     QDP_ColorVector *in,
+		     QDP_ColorVector *p,
+		     QDP_Subset subset);
+
+QOP_status_t
+QOPPC(invert_cgms_D)(QOPPC(linop_t_D) *linop,
+		     QOP_invert_arg_t *inv_arg,
+		     QOP_resid_arg_t **res_arg,
+		     QLA_Real *shifts,
+		     int nshifts,
+		     QDP_DiracFermion **out,
+		     QDP_DiracFermion *in,
+		     QDP_DiracFermion *p,
+		     QDP_Subset subset);
+
+QOP_status_t
+QOPPC(invert_cgms_vD)(QOPPC(linop_t_vD) *linop,
+		      QOP_invert_arg_t *inv_arg,
+		      QOP_resid_arg_t **res_arg,
+		      QLA_Real *shifts,
+		      int nshifts,
+		      QDP_DiracFermion ***out,
+		      QDP_DiracFermion **in,
+		      QDP_DiracFermion **p,
+		      QDP_Subset subset,
+		      int _n);
 
 
 #endif /* _QOP_INTERNALP_H */

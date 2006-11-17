@@ -403,8 +403,12 @@ QOPPC(dw_invert)(QOP_info_t *info,
   printf0("begin cgv\n");
   dtime = -QOP_time();
 
+#if 0
   QOPPC(invert_cgv_D)(QOPPC(dw_dslash2), inv_arg, res_arg,
 		      qdpout, qdpin, subset, Ls);
+#endif
+  QOPPC(invert_cg_vD)(QOPPC(dw_dslash2), inv_arg, res_arg,
+		      qdpout, qdpin, qdptmp, subset, Ls);
 
   dtime += QOP_time();
   printf0("end cgv\n");

@@ -486,7 +486,7 @@ QOPPC(asqtad_invert)(QOP_info_t *info,
 
 void
 QOPPC(asqtad_invert_multi)(QOP_info_t *info,
-			   QOP_FermionLinksAsqtad *asqtad,
+			   QOP_FermionLinksAsqtad *fla,
 			   QOP_invert_arg_t *inv_arg,
 			   QOP_resid_arg_t **res_arg[],
 			   REAL *masses[], int nmass[],
@@ -494,17 +494,114 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
 			   QOP_ColorVector *in_pt[],
 			   int nsrc)
 {
-  QOP_info_t tinfo;
+  /* cg has 5 * 12 = 60 flops/site/it */
+  /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
+  double dtimec;
+  double nflop = 0.5 * 2364;
+  double nflopm = 0.5 * 30; /* per extra mass */
+  QDP_Subset subset, othersubset;
   int i, j;
 
-  for(i=0; i<nsrc; i++) {
-    for(j=0; j<nmass[i]; j++) {
-      QOPPC(asqtad_invert)(&tinfo, asqtad, inv_arg, res_arg[i][j],
-			   masses[i][j], out_pt[i][j], in_pt[i]);
-      info->final_sec += tinfo.final_sec;
-      info->final_flop += tinfo.final_flop;
-    }
+  if( (QOP_asqtad.style != old_style) ||
+      (QOP_asqtad.nsvec != old_nsvec) ||
+      (QOP_asqtad.nvec != old_nvec) ) {
+    reset_temps(fla);
+    old_style = QOP_asqtad.style;
+    old_nsvec = QOP_asqtad.nsvec;
+    old_nvec = QOP_asqtad.nvec;
   }
+
+  if(inv_arg->evenodd==QOP_EVEN) {
+    subset = QDP_even;
+    othersubset = QDP_odd;
+  } else if(inv_arg->evenodd==QOP_ODD) {
+    subset = QDP_odd;
+    othersubset = QDP_even;
+  } else {
+    subset = QDP_all;
+    othersubset = QDP_all;
+    nflop *= 2;
+    nflopm *= 2;
+  }
+  gl_osubset = othersubset;
+  gl_fla = fla;
+
+  info->final_flop = 0;
+  dtimec = -QDP_time();
+
+  if( (nsrc==2) && (nmass[0]==1) && (nmass[1]==1) &&
+      (masses[0][0]!=masses[0][1]) ) {  /* two source version */
+    QLA_Real shifts[2], st;
+    QDP_ColorVector *incv[2], *outcv[2], *x0, *src;
+    int imin=0, i;
+    QOP_resid_arg_t *ra[2];
+
+    x0 = QDP_create_V();
+    src = QDP_create_V();
+
+    for(i=0; i<2; i++) {
+      shifts[i] = 4*masses[i][0]*masses[i][0];
+      if(shifts[i]<shifts[imin]) imin = i;
+      incv[i] = in_pt[i]->cv;
+      outcv[i] = out_pt[i][0]->cv;
+      ra[i] = res_arg[i][0];
+    }
+    gl_m2x4 = shifts[imin];
+    for(i=0; i<2; i++) shifts[i] -= shifts[imin];
+    st = 1/(shifts[1]-shifts[0]);
+    QDP_V_eq_V_minus_V(x0, incv[1], incv[0], subset);
+    QDP_V_eq_r_times_V(x0, &st, x0, subset);
+    QDP_V_eq_V(fla->cgp, x0, subset);
+    QOPPC(asqtad_dslash2)(src, fla->cgp, subset);
+    QDP_V_eq_V_minus_V(src, incv[imin], src, subset);
+
+    QOPPC(invert_cgms_V)(QOPPC(asqtad_dslash2), inv_arg, ra, shifts,
+			 2, outcv, src, fla->cgp, subset);
+    info->final_flop += (nflop+nflopm)*ra[imin]->final_iter*QDP_sites_on_node;
+
+    for(i=0; i<2; i++) {
+      QDP_V_peq_V(outcv[i], x0, subset);
+    }
+
+    QDP_destroy_V(x0);
+    QDP_destroy_V(src);
+  } else {
+#if 0  // fake version
+    for(i=0; i<nsrc; i++) {
+      for(j=0; j<nmass[i]; j++) {
+	gl_m2x4 = 4*masses[i][j]*masses[i][j];
+
+	QOPPC(invert_cg_V)(QOPPC(asqtad_dslash2), inv_arg, res_arg[i][j],
+			   out_pt[i][j]->cv, in_pt[i]->cv, fla->cgp, subset);
+
+	info->final_flop += nflop*res_arg[i][j]->final_iter*QDP_sites_on_node;
+      }
+    }
+#else // real multimass
+    for(i=0; i<nsrc; i++) {
+      QLA_Real shifts[nmass[i]];
+      QDP_ColorVector *cv[nmass[i]];
+      int jmin=0;
+      for(j=0; j<nmass[i]; j++) {
+	shifts[j] = 4*masses[i][j]*masses[i][j];
+	if(shifts[j]<shifts[jmin]) jmin = j;
+	cv[j] = out_pt[i][j]->cv;
+      }
+      gl_m2x4 = shifts[jmin];
+      for(j=0; j<nmass[i]; j++) shifts[j] -= shifts[jmin];
+
+      QOPPC(invert_cgms_V)(QOPPC(asqtad_dslash2), inv_arg, res_arg[i], shifts,
+			   nmass[i], cv, in_pt[i]->cv, fla->cgp, subset);
+
+      info->final_flop += (nflop+nflopm*(nmass[i]-1))
+	* res_arg[i][0]->final_iter * QDP_sites_on_node;
+    }
+#endif
+  }
+
+  dtimec += QDP_time();
+
+  info->final_sec = dtimec;
   info->status = QOP_SUCCESS;
 }
 
