@@ -1,3 +1,18 @@
+2006-11-17 16:32  tag qopqdp0-7-4
+
+2006-11-17 16:32  osborn
+
+	* include/Makefile.am: Added generic_vD.h to Makefile.am.
+
+2006-11-17 16:26  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_test.c,
+	  include/generic_D.h, include/generic_V.h, include/generic_vD.h,
+	  include/qop_internal_p.h, lib/Makefile.am, lib/asqtad_invert_p.c,
+	  lib/dw_invert_p.c, lib/invert_cg_p.c, lib/invert_cg_vD_d.c,
+	  lib/invert_cg_vD_f.c: Added true multimass and 2 source inverter
+	  for asqtad.
+
 2006-11-15 12:52  osborn
 
 	* NEWS, configure, configure.ac, examples/asqtad_test.c,
