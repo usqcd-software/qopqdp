@@ -109,7 +109,10 @@ start(void)
   gf = QOP_convert_G_from_qdp(u);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
+  QDP_profcontrol(1);
   fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
+  QDP_profcontrol(0);
+  if(QDP_this_node==0) { printf("load links: secs = %g\t mflops = %g\n", info.final_sec, info.final_flop/(1e6*info.final_sec)); }
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
 
   best_mf = 0;

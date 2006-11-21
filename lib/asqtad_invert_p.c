@@ -231,22 +231,24 @@ QOPPC(asqtad_load_L_from_raw)(QOPPC(FermionLinksAsqtad) *fla,
 static void
 compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
 		   QDP_ColorMatrix *link, double dcoef,
-		   QDP_ColorMatrix **gauge, QDP_ColorMatrix **fl)
+		   QDP_ColorMatrix **gauge, QDP_ColorMatrix **fl,
+		   QDP_ColorMatrix *ts0, QDP_ColorMatrix *ts1,
+		   QDP_ColorMatrix *tmat1, QDP_ColorMatrix *tmat2,
+		   QDP_ColorMatrix *ts2)
 {
   QLA_Real coef = dcoef;
-  QDP_ColorMatrix *ts0, *ts1;
-  QDP_ColorMatrix *tmat1, *tmat2;
-  QDP_ColorMatrix *tempmat;
+  //QDP_ColorMatrix *ts0, *ts1;
+  //QDP_ColorMatrix *tmat1, *tmat2;
 
-  ts0 = QDP_create_M();
-  ts1 = QDP_create_M();
-  tmat1 = QDP_create_M();
-  tmat2 = QDP_create_M();
-  tempmat = QDP_create_M();
+  //ts0 = QDP_create_M();
+  //ts1 = QDP_create_M();
+  //tmat1 = QDP_create_M();
+  //tmat2 = QDP_create_M();
 
   /* Upper staple */
-  QDP_M_eq_sM(ts0, link, QDP_neighbor[nu], QDP_forward, QDP_all);
-  QDP_M_eq_sM(ts1, gauge[nu], QDP_neighbor[mu], QDP_forward, QDP_all);
+  if(link!=gauge[mu])
+    QDP_M_eq_sM(ts0, link, QDP_neighbor[nu], QDP_forward, QDP_all);
+  //QDP_M_eq_sM(ts1, gauge[nu], QDP_neighbor[mu], QDP_forward, QDP_all);
 
   if(staple!=NULL) {  /* Save the staple */
     QDP_M_eq_M_times_Ma(tmat1, ts0, ts1, QDP_all);
@@ -258,23 +260,25 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
   }
 
   /* lower staple */
-  QDP_M_eq_sM(ts0, gauge[nu], QDP_neighbor[mu], QDP_forward, QDP_all);
+  //QDP_M_eq_sM(ts1, gauge[nu], QDP_neighbor[mu], QDP_forward, QDP_all);
   QDP_M_eq_Ma_times_M(tmat1, gauge[nu], link, QDP_all);
-  QDP_M_eq_M_times_M(tempmat, tmat1, ts0, QDP_all);
-  QDP_M_eq_sM(ts0, tempmat, QDP_neighbor[nu], QDP_backward, QDP_all);
+  QDP_M_eq_M_times_M(tmat2, tmat1, ts1, QDP_all);
+  QDP_M_eq_sM(ts2, tmat2, QDP_neighbor[nu], QDP_backward, QDP_all);
 
   if(staple!=NULL) { /* Save the staple */
-    QDP_M_peq_M(staple, ts0, QDP_all);
+    QDP_M_peq_M(staple, ts2, QDP_all);
     QDP_M_peq_r_times_M(fl[mu], &coef, staple, QDP_all);
   } else {  /* No need to save the staple. Add it to the fatlinks */
-    QDP_M_peq_r_times_M(fl[mu], &coef, ts0, QDP_all);
+    QDP_M_peq_r_times_M(fl[mu], &coef, ts2, QDP_all);
   }
 
-  QDP_destroy_M(ts0);
-  QDP_destroy_M(ts1);
-  QDP_destroy_M(tmat1);
-  QDP_destroy_M(tmat2);
-  QDP_destroy_M(tempmat);
+  if(link!=gauge[mu]) QDP_discard_M(ts0);
+  //QDP_discard_M(ts1);
+  QDP_discard_M(ts2);
+  //QDP_destroy_M(ts0);
+  //QDP_destroy_M(ts1);
+  //QDP_destroy_M(tmat1);
+  //QDP_destroy_M(tmat2);
 } /* compute_gen_staple */
 
 static void
@@ -282,7 +286,7 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
 	       QOP_asqtad_coeffs_t *coeffs, QDP_ColorMatrix *gf[])
 {
   QLA_Real one_link;
-  QDP_ColorMatrix *staple, *tempmat1;
+  QDP_ColorMatrix *staple, *tempmat1, *t1, *t2, *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
   int dir;
   int nu,rho,sig ;
   double nflop = 61632;
@@ -290,6 +294,20 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
 
   staple = QDP_create_M();
   tempmat1 = QDP_create_M();
+  t1 = QDP_create_M();
+  t2 = QDP_create_M();
+  for(dir=0; dir<4; dir++) {
+    tsl[dir] = QDP_create_M();
+    ts1[dir] = QDP_create_M();
+    ts2[dir] = QDP_create_M();
+    for(nu=0; nu<4; nu++) {
+      tsg[dir][nu] = NULL;
+      if(dir!=nu) {
+	tsg[dir][nu] = QDP_create_M();
+	QDP_M_eq_sM(tsg[dir][nu], gf[dir], QDP_neighbor[nu], QDP_forward, QDP_all);
+      }
+    }
+  }
 
   dtime = -QOP_time();
 
@@ -299,16 +317,17 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   for(dir=0; dir<4; dir++) {
     QDP_M_eq_r_times_M(fl[dir], &one_link, gf[dir], QDP_all);
     for(nu=0; nu<4; nu++) if(nu!=dir) {
-      compute_gen_staple(staple, dir, nu, gf[dir],
-			 coeffs->three_staple, gf, fl);
-      compute_gen_staple(NULL, dir, nu, staple, coeffs->lepage, gf, fl);
+      compute_gen_staple(staple, dir, nu, gf[dir], coeffs->three_staple,
+			 gf, fl, tsg[dir][nu], tsg[nu][dir], t1, t2, ts2[nu]);
+      compute_gen_staple(NULL, dir, nu, staple, coeffs->lepage, gf, fl,
+			 tsl[nu], tsg[nu][dir], t1, t2, ts2[nu]);
       for(rho=0; rho<4; rho++) if((rho!=dir)&&(rho!=nu)) {
-	compute_gen_staple(tempmat1, dir, rho, staple,
-			   coeffs->five_staple, gf, fl);
+	compute_gen_staple(tempmat1, dir, rho, staple, coeffs->five_staple,
+			   gf, fl, tsl[rho], tsg[rho][dir], t1, t2, ts2[rho]);
 	for(sig=0; sig<4; sig++) {
 	  if((sig!=dir)&&(sig!=nu)&&(sig!=rho)) {
-	    compute_gen_staple(NULL, dir, sig, tempmat1,
-			       coeffs->seven_staple, gf, fl);
+	    compute_gen_staple(NULL, dir, sig, tempmat1, coeffs->seven_staple,
+			       gf, fl, ts1[sig], tsg[sig][dir],t1,t2,ts2[sig]);
 	  }
 	} /* sig */
       } /* rho */
@@ -320,14 +339,24 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
     QLA_Real naik = coeffs->naik;
     QDP_M_eq_sM(staple, gf[dir], QDP_neighbor[dir], QDP_forward, QDP_all);
     QDP_M_eq_M_times_M(tempmat1, gf[dir], staple, QDP_all);
-    QDP_discard_M(staple);
-    QDP_M_eq_sM(staple, tempmat1, QDP_neighbor[dir], QDP_forward, QDP_all);
-    QDP_M_eq_M_times_M(ll[dir], gf[dir], staple, QDP_all);
+    QDP_M_eq_sM(ts1[dir], tempmat1, QDP_neighbor[dir], QDP_forward, QDP_all);
+    QDP_M_eq_M_times_M(ll[dir], gf[dir], ts1[dir], QDP_all);
     QDP_M_eq_r_times_M(ll[dir], &naik, ll[dir], QDP_all);
   }
 
   QDP_destroy_M(staple);
   QDP_destroy_M(tempmat1);
+  QDP_destroy_M(t1);
+  QDP_destroy_M(t2);
+  for(dir=0; dir<4; dir++) {
+    QDP_destroy_M(tsl[dir]);
+    QDP_destroy_M(ts1[dir]);
+    QDP_destroy_M(ts2[dir]);
+    for(nu=0; nu<4; nu++) {
+      //if(dir!=nu) QDP_destroy_M(tsg[dir][nu]);
+      if(tsg[dir][nu]!=NULL) QDP_destroy_M(tsg[dir][nu]);
+    }
+  }
 
   dtime += QOP_time();
   //node0_printf("LLTIME(Fat): time = %e (Asqtad opt) mflops = %e\n",dtime,
@@ -547,7 +576,7 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
       ra[i] = res_arg[i][0];
     }
     gl_m2x4 = shifts[imin];
-    for(i=0; i<2; i++) shifts[i] -= shifts[imin];
+    for(i=0; i<2; i++) shifts[i] -= gl_m2x4;
     st = 1/(shifts[1]-shifts[0]);
     QDP_V_eq_V_minus_V(x0, incv[1], incv[0], subset);
     QDP_V_eq_r_times_V(x0, &st, x0, subset);
@@ -588,7 +617,7 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
 	cv[j] = out_pt[i][j]->cv;
       }
       gl_m2x4 = shifts[jmin];
-      for(j=0; j<nmass[i]; j++) shifts[j] -= shifts[jmin];
+      for(j=0; j<nmass[i]; j++) shifts[j] -= gl_m2x4;
 
       QOPPC(invert_cgms_V)(QOPPC(asqtad_dslash2), inv_arg, res_arg[i], shifts,
 			   nmass[i], cv, in_pt[i]->cv, fla->cgp, subset);

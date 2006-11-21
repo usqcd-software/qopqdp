@@ -16,8 +16,8 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   int iteration=0;
   Vector *r, *Mp;
 
-  r = create_V();
-  Mp = create_V();
+  create_V(r);
+  create_V(Mp);
 
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
@@ -94,11 +94,11 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
   imin = 0;
   for(i=1; i<nshifts; i++) if(shifts[i]<shifts[imin]) imin = i;
 
-  r = create_V();
-  Mp = create_V();
+  create_V(r);
+  create_V(Mp);
   for(i=0; i<nshifts; i++) {
     if(i==imin) pm[i] = p;
-    else pm[i] = create_V();
+    else create_V(pm[i]);
   }
 
   r_eq_norm2_V(&insq, in, subset);
@@ -119,7 +119,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
     oldrsq = rsq;
 
     linop(Mp, p, subset);
-    if(shifts[imin]!=0.0) V_peq_r_times_V(Mp, shifts+imin, p, subset);
+    //if(shifts[imin]!=0.0) V_peq_r_times_V(Mp, shifts+imin, p, subset);
     iteration++;
 
     r_eq_re_V_dot_V(&pkp, p, Mp, subset);
