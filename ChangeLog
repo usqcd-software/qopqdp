@@ -1,3 +1,8 @@
+2006-11-21 19:53  osborn
+
+	* lib/asqtad_invert_p.c: Workaround for XLC bug in multimass
+	  inverter.
+
 2006-11-21 18:54  osborn
 
 	* NEWS, configure, configure.ac, examples/asqtad_invert_bench.c,
