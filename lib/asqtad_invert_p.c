@@ -608,9 +608,14 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
     }
 #else // real multimass
     for(i=0; i<nsrc; i++) {
-      QLA_Real shifts[nmass[i]];
-      QDP_ColorVector *cv[nmass[i]];
+      //QLA_Real shifts[nmass[i]];
+      //QDP_ColorVector *cv[nmass[i]];
+      // work around bug in XLC
+      QLA_Real *shifts;
+      QDP_ColorVector **cv;
       int jmin=0;
+      shifts = (QLA_Real *) malloc(nmass[i]*sizeof(QLA_Real));
+      cv = (QDP_ColorVector **) malloc(nmass[i]*sizeof(QDP_ColorVector *));
       for(j=0; j<nmass[i]; j++) {
 	shifts[j] = 4*masses[i][j]*masses[i][j];
 	if(shifts[j]<shifts[jmin]) jmin = j;
@@ -624,6 +629,8 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
 
       info->final_flop += (nflop+nflopm*(nmass[i]-1))
 	* res_arg[i][0]->final_iter * QDP_sites_on_node;
+      free(shifts);
+      free(cv);
     }
 #endif
   }
