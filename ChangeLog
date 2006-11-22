@@ -1,3 +1,10 @@
+2006-11-21 18:54  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_invert_bench.c,
+	  include/generic_D.h, include/generic_V.h, include/generic_vD.h,
+	  lib/asqtad_invert_p.c, lib/invert_cg_p.c: Fixed multimass
+	  inverter.  Improved asqtad link loading.
+
 2006-11-17 16:32  tag qopqdp0-7-4
 
 2006-11-17 16:32  osborn
