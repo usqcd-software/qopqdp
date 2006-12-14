@@ -1,3 +1,12 @@
+2006-12-14 00:45  tag qopqdp0-7-6
+
+2006-12-14 00:45  osborn
+
+	* NEWS, configure, configure.ac, examples/dw_invert_bench.c,
+	  lib/asqtad_invert_p.c, lib/dw_invert_p.c: Changed stopping
+	  condition in asqtad 2 source to agree with MILC.  Added
+	  preconditioner to DW inverter.
+
 2006-11-21 19:53  osborn
 
 	* lib/asqtad_invert_p.c: Workaround for XLC bug in multimass
