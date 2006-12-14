@@ -1,37 +1,3 @@
-2006-11-21 19:53  osborn
-
-	* lib/asqtad_invert_p.c: Workaround for XLC bug in multimass
-	  inverter.
-
-2006-11-21 18:54  osborn
-
-	* NEWS, configure, configure.ac, examples/asqtad_invert_bench.c,
-	  include/generic_D.h, include/generic_V.h, include/generic_vD.h,
-	  lib/asqtad_invert_p.c, lib/invert_cg_p.c: Fixed multimass
-	  inverter.  Improved asqtad link loading.
-
-2006-11-17 16:32  tag qopqdp0-7-4
-
-2006-11-17 16:32  osborn
-
-	* include/Makefile.am: Added generic_vD.h to Makefile.am.
-
-2006-11-17 16:26  osborn
-
-	* NEWS, configure, configure.ac, examples/asqtad_test.c,
-	  include/generic_D.h, include/generic_V.h, include/generic_vD.h,
-	  include/qop_internal_p.h, lib/Makefile.am, lib/asqtad_invert_p.c,
-	  lib/dw_invert_p.c, lib/invert_cg_p.c, lib/invert_cg_vD_d.c,
-	  lib/invert_cg_vD_f.c: Added true multimass and 2 source inverter
-	  for asqtad.
-
-2006-11-15 12:52  osborn
-
-	* NEWS, configure, configure.ac, examples/asqtad_test.c,
-	  examples/test_common.c, examples/wilson_invert_bench.c,
-	  examples/wilson_test.c, lib/asqtad_invert_p.c,
-	  lib/wilson_invert_p.c: Fixed memory leak in asqtad inverter.
-
 2006-10-30 18:02  tag qopqdp0-7-2
 
 2006-10-30 18:02  osborn
