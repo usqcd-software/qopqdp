@@ -1,9 +1,10 @@
+#include <math.h>
 #include <qop_internal.h>
 
 //#define printf0 QOP_printf0
 #define printf0(...)
 
-//#define LU
+#define LU
 
 #define dblstore_style(x) ((x)&1)
 #define shiftd_style(x) ((x)&2)
@@ -18,8 +19,9 @@ static int old_nsvec=-1;
 static int old_nvec=-1;
 
 static int congrad_setup = 0;
-static QDP_HalfFermion *htemp[4][20];
-static QDP_DiracFermion *dtemp[4][12];
+static QDP_HalfFermion *htemp[2][16];
+static QDP_DiracFermion *dtemp[2][12];
+static QDP_HalfFermion **hf0, **hf1, *tth;
 static QDP_DiracFermion *tt1, *tt2, **ttv;
 
 static void
@@ -28,18 +30,19 @@ free_temps(QOP_FermionLinksDW *flw)
   if(congrad_setup) {
     int i, j;
 
+    QDP_destroy_H(tth);
     QDP_destroy_D(tt1);
     QDP_destroy_D(tt2);
 
     if(shiftd_style(old_style)) {
-      for(i=0; i<4; i++) {
+      for(i=0; i<2; i++) {
 	for(j=0; j<12; j++) {
 	  QDP_destroy_D(dtemp[i][j]);
 	}
       }
     } else {
-      for(i=0; i<4; i++) {
-	for(j=0; j<20; j++) {
+      for(i=0; i<2; i++) {
+	for(j=0; j<16; j++) {
 	  QDP_destroy_H(htemp[i][j]);
 	}
       }
@@ -90,18 +93,19 @@ reset_temps(QOP_FermionLinksDW *flw)
 
   free_temps(flw);
 
+  tth = QDP_create_H();
   tt1 = QDP_create_D();
   tt2 = QDP_create_D();
 
   if(shiftd_style(QOP_dw_style)) {
-    for(i=0; i<4; i++) {
+    for(i=0; i<2; i++) {
       for(j=0; j<12; j++) {
 	dtemp[i][j] = QDP_create_D();
       }
     }
   } else {
-    for(i=0; i<4; i++) {
-      for(j=0; j<20; j++) {
+    for(i=0; i<2; i++) {
+      for(j=0; j<16; j++) {
 	htemp[i][j] = QDP_create_H();
       }
     }
@@ -314,6 +318,16 @@ QOP_dw_invert_multi(QOP_info_t *info,
   QOP_error("QOP_dw_invert_multi unimplemented");
 }
 
+
+static void Qeo(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+		QDP_DiracFermion *in[], REAL m0, REAL M, int Ls);
+static void Qooinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+		   REAL m0, REAL M, int Ls);
+static void Qeeinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+		   REAL m0, REAL M, int Ls);
+static void QoeQeeinv(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+		      QDP_DiracFermion *in[], REAL m0, REAL M, int Ls);
+
 static QLA_Real gl_m0, gl_M;
 static int gl_Ls;
 static QDP_Subset gl_osubset;
@@ -339,23 +353,21 @@ QOPPC(dw_invert)(QOP_info_t *info,
 {
   double dtime;
   double nflop;
-  QLA_Real kappa, mkappa;
-  QDP_DiracFermion *qdptmp[Ls], *qdpin[Ls], *qdpout[Ls];
+  QDP_DiracFermion *qdptmp[Ls], *qdpin[Ls], *qdpout[Ls], *ttv2[Ls];
   QDP_Subset subset, osubset;
   int i;
 
-  kappa = m0;
   /* cg has 5 * 48 *Ls = 240*Ls flops/site/it */
 #ifdef LU
-  /* ???? MdagM -> 2*(2*(144+168*7)+48) = 5376 flops/site */
-  nflop = 0.5 * 6096;
-  mkappa = -kappa*kappa;
-  subset = QDP_even;
-  osubset = QDP_odd;
+  /*              mf     D_w   1st Qxx1  1     */
+  /* MdagM -> 2*(-48 + ((168*8-24)+4*24+12)*Ls) = -96 + 2856*Ls flops/site */
+  nflop = -96 + 2976*Ls; /* cg only on 1/2 the sites */
+  subset = QDP_odd;
+  osubset = QDP_even;
 #else
-  /* MdagM -> 2*(48 + ((144+168*7)+96)*Ls) = 96 + 2832*Ls flops/site */
+  /*              mf       D_w   m0 .5 Ds     */
+  /* MdagM -> 2*(2*24 + ((168*8)+24+24+24)*Ls) = 96 + 2832*Ls flops/site */
   nflop = 96 + 3072*Ls;
-  mkappa = -kappa;
   subset = QDP_all;
   osubset = QDP_all;
 #endif
@@ -381,9 +393,14 @@ QOPPC(dw_invert)(QOP_info_t *info,
     wilson_dslash = wilson_dslash0;
   }
 
+  hf0 = (QDP_HalfFermion **) malloc(Ls*sizeof(QDP_HalfFermion *));
+  hf1 = (QDP_HalfFermion **) malloc(Ls*sizeof(QDP_HalfFermion *));
   ttv = (QDP_DiracFermion **) malloc(Ls*sizeof(QDP_DiracFermion *));
   for(i=0; i<Ls; i++) {
+    hf0[i] = QDP_create_H();
+    hf1[i] = QDP_create_H();
     ttv[i] = QDP_create_D();
+    ttv2[i] = QDP_create_D();
     qdpin[i] = QDP_create_D();
     qdptmp[i] = in[i]->df;
     qdpout[i] = out[i]->df;
@@ -391,42 +408,47 @@ QOPPC(dw_invert)(QOP_info_t *info,
 
   {
 #ifdef LU
-    QDP_D_eq_D(tt1, in->df, osubset);
-    dslash_special_qdp(flw, ttt, tt1, 1, subset, 1);
-    QDP_D_eq_r_times_D_plus_D(ttt, &kappa, ttt, in->df, subset);
-    dw_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
+    QoeQeeinv(flw, qdpin, qdptmp, m0, M, Ls);
+    for(i=0; i<Ls; i++) QDP_D_eq_D_minus_D(qdpin[i], qdptmp[i], qdpin[i], QDP_odd);
+    Qooinv(ttv, qdpin, m0, M, Ls);
+    dw_dslash1(flw, qdpin, ttv, -1, subset, osubset, m0, M, Ls);
 #else
     dw_dslash1(flw, qdpin, qdptmp, -1, subset, osubset, m0, M, Ls);
 #endif
   }
 
+#ifndef LU
+  res_arg->rsqmin /= m0*m0*m0*m0;
+#endif
   printf0("begin cgv\n");
   dtime = -QOP_time();
 
-#if 0
-  QOPPC(invert_cgv_D)(QOPPC(dw_dslash2), inv_arg, res_arg,
-		      qdpout, qdpin, subset, Ls);
-#endif
   QOPPC(invert_cg_vD)(QOPPC(dw_dslash2), inv_arg, res_arg,
-		      qdpout, qdpin, qdptmp, subset, Ls);
+		      qdpout, qdpin, ttv2, subset, Ls);
 
   dtime += QOP_time();
   printf0("end cgv\n");
+#ifndef LU
+  res_arg->rsqmin *= m0*m0*m0*m0;
+#endif
 
 #ifdef LU
   {
-    QLA_Real kappa2 = 2.0*kappa;
-    QDP_D_eq_D(ttt, out->df, subset);
-    dslash_special_qdp(flw, tt2, ttt, 1, osubset, 2);
-    QDP_D_eq_r_times_D_plus_D(ttt, &kappa, tt2, in->df, osubset);
-    QDP_D_eq_r_times_D(out->df, &kappa2, ttt, QDP_all);
+    Qeo(flw, ttv, qdpout, m0, M, Ls);
+    for(i=0; i<Ls; i++) QDP_D_eq_D_minus_D(ttv[i], qdptmp[i], ttv[i], QDP_even);
+    Qeeinv(qdpout, ttv, m0, M, Ls);
   }
 #endif
 
   for(i=0; i<Ls; i++) {
+    QDP_destroy_H(hf0[i]);
+    QDP_destroy_H(hf1[i]);
     QDP_destroy_D(ttv[i]);
+    QDP_destroy_D(ttv2[i]);
     QDP_destroy_D(qdpin[i]);
   }
+  free(hf0);
+  free(hf1);
   free(ttv);
 
   //res_arg->final_rsq = rsq;
@@ -440,19 +462,10 @@ QOPPC(dw_invert)(QOP_info_t *info,
 
 
 
+/************ dslashes *************/
 
-
-
-/************ dslash *************/
 static void set_out(void);
 
-/* Special dslash for use by congrad.  Uses restart_gather() when
-   possible. Last argument is an integer, which will tell if
-   gathers have been started.  If is_started=0,use
-   start_gather, otherwise use restart_gather.
-   Argument "tag" is a vector of a msg_tag *'s to use for
-   the gathers.
-   The calling program must clean up the gathers! */
 static void
 wilson_dslash0(QOP_FermionLinksDW *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
@@ -594,15 +607,8 @@ wilson_dslash0(QOP_FermionLinksDW *flw,
       QDP_discard_H(htemp[ntmp][mu]);
     }
   }
-} /* end of dslash_special_qdp() */
+}
 
-/* Special dslash for use by congrad.  Uses restart_gather() when
-   possible. Last argument is an integer, which will tell if
-   gathers have been started.  If is_started=0,use
-   start_gather, otherwise use restart_gather.
-   Argument "tag" is a vector of a msg_tag *'s to use for
-   the gathers.
-   The calling program must clean up the gathers! */
 static void
 wilson_dslash1(QOP_FermionLinksDW *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
@@ -690,7 +696,10 @@ wilson_dslash1(QOP_FermionLinksDW *flw,
       QDP_discard_H(htemp[ntmp][mu]);
     }
   }
-} /* end of dslash_special_qdp() */
+}
+
+
+/* domain wall operators */
 
 static QLA_Real mw;
 static int dirs[2], signs[2], lupass=0;
@@ -708,13 +717,190 @@ set_out(void)
     QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, lusubset, 2);
   }
 #else
-  //QDP_D_eq_r_times_D(out0, &mw, in0, QDP_all);
-  //QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_all, 2);
-  QDP_D_eq_r_times_D(out0, &mw, in0, QDP_even);
-  QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_even, 2);
-  QDP_D_eq_r_times_D(out0, &mw, in0, QDP_odd);
-  QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_odd, 2);
+  QDP_D_eq_r_times_D(out0, &mw, in0, QDP_all);
+  QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_all, 2);
+  //QDP_D_eq_r_times_D(out0, &mw, in0, QDP_even);
+  //QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_even, 2);
+  //QDP_D_eq_r_times_D(out0, &mw, in0, QDP_odd);
+  //QDP_D_vmeq_spproj_D(vout, vin, dirs, signs, QDP_odd, 2);
 #endif
+}
+
+static void
+Qxy(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+    REAL m0, REAL M, int Ls, int sign, QDP_Subset subset, QDP_Subset osubset)
+{
+  QLA_Real half = -0.5;
+  int i, ntmp;
+  if(sign>0) ntmp = 0; else ntmp = 1;
+  lupass = 0;
+  lusubset = subset;
+  for(i=0; i<Ls; i++) {
+    out0 = out[i];
+    QDP_D_eq_r_times_D(tt1, &half, in[i], osubset);
+    wilson_dslash(flw, out[i], tt1, sign, subset, ntmp);
+  }
+}
+
+static void
+Qeo(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+    QDP_DiracFermion *in[], REAL m0, REAL M, int Ls)
+{
+  Qxy(flw, out, in, m0, M, Ls, 1, QDP_even, QDP_odd);
+}
+
+static void
+Qoe(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+    QDP_DiracFermion *in[], REAL m0, REAL M, int Ls)
+{
+  Qxy(flw, out, in, m0, M, Ls, 1, QDP_odd, QDP_even);
+}
+
+static void
+Seo(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+    QDP_DiracFermion *in[], REAL m0, REAL M, int Ls)
+{
+  Qxy(flw, out, in, m0, M, Ls, -1, QDP_even, QDP_odd);
+}
+
+static void
+Soe(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+    QDP_DiracFermion *in[], REAL m0, REAL M, int Ls)
+{
+  Qxy(flw, out, in, m0, M, Ls, -1, QDP_odd, QDP_even);
+}
+
+static void
+Qxxinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+       REAL m0, REAL M, int Ls, int sign, QDP_Subset subset)
+{
+  QLA_Real fac, den, mba;
+  QDP_DiracFermion *tin[2];
+  QDP_HalfFermion *thf[2];
+  int dirs[2]={4,4}, sgns[2]={1,-1};
+  int i;
+
+  sign = -sign;
+  sgns[0] *= sign;
+  sgns[1] *= sign;
+
+  mba = 1.0/m0;
+  den = 1.0/(1.0 + (M/m0)*pow(mba, Ls-1));
+  fac = -(M/m0)*den;
+  QDP_H_eq_zero(hf0[Ls-1], subset);
+  for(i=0; i<Ls; i++) {
+    thf[0] = hf0[i];
+    if(i==Ls-1) thf[0] = tth;
+    thf[1] = hf1[i];
+    tin[0] = in[i];
+    tin[1] = in[i];
+    QDP_H_veq_spproj_D(thf, tin, dirs, sgns, subset, 2);
+
+    // L_A^-1
+    if(i<Ls-1) {
+      QDP_H_peq_r_times_H(hf0[Ls-1], &fac, hf0[i], subset);
+      fac *= mba;
+    } else {
+      QDP_H_peq_r_times_H(hf0[Ls-1], &den, tth, subset);
+    }
+
+    // L_B^-1
+    if(i==0) {
+      QDP_H_eq_r_times_H(hf1[i], &mba, hf1[i], subset);
+    } else {
+      QDP_H_peq_H(hf1[i], hf1[i-1], subset);
+      QDP_H_eq_r_times_H(hf1[i], &mba, hf1[i], subset);
+    }
+  }
+
+  fac = -(M/m0)*pow(mba, Ls-2);
+  for(i=Ls-1; i>=0; i--) {
+    // R_A^-1
+    if(i==Ls-1) {
+      QDP_H_eq_r_times_H(hf0[i], &mba, hf0[i], subset);
+    } else {
+      QDP_H_peq_H(hf0[i], hf0[i+1], subset);
+      QDP_H_eq_r_times_H(hf0[i], &mba, hf0[i], subset);
+    }
+
+    // R_B^-1
+    if(i==Ls-1) {
+      QDP_H_eq_r_times_H(hf1[i], &den, hf1[i], subset);
+    } else {
+      QDP_H_peq_r_times_H(hf1[i], &fac, hf1[Ls-1], subset);
+      fac *= m0;
+    }
+
+    QDP_D_eq_sprecon_H(out[i], hf0[i], dirs[0], sgns[0], subset);
+    QDP_D_peq_sprecon_H(out[i], hf1[i], dirs[1], sgns[1], subset);
+  }
+}
+
+static void
+Qooinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+       REAL m0, REAL M, int Ls)
+{
+  Qxxinv(out, in, m0, M, Ls, 1, QDP_odd);
+}
+
+static void
+Qeeinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+       REAL m0, REAL M, int Ls)
+{
+  Qxxinv(out, in, m0, M, Ls, 1, QDP_even);
+}
+
+static void
+Sooinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+       REAL m0, REAL M, int Ls)
+{
+  Qxxinv(out, in, m0, M, Ls, -1, QDP_odd);
+}
+
+static void
+Seeinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+       REAL m0, REAL M, int Ls)
+{
+  Qxxinv(out, in, m0, M, Ls, -1, QDP_even);
+}
+
+static void
+QoeQeeinv(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
+	  QDP_DiracFermion *in[], REAL m0, REAL M, int Ls)
+{
+  Qeeinv(out, in, m0, M, Ls);
+  Qoe(flw, out, out, m0, M, Ls);
+}
+
+static void
+Qxx(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+    QLA_Real m0, QLA_Real M, int Ls, int sign, QDP_Subset subset)
+{
+  int i;
+  sign = -sign;
+  for(i=0; i<Ls; i++) {
+    QDP_D_eq_r_times_D(out[i], &m0, in[i], subset);
+
+    if(i<Ls-1) {
+      QDP_D_meq_spproj_D(out[i], in[i+1], 4, sign, subset);
+    } else {
+      QDP_D_eq_r_times_D(tt1, &M, in[0], subset);
+      QDP_D_peq_spproj_D(out[i], tt1, 4, sign, subset);
+    }
+    if(i==0) {
+      QDP_D_eq_r_times_D(tt1, &M, in[Ls-1], subset);
+      QDP_D_peq_spproj_D(out[i], tt1, 4, -sign, subset);
+    } else {
+      QDP_D_meq_spproj_D(out[i], in[i-1], 4, -sign, subset);
+    }
+  }
+}
+
+static void
+Qoo(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+    QLA_Real m0, QLA_Real M, int Ls)
+{
+  Qxx(out, in, m0, M, Ls, 1, QDP_odd);
 }
 
 static void
@@ -724,43 +910,32 @@ dw_dslash1(QOP_FermionLinksDW *flw,
 	   QLA_Real m0, QLA_Real M, int Ls)
 {
 #ifdef LU
-
-  QLA_Real half = -0.5;
-  QLA_Real mf = -M;
   int i;
 
-  lupass = 0;
-  lusubset = osubset;
+#if 0
+  Qoo(out, in, m0, M, Ls);
+  Qooinv(out, out, m0, M, Ls);
   for(i=0; i<Ls; i++) {
-    out0 = out[i];
-    QDP_D_eq_r_times_D(tt1, &half, in[i], subset);
-    wilson_dslash(flw, out[i], tt1, sign, osubset, 0);
+    QLA_Real t;
+    QDP_D_meq_D(out[i], in[i], QDP_odd);
+    QDP_r_eq_norm2_D(&t, out[i], QDP_odd);
+    printf("%g\n", t);
   }
+#endif
 
-  //Qoo-1(out);
-
-  lupass = 1;
-  lusubset = subset;
-  mw = m0;
-  dirs[0] = dirs[1] = 4;
-  signs[0] = -sign;
-  signs[1] = sign;
+  if(sign>0) {
+    Qeo(flw, out, in, m0, M, Ls);
+    Qeeinv(out, out, m0, M, Ls);
+    Qoe(flw, out, out, m0, M, Ls);
+    Qooinv(out, out, m0, M, Ls);
+  } else {
+    Sooinv(out, in, m0, M, Ls);
+    Seo(flw, out, out, m0, M, Ls);
+    Seeinv(out, out, m0, M, Ls);
+    Soe(flw, out, out, m0, M, Ls);
+  }
   for(i=0; i<Ls; i++) {
-    vout[0] = vout[1] = out[i];
-    vin[0] = in[(i+1)%Ls];
-    vin[1] = in[(i-1+Ls)%Ls];
-    out0 = out[i];
-    in0 = in[i];
-    if(i==0) {
-      QDP_D_eq_r_times_D(tt2, &mf, in[Ls-1], subset);
-      vin[1] = tt2;
-    } else if(i==Ls-1) {
-      QDP_D_eq_r_times_D(tt2, &mf, in[0], subset);
-      vin[0] = tt2;
-    }
-
-    QDP_D_eq_r_times_D(tt1, &half, out[i], osubset);
-    wilson_dslash(flw, out[i], tt1, sign, subset, 1);
+    QDP_D_eq_D_minus_D(out[i], in[i], out[i], subset);
   }
 
 #else
@@ -816,10 +991,10 @@ dw_dslash1(QOP_FermionLinksDW *flw,
       QDP_D_eq_r_times_D(tt2, &mf, in[0], QDP_all);
       vin[0] = tt2;
     }
-
     QDP_D_eq_r_times_D(tt1, &half, in[i], QDP_all);
     //QDP_D_eq_r_times_D(out[i], &mw, in[i], QDP_all);
     wilson_dslash(flw, out[i], tt1, sign, QDP_all, 0);
+    //wilson_dslash(flw, out[i], in[i], sign, QDP_all, 0);
     //QDP_D_eqm_D(out[i], out[i], QDP_all);
 
     //QDP_D_peq_r_times_D(out[i], &mw, in[i], QDP_all);
@@ -837,21 +1012,6 @@ dw_dslash2(QOP_FermionLinksDW *flw,
 	   QDP_Subset subset, QDP_Subset othersubset,
 	   QLA_Real m0, QLA_Real M, int Ls)
 {
-#ifdef LU
-
-  //printf0("here3\n");
-  dslash_special_qdp(flw, tt1, in, 1, QDP_odd, 0);
-  dslash_special_qdp(flw, ttt, tt1, 1, QDP_even, 1);
-  QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, in, QDP_even);
-  //printf0("here4\n");
-  dslash_special_qdp(flw, tt2, ttt, -1, QDP_odd, 2);
-  dslash_special_qdp(flw, out, tt2, -1, QDP_even, 3);
-  QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, ttt, QDP_even);
-
-#else
-
   dw_dslash1(flw, ttv, in, 1, subset, othersubset, m0, M, Ls);
   dw_dslash1(flw, out, ttv, -1, subset, othersubset, m0, M, Ls);
-
-#endif
 }

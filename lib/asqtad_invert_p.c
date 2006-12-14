@@ -560,10 +560,11 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
 
   if( (nsrc==2) && (nmass[0]==1) && (nmass[1]==1) &&
       (masses[0][0]!=masses[0][1]) ) {  /* two source version */
-    QLA_Real shifts[2], st;
+    QLA_Real shifts[2], st, rsq0, rsq1;
     QDP_ColorVector *incv[2], *outcv[2], *x0, *src;
     int imin=0, i;
     QOP_resid_arg_t *ra[2];
+    double rsqsave[2];
 
     x0 = QDP_create_V();
     src = QDP_create_V();
@@ -584,9 +585,19 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
     QOPPC(asqtad_dslash2)(src, fla->cgp, subset);
     QDP_V_eq_V_minus_V(src, incv[imin], src, subset);
 
+    QDP_r_eq_norm2_V(&rsq1, src, subset);
+    QDP_r_eq_norm2_V(&rsq0, incv[0], subset);
+    rsqsave[0] = res_arg[i][0]->rsqmin;
+    res_arg[i][0]->rsqmin *= rsq0/rsq1;
+    QDP_r_eq_norm2_V(&rsq0, incv[1], subset);
+    rsqsave[1] = res_arg[i][1]->rsqmin;
+    res_arg[i][1]->rsqmin *= rsq0/rsq1;
+
     QOPPC(invert_cgms_V)(QOPPC(asqtad_dslash2), inv_arg, ra, shifts,
 			 2, outcv, src, fla->cgp, subset);
     info->final_flop += (nflop+nflopm)*ra[imin]->final_iter*QDP_sites_on_node;
+    res_arg[i][0]->rsqmin = rsqsave[0];
+    res_arg[i][1]->rsqmin = rsqsave[1];
 
     for(i=0; i<2; i++) {
       QDP_V_peq_V(outcv[i], x0, subset);

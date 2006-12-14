@@ -6,7 +6,7 @@
 static int ndim=4;
 static int *lattice_size;
 static int seed;
-static int nit=5;
+static int nit=3;
 static QLA_Real m0=1.4;
 static QLA_Real M=0.1;
 static int Ls=8;
@@ -107,10 +107,10 @@ start(void)
   QOP_info_t info;
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
-  res_arg.rsqmin = 1e-4;
-  inv_arg.max_iter = 100;
-  inv_arg.restart = 100;
-  inv_arg.evenodd = QOP_EVEN;
+  res_arg.rsqmin = rsqmin;
+  inv_arg.max_iter = 200;
+  inv_arg.restart = 200;
+  inv_arg.evenodd = QOP_EVENODD;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
