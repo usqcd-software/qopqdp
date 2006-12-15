@@ -1,3 +1,21 @@
+2006-12-15 17:00  tag qopqdp0-7-7
+
+2006-12-15 17:00  osborn
+
+	* lib/Makefile.am: Remove asqtad_action.h from lib/Makefile.am.
+
+2006-12-15 16:59  osborn
+
+	* aclocal.m4, configure, include/Makefile.am: Added asqtad_action.h
+	  to Makefile.am.
+
+2006-12-15 16:55  osborn
+
+	* AUTHORS, NEWS, examples/asqtad_force_bench.c, lib/asqtad_force.c,
+	  lib/asqtad_force_p.c, lib/dw_invert_p.c,
+	  lib/symanzik_1loop_gauge_force_p.c: Cleanup and fixes for next
+	  release.
+
 2006-12-15 15:52  detar
 
 	* configure, include/asqtad_action.h, include/qop_internal.h,
