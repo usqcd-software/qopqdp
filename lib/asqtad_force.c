@@ -1,7 +1,7 @@
 #include <string.h>
 #include <qop_internal.h>
 
-QOP_asqtad_force_t QOP_asqtad_ff = {.inited=0,.style=0};
+QOP_asqtad_force_t QOP_asqtad_ff = {.inited=0,.style=1};
 
 #define setvar(_var, _type, _tag, _opts, _nopts)			\
   { int i; for(i=0; i<_nopts; i++) {					\
