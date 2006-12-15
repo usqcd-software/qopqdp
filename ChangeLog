@@ -1,3 +1,19 @@
+2006-12-15 11:44  detar
+
+	* lib/asqtad_force.c: Set default to FNMAT style.
+
+2006-12-15 11:37  detar
+
+	* aclocal.m4: Reautomake
+
+2006-12-15 11:37  detar
+
+	* include/asqtad_action.h: Move asqtad_action.h from lib
+
+2006-12-15 11:36  detar
+
+	* lib/asqtad_action.h: Move to "include"
+
 2006-12-15 11:10  detar
 
 	* lib/: asqtad_action.h, asqtad_force_fnmat_d.c,
