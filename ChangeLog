@@ -1,3 +1,14 @@
+2006-12-15 15:52  detar
+
+	* configure, include/asqtad_action.h, include/qop_internal.h,
+	  lib/asqtad_force.c, lib/asqtad_force_fnmat_p.c,
+	  lib/asqtad_force_p.c: Change option setting to use threshold for
+	  changeover from ASVEC to FNMAT Add block vector length for ASVEC
+
+2006-12-15 15:51  detar
+
+	* lib/symanzik_1loop_gauge_force_p.c: Add Ludmila's improvements.
+
 2006-12-15 11:44  detar
 
 	* lib/asqtad_force.c: Set default to FNMAT style.
