@@ -10,6 +10,8 @@
 #include <string.h>
 #include <asqtad_action.h>
 
+/** #define DEBUG_FNMAT **/
+
 /********************************************************************/
 /* Construct path table from the action definition above
    Originally quark_stuff.c                                         */
@@ -25,10 +27,6 @@ typedef struct {
 static QDP_Shift shiftdirs[8];
 static QDP_Shift neighbor3[4];
 
-static int path_num[MAX_BASIC_PATHS];	/* number of
-					rotations/reflections for each
-					kind */
-
 static Q_path q_paths[MAX_NUM];
 static int num_q_paths; /* number of paths in dslash */
 static int num_basic_paths;	/* number of paths before rotation/reflection */
@@ -40,7 +38,6 @@ static void
 QOP_make_paths_and_dirs(QOP_asqtad_coeffs_t *coef) {
 
   int i,j;
-  int k;
   int disp[4] = {0,0,0,0};
 
   /* table of directions, 1 for each kind of path */
@@ -57,13 +54,15 @@ QOP_make_paths_and_dirs(QOP_asqtad_coeffs_t *coef) {
     shiftdirs[i+4] = neighbor3[i];
   }
   
-  // QOP_printf0("%s\n",quark_action_description);
+#ifdef DEBUG_FNMAT
+  QOP_printf0("%s\n",QUARK_ACTION_DESCRIPTION);
+#endif
   num_q_paths = 0;
   num_basic_paths = 0;
 
   if(MAX_LENGTH > MAX_PATH_LENGTH){
     printf("Path length for this action is too long.	Recompile.\n");
-    terminate(1);
+    exit(0);
   }
   
   REAL path_coeff[MAX_BASIC_PATHS] = {coef->one_link, coef->naik, 
@@ -181,6 +180,8 @@ qop_is_path_equal( int *path1, int* path2, int length ){
 /*   Utilities                                                        */
 /**********************************************************************/
 
+#ifdef DEBUG_FNMAT
+
 static void 
 PrintM(QDP_ColorMatrix * field){
   QLA_ColorMatrix *mom0;
@@ -206,6 +207,8 @@ PrintV(QDP_ColorVector * field){
 
   QDP_reset_V(field);
 }
+
+#endif
 
 
 /* Map netdir to the QDP shift dir */
@@ -327,9 +330,11 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
 			QOP_Force *Force, QOP_asqtad_coeffs_t *asq_coeff,
 			REAL eps[], QOP_ColorVector *in_pt[], int nterms)
 {
-  /** printf("coeff: %e %e %e\n %e %e %e\n\n", asq_coeff->one_link, asq_coeff->naik,
+#ifdef DEBUG_FNMAT
+  printf("coeff: %e %e %e\n %e %e %e\n\n", asq_coeff->one_link, asq_coeff->naik,
 	 asq_coeff->three_staple, asq_coeff->five_staple,
-	 asq_coeff->seven_staple, asq_coeff->lepage); **/
+	 asq_coeff->seven_staple, asq_coeff->lepage);
+#endif
   
   /* note CG_solution and Dslash * solution are combined in "x" */
   /* New version 1/21/99.  Use forward part of Dslash to get force */
@@ -341,15 +346,21 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
 
   QDP_ColorMatrix * force[4] =  {Force->force[0], Force->force[1], 
 				 Force->force[2], Force->force[3]};
-  //PrintM(force[0]);
+#ifdef DEBUG_FNMAT
+  PrintM(force[0]);
+#endif
 
   QDP_ColorMatrix * gf[4] = {Gauge->links[0], Gauge->links[1], 
 			     Gauge->links[2], Gauge->links[3]};
-  //PrintM(gf[0]);
+#ifdef DEBUG_FNMAT
+  PrintM(gf[0]);
+#endif
 
   QDP_ColorVector * x[(const int) nterms] ;
   for(i=0; i<nterms; i++) x[i] = in_pt[i] -> cv;
-  //PrintV(x[0]);  
+#ifdef DEBUG_FNMAT
+  PrintV(x[0]);  
+#endif
    
   QDP_ColorMatrix *tmat;
   REAL coeff;

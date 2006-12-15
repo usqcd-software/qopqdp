@@ -107,8 +107,19 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
 			  QOP_Force *force, QOP_asqtad_coeffs_t *coef,
 			  REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
 {
-  if(QOP_asqtad_ff.style == 0 || nsrc < 4)
-    QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coef, eps, in_pt, nsrc);
+  int j;
+  int vl = QOP_asqtad_ff.veclength;
+  int fsm = QOP_asqtad_ff.fnmat_src_min;
+
+  if( nsrc < fsm )
+    {
+      for( j = 0; j <= nsrc-vl; j += vl )
+	QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coef, eps+j, 
+					in_pt+j, vl);
+      if( nsrc-j > 0 )
+	QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coef, eps+j, 
+					in_pt+j, nsrc-j);
+    }
   else
     QOPPC(asqtad_force_multi_fnmat)(info, gauge, force, coef, eps, in_pt, nsrc);
 }

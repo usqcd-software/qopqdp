@@ -72,8 +72,7 @@ static int net_back_dirs[16] = { XDOWN, YDOWN, ZDOWN, TDOWN,
     static int path_length_in[MAX_BASIC_PATHS] = {1,3,3,5,7,5};
     static int quark_action_npaths = MAX_BASIC_PATHS ;
 
-    static char quark_action_description[] =
-	"\"O(a^2): couplings(pi)=0, Naik term, No O(a^2) errors, tadpole weights\"";
+#define QUARK_ACTION_DESCRIPTION "\"O(a^2): couplings(pi)=0, Naik term, No O(a^2) errors, tadpole weights\""
 
 /* We don't include the explicit path coefficients, since they are
    being passed into QOP by the caller */

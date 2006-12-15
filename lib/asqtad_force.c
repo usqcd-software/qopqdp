@@ -1,34 +1,38 @@
 #include <string.h>
 #include <qop_internal.h>
 
-QOP_asqtad_force_t QOP_asqtad_ff = {.inited=0,.style=1};
+QOP_asqtad_force_t QOP_asqtad_ff = {.inited=0,.fnmat_src_min=4,.veclength=4};
 
 #define setvar(_var, _type, _tag, _opts, _nopts)			\
   { int i; for(i=0; i<_nopts; i++) {					\
       if(!strcmp(_opts[i].tag,_tag)) _var = (_type) _opts[i].value;	\
     } }
 
-/* Style choices are
+/* Options are these
 
-   0 = ASVEC  (parallel transport source vectors)
-   1 = FNMAT  (parallel transport outer product - best for many sources )
-
-   The style choice applies only to nsrc > 3.
+   fnmat_src_min  For nsrc < value use the ASVEC algorithm.  Otherwise
+                  use the FNMAT algorithm.
+   veclength      The block size for ASVEC
 
 */
 
-#define valid_style(st) ( (st>=0) && (st<=1) )
+#define valid_fnmat_src_min(fsm) ( (fsm>0) )
+#define valid_veclength(vl) ( (vl>0) )
 
 QOP_status_t
 QOP_asqtad_force_set_opts(QOP_opt_t opts[], int nopts)
 {
-  int st, ns, nm;
-  st = QOP_asqtad_ff.style;
+  int fsm, vl;
 
-  setvar(st, int, "st", opts, nopts);
-  if(!valid_style(st)) return QOP_FAIL;
+  fsm = QOP_asqtad_ff.fnmat_src_min;
+  setvar(fsm, int, "fnmat_src_min", opts, nopts);
+  if(!valid_fnmat_src_min(fsm)) return QOP_FAIL;
+  QOP_asqtad_ff.fnmat_src_min = fsm;
 
-  QOP_asqtad_ff.style = st;
+  vl = QOP_asqtad_ff.veclength;
+  setvar(vl, int, "veclength", opts, nopts);
+  if(!valid_veclength(vl)) return QOP_FAIL;
+  QOP_asqtad_ff.veclength = vl;
 
   return QOP_SUCCESS;
 }

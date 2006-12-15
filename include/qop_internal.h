@@ -54,7 +54,8 @@ extern QOP_asqtad_t QOP_asqtad;
 
 typedef struct {
   int inited;
-  int style;
+  int fnmat_src_min;
+  int veclength;
 } QOP_asqtad_force_t;
 extern QOP_asqtad_force_t QOP_asqtad_ff;
 
