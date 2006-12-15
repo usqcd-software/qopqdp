@@ -1,3 +1,9 @@
+2006-12-15 11:10  detar
+
+	* lib/: asqtad_action.h, asqtad_force_fnmat_d.c,
+	  asqtad_force_fnmat_f.c, asqtad_force_fnmat_p.c, asqtad_force.c:
+	  Add Ludmila's port of Doug's FNMAT algorithm to the Asqtad force
+
 2006-12-14 22:45  detar
 
 	* configure.ac, include/qop_internal.h, lib/Makefile.am,
