@@ -1,3 +1,9 @@
+2006-12-14 22:45  detar
+
+	* configure.ac, include/qop_internal.h, lib/Makefile.am,
+	  lib/asqtad_force_p.c, lib/dw_invert_p.c: Add FNMAT algorithm for
+	  asqtad_force with option selection
+
 2006-12-14 16:01  osborn
 
 	* NEWS, examples/dw_invert_bench.c, lib/dw_invert_p.c: Fixed
