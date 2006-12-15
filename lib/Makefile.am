@@ -36,7 +36,6 @@ invert_cg_vD_f.o: invert_cg_p.c
 invert_cg_vD_d.o: invert_cg_p.c
 
 EXTRA_DIST = \
-  asqtad_action.h \
   common_p.c \
   symanzik_1loop_gauge_force_p.c \
   asqtad_invert_p.c \
