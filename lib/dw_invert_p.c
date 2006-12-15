@@ -732,7 +732,7 @@ Qxy(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 {
   QLA_Real half = -0.5;
   int i, ntmp;
-  if(subset==QDP_odd) ntmp = 0; else ntmp = 1;
+  if(sign>0) ntmp = 0; else ntmp = 1;
   lupass = 0;
   lusubset = subset;
   for(i=0; i<Ls; i++) {

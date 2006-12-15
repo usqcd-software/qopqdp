@@ -69,6 +69,16 @@ void side_link_forces2(int mu, int nu, QDP_ColorVector **Path,
 		       QDP_ColorVector **Path_nu, QDP_ColorVector **Path_mu,
 		       QDP_ColorVector **Path_numu, int nsrc);
 
+void 
+QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *gauge,
+			       QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+			       REAL eps[], QOP_ColorVector *in_pt[], int nsrc);
+
+void
+QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
+				QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+				REAL eps[], QOP_ColorVector *in_pt[], int nsrc);
+
 
 //static su3_matrix *backwardlink[4];
 static QDP_ColorMatrix *tempmom_qdp[4];
@@ -82,18 +92,31 @@ static QDP_Shift fbshift[8];
 static QDP_ShiftDir fbshiftdir[8];
 static QDP_ColorVector **tv;
 
+extern QOP_asqtad_force_t QOP_asqtad_ff;
+
 void
 QOPPC(asqtad_force)(QOP_info_t *info, QOP_GaugeField *gauge, QOP_Force *force,
 		    QOP_asqtad_coeffs_t *coeffs, REAL eps,
 		    QOP_ColorVector *in_pt)
 {
-  QOPPC(asqtad_force_multi)(info, gauge, force, coeffs, &eps, &in_pt, 1);
+  QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coeffs, &eps, &in_pt, 1);
 }
 
 void
 QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
 			  QOP_Force *force, QOP_asqtad_coeffs_t *coef,
 			  REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
+{
+  if(QOP_asqtad_ff.style == 0 || nsrc < 4)
+    QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coef, eps, in_pt, nsrc);
+  else
+    QOPPC(asqtad_force_multi_fnmat)(info, gauge, force, coef, eps, in_pt, nsrc);
+}
+
+void
+QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
+				QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+				REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
 {
   REAL coeff[nsrc];
   REAL OneLink[nsrc], Lepage[nsrc], Naik[nsrc], FiveSt[nsrc], ThreeSt[nsrc], SevenSt[nsrc];

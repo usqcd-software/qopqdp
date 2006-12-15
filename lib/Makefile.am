@@ -6,7 +6,8 @@ libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
   symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
-  asqtad_force_f.c asqtad_force_d.c \
+  asqtad_force.c asqtad_force_f.c asqtad_force_d.c \
+  asqtad_force_fnmat_f.c asqtad_force_fnmat_d.c \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
   dw_invert.c dw_invert_f.c dw_invert_d.c \
   invert_cg_V_f.c invert_cg_V_d.c \
@@ -21,6 +22,8 @@ asqtad_invert_f.o: asqtad_invert_p.c
 asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c
 asqtad_force_d.o: asqtad_force_p.c
+asqtad_force_fnmat_f.o: asqtad_force_fnmat_p.c
+asqtad_force_fnmat_d.o: asqtad_force_fnmat_p.c
 wilson_invert_f.o: wilson_invert_p.c
 wilson_invert_d.o: wilson_invert_p.c
 dw_invert_f.o: dw_invert_p.c
@@ -33,10 +36,12 @@ invert_cg_vD_f.o: invert_cg_p.c
 invert_cg_vD_d.o: invert_cg_p.c
 
 EXTRA_DIST = \
+  asqtad_action.h \
   common_p.c \
   symanzik_1loop_gauge_force_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \
+  asqtad_force_fnmat_p.c \
   wilson_invert_p.c \
   dw_invert_p.c \
   invert_cg_p.c

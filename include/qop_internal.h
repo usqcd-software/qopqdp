@@ -52,6 +52,12 @@ typedef struct {
 } QOP_asqtad_t;
 extern QOP_asqtad_t QOP_asqtad;
 
+typedef struct {
+  int inited;
+  int style;
+} QOP_asqtad_force_t;
+extern QOP_asqtad_force_t QOP_asqtad_ff;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
