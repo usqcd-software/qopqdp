@@ -16,7 +16,7 @@ QOP_asqtad_force_t QOP_asqtad_ff = {.inited=0,.fnmat_src_min=4,.veclength=4};
 
 */
 
-#define valid_fnmat_src_min(fsm) ( (fsm>0) )
+#define valid_fnmat_src_min(fsm) ( (fsm>=0) )
 #define valid_veclength(vl) ( (vl>0) )
 
 QOP_status_t

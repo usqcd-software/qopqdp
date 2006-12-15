@@ -110,18 +110,22 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
   int j;
   int vl = QOP_asqtad_ff.veclength;
   int fsm = QOP_asqtad_ff.fnmat_src_min;
+  QOP_info_t tinfo;
 
-  if( nsrc < fsm )
-    {
-      for( j = 0; j <= nsrc-vl; j += vl )
-	QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coef, eps+j, 
-					in_pt+j, vl);
-      if( nsrc-j > 0 )
-	QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coef, eps+j, 
-					in_pt+j, nsrc-j);
+  if( nsrc < fsm ) {
+    info->final_sec = 0;
+    info->final_flop = 0;
+    for(j=0; j<nsrc; j+=vl) {
+      int ns = nsrc-j;
+      if(ns>vl) ns = vl;
+      QOPPC(asqtad_force_multi_asvec)(&tinfo, gauge, force, coef, eps+j, 
+				      in_pt+j, ns);
+      info->final_sec += tinfo.final_sec;
+      info->final_flop += tinfo.final_flop;
     }
-  else
+  } else {
     QOPPC(asqtad_force_multi_fnmat)(info, gauge, force, coef, eps, in_pt, nsrc);
+  }
 }
 
 void

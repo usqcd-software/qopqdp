@@ -1,11 +1,15 @@
 Authors of QOPQDP
 =================
- 
+
 The QOP API was designed as a part of the National Computational
 Infrastructure for Lattice Gauge Theory (http://www.lqcd.org/).
 Many members of the Software Committee contributed to the design.
- 
-The libraries and example programs were written by James Osborn
-(josborn at physics.bu.edu).
 
-The Symanzik 1-loop gauge force was writter by Ludmila Levkova.
+Most of the libraries and example programs were written by
+James Osborn (josborn at physics.bu.edu).
+
+Ludmila Levkova contributed the Symanzik 1-loop gauge force
+and FNMAT version of the asqtad force.
+
+Carleton Detar also contributed to the FNMAT version of the
+asqtad force.

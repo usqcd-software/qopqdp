@@ -732,7 +732,7 @@ Qxy(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 {
   QLA_Real half = -0.5;
   int i, ntmp;
-  if(sign>0) ntmp = 0; else ntmp = 1;
+  if(subset==QDP_odd) ntmp = 0; else ntmp = 1;
   lupass = 0;
   lusubset = subset;
   for(i=0; i<Ls; i++) {
@@ -872,6 +872,7 @@ QoeQeeinv(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
   Qoe(flw, out, out, m0, M, Ls);
 }
 
+#if 0
 static void
 Qxx(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
     QLA_Real m0, QLA_Real M, int Ls, int sign, QDP_Subset subset)
@@ -902,6 +903,7 @@ Qoo(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 {
   Qxx(out, in, m0, M, Ls, 1, QDP_odd);
 }
+#endif
 
 static void
 dw_dslash1(QOP_FermionLinksDW *flw,

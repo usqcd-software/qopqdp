@@ -262,12 +262,9 @@ QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge,
 
   dtime += QOP_time();
 
-  int nflop = 96720;
+  double nflop = 96720;
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node; 
   info->status = QOP_SUCCESS;
   //QOP_printf0("Time in slow g_force: %e\n", info->final_sec);
 } 
-
-
-

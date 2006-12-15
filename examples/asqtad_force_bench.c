@@ -3,20 +3,17 @@
 #include <time.h>
 #include <math.h>
 
+#define MAX_NSRC 8
+
 static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=5;
+static int nsrcs=-1;
 static QLA_Real mass=-1;
 
-static const int sta[] = {0, 1};
-//static const int sta[] = {1};
-static const int stn = sizeof(sta)/sizeof(int);
-static const int nsa[] = {2, 4, 8, 16};
-static const int nsn = sizeof(nsa)/sizeof(int);
-static const int nma[] = {2, 4, 8, 16};
-//static const int nma[] = {0};
-static const int nmn = sizeof(nma)/sizeof(int);
+static const int fsma[] = {MAX_NSRC};
+static const int fsmn = sizeof(fsma)/sizeof(int);
 static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 static const int bsn = sizeof(bsa)/sizeof(int);
 static QOP_GaugeField *gauge;
@@ -24,21 +21,21 @@ static double flops, secs;
 
 double
 bench_force(QOP_asqtad_coeffs_t *asqcoef,
-	    QOP_Force *out, QDP_ColorVector *in)
+	    QOP_Force *out, QDP_ColorVector *in, int nsrc)
 {
   double sec=0, flop=0, mf=0;
   int i;
-  QOP_ColorVector *qopin[2];
-  QLA_Real eps[2];
+  QOP_ColorVector *qopin[nsrc];
+  QLA_Real eps[nsrc];
   QOP_info_t info;
 
-  eps[0] = 0.1;
-  eps[1] = 0.2;
-  qopin[0] = QOP_create_V_from_qdp(in);
-  qopin[1] = QOP_create_V_from_qdp(in);
+  for(i=0; i<nsrc; i++) {
+    eps[i] = 0.1*(i+1);
+    qopin[i] = QOP_create_V_from_qdp(in);
+  }
   for(i=0; i<=nit; i++) {
 
-    QOP_asqtad_force_multi(&info, gauge, out, asqcoef, eps, qopin, 2);
+    QOP_asqtad_force_multi(&info, gauge, out, asqcoef, eps, qopin, nsrc);
 
     if(i>0) {
       sec += info.final_sec;
@@ -47,8 +44,9 @@ bench_force(QOP_asqtad_coeffs_t *asqcoef,
     }
   }
   //printf("test1\n");
-  QOP_destroy_V(qopin[0]);
-  QOP_destroy_V(qopin[1]);
+  for(i=0; i<nsrc; i++) {
+    QOP_destroy_V(qopin[i]);
+  }
   //printf("test2\n");
 
   secs = sec/nit;
@@ -62,7 +60,7 @@ start(void)
   double mf, best_mf;
   QLA_Real plaq;
   QDP_ColorMatrix **u;
-  int i, bs, bsi, best_bs;
+  int i, fsm, fsmi, nsrc, bs, bsi, best_fsm, best_nsrc, best_bs;
 
   u = (QDP_ColorMatrix **) malloc(ndim*sizeof(QDP_ColorMatrix *));
   for(i=0; i<ndim; i++) u[i] = QDP_create_M();
@@ -107,25 +105,40 @@ start(void)
   if(QDP_this_node==0) { printf("begin force\n"); fflush(stdout); }
 
   best_mf = 0;
+  best_fsm = fsma[0];
+  best_nsrc = 0;
   best_bs = bsa[0];
-  for(bsi=0; bsi<bsn; bsi++) {
-    bs = bsa[bsi];
-    QDP_set_block_size(bs);
-    mf = bench_force(&asqcoef, force, in);
-    printf0("FF: bs%5i sec%7.4f mflops = %g\n", bs, secs, mf);
-    if(mf>best_mf) {
-      best_mf = mf;
-      best_bs = bs;
+  QOP_opt_t optfsm;
+  optfsm.tag = "fnmat_src_min";
+  for(fsmi=0; fsmi<fsmn; fsmi++) {
+    fsm = fsma[fsmi];
+    optfsm.value = fsm;
+    if(QOP_asqtad_force_set_opts(&optfsm, 1)==QOP_FAIL) continue;
+    for(nsrc=1; nsrc<=MAX_NSRC; nsrc++) {
+      if((nsrcs>=0)&&(nsrc!=nsrcs)) continue;
+      for(bsi=0; bsi<bsn; bsi++) {
+	bs = bsa[bsi];
+	QDP_set_block_size(bs);
+	mf = bench_force(&asqcoef, force, in, nsrc);
+	printf0("FF: fsm%3i nsrc%3i bs%5i sec%7.4f mflops = %g\n", fsm, nsrc, bs, secs, mf);
+	if(mf>best_mf) {
+	  best_mf = mf;
+	  best_fsm = fsm;
+	  best_nsrc = nsrc;
+	  best_bs = bs;
+	}
+      }
     }
   }
 
+  optfsm.value = best_fsm;
+  QOP_asqtad_force_set_opts(&optfsm, 1);
   QDP_set_block_size(best_bs);
   QDP_profcontrol(1);
-  mf = bench_force(&asqcoef, force, in);
+  mf = bench_force(&asqcoef, force, in, best_nsrc);
   QDP_profcontrol(0);
-  printf0("prof: FF: bs%5i sec%7.4f mflops = %g\n", best_bs, secs, mf);
-
-  printf0("best: FF: bs%5i mflops = %g\n", best_bs, best_mf);
+  printf0("prof: FF: fsm%3i nsrc%3i bs%5i sec%7.4f mflops = %g\n", best_fsm, best_nsrc, best_bs, secs, mf);
+  printf0("best: FF: fsm%3i nsrc%3i bs%5i mflops = %g\n", best_fsm, best_nsrc, best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
   //QOP_asqtad_invert_unload_links();
@@ -136,10 +149,11 @@ start(void)
 void
 usage(char *s)
 {
-  printf("%s [n#] [s#] [x# [# ...]]\n",s);
+  printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
   printf("\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
+  printf("S\tnsrc\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
   exit(1);
@@ -160,6 +174,7 @@ main(int argc, char *argv[])
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
+    case 'S' : nsrcs=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     default : usage(argv[0]);
     }
