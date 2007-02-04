@@ -10,6 +10,7 @@ static int nit=5;
 static QLA_Real kappa=0.15;
 static double rsqmin=1e-8;
 static int style=-1;
+static int cgtype=-1;
 
 static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
@@ -33,20 +34,21 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   int i, iter=0;
   QOP_DiracFermion *qopout, *qopin;
 
+  QDP_D_eq_zero(out, QDP_all);
+  qopout = QOP_create_D_from_qdp(out);
+  qopin = QOP_create_D_from_qdp(in);
   for(i=0; i<=nit; i++) {
-    QDP_D_eq_zero(out, QDP_all);
-    qopout = QOP_create_D_from_qdp(out);
-    qopin = QOP_create_D_from_qdp(in);
     QOP_wilson_invert(info, flw, inv_arg, res_arg, kappa, qopout, qopin);
+    printf("%i\t%i\t%g\t%i\n", i, res_arg->final_iter, info->final_sec, (int)info->final_flop);
     if(i>0) {
       iter += res_arg->final_iter;
       sec += info->final_sec;
       flop += info->final_flop;
       mf += info->final_flop/(1e6*info->final_sec);
     }
-    QOP_destroy_D(qopout);
-    QOP_destroy_D(qopin);
   }
+  QOP_destroy_D(qopout);
+  QOP_destroy_D(qopin);
   res_arg->final_iter = iter/nit;
   info->final_sec = sec/nit;
   info->final_flop = flop/nit;
@@ -100,6 +102,13 @@ start(void)
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //flw = QOP_wilson_create_L_from_qdp(u, NULL);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
+
+  if(cgtype>=0) {
+    QOP_opt_t optcg;
+    optcg.tag = "cg";
+    optcg.value = cgtype;
+    QOP_wilson_invert_set_opts(&optcg, 1);
+  }
 
   best_mf = 0;
   best_st = sta[0];
@@ -178,6 +187,7 @@ usage(char *s)
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
+  printf("c\tcgtype\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
   exit(1);
@@ -195,6 +205,7 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'k' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;

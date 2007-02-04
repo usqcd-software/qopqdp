@@ -77,7 +77,9 @@ struct QOPPC(FermionLinksWilson_struct) {
   QDPPC(ColorMatrix) **dbllinks;
   QOPPC(GaugeField) *qopgf;
   QDPPC(DiracFermion) *cgp;
-  REAL **raw;
+  QDPPC(DiracPropagator) *qdpclov;
+  REAL *clov, *clovinv;
+  REAL **rawlinks, *rawclov;
 };
 
   /* Domain Wall datatypes */
@@ -167,5 +169,14 @@ QOPPC(invert_cgms_vD)(QOPPC(linop_t_vD) *linop,
 		      QDP_Subset subset,
 		      int _n);
 
+QOP_status_t
+QOPPC(invert_bicgstab_D)(QOPPC(linop_t_D) *linop,
+			 QOP_invert_arg_t *inv_arg,
+			 QOP_resid_arg_t *res_arg,
+			 QDP_DiracFermion *out,
+			 QDP_DiracFermion *in,
+			 QDP_DiracFermion *p,
+			 QDP_DiracFermion *r,
+			 QDP_Subset subset);
 
 #endif /* _QOP_INTERNALP_H */

@@ -117,7 +117,7 @@ reset_temps(QOP_FermionLinksDW *flw)
 /* link routines */
 
 QOP_FermionLinksDW *
-QOP_dw_create_L_from_raw(REAL *links[], REAL *clov[], QOP_evenodd_t evenodd)
+QOP_dw_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 {
   QOP_FermionLinksDW *flw;
   QOP_GaugeField *gf;
@@ -144,7 +144,7 @@ QOP_dw_create_L_from_G(QOP_info_t *info, QOP_dw_coeffs_t *coeffs,
 }
 
 void
-QOP_dw_extract_L_to_raw(REAL *links[], REAL *clov[], QOP_FermionLinksDW *src,
+QOP_dw_extract_L_to_raw(REAL *links[], REAL *clov, QOP_FermionLinksDW *src,
 			QOP_evenodd_t evenodd)
 {
   QOP_error("QOP_dw_extract_L_to_raw unimplemented");
@@ -170,14 +170,14 @@ QOP_dw_destroy_L(QOP_FermionLinksDW *flw)
 }
 
 QOP_FermionLinksDW *
-QOP_dw_convert_L_from_raw(REAL *links[], REAL *clov[], QOP_evenodd_t evenodd)
+QOP_dw_convert_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 {
   QOP_error("QOP_dw_convert_L_from_raw unimplemented");
   return NULL;
 }
 
 void
-QOP_dw_convert_L_to_raw(REAL ***links, REAL ***clov, QOP_FermionLinksDW *src,
+QOP_dw_convert_L_to_raw(REAL ***links, REAL **clov, QOP_FermionLinksDW *src,
 			QOP_evenodd_t evenodd)
 {
   QOP_error("QOP_dw_convert_L_to_raw unimplemented");
@@ -199,7 +199,7 @@ QOP_dw_convert_L_to_G(QOP_FermionLinksDW *links)
 }
 
 QOP_FermionLinksDW *
-QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[], QDP_DiracPropagator *clov[])
+QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[], QDP_DiracPropagator *clov)
 {
   QOP_FermionLinksDW *flw;
   QDP_ColorMatrix *newlinks[4];
@@ -221,7 +221,7 @@ QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[], QDP_DiracPropagator *clov[])
 
 void
 QOP_dw_extract_L_to_qdp(QDP_ColorMatrix *links[],
-			QDP_DiracPropagator *clov[],
+			QDP_DiracPropagator *clov,
 			QOP_FermionLinksDW *src)
 {
   QOP_error("QOP_dw_extract_L_to_qdp unimpleented");
@@ -229,7 +229,7 @@ QOP_dw_extract_L_to_qdp(QDP_ColorMatrix *links[],
 
 QOP_FermionLinksDW *
 QOP_dw_convert_L_from_qdp(QDP_ColorMatrix *links[],
-			  QDP_DiracPropagator *clov[])
+			  QDP_DiracPropagator *clov)
 {
   QOP_FermionLinksDW *flw;
   int i;
@@ -265,7 +265,7 @@ QOP_dw_convert_L_from_qdp(QDP_ColorMatrix *links[],
 }
 
 void
-QOP_dw_convert_L_to_qdp(QDP_ColorMatrix ***link, QDP_DiracPropagator ***clov,
+QOP_dw_convert_L_to_qdp(QDP_ColorMatrix ***link, QDP_DiracPropagator **clov,
 			QOP_FermionLinksDW *src)
 {
   QOP_error("QOP_dw_convert_L_to_qdp unimpleented");

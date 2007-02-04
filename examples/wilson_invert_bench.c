@@ -10,6 +10,8 @@ static int nit=5;
 static QLA_Real kappa=0.15;
 static double rsqmin=1e-8;
 static int style=-1;
+static int cgtype=-1;
+static int clover=0;
 
 static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
@@ -64,13 +66,24 @@ start(void)
   double mf, best_mf;
   QLA_Real plaq;
   QDP_ColorMatrix **u;
+  //QDP_DiracPropagator *clov;
   QDP_DiracFermion *out, *in;
+  QOP_GaugeField *gf;
+  QOP_wilson_coeffs_t coeffs;
   int i, st, ns, nm, bs, sti, nsi, nmi, bsi,
     best_st, best_ns, best_nm, best_bs;
 
   u = (QDP_ColorMatrix **) malloc(ndim*sizeof(QDP_ColorMatrix *));
   for(i=0; i<ndim; i++) u[i] = QDP_create_M();
   get_random_links(u, ndim, 0.2);
+  if(clover) {
+    //clov = QDP_create_P();
+    //QDP_P_eq_zero(clov, QDP_all);
+    coeffs.clov_c = 0.1;
+  } else {
+    //clov = NULL;
+    coeffs.clov_c = 0;
+  }
 
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
@@ -93,13 +106,23 @@ start(void)
   res_arg.rsqmin = rsqmin;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
-  inv_arg.evenodd = QOP_EVEN;
+  inv_arg.max_restarts = 5;
+  inv_arg.evenodd = QOP_EVENODD;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
-  flw = QOP_wilson_create_L_from_qdp(u, NULL);
+  //flw = QOP_wilson_create_L_from_qdp(u, clov);
+  gf = QOP_create_G_from_qdp(u);
+  flw = QOP_wilson_create_L_from_G(&info, &coeffs, gf);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
+
+  if(cgtype>=0) {
+    QOP_opt_t optcg;
+    optcg.tag = "cg";
+    optcg.value = cgtype;
+    QOP_wilson_invert_set_opts(&optcg, 1);
+  }
 
   best_mf = 0;
   best_st = sta[0];
@@ -175,6 +198,8 @@ usage(char *s)
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
+  printf("c\tcgtype (0=CGNE, 1=BiCGStab\n");
+  printf("w\tclover term (0=off, 1=on)\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
   exit(1);
@@ -192,11 +217,13 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'k' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
+    case 'w' : clover=atoi(&argv[i][1]); break;
     default : usage(argv[0]);
     }
   }
@@ -224,6 +251,8 @@ main(int argc, char *argv[])
     printf("\n");
     printf("kappa = %g\n", kappa);
     printf("seed = %i\n", seed);
+    printf("cgtype = %i\n", cgtype);
+    printf("clover = %i\n", clover);
   }
 
   QDP_set_latsize(ndim, lattice_size);

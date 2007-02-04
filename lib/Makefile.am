@@ -12,7 +12,8 @@ libqopqdp_a_SOURCES = \
   dw_invert.c dw_invert_f.c dw_invert_d.c \
   invert_cg_V_f.c invert_cg_V_d.c \
   invert_cg_D_f.c invert_cg_D_d.c \
-  invert_cg_vD_f.c invert_cg_vD_d.c
+  invert_cg_vD_f.c invert_cg_vD_d.c \
+  invert_bicgstab_D_f.c invert_bicgstab_D_d.c
 
 common_f.o: common_p.c
 common_d.o: common_p.c
@@ -34,6 +35,8 @@ invert_cg_D_f.o: invert_cg_p.c
 invert_cg_D_d.o: invert_cg_p.c
 invert_cg_vD_f.o: invert_cg_p.c
 invert_cg_vD_d.o: invert_cg_p.c
+invert_bicgstab_D_f.o: invert_bicgstab_p.c
+invert_bicgstab_D_d.o: invert_bicgstab_p.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -43,57 +46,5 @@ EXTRA_DIST = \
   asqtad_force_fnmat_p.c \
   wilson_invert_p.c \
   dw_invert_p.c \
-  invert_cg_p.c
-
-
-
-#lib_LIBRARIES = libqopqdp_common.a libqopqdp_f.a libqopqdp_d.a
-
-#LIBCOMMONSOURCE = \
-#  ../include/qop.h \
-#  ../include/qop_qdp.h \
-#  ../include/qop_internal.h \
-#  common.c \
-#  asqtad.c \
-#  wilson.c
-
-#LIBPSOURCE = \
-#  ../include/qop.h \
-#  ../include/qop_qdp.h \
-#  ../include/qop_internal.h \
-#  asqtadp.c \
-#  wilsonp.c
-
-#libqopqdp_common_a_SOURCES = $(LIBCOMMONSOURCE)
-#libqopqdp_common_a_CFLAGS = $(AM_CFLAGS)
-
-#libqopqdp_f_a_SOURCES = $(LIBPSOURCE)
-#libqopqdp_f_a_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=1 -DQDP_Precision=1
-
-#libqopqdp_d_a_SOURCES = $(LIBPSOURCE)
-#libqopqdp_d_a_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=2 -DQDP_Precision=2
-
-
-
-
-#lib_LTLIBRARIES = libqopqdp.la
-#noinst_LTLIBRARIES = libqopqdpf.la libqopqdpd.la
-
-#libqopqdp_la_SOURCES = ../include/qop.h asqtad.c
-#libqopqdp_la_LIBADD = libqopqdpf.la
-#libqopqdp_la_LIBADD = libqopqdpf.la libqopqdpd.la 
-
-#libqopqdpf_la_SOURCES = asqtadp.c
-#libqopqdpf_la_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=1 -DQDP_Precision=1
-
-#libqopqdpd_la_SOURCES = asqtadp.c
-#libqopqdpd_la_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=2 -DQDP_Precision=2
-
-#asqtadf.o: asqtad.c
-#asqtadd.o: asqtad.c
-
-#asqtadf_o_SOURCES = asqtad.c
-#asqtadf_o_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=1 -DQDP_Precision=1
-
-#asqtadd_o_SOURCES = asqtad.c
-#asqtadd_o_CFLAGS = $(AM_CFLAGS) -DQOP_Precision=2 -DQDP_Precision=2
+  invert_cg_p.c \
+  invert_bicgstab_p.c

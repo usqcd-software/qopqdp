@@ -25,6 +25,7 @@
 #define printf0(...)
 
 #define LU
+//#define CLOV_FUNC
 
 /* This version looks at the initial vector every "niter" passes */
 /* The source vector is in "chi", and the initial guess and answer
@@ -34,6 +35,7 @@
    rsqmin = desired rsq, quit when we reach rsq = rsqmin*source_norm.
 */
 
+#include <string.h>
 //#define QDP_PROFILE
 #include <qop_internal.h>
 
@@ -44,6 +46,7 @@ extern int QOP_wilson_inited;
 extern int QOP_wilson_style;
 extern int QOP_wilson_nsvec;
 extern int QOP_wilson_nvec;
+extern int QOP_wilson_cgtype;
 
 static int old_style=-1;
 static int old_nsvec=-1;
@@ -148,21 +151,39 @@ reset_temps(QOP_FermionLinksWilson *flw)
 
 /* link routines */
 
+static void
+get_clov(QDP_DiracPropagator *clov, QDP_ColorMatrix *links[], double csw)
+{
+  QLA_DiracPropagator p;
+  int i, j;
+  QLA_P_eq_zero(&p);
+  for(i=0; i<QLA_Nc; i++) for(j=0; j<QLA_Ns; j++)
+    QLA_c_eq_r(QLA_elem_P(p, i, j, i, j), 1);
+  QDP_P_eq_p(clov, &p, QDP_all);
+}
+
+static void
+get_clovinv(REAL *clovinv, REAL *clov)
+{
+  memcpy(clovinv, clov, QDP_sites_on_node*2*6*6*sizeof(REAL));
+}
+
 QOP_FermionLinksWilson *
-QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov[],
-			     QOP_evenodd_t evenodd)
+QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 {
   QOP_FermionLinksWilson *flw;
   QOP_GaugeField *gf;
 
-  if(clov!=NULL) {
-    QOP_error("clover term is not implemented yet.");
-  }
-
   gf = QOP_create_G_from_raw(links, evenodd);
   flw = QOP_wilson_convert_L_from_qdp(gf->links, NULL);
 
-  flw->raw = NULL;
+  QOP_malloc(flw->clov, REAL, QDP_sites_on_node*2*6*6);
+  QOP_malloc(flw->clovinv, REAL, QDP_sites_on_node*2*6*6);
+  memcpy(flw->clov, clov, QDP_sites_on_node*2*6*6*sizeof(REAL));
+  get_clovinv(flw->clovinv, flw->clov);
+  flw->rawlinks = NULL;
+  flw->rawclov = NULL;
+  flw->qdpclov = NULL;
   flw->qopgf = gf;
 
   return flw;
@@ -172,12 +193,21 @@ QOP_FermionLinksWilson *
 QOP_wilson_create_L_from_G(QOP_info_t *info, QOP_wilson_coeffs_t *coeffs,
 			   QOP_GaugeField *gauge)
 {
-  QOP_error("QOP_wilson_create_L_from_G unimplemented.");
-  return NULL;
+  QOP_FermionLinksWilson *flw;
+  QDP_DiracPropagator *clov;
+  if(coeffs->clov_c==0.) {
+    clov = NULL;
+  } else {
+    clov = QDP_create_P();
+    get_clov(clov, gauge->links, coeffs->clov_c);
+  }
+  flw = QOP_wilson_create_L_from_qdp(gauge->links, clov);
+  if(clov) QDP_destroy_P(clov);
+  return flw;
 }
 
 void
-QOP_wilson_extract_L_to_raw(REAL *links[], REAL *clov[],
+QOP_wilson_extract_L_to_raw(REAL *links[], REAL *clov,
 			    QOP_FermionLinksWilson *src, QOP_evenodd_t evenodd)
 {
   QOP_error("QOP_wilson_extract_L_to_raw unimplemented.");
@@ -198,13 +228,20 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
     for(i=0; i<4; i++) QDP_destroy_M(flw->bcklinks[i]);
   }
   QDP_destroy_D(flw->cgp);
+  if(flw->qdpclov) {
+    QDP_destroy_P(flw->qdpclov);
+  }
+  if(flw->clov) {
+    free(flw->clov);
+    free(flw->clovinv);
+  }
   free(flw->bcklinks);
   free(flw->dbllinks);
   free(flw);
 }
 
 QOP_FermionLinksWilson *
-QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov[],
+QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov,
 			      QOP_evenodd_t evenodd)
 {
   QOP_error("QOP_wilson_convert_L_from_raw unimplemented");
@@ -212,7 +249,7 @@ QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov[],
 }
 
 void
-QOP_wilson_convert_L_to_raw(REAL ***links, REAL ***clov,
+QOP_wilson_convert_L_to_raw(REAL ***links, REAL **clov,
 			    QOP_FermionLinksWilson *src, QOP_evenodd_t evenodd)
 {
   QOP_error("QOP_wilson_convert_L_to_raw unimplemented");
@@ -235,29 +272,26 @@ QOP_wilson_convert_L_to_G(QOP_FermionLinksWilson *links)
 
 QOP_FermionLinksWilson *
 QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[],
-			     QDP_DiracPropagator *clov[])
+			     QDP_DiracPropagator *clov)
 {
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix *newlinks[4];
   int i;
-
-  if(clov!=NULL) {
-    QOP_error("clover term is not implemented yet.");
-  }
 
   for(i=0; i<4; i++) {
     newlinks[i] = QDP_create_M();
     QDP_M_eq_M(newlinks[i], links[i], QDP_all);
   }
 
-  flw = QOP_wilson_convert_L_from_qdp(newlinks, NULL);
+  flw = QOP_wilson_convert_L_from_qdp(newlinks, clov);
+  flw->qdpclov = NULL;
 
   return flw;
 }
 
 void
 QOP_wilson_extract_L_to_qdp(QDP_ColorMatrix *links[],
-			    QDP_DiracPropagator *clov[],
+			    QDP_DiracPropagator *clov,
 			    QOP_FermionLinksWilson *src)
 {
   QOP_error("QOP_wilson_extract_L_to_qdp unimplemented");
@@ -265,19 +299,57 @@ QOP_wilson_extract_L_to_qdp(QDP_ColorMatrix *links[],
 
 QOP_FermionLinksWilson *
 QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
-			      QDP_DiracPropagator *clov[])
+			      QDP_DiracPropagator *clov)
 {
   QOP_FermionLinksWilson *flw;
   int i;
-
-  if(clov!=NULL) {
-    QOP_error("clover term is not implemented yet.");
-  }
 
   QOP_malloc(flw, QOPPC(FermionLinksWilson), 1);
   QOP_malloc(flw->links, QDPPC(ColorMatrix) *, 4);
   QOP_malloc(flw->bcklinks, QDPPC(ColorMatrix) *, 4);
   QOP_malloc(flw->dbllinks, QDPPC(ColorMatrix) *, 8);
+  if(clov!=NULL) {
+    int size = QDP_sites_on_node*2*6*6;
+    QOP_malloc(flw->clov, REAL, size);
+    QOP_malloc(flw->clovinv, REAL, size);
+    {
+      QLA_DiracPropagator *dp;
+      int x, b, i, ic, j, jc, is, js, k=0;
+      dp = QDP_expose_P(clov);
+      for(x=0; x<QDP_sites_on_node; x++) {
+	for(b=0; b<2; b++) { // two chiral blocks
+	  // first the diagonal
+	  for(i=0; i<6; i++) {
+	    ic = i/2;
+	    is = 2*b + i%2;
+	    flw->clov[k++] = QLA_real(QLA_elem_P(dp[x], ic, is, ic, is));
+	  }
+	  // now the offdiagonal
+	  for(i=0; i<6; i++) {
+	    ic = i/2;
+	    is = 2*b + i%2;
+	    for(j=i+1; j<6; j++) {
+	      QLA_Complex z1, z2;
+	      jc = j/2;
+	      js = 2*b + j%2;
+	      //QLA_c_eq_c_plus_ca(z1, QLA_elem_P(dp[x], ic, is, jc, js),
+	      //                   QLA_elem_P(dp[x], jc, js, ic, is));
+	      QLA_c_eq_c(z1, QLA_elem_P(dp[x], ic, is, jc, js));
+	      QLA_c_peq_ca(z1, QLA_elem_P(dp[x], jc, js, ic, is));
+	      QLA_c_eq_r_times_c(z2, 0.5, z1);
+	      flw->clov[k++] = QLA_real(z2);
+	      flw->clov[k++] = QLA_imag(z2);
+	    }
+	  }
+	}
+      }
+      QDP_reset_P(clov);
+    }
+    get_clovinv(flw->clovinv, flw->clov);
+  } else {
+    flw->clov = NULL;
+    flw->clovinv = NULL;
+  }
 
   flw->dblstored = 0;
   for(i=0; i<4; i++) {
@@ -297,14 +369,16 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 
   double_store(flw);
 
-  flw->raw = NULL;
+  flw->rawlinks = NULL;
+  flw->rawclov = NULL;
   flw->qopgf = NULL;
+  flw->qdpclov = clov;
   return flw;
 }
 
 void
 QOP_wilson_convert_L_to_qdp(QDP_ColorMatrix ***links,
-			    QDP_DiracPropagator ***clov,
+			    QDP_DiracPropagator **clov,
 			    QOP_FermionLinksWilson *src)
 {
   QOP_error("QOP_wilson_convert_L_to_qdp unimplemented");
@@ -312,6 +386,10 @@ QOP_wilson_convert_L_to_qdp(QDP_ColorMatrix ***links,
 
 
 /* inverter stuff */
+
+static void
+clov(QOP_FermionLinksWilson *flw, QDP_DiracFermion *out, QLA_Real *mkappa,
+     QDP_DiracFermion *dsl, QDP_DiracFermion *in, QDP_Subset subset);
 
 static void (*dslash_special_qdp)(QOP_FermionLinksWilson *flw,
 				  QDP_DiracFermion *dest,
@@ -374,22 +452,34 @@ QOPPC(wilson_invert)(QOP_info_t *info,
 		     QOP_DiracFermion *out,
 		     QOP_DiracFermion *in)
 {
-  double dtime;
+  double dtime=0;
   double nflop;
-  QLA_Real mkappa;
+  double rsqminold;
+  QLA_Real mkappa, rsq, rsqstop, insq;
   QDP_DiracFermion *qdpin;
   QDP_Subset subset, osubset;
+  int iter = 0;
+  int nrestart=0, max_restarts=inv_arg->max_restarts;
+  if(max_restarts<=0) max_restarts = 5;
 
   /* cg has 5 * 48 = 240 flops/site/it */
+  /* bicg has 9*4*24 = 864 flops/site/it */
 #ifdef LU
   /* MdagM -> 2*(2*(144+168*7)+48) = 5376 flops/site */
-  nflop = 0.5 * 5616;  /* half for half of the sites */
+  if(QOP_wilson_cgtype==1) {
+    nflop = 0.5 * 6240;  /* half for half of the sites */
+  } else {
+    nflop = 0.5 * 5616;  /* half for half of the sites */
+  }
   mkappa = -kappa*kappa;
   subset = QDP_even;
   osubset = QDP_odd;
 #else
   /* MdagM -> 2*((144+168*7)+48) = 2736 flops/site */
-  nflop = 2976;
+  /* clov -> 2*(12*44) = 1056 flops/site */
+  nflop = 2736 + 240;
+  if(QOP_wilson_cgtype==1) nflop += (864-240);
+  if(flw->clov!=NULL) nflop += 1056;
   mkappa = -kappa;
   subset = QDP_all;
   osubset = QDP_all;
@@ -416,52 +506,309 @@ QOPPC(wilson_invert)(QOP_info_t *info,
 
   qdpin = QDP_create_D();
 
-  {
-    QLA_Real kappa2 = 2.0*kappa;
+  QDP_r_eq_norm2_D(&insq, in->df, QDP_all);
+  //printf("insq = %g\n", insq);
+  rsqstop = insq * res_arg->rsqmin;
+  rsqminold = res_arg->rsqmin;
+  res_arg->rsqmin *= 0.5;
+  do {
+
+    {
+      QLA_Real kappa2 = 2.0*kappa;
 #ifdef LU
-    QDP_D_eq_D(tt1, in->df, osubset);
-    dslash_special_qdp(flw, ttt, tt1, 1, subset, 1);
-    //kappa = -kappa;
-    QDP_D_eq_r_times_D_plus_D(ttt, &kappa, ttt, in->df, subset);
-    //kappa = -kappa;
-    QDP_D_eq_r_times_D(ttt, &kappa2, ttt, subset);
-    QDP_D_eq_r_times_D(qdpin, &kappa2, in->df, osubset);
-    wilson_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
+      QDP_D_eq_D(tt1, in->df, osubset);
+      dslash_special_qdp(flw, ttt, tt1, 1, subset, 1);
+      //kappa = -kappa;
+      QDP_D_eq_r_times_D_plus_D(ttt, &kappa, ttt, in->df, subset);
+      //kappa = -kappa;
+      QDP_D_eq_r_times_D(ttt, &kappa2, ttt, subset);
+      QDP_D_eq_r_times_D(qdpin, &kappa2, in->df, osubset);
+      if(QOP_wilson_cgtype==1) {
+	QDP_D_eq_D(qdpin, ttt, subset);
+      } else {
+	wilson_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
+      }
 #else
-    QDP_D_eq_r_times_D(ttt, &kappa2, in->df, subset);
-    wilson_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
-#endif
-  }
-
-  dtime = -QOP_time();
-
-  QOPPC(invert_cg_D)(QOPPC(wilson_dslash2), inv_arg, res_arg,
-		     out->df, qdpin, flw->cgp, subset);
-
-  dtime += QOP_time();
-
-#ifdef LU
-      {
-	QDP_D_eq_D(ttt, out->df, subset);
-	dslash_special_qdp(flw, tt2, ttt, 1, osubset, 2);
-	QDP_D_eq_r_times_D_plus_D(ttt, &kappa, tt2, qdpin, osubset);
-	QDP_D_eq_D(out->df, ttt, QDP_all);
+      if(QOP_wilson_cgtype==1) {
+	QDP_D_eq_r_times_D(qdpin, &kappa2, in->df, subset);
+      } else {
+	QDP_D_eq_r_times_D(ttt, &kappa2, in->df, subset);
+	wilson_mdslash1(flw, qdpin, ttt, -1, subset, osubset, mkappa);
       }
 #endif
+    }
+
+    //printf("starting cg\n");
+    dtime -= QOP_time();
+
+    if(QOP_wilson_cgtype==1) {
+      QOPPC(invert_bicgstab_D)(QOPPC(wilson_dslash2), inv_arg, res_arg,
+			       out->df, qdpin, flw->cgp, ttt, subset);
+    } else {
+      QOPPC(invert_cg_D)(QOPPC(wilson_dslash2), inv_arg, res_arg,
+			 out->df, qdpin, flw->cgp, subset);
+    }
+
+    dtime += QOP_time();
+    //printf("finished cg\n");
+
+#ifdef LU
+    {
+      QDP_D_eq_D(ttt, out->df, subset);
+      dslash_special_qdp(flw, tt2, ttt, 1, osubset, 2);
+      QDP_D_eq_r_times_D_plus_D(ttt, &kappa, tt2, qdpin, osubset);
+      QDP_D_eq_D(out->df, ttt, QDP_all);
+    }
+#endif
+
+    // get final residual
+    {
+      QLA_Real mk = -kappa;
+      QLA_Real m2ki = -0.5/kappa;
+#ifdef LU
+      QDP_D_eq_D(ttt, out->df, QDP_even);
+      dslash_special_qdp(flw, tt2, ttt, 1, QDP_odd, 2);
+      QDP_D_eq_D(tt1, out->df, QDP_odd);
+      dslash_special_qdp(flw, tt2, tt1, 1, QDP_even, 1);
+#else
+      QDP_D_eq_D(ttt, out->df, QDP_all);
+      dslash_special_qdp(flw, tt2, ttt, 1, QDP_all, 1);
+#endif
+      //QDP_D_eq_r_times_D_plus_D(ttt, &mk, tt2, out->df, QDP_all);
+      clov(flw, ttt, &mk, tt2, out->df, QDP_all);
+      QDP_D_eq_r_times_D_plus_D(ttt, &m2ki, ttt, in->df, QDP_all);
+      QDP_r_eq_norm2_D(&rsq, ttt, QDP_all);
+      //printf("rsq = %g\tprec rsq = %g\trsqstop = %g\n",
+      //     rsq, res_arg->final_rsq, rsqstop);
+    }
+    res_arg->rsqmin *= 0.5*rsqstop/rsq;
+    iter += res_arg->final_iter;
+  } while((rsq>rsqstop)&&(nrestart++<max_restarts));
   QDP_destroy_D(qdpin);
 
-  //res_arg->final_rsq = rsq;
-  //res_arg->final_iter = iteration;
-  //inv_arg->final_iter = iteration;
+  res_arg->rsqmin = rsqminold;
+  res_arg->final_iter = iter;
+  res_arg->final_rsq = rsq;
+
   info->final_sec = dtime;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
 }
 
+QLA_Real clov_mkappa, *clov_clov;
+QLA_DiracFermion *clov_dsl, *clov_in;
 
+#define cmplx(x) (*((QLA_Complex *)(&(x))))
 
+#ifdef CLOV_FUNC
+static void
+clov_func(QLA_DiracFermion *out, int coords[])
+{
+  int b, i, j, ic, jc, is, js, k, x, xb;
+  QLA_DiracFermion *dsl;
 
+  x = QDP_index(coords);  // site offset
+  if(clov_dsl!=NULL) dsl = &clov_dsl[x]; else dsl = out;
 
+  for(b=0; b<2; b++) {
+    xb = 36*(2*x+b);  // chiral block offset (in REALs)
+    for(i=0; i<6; i++) {
+      QLA_Complex z;
+      ic = i/2;
+      is = 2*b + i%2;
+
+      QLA_c_eq_r(z, 0.);
+
+      //#if 0
+      // lower triangular part comes from adjoint of upper
+      k = xb + 6 + 2*(i-1); // block + skip diag + cmplx elem
+      for(j=0; j<i; j++) {
+	jc = j/2;
+	js = 2*b + j%2;
+	QLA_c_peq_ca_times_c(z, cmplx(clov_clov[k]), QLA_elem_D(clov_in[x],jc,js));
+	k += 2*(4 - j);
+      }
+      // diagonal part
+      QLA_c_peq_r_times_c(z, clov_clov[xb], QLA_elem_D(clov_in[x],ic,is));
+      // upper triangular part
+      for(j=i+1; j<6; j++) {
+	jc = j/2;
+	js = 2*b + j%2;
+	k += 2;
+	QLA_c_peq_c_times_c(z, cmplx(clov_clov[k]), QLA_elem_D(clov_in[x],jc,js));
+      }
+      //#endif
+
+      QLA_c_peq_r_times_c(z, clov_mkappa, QLA_elem_D(*dsl, ic, is));
+      QLA_c_eq_c_plus_c(QLA_elem_D(*out, ic, is), z, QLA_elem_D(clov_in[x],ic,is));
+    }
+  }
+}
+#endif
+
+static void
+apply_clov(REAL *clov, QDP_DiracFermion *out, QLA_Real *mkappa,
+	   QDP_DiracFermion *dsl, QDP_DiracFermion *in, QDP_Subset subset)
+{
+#ifdef CLOV_FUNC
+  clov_in = QDP_expose_D(in);
+  clov_mkappa = *mkappa;
+  clov_clov = clov;
+  if(dsl==out) clov_dsl = NULL; else clov_dsl = QDP_expose_D(dsl);
+  QDP_D_eq_func(out, clov_func, subset);
+  if(dsl!=out) QDP_reset_D(dsl);
+  QDP_reset_D(in);
+#else
+  QLA_DiracFermion *clov_out;
+  clov_out = QDP_expose_D(out);
+  clov_in = QDP_expose_D(in);
+  clov_mkappa = *mkappa;
+  clov_clov = clov;
+  if(dsl==out) clov_dsl = clov_out;
+  else clov_dsl = QDP_expose_D(dsl);
+  {
+    int x, start, end;
+    if(subset==QDP_odd) start = QDP_subset_len(QDP_even);
+    else start = 0;
+    end = start + QDP_subset_len(subset);
+    for(x=start; x<end; x++) {
+      int b;
+      QLA_DiracFermion *dsl;
+      dsl = &clov_dsl[x];
+      for(b=0; b<2; b++) {
+	int xb;
+	xb = 36*(2*x+b);  // chiral block offset (in REALs)
+#if 0 // loop version
+	int i, j, ic, jc, is, js, k;
+	for(i=0; i<6; i++) {
+	  QLA_Complex z;
+	  ic = i/2;
+	  is = 2*b + i%2;
+
+	  QLA_c_eq_r(z, 0.);
+	  //#if 0
+	  // lower triangular part comes from adjoint of upper
+	  k = xb + 6 + 2*(i-1); // block + skip diag + cmplx elem
+	  for(j=0; j<i; j++) {
+	    jc = j/2;
+	    js = 2*b + j%2;
+	    QLA_c_peq_ca_times_c(z, cmplx(clov_clov[k]), QLA_elem_D(clov_in[x],jc,js));
+	    k += 2*(4 - j);
+	  }
+	  // diagonal part
+	  QLA_c_peq_r_times_c(z, clov_clov[xb], QLA_elem_D(clov_in[x],ic,is));
+	  // upper triangular part
+	  for(j=i+1; j<6; j++) {
+	    jc = j/2;
+	    js = 2*b + j%2;
+	    k += 2;
+	    QLA_c_peq_c_times_c(z, cmplx(clov_clov[k]), QLA_elem_D(clov_in[x],jc,js));
+	  }
+	  //#endif
+
+	  QLA_c_peq_r_times_c(z, clov_mkappa, QLA_elem_D(*dsl, ic, is));
+	  QLA_c_eq_c_plus_c(QLA_elem_D(clov_out[x], ic, is), z, QLA_elem_D(clov_in[x],ic,is));
+	}
+#else  // unrolled version
+#define clov_diag(i) clov_clov[xb+i]
+#define clov_offd(i) cmplx(clov_clov[xb+6+i])
+#define src(i) QLA_elem_D(clov_in[x],i/2,2*b+i%2)
+#define dsrc(i) QLA_elem_D(*dsl,i/2,2*b+i%2)
+#define dest(i) QLA_elem_D(clov_out[x],i/2,2*b+i%2)
+	{
+	  QLA_Complex z;
+
+	  QLA_c_eq_r(z, 0.);
+	  QLA_c_peq_r_times_c(z, clov_diag(0), src(0));
+	  QLA_c_peq_c_times_c(z, clov_offd(0), src(1));
+	  QLA_c_peq_c_times_c(z, clov_offd(1), src(2));
+	  QLA_c_peq_c_times_c(z, clov_offd(2), src(3));
+	  QLA_c_peq_c_times_c(z, clov_offd(3), src(4));
+	  QLA_c_peq_c_times_c(z, clov_offd(4), src(5));
+	  QLA_c_peq_r_times_c(z, clov_mkappa, dsrc(0));
+	  QLA_c_eq_c_plus_c(dest(0), z, src(0));
+
+	  QLA_c_eq_r(z, 0.);
+	  QLA_c_peq_c_times_c(z, clov_offd(0), src(0));
+	  QLA_c_peq_r_times_c(z, clov_diag(1), src(1));
+	  QLA_c_peq_c_times_c(z, clov_offd(5), src(2));
+	  QLA_c_peq_c_times_c(z, clov_offd(6), src(3));
+	  QLA_c_peq_c_times_c(z, clov_offd(7), src(4));
+	  QLA_c_peq_c_times_c(z, clov_offd(8), src(5));
+	  QLA_c_peq_r_times_c(z, clov_mkappa, dsrc(1));
+	  QLA_c_eq_c_plus_c(dest(1), z, src(1));
+
+	  QLA_c_eq_r(z, 0.);
+	  QLA_c_peq_c_times_c(z, clov_offd(1), src(0));
+	  QLA_c_peq_c_times_c(z, clov_offd(5), src(1));
+	  QLA_c_peq_r_times_c(z, clov_diag(2), src(2));
+	  QLA_c_peq_c_times_c(z, clov_offd(9), src(3));
+	  QLA_c_peq_c_times_c(z, clov_offd(10), src(4));
+	  QLA_c_peq_c_times_c(z, clov_offd(11), src(5));
+	  QLA_c_peq_r_times_c(z, clov_mkappa, dsrc(2));
+	  QLA_c_eq_c_plus_c(dest(2), z, src(2));
+
+	  QLA_c_eq_r(z, 0.);
+	  QLA_c_peq_c_times_c(z, clov_offd(2), src(0));
+	  QLA_c_peq_c_times_c(z, clov_offd(6), src(1));
+	  QLA_c_peq_c_times_c(z, clov_offd(9), src(2));
+	  QLA_c_peq_r_times_c(z, clov_diag(3), src(3));
+	  QLA_c_peq_c_times_c(z, clov_offd(12), src(4));
+	  QLA_c_peq_c_times_c(z, clov_offd(13), src(5));
+	  QLA_c_peq_r_times_c(z, clov_mkappa, dsrc(3));
+	  QLA_c_eq_c_plus_c(dest(3), z, src(3));
+
+	  QLA_c_eq_r(z, 0.);
+	  QLA_c_peq_c_times_c(z, clov_offd(3), src(0));
+	  QLA_c_peq_c_times_c(z, clov_offd(7), src(1));
+	  QLA_c_peq_c_times_c(z, clov_offd(10), src(2));
+	  QLA_c_peq_c_times_c(z, clov_offd(12), src(3));
+	  QLA_c_peq_r_times_c(z, clov_diag(4), src(4));
+	  QLA_c_peq_c_times_c(z, clov_offd(14), src(5));
+	  QLA_c_peq_r_times_c(z, clov_mkappa, dsrc(4));
+	  QLA_c_eq_c_plus_c(dest(4), z, src(4));
+
+	  QLA_c_eq_r(z, 0.);
+	  QLA_c_peq_c_times_c(z, clov_offd(4), src(0));
+	  QLA_c_peq_c_times_c(z, clov_offd(8), src(1));
+	  QLA_c_peq_c_times_c(z, clov_offd(11), src(2));
+	  QLA_c_peq_c_times_c(z, clov_offd(13), src(3));
+	  QLA_c_peq_c_times_c(z, clov_offd(14), src(4));
+	  QLA_c_peq_r_times_c(z, clov_diag(5), src(5));
+	  QLA_c_peq_r_times_c(z, clov_mkappa, dsrc(5));
+	  QLA_c_eq_c_plus_c(dest(5), z, src(5));
+	}
+#endif
+      }
+    }
+  }
+  QDP_reset_D(in);
+  QDP_reset_D(out);
+  if(dsl!=out) QDP_reset_D(dsl);
+#endif
+}
+
+static void
+clov(QOP_FermionLinksWilson *flw, QDP_DiracFermion *out, QLA_Real *mkappa,
+     QDP_DiracFermion *dsl, QDP_DiracFermion *in, QDP_Subset subset)
+{
+  if(flw->clov==NULL) {
+    QDP_D_eq_r_times_D_plus_D(out, mkappa, dsl, in, subset);
+  } else {
+    apply_clov(flw->clov, out, mkappa, dsl, in, subset);
+  }
+}
+
+static void
+clovinv(QOP_FermionLinksWilson *flw, QDP_DiracFermion *out, QLA_Real *mkappa,
+	QDP_DiracFermion *dsl, QDP_DiracFermion *in, QDP_Subset subset)
+{
+  if(flw->clov==NULL) {
+    QDP_D_eq_r_times_D_plus_D(out, mkappa, dsl, in, subset);
+  } else {
+    apply_clov(flw->clovinv, out, mkappa, dsl, in, subset);
+  }
+}
 
 
 /************ dslash *************/
@@ -726,7 +1073,8 @@ wilson_mdslash1(QOP_FermionLinksWilson *flw,
 
   //printf0("here6\n");
   dslash_special_qdp(flw, out, in, sign, QDP_all, 1);
-  QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_all);
+  //QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_all);
+  clov(flw, out, &mkappa, out, in, QDP_all);
 
 #endif
 }
@@ -739,23 +1087,48 @@ wilson_mdslash2(QOP_FermionLinksWilson *flw,
 {
 #ifdef LU
 
-  //printf0("here3\n");
-  dslash_special_qdp(flw, tt1, in, 1, QDP_odd, 0);
-  dslash_special_qdp(flw, ttt, tt1, 1, QDP_even, 1);
-  QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, in, QDP_even);
-  //printf0("here4\n");
-  dslash_special_qdp(flw, tt2, ttt, -1, QDP_odd, 2);
-  dslash_special_qdp(flw, out, tt2, -1, QDP_even, 3);
-  QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, ttt, QDP_even);
+  if(QOP_wilson_cgtype==1) {
+    if(in==flw->cgp) {
+      dslash_special_qdp(flw, tt1, in, 1, QDP_odd, 0);
+      dslash_special_qdp(flw, out, tt1, 1, QDP_even, 1);
+      QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_even);
+    } else {
+      dslash_special_qdp(flw, tt1, in, 1, QDP_odd, 2);
+      dslash_special_qdp(flw, out, tt1, 1, QDP_even, 1);
+      QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_even);
+    }
+  } else {
+    dslash_special_qdp(flw, tt1, in, 1, QDP_odd, 0);
+    dslash_special_qdp(flw, ttt, tt1, 1, QDP_even, 1);
+    QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, in, QDP_even);
+
+    dslash_special_qdp(flw, tt2, ttt, -1, QDP_odd, 2);
+    dslash_special_qdp(flw, out, tt2, -1, QDP_even, 3);
+    QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, ttt, QDP_even);
+  }
 
 #else
 
-  //printf0("here6\n");
-  dslash_special_qdp(flw, ttt, in, 1, QDP_all, 0);
-  QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, in, QDP_all);
-  //printf0("here7\n");
-  dslash_special_qdp(flw, out, ttt, -1, QDP_all, 1);
-  QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, ttt, QDP_all);
+  if(QOP_wilson_cgtype==1) {
+    if(in==flw->cgp) {
+      dslash_special_qdp(flw, out, in, 1, QDP_all, 0);
+      //QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_all);
+      clov(flw, out, &mkappa, out, in, QDP_all);
+    } else {
+      dslash_special_qdp(flw, out, in, 1, QDP_all, 1);
+      //QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, in, QDP_all);
+      clov(flw, out, &mkappa, out, in, QDP_all);
+    }
+  } else {
+    //printf0("here6\n");
+    dslash_special_qdp(flw, ttt, in, 1, QDP_all, 0);
+    //QDP_D_eq_r_times_D_plus_D(ttt, &mkappa, ttt, in, QDP_all);
+    clov(flw, ttt, &mkappa, ttt, in, QDP_all);
+    //printf0("here7\n");
+    dslash_special_qdp(flw, out, ttt, -1, QDP_all, 1);
+    //QDP_D_eq_r_times_D_plus_D(out, &mkappa, out, ttt, QDP_all);
+    clov(flw, out, &mkappa, out, ttt, QDP_all);
+  }
 
 #endif
 }

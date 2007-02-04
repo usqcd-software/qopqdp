@@ -495,7 +495,6 @@ QOPPC(asqtad_invert)(QOP_info_t *info,
     old_nsvec = QOP_asqtad.nsvec;
     old_nvec = QOP_asqtad.nvec;
   }
-  //QOPPC(invert_cg_init_V)();
 
   dtimec = -QDP_time();
 
@@ -503,10 +502,6 @@ QOPPC(asqtad_invert)(QOP_info_t *info,
 		     out->cv, in->cv, fla->cgp, subset);
 
   dtimec += QDP_time();
-
-  //res_arg->final_rsq = rsq;
-  //res_arg->final_iter = iteration;
-  //inv_arg->final_iter = iteration;
 
   info->final_sec = dtimec;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
@@ -559,7 +554,7 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
   dtimec = -QDP_time();
 
   if( (nsrc==2) && (nmass[0]==1) && (nmass[1]==1) &&
-      (masses[0][0]!=masses[0][1]) ) {  /* two source version */
+      (masses[0][0]!=masses[1][0]) ) {  /* two source version */
     QLA_Real shifts[2], st, rsq0, rsq1;
     QDP_ColorVector *incv[2], *outcv[2], *x0, *src;
     int imin=0, i;
@@ -586,20 +581,18 @@ QOPPC(asqtad_invert_multi)(QOP_info_t *info,
     QDP_V_eq_V_minus_V(src, incv[imin], src, subset);
 
     QDP_r_eq_norm2_V(&rsq1, src, subset);
-    QDP_r_eq_norm2_V(&rsq0, incv[0], subset);
-    rsqsave[0] = res_arg[i][0]->rsqmin;
-    res_arg[i][0]->rsqmin *= rsq0/rsq1;
-    QDP_r_eq_norm2_V(&rsq0, incv[1], subset);
-    rsqsave[1] = res_arg[i][1]->rsqmin;
-    res_arg[i][1]->rsqmin *= rsq0/rsq1;
+    for(i=0; i<2; i++) {
+      QDP_r_eq_norm2_V(&rsq0, incv[i], subset);
+      rsqsave[i] = res_arg[i][0]->rsqmin;
+      res_arg[i][0]->rsqmin *= rsq0/rsq1;
+    }
 
     QOPPC(invert_cgms_V)(QOPPC(asqtad_dslash2), inv_arg, ra, shifts,
 			 2, outcv, src, fla->cgp, subset);
     info->final_flop += (nflop+nflopm)*ra[imin]->final_iter*QDP_sites_on_node;
-    res_arg[i][0]->rsqmin = rsqsave[0];
-    res_arg[i][1]->rsqmin = rsqsave[1];
 
     for(i=0; i<2; i++) {
+      res_arg[i][0]->rsqmin = rsqsave[i];
       QDP_V_peq_V(outcv[i], x0, subset);
     }
 

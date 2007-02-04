@@ -101,6 +101,7 @@ start(void)
   res_arg.rsqmin = 1e-4;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
+  inv_arg.max_restarts = 5;
   inv_arg.evenodd = QOP_EVEN;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }

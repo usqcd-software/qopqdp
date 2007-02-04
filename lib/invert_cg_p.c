@@ -13,8 +13,10 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   QLA_Real rsq, oldrsq, pkp;
   QLA_Real insq;
   QLA_Real rsqstop;
-  int iteration=0;
   Vector *r, *Mp;
+  int iteration=0;
+  int nrestart=0, max_restarts=inv_arg->max_restarts;
+  if(max_restarts<=0) max_restarts = 5;
 
   create_V(r);
   create_V(Mp);
@@ -36,9 +38,12 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
-      if( (rsq<rsqstop) || (iteration>=inv_arg->max_iter) ) break;
+      if( (rsq<rsqstop) ||
+	  (iteration>=inv_arg->max_iter) ||
+	  (nrestart>=max_restarts) ) break;
       V_eq_V(p, r, subset);
 
+      nrestart++;
     } else {
 
       //r_eq_re_V_dot_V(&b, Mp, r, subset);
@@ -59,6 +64,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
     V_peq_r_times_V(out, &a, p, subset);
     V_meq_r_times_V(r, &a, Mp, subset);
     r_eq_norm2_V(&rsq, r, subset);
+    //printf("%i\t%g\n", iteration, rsq);
   }
 
   destroy_V(r);

@@ -63,8 +63,9 @@ typedef struct {
 
   /* these are quantities that apply to all masses in the multi inverter */
 typedef struct {
-  int max_iter;            /* (in) max number of iterations before restart */
-  int restart;             /* (in) number of restarts allowed */
+  int max_iter;            /* (in) max number of iterations */
+  int restart;             /* (in) number of iterations before restart */
+  int max_restarts;        /* (in) number of restarts allowed */
   QOP_evenodd_t evenodd;   /* (in) subset of source vector */
 } QOP_invert_arg_t;
 
@@ -431,7 +432,7 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_F3_FermionLinksWilson *
-  QOP_F3_wilson_create_L_from_raw(float *links[], float *clov[],
+  QOP_F3_wilson_create_L_from_raw(float *links[], float *clov,
 				  QOP_evenodd_t evenodd);
 
 QOP_F3_FermionLinksWilson *
@@ -439,17 +440,17 @@ QOP_F3_FermionLinksWilson *
 				QOP_wilson_coeffs_t *coeffs,
 				QOP_F3_GaugeField *gauge);
 
-void QOP_F3_wilson_extract_L_to_raw(float *links[], float *clov[],
+void QOP_F3_wilson_extract_L_to_raw(float *links[], float *clov,
 				    QOP_F3_FermionLinksWilson *src,
 				    QOP_evenodd_t evenodd);
 
 void QOP_F3_wilson_destroy_L(QOP_F3_FermionLinksWilson *field);
 
 QOP_F3_FermionLinksWilson *
-  QOP_F3_wilson_convert_L_from_raw(float *links[], float *clov[],
+  QOP_F3_wilson_convert_L_from_raw(float *links[], float *clov,
 				   QOP_evenodd_t evenodd);
 
-void QOP_F3_wilson_convert_L_to_raw(float ***links, float ***clov,
+void QOP_F3_wilson_convert_L_to_raw(float ***links, float **clov,
 				    QOP_F3_FermionLinksWilson *src,
 				    QOP_evenodd_t evenodd);
 
@@ -462,7 +463,7 @@ QOP_F3_GaugeField *
   QOP_F3_wilson_convert_L_to_G(QOP_F3_FermionLinksWilson *links);
 
 void QOP_F3_wilson_load_L_from_raw(QOP_F3_FermionLinksWilson *wilson,
-				   float *links[], float *clov[],
+				   float *links[], float *clov,
 				   QOP_evenodd_t evenodd);
 
 void QOP_F3_wilson_load_L_from_G(QOP_info_t *info,
@@ -473,7 +474,7 @@ void QOP_F3_wilson_load_L_from_G(QOP_info_t *info,
   /* double precision */
 
 QOP_D3_FermionLinksWilson *
-  QOP_D3_wilson_create_L_from_raw(double *links[], double *clov[],
+  QOP_D3_wilson_create_L_from_raw(double *links[], double *clov,
 				  QOP_evenodd_t evenodd);
 
 QOP_D3_FermionLinksWilson *
@@ -481,17 +482,17 @@ QOP_D3_FermionLinksWilson *
 				QOP_wilson_coeffs_t *coeffs,
 				QOP_D3_GaugeField *gauge);
 
-void QOP_D3_wilson_extract_L_to_raw(double *links[], double *clov[],
+void QOP_D3_wilson_extract_L_to_raw(double *links[], double *clov,
 				    QOP_D3_FermionLinksWilson *src,
 				    QOP_evenodd_t evenodd);
 
 void QOP_D3_wilson_destroy_L(QOP_D3_FermionLinksWilson *field);
 
 QOP_D3_FermionLinksWilson *
-  QOP_D3_wilson_convert_L_from_raw(double *links[], double *clov[],
+  QOP_D3_wilson_convert_L_from_raw(double *links[], double *clov,
 				   QOP_evenodd_t evenodd);
 
-void QOP_D3_wilson_convert_L_to_raw(double ***links, double ***clov,
+void QOP_D3_wilson_convert_L_to_raw(double ***links, double **clov,
 				    QOP_D3_FermionLinksWilson *src,
 				    QOP_evenodd_t evenodd);
 
@@ -504,7 +505,7 @@ QOP_D3_GaugeField *
   QOP_D3_wilson_convert_L_to_G(QOP_D3_FermionLinksWilson *links);
 
 void QOP_D3_wilson_load_L_from_raw(QOP_D3_FermionLinksWilson *wilson,
-				   double *links[], double *clov[],
+				   double *links[], double *clov,
 				   QOP_evenodd_t evenodd);
 
 void QOP_D3_wilson_load_L_from_G(QOP_info_t *info,
@@ -594,7 +595,7 @@ void QOP_D3_wilson_force_multi(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_F3_FermionLinksDW *
-  QOP_F3_dw_create_L_from_raw(float *links[], float *clov[],
+  QOP_F3_dw_create_L_from_raw(float *links[], float *clov,
 			      QOP_evenodd_t evenodd);
 
 QOP_F3_FermionLinksDW *
@@ -602,17 +603,17 @@ QOP_F3_FermionLinksDW *
 			    QOP_dw_coeffs_t *coeffs,
 			    QOP_F3_GaugeField *gauge);
 
-void QOP_F3_dw_extract_L_to_raw(float *links[], float *clov[],
+void QOP_F3_dw_extract_L_to_raw(float *links[], float *clov,
 				QOP_F3_FermionLinksDW *src,
 				QOP_evenodd_t evenodd);
 
 void QOP_F3_dw_destroy_L(QOP_F3_FermionLinksDW *field);
 
 QOP_F3_FermionLinksDW *
-  QOP_F3_dw_convert_L_from_raw(float *links[], float *clov[],
+  QOP_F3_dw_convert_L_from_raw(float *links[], float *clov,
 			       QOP_evenodd_t evenodd);
 
-void QOP_F3_dw_convert_L_to_raw(float ***links, float ***clov,
+void QOP_F3_dw_convert_L_to_raw(float ***links, float **clov,
 				QOP_F3_FermionLinksDW *src,
 				QOP_evenodd_t evenodd);
 
@@ -625,7 +626,7 @@ QOP_F3_GaugeField *
   QOP_F3_dw_convert_L_to_G(QOP_F3_FermionLinksDW *links);
 
 void QOP_F3_dw_load_L_from_raw(QOP_F3_FermionLinksDW *dw,
-			       float *links[], float *clov[],
+			       float *links[], float *clov,
 			       QOP_evenodd_t evenodd);
 
 void QOP_F3_dw_load_L_from_G(QOP_info_t *info,
@@ -637,7 +638,7 @@ void QOP_F3_dw_load_L_from_G(QOP_info_t *info,
   /* double precision */
 
 QOP_D3_FermionLinksDW *
-  QOP_D3_dw_create_L_from_raw(double *links[], double *clov[],
+  QOP_D3_dw_create_L_from_raw(double *links[], double *clov,
 			      QOP_evenodd_t evenodd);
 
 QOP_D3_FermionLinksDW *
@@ -645,17 +646,17 @@ QOP_D3_FermionLinksDW *
 			    QOP_dw_coeffs_t *coeffs,
 			    QOP_D3_GaugeField *gauge);
 
-void QOP_D3_dw_extract_L_to_raw(double *links[], double *clov[],
+void QOP_D3_dw_extract_L_to_raw(double *links[], double *clov,
 				QOP_D3_FermionLinksDW *src,
 				QOP_evenodd_t evenodd);
 
 void QOP_D3_dw_destroy_L(QOP_D3_FermionLinksDW *field);
 
 QOP_D3_FermionLinksDW *
-  QOP_D3_dw_convert_L_from_raw(double *links[], double *clov[],
+  QOP_D3_dw_convert_L_from_raw(double *links[], double *clov,
 			       QOP_evenodd_t evenodd);
 
-void QOP_D3_dw_convert_L_to_raw(double ***links, double ***clov,
+void QOP_D3_dw_convert_L_to_raw(double ***links, double **clov,
 				QOP_D3_FermionLinksDW *src,
 				QOP_evenodd_t evenodd);
 
@@ -668,7 +669,7 @@ QOP_D3_GaugeField *
   QOP_D3_dw_convert_L_to_G(QOP_D3_FermionLinksDW *links);
 
 void QOP_D3_dw_load_L_from_raw(QOP_D3_FermionLinksDW *dw,
-			       double *links[], double *clov[],
+			       double *links[], double *clov,
 			       QOP_evenodd_t evenodd);
 
 void QOP_D3_dw_load_L_from_G(QOP_info_t *info,

@@ -5,6 +5,7 @@ int QOP_wilson_inited = 0;
 int QOP_wilson_style = 0;
 int QOP_wilson_nsvec = 4;
 int QOP_wilson_nvec = 4;
+int QOP_wilson_cgtype = 1;
 
 QOP_status_t
 QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
@@ -35,6 +36,12 @@ QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
 	  if(QOP_wilson_nsvec>4) QOP_wilson_nsvec = 4;
 	  if(QOP_wilson_nvec>4) QOP_wilson_nvec = 4;
 	}
+      } else {
+	return QOP_FAIL;
+      }
+    } else if(!strcmp(tag,"cg")) {
+      if((value==0)||(value==1)) {
+	QOP_wilson_cgtype = (int) value;
       } else {
 	return QOP_FAIL;
       }
