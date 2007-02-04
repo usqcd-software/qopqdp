@@ -1,3 +1,19 @@
+2007-02-03 23:10  osborn
+
+	* lib/: invert_bicgstab_D_d.c, invert_bicgstab_D_f.c,
+	  invert_bicgstab_p.c: Added bicgstab code.
+
+2007-02-03 23:08  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_invert_bench.c,
+	  examples/dw_invert_bench.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, include/generic_D.h, include/qop.h,
+	  include/qop_internal_p.h, include/qop_qdp.h, lib/Makefile.am,
+	  lib/asqtad_invert_p.c, lib/dw_invert_p.c, lib/invert_cg_p.c,
+	  lib/wilson_invert.c, lib/wilson_invert_p.c: Added max_restarts
+	  field to QOP_invert_arg_t struct and updated comments to reflect
+	  true meaning.  Fixed asqtad 2 src inverter.
+
 2006-12-15 17:00  tag qopqdp0-7-7
 
 2006-12-15 17:00  osborn
