@@ -1,3 +1,5 @@
+2007-02-03 23:10  tag qopqdp0-7-8
+
 2007-02-03 23:10  osborn
 
 	* lib/: invert_bicgstab_D_d.c, invert_bicgstab_D_f.c,
