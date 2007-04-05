@@ -76,7 +76,6 @@ struct QOPPC(FermionLinksWilson_struct) {
   QDPPC(ColorMatrix) **bcklinks;
   QDPPC(ColorMatrix) **dbllinks;
   QOPPC(GaugeField) *qopgf;
-  QDPPC(DiracFermion) *cgp;
   QDPPC(DiracPropagator) *qdpclov;
   REAL *clov, *clovinv;
   REAL **rawlinks, *rawclov;

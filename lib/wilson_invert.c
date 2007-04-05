@@ -1,11 +1,13 @@
 #include <qop_internal.h>
 #include <string.h>
 
+#define OPTNUM (QOP_wilson_style+4*QOP_wilson_nsvec)
 int QOP_wilson_inited = 0;
 int QOP_wilson_style = 0;
 int QOP_wilson_nsvec = 4;
 int QOP_wilson_nvec = 4;
 int QOP_wilson_cgtype = 1;
+int QOP_wilson_optnum = 16;
 
 QOP_status_t
 QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
@@ -47,6 +49,7 @@ QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
       }
     }
   }
+  QOP_wilson_optnum = OPTNUM;
 
   return QOP_SUCCESS;
 }

@@ -3,6 +3,8 @@
 #include <time.h>
 #include <math.h>
 
+static int test_restart=0;
+
 static int ndim=4;
 static int *lattice_size;
 static int seed;
@@ -35,10 +37,12 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   int i, iter=0;
   QOP_DiracFermion *qopout, *qopin;
 
+  QDP_D_eq_zero(out, QDP_all);
   for(i=0; i<=nit; i++) {
-    QDP_D_eq_zero(out, QDP_all);
-    qopout = QOP_create_D_from_qdp(out);
-    qopin = QOP_create_D_from_qdp(in);
+    if(i==0 || !test_restart) {
+      qopout = QOP_create_D_from_qdp(out);
+      qopin = QOP_create_D_from_qdp(in);
+    }
     QOP_wilson_invert(info, flw, inv_arg, res_arg, kappa, qopout, qopin);
     if(i>0) {
       iter += res_arg->final_iter;
@@ -46,8 +50,10 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       flop += info->final_flop;
       mf += info->final_flop/(1e6*info->final_sec);
     }
-    QOP_destroy_D(qopout);
-    QOP_destroy_D(qopin);
+    if(i==nit || !test_restart) {
+      QOP_destroy_D(qopout);
+      QOP_destroy_D(qopin);
+    }
   }
   res_arg->final_iter = iter/nit;
   info->final_sec = sec/nit;
@@ -84,6 +90,7 @@ start(void)
     //clov = NULL;
     coeffs.clov_c = 0;
   }
+  coeffs.aniso = 0;
 
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);

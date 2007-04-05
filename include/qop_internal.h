@@ -6,6 +6,9 @@
 #include <qop_internal_p.h>
 #include <qmp.h>
 
+#define oppsub(eo) ((4-(eo))%3)
+#define qdpsub(eo) ((eo)==2 ? QDP_all : QDP_even_and_odd[eo])
+
 #define CHECK_INIT							\
   if(!QOP_common.inited) {						\
     QMP_error("Error: QOP not initialized in function %s\n", __func__); \

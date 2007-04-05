@@ -112,6 +112,7 @@ typedef struct QOP_D3_FermionLinksAsqtad_struct QOP_D3_FermionLinksAsqtad;
 
 typedef struct {
   double clov_c;
+  double aniso;
 } QOP_wilson_coeffs_t;
 
 typedef struct QOP_F3_FermionLinksWilson_struct QOP_F3_FermionLinksWilson;
@@ -517,6 +518,22 @@ void QOP_D3_wilson_load_L_from_G(QOP_info_t *info,
 
 QOP_status_t QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts);
 
+void QOP_F3_wilson_dslash(QOP_info_t *info,
+			  QOP_F3_FermionLinksWilson *flw,
+			  float kappa,
+			  int sign,
+			  QOP_F3_DiracFermion *out,
+			  QOP_F3_DiracFermion *in,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+
+void QOP_F3_wilson_diaginv(QOP_info_t *info,
+			   QOP_F3_FermionLinksWilson *flw,
+			   float kappa,
+			   QOP_F3_DiracFermion *out,
+			   QOP_F3_DiracFermion *in,
+			   QOP_evenodd_t eo);
+
 void QOP_F3_wilson_invert(QOP_info_t *info,
 			  QOP_F3_FermionLinksWilson *links,
 			  QOP_invert_arg_t *inv_arg,
@@ -534,6 +551,22 @@ void QOP_F3_wilson_invert_multi(QOP_info_t *info,
 				QOP_F3_DiracFermion **out_pt[],
 				QOP_F3_DiracFermion *in_pt[],
 				int nsrc);
+
+void QOP_D3_wilson_dslash(QOP_info_t *info,
+			  QOP_D3_FermionLinksWilson *flw,
+			  double kappa,
+			  int sign,
+			  QOP_D3_DiracFermion *out,
+			  QOP_D3_DiracFermion *in,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+
+void QOP_D3_wilson_diaginv(QOP_info_t *info,
+			   QOP_D3_FermionLinksWilson *flw,
+			   double kappa,
+			   QOP_D3_DiracFermion *out,
+			   QOP_D3_DiracFermion *in,
+			   QOP_evenodd_t eo);
 
 void QOP_D3_wilson_invert(QOP_info_t *info,
 			  QOP_D3_FermionLinksWilson *links,
@@ -829,6 +862,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_wilson_load_L_from_raw    QOP_F3_wilson_load_L_from_raw
 #define QOP_wilson_load_L_from_G      QOP_F3_wilson_load_L_from_G
 
+#define QOP_wilson_dslash       QOP_F3_wilson_dslash
+#define QOP_wilson_diaginv      QOP_F3_wilson_diaginv
 #define QOP_wilson_invert       QOP_F3_wilson_invert
 #define QOP_wilson_invert_multi QOP_F3_wilson_invert_multi
 #define QOP_wilson_force        QOP_F3_wilson_force
@@ -912,6 +947,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_wilson_load_L_from_raw    QOP_D3_wilson_load_L_from_raw
 #define QOP_wilson_load_L_from_G      QOP_D3_wilson_load_L_from_G
 
+#define QOP_wilson_dslash       QOP_D3_wilson_dslash
+#define QOP_wilson_diaginv      QOP_D3_wilson_diaginv
 #define QOP_wilson_invert       QOP_D3_wilson_invert
 #define QOP_wilson_invert_multi QOP_D3_wilson_invert_multi
 #define QOP_wilson_force        QOP_D3_wilson_force

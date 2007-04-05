@@ -61,7 +61,8 @@ am_libqopqdp_a_OBJECTS = common.$(OBJEXT) common_f.$(OBJEXT) \
 	asqtad_invert_f.$(OBJEXT) asqtad_invert_d.$(OBJEXT) \
 	asqtad_force.$(OBJEXT) asqtad_force_f.$(OBJEXT) \
 	asqtad_force_d.$(OBJEXT) asqtad_force_fnmat_f.$(OBJEXT) \
-	asqtad_force_fnmat_d.$(OBJEXT) wilson_invert.$(OBJEXT) \
+	asqtad_force_fnmat_d.$(OBJEXT) wilson_dslash_f.$(OBJEXT) \
+	wilson_dslash_d.$(OBJEXT) wilson_invert.$(OBJEXT) \
 	wilson_invert_f.$(OBJEXT) wilson_invert_d.$(OBJEXT) \
 	dw_invert.$(OBJEXT) dw_invert_f.$(OBJEXT) \
 	dw_invert_d.$(OBJEXT) invert_cg_V_f.$(OBJEXT) \
@@ -181,6 +182,7 @@ libqopqdp_a_SOURCES = \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
   asqtad_force.c asqtad_force_f.c asqtad_force_d.c \
   asqtad_force_fnmat_f.c asqtad_force_fnmat_d.c \
+  wilson_dslash_f.c wilson_dslash_d.c \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
   dw_invert.c dw_invert_f.c dw_invert_d.c \
   invert_cg_V_f.c invert_cg_V_d.c \
@@ -194,6 +196,7 @@ EXTRA_DIST = \
   asqtad_invert_p.c \
   asqtad_force_p.c \
   asqtad_force_fnmat_p.c \
+  wilson_dslash_p.c \
   wilson_invert_p.c \
   dw_invert_p.c \
   invert_cg_p.c \
@@ -296,6 +299,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_vD_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_dslash_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_dslash_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_f.Po@am__quote@
@@ -492,6 +497,8 @@ asqtad_force_f.o: asqtad_force_p.c
 asqtad_force_d.o: asqtad_force_p.c
 asqtad_force_fnmat_f.o: asqtad_force_fnmat_p.c
 asqtad_force_fnmat_d.o: asqtad_force_fnmat_p.c
+wilson_dslash_f.o: wilson_dslash_p.c
+wilson_dslash_d.o: wilson_dslash_p.c
 wilson_invert_f.o: wilson_invert_p.c
 wilson_invert_d.o: wilson_invert_p.c
 dw_invert_f.o: dw_invert_p.c
