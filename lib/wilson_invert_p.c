@@ -30,6 +30,7 @@
 #define LU
 
 extern int QOP_wilson_cgtype;
+extern QDP_DiracFermion *QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *flw, QOP_evenodd_t eo, int n);
 
 /* inverter stuff */
 
@@ -40,16 +41,25 @@ static QDP_DiracFermion *gl_tmp, *gl_tmp2;
 
 #define project(flw, kappa, sign, out, in, eo) \
 { \
-  QOP_wilson_diaginv_qdp(NULL, flw, kappa, gl_tmp, in, oppsub(eo)); \
-  QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, out, gl_tmp, eo, oppsub(eo)); \
+  QOP_wilson_diaginv_qdp(NULL, flw, kappa, gl_tmp2, in, oppsub(eo)); \
+  QOP_wilson_dslash_qdp(NULL,flw,kappa,sign, out, gl_tmp2, eo, oppsub(eo)); \
   QDP_D_eq_D_minus_D(out, in, out, qdpsub(eo)); \
 }
 
 #define reconstruct(flw, kappa, out, soln, src, eo) \
 { \
-  QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, out, soln, eo, oppsub(eo)); \
+  QDP_D_eq_D(gl_tmp, soln, qdpsub(oppsub(eo))); \
+  QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, out, gl_tmp, eo, oppsub(eo)); \
   QDP_D_eq_D_minus_D(gl_tmp, src, out, qdpsub(eo)); \
   QOP_wilson_diaginv_qdp(NULL, flw, kappa, out, gl_tmp, eo); \
+}
+
+#define dslash2(flw, kappa, sign, out, tmp, in, eo) \
+{ \
+  QLA_Real mk2 = -4*kappa*kappa; \
+  QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, tmp, in, oppsub(eo), eo); \
+  QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, out, tmp, eo, oppsub(eo)); \
+  QDP_D_eq_r_times_D_plus_D(out, &mk2, out, in, qdpsub(eo)); \
 }
 
 void
@@ -71,21 +81,30 @@ void
 QOPPC(wilson_invert_d2)(QDP_DiracFermion *out, QDP_DiracFermion *in,
 			QDP_Subset subset)
 {
+#if 0
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, 1,
-			gl_tmp2, in, QOP_EVENODD, gl_eo);
-  project(gl_flw, gl_kappa, 1, out, gl_tmp2, gl_eo); 
+			gl_tmp3, in, QOP_EVENODD, gl_eo);
+  project(gl_flw, gl_kappa, 1, out, gl_tmp3, gl_eo); 
+#else
+  dslash2(gl_flw, gl_kappa, 1, out, gl_tmp2, in, gl_eo);
+#endif
 }
 
 void
 QOPPC(wilson_invert_d2ne)(QDP_DiracFermion *out, QDP_DiracFermion *in,
 			  QDP_Subset subset)
 {
+#if 0
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, 1,
-			gl_tmp2, in, QOP_EVENODD, gl_eo);
-  project(gl_flw, gl_kappa, 1, out, gl_tmp2, gl_eo); 
+			gl_tmp3, in, QOP_EVENODD, gl_eo);
+  project(gl_flw, gl_kappa, 1, gl_tmp, gl_tmp3, gl_eo); 
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, -1,
-			gl_tmp2, out, QOP_EVENODD, gl_eo);
-  project(gl_flw, gl_kappa, -1, out, gl_tmp2, gl_eo); 
+			gl_tmp3, gl_tmp, QOP_EVENODD, gl_eo);
+  project(gl_flw, gl_kappa, -1, out, gl_tmp3, gl_eo); 
+#else
+  dslash2(gl_flw, gl_kappa, 1, gl_tmp, gl_tmp2, in, gl_eo);
+  dslash2(gl_flw, gl_kappa, -1, out, gl_tmp2, gl_tmp, gl_eo);
+#endif
 }
 
 void
@@ -114,10 +133,6 @@ QOP_wilson_invert(QOP_info_t *info,
 
   qdpin = QDP_create_D();
   qdpout = QDP_create_D();
-  cgp = QDP_create_D();
-  cgr = QDP_create_D();
-  gl_tmp = QDP_create_D();
-  gl_tmp2 = QDP_create_D();
 
   gl_flw = flw;
   gl_kappa = kappa;
@@ -144,9 +159,14 @@ QOP_wilson_invert(QOP_info_t *info,
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
+  cgp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 1);
+  cgr = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 2);
+  gl_tmp = cgr;
+
   //printf("test1\n");
   QDP_D_eq_zero(qdpin, QDP_all);
 #ifdef LU
+  gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
   if(ineo==cgeo) {
     QDP_D_eq_D(qdpin, in->df, insub);
   } else {
@@ -155,10 +175,14 @@ QOP_wilson_invert(QOP_info_t *info,
     project(flw, kappa, 1, qdpin, cgp, cgeo);
   }
   if(QOP_wilson_cgtype==0) {
-    QOP_wilson_dslash_qdp(NULL, flw, kappa, -1, cgp, qdpin, QOP_EVENODD, cgeo);
-    project(flw, kappa, -1, qdpin, cgp, cgeo); 
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
+    dslash2(flw, kappa, -1, qdpin, gl_tmp2, cgp, cgeo);
+  } else {
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
+    QDP_D_eq_D(qdpin, cgp, cgsub);
   }
 #else
+  gl_tmp2 = cgr;
   if(QOP_wilson_cgtype==1) {
     QDP_D_eq_D(qdpin, in->df, insub);
   } else {
@@ -202,6 +226,8 @@ QOP_wilson_invert(QOP_info_t *info,
     dtime += QOP_time();
     //printf("finished cg\n");
 
+    //QDP_r_eq_norm2_D(&rsq, qdpout, cgsub);
+    //printf("nrm = %g\n", rsq);
 #ifdef LU
     if(ineo==QOP_EVENODD) {
       reconstruct(flw, kappa, qdpout, qdpout, in->df, oppsub(cgeo));
@@ -210,11 +236,13 @@ QOP_wilson_invert(QOP_info_t *info,
     }
 #endif
     // get final residual
+    //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
+    //printf("nrm = %g\n", rsq);
     QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, cgr, qdpout, ineo, QOP_EVENODD);
     QDP_D_meq_D(cgr, in->df, insub);
     QDP_r_eq_norm2_D(&rsq, cgr, insub);
-    //printf("rsq = %g\tprec rsq = %g\trsqstop = %g\n",
-    //rsq, res_arg->final_rsq, rsqstop);
+    //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
+    //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     res_arg->rsqmin *= 0.5*rsqstop/rsq;
     iter += res_arg->final_iter;
   } while((rsq>rsqstop)&&(nrestart++<max_restarts));
@@ -223,10 +251,6 @@ QOP_wilson_invert(QOP_info_t *info,
 
   QDP_destroy_D(qdpin);
   QDP_destroy_D(qdpout);
-  QDP_destroy_D(cgp);
-  QDP_destroy_D(cgr);
-  QDP_destroy_D(gl_tmp);
-  QDP_destroy_D(gl_tmp2);
 
   res_arg->rsqmin = rsqminold;
   res_arg->final_iter = iter;

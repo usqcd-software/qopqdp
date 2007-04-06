@@ -45,13 +45,16 @@ static int old_style=-1;
 //static int old_nvec=-1;
 static int old_optnum=-1;
 
-#define NTMP 3
+#define NTMPSUB 2
+#define NTMP (3*NTMPSUB)
 #define NHTMP 20
 #define NDTMP 12
 static int dslash_setup = 0;
 static QDP_HalfFermion *htemp[NTMP][NHTMP];
 static QDP_DiracFermion *dtemp[NTMP][NDTMP];
 static QDP_DiracFermion *tin[NTMP];
+#define tmpnum(eo,n) ((eo)+3*((n)-1))
+#define tmpsub(eo,n) tin[tmpnum(eo,n)]
 
 #define check_setup(flw) \
 { \
@@ -147,6 +150,15 @@ double_store(QOP_FermionLinksWilson *flw)
     QDP_destroy_M(m);
     flw->dblstored = dblstore_style(QOP_wilson_style);
   }
+}
+
+QDP_DiracFermion *
+QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *flw,
+			     QOP_evenodd_t eo, int n)
+{
+  check_setup(flw);
+  if(n>=1 && n<=NTMPSUB) return tmpsub(eo,n);
+  else return NULL;
 }
 
 /* link routines */
@@ -398,20 +410,32 @@ clov(QOP_FermionLinksWilson *flw, QDP_DiracFermion *out, QDP_DiracFermion *in,
 static void
 wilson_dslash0(QOP_FermionLinksWilson *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
-	       int sign, QOP_evenodd_t);
+	       int sign, QOP_evenodd_t eo, int n);
 
 static void
 wilson_dslash1(QOP_FermionLinksWilson *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
-	       int sign, QOP_evenodd_t);
+	       int sign, QOP_evenodd_t eo, int n);
 
 #define wilson_hop(flw, dest, src, sign, eo) \
 { \
-  if(src!=tin[eo]) QDP_D_eq_D(tin[eo], src, qdpsub(oppsub(eo))); \
+  QDP_DiracFermion *tsrc = src; \
+  int _n = 1; \
+  while(1) { \
+    if(src==tmpsub(eo,_n)) break; \
+    if(_n==NTMPSUB) { \
+      _n = 1; \
+      tsrc = tmpsub(eo,_n); \
+      QDP_D_eq_D(tsrc, src, qdpsub(oppsub(eo))); \
+      break; \
+    } \
+    _n++; \
+  } \
+  /*printf("%i %i\n", eo, _n);*/ \
   if(dblstore_style(QOP_wilson_style)) { \
-    wilson_dslash1(flw, dest, tin[eo], sign, eo); \
+    wilson_dslash1(flw, dest, tsrc, sign, eo, _n); \
   } else { \
-    wilson_dslash0(flw, dest, tin[eo], sign, eo); \
+    wilson_dslash0(flw, dest, tsrc, sign, eo, _n); \
   } \
 }
 
@@ -739,7 +763,7 @@ clovinv(QOP_FermionLinksWilson *flw, QDP_DiracFermion *out,
 static void
 wilson_dslash0(QOP_FermionLinksWilson *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
-	       int sign, QOP_evenodd_t eo)
+	       int sign, QOP_evenodd_t eo, int n)
 {
   int mu, ntmp;
   QDP_DiracFermion *vsrc[4];
@@ -749,7 +773,7 @@ wilson_dslash0(QOP_FermionLinksWilson *flw,
   QDP_Subset subset, othersubset;
   subset = qdpsub(eo);
   othersubset = qdpsub(oppsub(eo));
-  ntmp = eo;
+  ntmp = tmpnum(eo,n);
 
   sign = -sign;
 
@@ -891,7 +915,7 @@ wilson_dslash0(QOP_FermionLinksWilson *flw,
 static void
 wilson_dslash1(QOP_FermionLinksWilson *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
-	       int sign, QOP_evenodd_t eo)
+	       int sign, QOP_evenodd_t eo, int n)
 {
   int mu, ntmp;
   QDP_DiracFermion *vsrc[8];
@@ -902,7 +926,7 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
   QDP_Subset subset, othersubset;
   subset = qdpsub(eo);
   othersubset = qdpsub(oppsub(eo));
-  ntmp = eo;
+  ntmp = tmpnum(eo,n);
 
   sign = -sign;
 
