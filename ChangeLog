@@ -1,3 +1,5 @@
+2007-04-06 16:07  tag qopqdp0-8-0
+
 2007-04-06 16:07  osborn
 
 	* lib/: wilson_dslash_p.c, wilson_invert_p.c: small performance
