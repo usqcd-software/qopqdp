@@ -1,3 +1,8 @@
+2007-04-06 16:07  osborn
+
+	* lib/: wilson_dslash_p.c, wilson_invert_p.c: small performance
+	  fixes to Wilson inverter
+
 2007-04-05 11:19  osborn
 
 	* lib/: wilson_dslash_d.c, wilson_dslash_f.c, wilson_dslash_p.c:
