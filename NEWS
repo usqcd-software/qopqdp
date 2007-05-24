@@ -1,4 +1,14 @@
 ===========================================================================
+2007-05-24      version 0.8.1
+===========================================================================
+2007-05-10:	James Osborn
+	Made all non-external functions in asqtad_force_p.c static.
+
+2007-04-22:	James Osborn
+	Fixed bicgstab to update nrestarts.
+	Avoid int overflow in asqtad_force_fnmat flop calculation.
+
+===========================================================================
 2007-04-05      version 0.8.0
 ===========================================================================
 2007-04-05:	James Osborn
