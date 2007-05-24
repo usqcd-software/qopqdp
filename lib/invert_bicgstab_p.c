@@ -18,8 +18,8 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   QLA_Real rsqstop;
   Vector *r0, *t, *v;
   int iteration=0;
-  int nrestart=0, max_restarts=inv_arg->max_restarts;
-  if(max_restarts<=0) max_restarts = 5;
+  int nrestart=-1, max_restarts=inv_arg->max_restarts;
+  if(max_restarts<0) max_restarts = 5;
 
   create_V(r0);
   create_V(t);
@@ -34,8 +34,9 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
 	(rsq<rsqstop) ) {  /* only way out */
-
       /* (re)start */
+      nrestart++;
+
       V_eq_V(p, out, subset);
       linop(r, p, subset);
 
@@ -47,7 +48,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
       //printf("  \tafter restart: %e\n", rsq);
       if( (rsq<rsqstop) ||
 	  (iteration>=inv_arg->max_iter) ||
-	  (nrestart>=max_restarts) ) break;
+	  (nrestart>max_restarts) ) break;
 
       V_eq_zero(v, subset);
       V_eq_zero(p, subset);

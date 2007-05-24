@@ -16,7 +16,7 @@
 /* Construct path table from the action definition above
    Originally quark_stuff.c                                         */
 /********************************************************************/
-						
+
 typedef struct {
   int dir[MAX_PATH_LENGTH];	/* directions in path */
   int length;		/* length of path */
@@ -29,7 +29,7 @@ static QDP_Shift neighbor3[4];
 
 static Q_path q_paths[MAX_NUM];
 static int num_q_paths; /* number of paths in dslash */
-static int num_basic_paths;	/* number of paths before rotation/reflection */
+static int num_basic_paths;    /* number of paths before rotation/reflection */
 
 static int qop_is_path_equal( int *path1, int* path2, int length );
 static int qop_add_basic_path( int *vec, int length, REAL coeff );
@@ -605,7 +605,7 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
   }
 
   dtime += QOP_time();
-  int nflop = 966456 + 1440*nterms;
+  double nflop = 966456 + 1440*nterms;
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;

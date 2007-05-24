@@ -50,24 +50,16 @@
 #define GOES_FORWARDS(dir) (dir<4)
 #define GOES_BACKWARDS(dir) (dir>=4)
 
-void u_shift_color_vecs(QDP_ColorVector *src[], QDP_ColorVector *dest[], 
-			int dir, int nsrc, QDP_ColorVector *tmpvec[]);
+static void u_shift_color_vecs(QDP_ColorVector *src[], QDP_ColorVector *dest[],
+			       int dir, int nsrc, QDP_ColorVector *tmpvec[]);
 
-void add_forces_to_mom(QDP_ColorVector **back, QDP_ColorVector **forw,
-		       int dir, REAL coeff[], int nsrc);
+static void add_forces_to_mom(QDP_ColorVector **back, QDP_ColorVector **forw,
+			      int dir, REAL coeff[], int nsrc);
 
-void mom_peq_forces(QDP_ColorVector **back, QDP_ColorVector **forw,
-		    int dir, int nsrc);
-void mom_meq_forces(QDP_ColorVector **back, QDP_ColorVector **forw,
-		    int dir, int nsrc);
-
-void side_link_forces(int mu, int nu, REAL coeff[], QDP_ColorVector **Path,
-		      QDP_ColorVector **Path_nu, QDP_ColorVector **Path_mu,
-		      QDP_ColorVector **Path_numu, int nsrc);
-
-void side_link_forces2(int mu, int nu, QDP_ColorVector **Path,
-		       QDP_ColorVector **Path_nu, QDP_ColorVector **Path_mu,
-		       QDP_ColorVector **Path_numu, int nsrc);
+static void side_link_forces(int mu, int nu, REAL coeff[],
+			     QDP_ColorVector **Path, QDP_ColorVector **Path_nu,
+			     QDP_ColorVector **Path_mu,
+			     QDP_ColorVector **Path_numu, int nsrc);
 
 void 
 QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *gauge,
@@ -83,8 +75,8 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 //static su3_matrix *backwardlink[4];
 static QDP_ColorMatrix *tempmom_qdp[4];
 
-static QDP_ColorMatrix *bcklink[4];
-static QDP_ColorMatrix *fwdlink[4];
+//static QDP_ColorMatrix *bcklink[4];
+//static QDP_ColorMatrix *fwdlink[4];
 //static QDP_ColorVector *hw_qdp[8][2];
 
 static QDP_ColorMatrix *fblink[8];
@@ -537,67 +529,7 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 #undef Popmu        
 #undef Pmumumu      
 
-
-/*  Covariant shift of the src half wilson fermion field in the  *
- * direction dir   by one unit.  The result is stored in dest pointer.    */
-void u_shift_hw_fermion(QDP_ColorVector **src, 
-			QDP_ColorVector **dest_qdp, int dir,
-			QDP_ColorVector **tmpvec, int nsrc)
-{
-#if 0
-  QDP_expose_V(src[0]);
-  QDP_expose_V(src[1]);
-  QDP_reset_V(src[0]);
-  QDP_reset_V(src[1]);
-#endif
-
-#ifdef FFSTIME
-  double time0, time1;
-  time0 = -dclock();
-#endif
-  if(GOES_FORWARDS(dir)) /* forward shift */
-    {
-      QDP_discard_V(tmpvec[0]);
-      QDP_discard_V(tmpvec[1]);
-      QDP_ColorMatrix *bl[2];
-      bl[0] = bl[1] = bcklink[dir];
-      QDP_V_veq_M_times_V(tmpvec, bl, src, QDP_all, 2);
-      //QDP_V_eq_M_times_V(tmpvec[0], bcklink[dir], src[0], QDP_all);
-      //QDP_V_eq_M_times_V(tmpvec[1], bcklink[dir], src[1], QDP_all);
-#ifdef FFSTIME
-  time1 = -dclock();
-  time0 -= time1;
-#endif
-      QDP_V_eq_sV(dest_qdp[0], tmpvec[0], QDP_neighbor[dir], QDP_forward, QDP_all);
-      QDP_V_eq_sV(dest_qdp[1], tmpvec[1], QDP_neighbor[dir], QDP_forward, QDP_all);
-    }
-  else /* backward shift */
-    {
-      QDP_discard_V(tmpvec[0]);
-      QDP_discard_V(tmpvec[1]);
-      QDP_ColorMatrix *fl[2];
-      fl[0] = fl[1] = fwdlink[OPP_DIR(dir)];
-      QDP_V_veq_Ma_times_V(tmpvec, fl, src, QDP_all, 2);
-      //QDP_V_eq_Ma_times_V(tmpvec[0], fwdlink[OPP_DIR(dir)], src[0], QDP_all);
-      //QDP_V_eq_Ma_times_V(tmpvec[1], fwdlink[OPP_DIR(dir)], src[1], QDP_all);
-#ifdef FFSTIME
-  time1 = -dclock();
-  time0 -= time1;
-#endif
-      QDP_V_eq_sV(dest_qdp[0], tmpvec[0], QDP_neighbor[OPP_DIR(dir)], QDP_backward, QDP_all);
-      QDP_V_eq_sV(dest_qdp[1], tmpvec[1], QDP_neighbor[OPP_DIR(dir)], QDP_backward, QDP_all);
-    }
-#ifdef FFSTIME
-  time1 += dclock();
-  node0_printf("FFSHIFT time0 = %e\nFFSHIFT time1 = %e\n",time0,time1);
-#endif
-  QDP_expose_V(dest_qdp[0]);
-  QDP_reset_V(dest_qdp[0]);
-  QDP_expose_V(dest_qdp[1]);
-  QDP_reset_V(dest_qdp[1]);
-}
-
-void
+static void
 u_shift_color_vecs(QDP_ColorVector *src[], QDP_ColorVector *dest[], int dir,
 		   int n, QDP_ColorVector *tmpvec[])
 {
@@ -618,7 +550,7 @@ u_shift_color_vecs(QDP_ColorVector *src[], QDP_ColorVector *dest[], int dir,
 
 /* Add in contribution to the force ( 3flavor case ) */
 /* Put antihermitian traceless part into momentum */
-void
+static void
 add_forces_to_mom(QDP_ColorVector **back_qdp, QDP_ColorVector **forw_qdp, 
 		  int dir, REAL coeff[], int nsrc)
 {
@@ -648,57 +580,9 @@ add_forces_to_mom(QDP_ColorVector **back_qdp, QDP_ColorVector **forw_qdp,
   QOP_trace("test 484\n");
 }
 
-/* Add in contribution to the force ( 3flavor case ) */
-/* Put antihermitian traceless part into momentum */
-void
-mom_peq_forces(QDP_ColorVector **back, QDP_ColorVector **forw,
-	       int dir, int nsrc)
-{
-  if(GOES_BACKWARDS(dir)) {
-    QDP_ColorMatrix *tm[nsrc];
-    int i;
-    dir = OPP_DIR(dir); 
-    for(i=0; i<nsrc; i++) {
-      tm[i] = tempmom_qdp[dir];
-    }
-    QDP_M_vmeq_V_times_Va(tm, back, forw, QDP_all, nsrc);
-  } else {
-    QDP_ColorMatrix *tm[nsrc];
-    int i;
-    for(i=0; i<nsrc; i++) {
-      tm[i] = tempmom_qdp[dir];
-    }
-    QDP_M_vpeq_V_times_Va(tm, back, forw, QDP_all, nsrc);
-  }
-}
-
-/* Add in contribution to the force ( 3flavor case ) */
-/* Put antihermitian traceless part into momentum */
-void
-mom_meq_forces(QDP_ColorVector **back, QDP_ColorVector **forw,
-	       int dir, int nsrc)
-{
-  if(GOES_BACKWARDS(dir)) {
-    QDP_ColorMatrix *tm[nsrc];
-    int i;
-    dir = OPP_DIR(dir); 
-    for(i=0; i<nsrc; i++) {
-      tm[i] = tempmom_qdp[dir];
-    }
-    QDP_M_vpeq_V_times_Va(tm, back, forw, QDP_all, nsrc);
-  } else {
-    QDP_ColorMatrix *tm[nsrc];
-    int i;
-    for(i=0; i<nsrc; i++) {
-      tm[i] = tempmom_qdp[dir];
-    }
-    QDP_M_vmeq_V_times_Va(tm, back, forw, QDP_all, nsrc);
-  }
-}
-
 /*  The 3 flavor version of side_link_force used *
  * to optimize fermion transports                */
-void
+static void
 side_link_forces(int mu, int nu, REAL coeff[], QDP_ColorVector **Path,
 		 QDP_ColorVector **Path_nu, QDP_ColorVector **Path_mu,
 		 QDP_ColorVector **Path_numu, int nsrc)
@@ -736,44 +620,6 @@ side_link_forces(int mu, int nu, REAL coeff[], QDP_ColorVector **Path,
     }
 }
 
-/*  The 3 flavor version of side_link_force used *
- * to optimize fermion transports                */
-void
-side_link_3f_forces2(int mu, int nu, QDP_ColorVector **Path,
-		     QDP_ColorVector **Path_nu, QDP_ColorVector **Path_mu,
-		     QDP_ColorVector **Path_numu, int nsrc)
-{
-  if(GOES_FORWARDS(mu))
-    {
-      /*                    nu           * 
-       * Add the force :  +----+         *
-       *               mu |    |         *
-       *                  x    (x)       *
-       *                  o    o         */
-      if(GOES_FORWARDS(nu)) {
-	//add_3f_force_to_mom(Path_numu, Path, mu, coeff ) ;
-	mom_peq_forces(Path_numu, Path, mu, nsrc);
-      } else {
-	//add_3f_force_to_mom(Path,Path_numu,OPP_DIR(mu),m_coeff);/*? extra -*/
-	mom_meq_forces(Path, Path_numu, OPP_DIR(mu), nsrc);
-      }
-    }
-  else /*GOES_BACKWARDS(mu)*/
-    {
-      /* Add the force :  o    o         *
-       *               mu |    |         *
-       *                  x    (x)       *
-       *                  +----+         *
-       *                    nu           */ 
-      if(GOES_FORWARDS(nu)) {
-	//add_3f_force_to_mom(Path_nu, Path_mu, mu, m_coeff) ; /* ? extra - */
-	mom_meq_forces(Path_nu, Path_mu, mu, nsrc);
-      } else {
-	//add_3f_force_to_mom(Path_mu, Path_nu, OPP_DIR(mu), coeff) ;
-	mom_peq_forces(Path_mu, Path_nu, OPP_DIR(mu), nsrc);
-      }
-    }
-}
 
 /* LONG COMMENTS
    Here we have combined "xxx", (offset "x_off")  which is
