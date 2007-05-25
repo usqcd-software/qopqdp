@@ -1,3 +1,14 @@
+2007-05-24 19:43  osborn
+
+	* NEWS, configure, configure.ac: prepare for QOPQDP 0.8.1
+
+2007-05-24 19:42  osborn
+
+	* lib/: asqtad_force_fnmat_p.c, asqtad_force_p.c,
+	  invert_bicgstab_p.c: Fixed bicgstab to update nrestarts.  Avoid
+	  int overflow in asqtad_force_fnmat flop calculation.	Made all
+	  non-external functions in asqtad_force_p.c static.
+
 2007-04-06 16:07  tag qopqdp0-8-0
 
 2007-04-06 16:07  osborn
