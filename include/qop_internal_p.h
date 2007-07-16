@@ -65,7 +65,6 @@ struct QOPPC(FermionLinksAsqtad_struct) {
   QDPPC(ColorMatrix) **fwdlinks;
   QDPPC(ColorMatrix) **bcklinks;
   QDPPC(ColorMatrix) **dbllinks;
-  QDPPC(ColorVector) *cgp;
 };
 
   /* Wilson datatypes */

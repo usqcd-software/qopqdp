@@ -355,6 +355,21 @@ void QOP_D3_asqtad_load_L_from_G(QOP_info_t *info,
 
 QOP_status_t QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts);
 
+void QOP_F3_asqtad_dslash(QOP_info_t *info,
+			  QOP_F3_FermionLinksAsqtad *asqtad,
+			  float mass,
+			  QOP_F3_ColorVector *out,
+			  QOP_F3_ColorVector *in,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+
+void QOP_F3_asqtad_diaginv(QOP_info_t *info,
+			   QOP_F3_FermionLinksAsqtad *asqtad,
+			   float mass,
+			   QOP_F3_ColorVector *out,
+			   QOP_F3_ColorVector *in,
+			   QOP_evenodd_t eo);
+
 void QOP_F3_asqtad_invert(QOP_info_t *info,
 			  QOP_F3_FermionLinksAsqtad *asqtad,
 			  QOP_invert_arg_t *inv_arg,
@@ -372,6 +387,21 @@ void QOP_F3_asqtad_invert_multi(QOP_info_t *info,
 				QOP_F3_ColorVector **out_pt[],
 				QOP_F3_ColorVector *in_pt[],
 				int nsrc);
+
+void QOP_D3_asqtad_dslash(QOP_info_t *info,
+			  QOP_D3_FermionLinksAsqtad *asqtad,
+			  double mass,
+			  QOP_D3_ColorVector *out,
+			  QOP_D3_ColorVector *in,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+
+void QOP_D3_asqtad_diaginv(QOP_info_t *info,
+			   QOP_D3_FermionLinksAsqtad *asqtad,
+			   double mass,
+			   QOP_D3_ColorVector *out,
+			   QOP_D3_ColorVector *in,
+			   QOP_evenodd_t eo);
 
 void QOP_D3_asqtad_invert(QOP_info_t *info,
 			  QOP_D3_FermionLinksAsqtad *asqtad,
@@ -845,6 +875,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_load_L_from_raw    QOP_F3_asqtad_load_L_from_raw
 #define QOP_asqtad_load_L_from_G      QOP_F3_asqtad_load_L_from_G
 
+#define QOP_asqtad_dslash       QOP_F3_asqtad_dslash
+#define QOP_asqtad_diaginv      QOP_F3_asqtad_diaginv
 #define QOP_asqtad_invert       QOP_F3_asqtad_invert
 #define QOP_asqtad_invert_multi QOP_F3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_F3_asqtad_force
@@ -930,6 +962,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_load_L_from_raw    QOP_D3_asqtad_load_L_from_raw
 #define QOP_asqtad_load_L_from_G      QOP_D3_asqtad_load_L_from_G
 
+#define QOP_asqtad_dslash       QOP_D3_asqtad_dslash
+#define QOP_asqtad_diaginv      QOP_D3_asqtad_diaginv
 #define QOP_asqtad_invert       QOP_D3_asqtad_invert
 #define QOP_asqtad_invert_multi QOP_D3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_D3_asqtad_force

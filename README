@@ -1,1 +1,44 @@
 QOPQDP -- SciDAC Level 3 over QDP/C
+
+------------------------------------------------------
+--- below are some notes on the asqtad conventions ---
+--- which are also similar to the wilson case --------
+------------------------------------------------------
+
+The dslash is accessed by:
+
+void QOP_F3_asqtad_dslash(QOP_info_t *info,
+                          QOP_F3_FermionLinksAsqtad *asqtad,
+                          float mass,
+                          QOP_F3_ColorVector *out,
+                          QOP_F3_ColorVector *in,
+                          QOP_evenodd_t eo_out,
+                          QOP_evenodd_t eo_in);
+
+where specifying different values of eo_out and eo_in will give the
+corresponding parts of D.  If both are QOP_EVENODD then you get the
+full matrix,both QOP_EVEN multiplies by just D_ee = m, and you can
+also do things like eo_out=QOP_EVEN and eo_in=QOP_EVENODD.
+
+The most important thing to note is that the inverter conventions have
+now changed.  The result is now always of the form
+
+out_subset = (D^-1)_subset in_subset
+
+where subset is the one specified in the QOP_invert_arg_t and D is the
+conventional Dslash.  In even-odd blocks this is
+
+D = ( m     D_eo )
+    ( D_oe  m    )
+
+D^-1 = ( m A^-1      -D_eo B^-1 )
+       ( -D_oe A^-1  m B^-1     )
+
+with A = (m^2 - D_eo D_oe) and B = (m^2 - D_oe D_eo)
+
+so specifying QOP_EVEN will now multiply by m/A instead of 1/(4A) as
+it did before.  Thus the result and the requested residual will have
+to be scaled by 1/(4m) to get the previous answer.  The main reason
+for this change is consistency since now specifying QOP_EVENODD will
+give the full inverse with thecorrect normalization which is very
+handy for writing simple analysis codes.

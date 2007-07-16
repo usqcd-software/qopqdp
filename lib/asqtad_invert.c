@@ -3,6 +3,8 @@
 
 QOP_asqtad_t QOP_asqtad = {.inited=0};
 
+#define OPTNUM (QOP_asqtad.style+2*QOP_asqtad.nsvec)
+
 QOP_status_t
 QOP_asqtad_invert_init(void)
 {
@@ -35,6 +37,7 @@ QOP_asqtad_invert_init(void)
   QOP_asqtad.style = 1;
   QOP_asqtad.nsvec = 8;
   QOP_asqtad.nvec = 8;
+  QOP_asqtad.optnum = OPTNUM;
   return QOP_SUCCESS;
 }
 
@@ -70,6 +73,7 @@ QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
   QOP_asqtad.style = st;
   QOP_asqtad.nsvec = ns;
   QOP_asqtad.nvec = nm;
+  QOP_asqtad.optnum = OPTNUM;
 
   return QOP_SUCCESS;
 }

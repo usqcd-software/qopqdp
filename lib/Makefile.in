@@ -57,19 +57,20 @@ libqopqdp_a_AR = $(AR) $(ARFLAGS)
 libqopqdp_a_LIBADD =
 am_libqopqdp_a_OBJECTS = common.$(OBJEXT) common_f.$(OBJEXT) \
 	common_d.$(OBJEXT) symanzik_1loop_gauge_force_f.$(OBJEXT) \
-	symanzik_1loop_gauge_force_d.$(OBJEXT) asqtad_invert.$(OBJEXT) \
-	asqtad_invert_f.$(OBJEXT) asqtad_invert_d.$(OBJEXT) \
-	asqtad_force.$(OBJEXT) asqtad_force_f.$(OBJEXT) \
-	asqtad_force_d.$(OBJEXT) asqtad_force_fnmat_f.$(OBJEXT) \
-	asqtad_force_fnmat_d.$(OBJEXT) wilson_dslash_f.$(OBJEXT) \
-	wilson_dslash_d.$(OBJEXT) wilson_invert.$(OBJEXT) \
-	wilson_invert_f.$(OBJEXT) wilson_invert_d.$(OBJEXT) \
-	dw_invert.$(OBJEXT) dw_invert_f.$(OBJEXT) \
-	dw_invert_d.$(OBJEXT) invert_cg_V_f.$(OBJEXT) \
-	invert_cg_V_d.$(OBJEXT) invert_cg_D_f.$(OBJEXT) \
-	invert_cg_D_d.$(OBJEXT) invert_cg_vD_f.$(OBJEXT) \
-	invert_cg_vD_d.$(OBJEXT) invert_bicgstab_D_f.$(OBJEXT) \
-	invert_bicgstab_D_d.$(OBJEXT)
+	symanzik_1loop_gauge_force_d.$(OBJEXT) \
+	asqtad_dslash_f.$(OBJEXT) asqtad_dslash_d.$(OBJEXT) \
+	asqtad_invert.$(OBJEXT) asqtad_invert_f.$(OBJEXT) \
+	asqtad_invert_d.$(OBJEXT) asqtad_force.$(OBJEXT) \
+	asqtad_force_f.$(OBJEXT) asqtad_force_d.$(OBJEXT) \
+	asqtad_force_fnmat_f.$(OBJEXT) asqtad_force_fnmat_d.$(OBJEXT) \
+	wilson_dslash_f.$(OBJEXT) wilson_dslash_d.$(OBJEXT) \
+	wilson_invert.$(OBJEXT) wilson_invert_f.$(OBJEXT) \
+	wilson_invert_d.$(OBJEXT) dw_invert.$(OBJEXT) \
+	dw_invert_f.$(OBJEXT) dw_invert_d.$(OBJEXT) \
+	invert_cg_V_f.$(OBJEXT) invert_cg_V_d.$(OBJEXT) \
+	invert_cg_D_f.$(OBJEXT) invert_cg_D_d.$(OBJEXT) \
+	invert_cg_vD_f.$(OBJEXT) invert_cg_vD_d.$(OBJEXT) \
+	invert_bicgstab_D_f.$(OBJEXT) invert_bicgstab_D_d.$(OBJEXT)
 libqopqdp_a_OBJECTS = $(am_libqopqdp_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -179,6 +180,7 @@ lib_LIBRARIES = libqopqdp.a
 libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
   symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
+  asqtad_dslash_f.c asqtad_dslash_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
   asqtad_force.c asqtad_force_f.c asqtad_force_d.c \
   asqtad_force_fnmat_f.c asqtad_force_fnmat_d.c \
@@ -193,6 +195,7 @@ libqopqdp_a_SOURCES = \
 EXTRA_DIST = \
   common_p.c \
   symanzik_1loop_gauge_force_p.c \
+  asqtad_dslash_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \
   asqtad_force_fnmat_p.c \
@@ -275,6 +278,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_dslash_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_dslash_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_f.Po@am__quote@
@@ -491,6 +496,8 @@ common_f.o: common_p.c
 common_d.o: common_p.c
 symanzik_1loop_gauge_force_f.c: symanzik_1loop_gauge_force_p.c
 symanzik_1loop_gauge_force_d.c: symanzik_1loop_gauge_force_p.c
+asqtad_dslash_f.o: asqtad_dslash_p.c
+asqtad_dslash_d.o: asqtad_dslash_p.c
 asqtad_invert_f.o: asqtad_invert_p.c
 asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c
