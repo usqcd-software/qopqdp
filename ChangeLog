@@ -1,3 +1,8 @@
+2007-08-15 18:17  osborn
+
+	* NEWS, examples/test_common.c: Some alignment fixes in
+	  test_common.c
+
 2007-07-16 15:58  tag qopqdp0-9-alpha0
 
 2007-07-16 15:58  osborn
@@ -8,7 +13,7 @@
 	  lib/asqtad_dslash_f.c, lib/asqtad_dslash_p.c,
 	  lib/asqtad_invert.c, lib/asqtad_invert_p.c,
 	  lib/wilson_dslash_p.c: Exposed asqtad Dslash and changed
-	  conventions for asqtad inverter.
+	  convensions for asqtad inverter.
 
 2007-05-24 19:43  tag qopqdp0-8-1
 
