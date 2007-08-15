@@ -96,7 +96,7 @@ orthogonalize(QLA_ColorMatrix *m, int r1, int r2)
   QLA_C_eq_zero(&z);
   for(c=0; c<QDP_Nc; c++) {
     QLA_C_eq_C_dot_C(&t, &QLA_elem_M(*m,r1,c), &QLA_elem_M(*m,r2,c));
-    QLA_C_peq_C(&z, &t);
+    QLA_c_peq_c(z, t);
   }
   for(c=0; c<QDP_Nc; c++) {
     QLA_C_meq_C_times_C(&QLA_elem_M(*m,r2,c), &z, &QLA_elem_M(*m,r1,c));

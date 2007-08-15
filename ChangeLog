@@ -8,7 +8,7 @@
 	  lib/asqtad_dslash_f.c, lib/asqtad_dslash_p.c,
 	  lib/asqtad_invert.c, lib/asqtad_invert_p.c,
 	  lib/wilson_dslash_p.c: Exposed asqtad Dslash and changed
-	  convensions for asqtad inverter.
+	  conventions for asqtad inverter.
 
 2007-05-24 19:43  tag qopqdp0-8-1
 
