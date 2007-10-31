@@ -28,10 +28,12 @@
   }
 
 #define QOP_printf0 if(QDP_this_node==0) printf
+#define VERB(PRI, ...) if(QOP_common.verbosity>=QOP_VERB_##PRI) QOP_printf0(__VA_ARGS__)
 
 #define QOP_error(str) \
   fprintf(stderr, "QOP error: %s\n", str); \
   QDP_abort();
+
 
 typedef struct {
   int inited;

@@ -5,6 +5,13 @@
 extern "C" {
 #endif
 
+  /* Enumerate in order of increasing verbosity */
+#define QOP_VERB_OFF    0
+#define QOP_VERB_LOW    1
+#define QOP_VERB_MED    2
+#define QOP_VERB_HI     3
+#define QOP_VERB_DEBUG  4
+
 typedef enum {
   QOP_SUCCESS = 0,
   QOP_FAIL = 1,
@@ -74,6 +81,7 @@ typedef struct {
   double rsqmin;           /* (in) desired squared residual */
   double final_rsq;        /* (out) actual squared residual */
   int final_iter;          /* (out) number of iterations done */
+  int final_restart;       /* (out) number of restarts done */
 } QOP_resid_arg_t;
 
 typedef struct QOP_F3_ColorVector_struct  QOP_F3_ColorVector;

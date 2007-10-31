@@ -254,7 +254,7 @@ QOP_wilson_invert(QOP_info_t *info,
 
   res_arg->rsqmin = rsqminold;
   res_arg->final_iter = iter;
-  res_arg->final_rsq = rsq;
+  res_arg->final_rsq = rsq/insq;
 
   info->final_sec = dtime;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;

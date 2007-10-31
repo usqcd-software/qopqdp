@@ -78,12 +78,13 @@ normalize(QLA_ColorMatrix *m, int r)
 
   n = 0;
   for(c=0; c<QDP_Nc; c++) {
-    QLA_R_eq_norm2_C(&t, &QLA_elem_M(*m, r, c));
-    n += t;
+    //QLA_R_eq_norm2_C(&t, &QLA_elem_M(*m, r, c));
+    //n += t;
+    n += QLA_norm2_c(QLA_elem_M(*m, r, c));
   }
   n = 1/sqrt(n);
   for(c=0; c<QDP_Nc; c++) {
-    QLA_C_eq_r_times_C(&QLA_elem_M(*m,r,c), &n, &QLA_elem_M(*m,r,c));
+    QLA_c_eq_r_times_c(QLA_elem_M(*m,r,c), n, QLA_elem_M(*m,r,c));
   }
 }
 
@@ -93,13 +94,13 @@ orthogonalize(QLA_ColorMatrix *m, int r1, int r2)
   QLA_Complex z, t;
   int c;
 
-  QLA_C_eq_zero(&z);
+  QLA_c_eq_r(z, 0);
   for(c=0; c<QDP_Nc; c++) {
-    QLA_C_eq_C_dot_C(&t, &QLA_elem_M(*m,r1,c), &QLA_elem_M(*m,r2,c));
+    QLA_c_eq_ca_times_c(t, QLA_elem_M(*m,r1,c), QLA_elem_M(*m,r2,c));
     QLA_c_peq_c(z, t);
   }
   for(c=0; c<QDP_Nc; c++) {
-    QLA_C_meq_C_times_C(&QLA_elem_M(*m,r2,c), &z, &QLA_elem_M(*m,r1,c));
+    QLA_c_meq_c_times_c(QLA_elem_M(*m,r2,c), z, QLA_elem_M(*m,r1,c));
   }
 }
 

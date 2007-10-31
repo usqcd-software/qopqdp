@@ -1,6 +1,30 @@
+/**************************************************************************
+Asqtad inverter conventions:
+
+in even-odd blocks (where (a,b) is either (e,o) or (o,e))
+
+D = ( m     D_ab )
+    ( D_ba  m    )
+
+D^-1 = ( m A^-1      -D_ab B^-1 ) = ( m A^-1      -A^-1 D_ab             )
+       ( -D_ba A^-1  m B^-1     )   ( -D_ba A^-1  [1 + D_ba A^-1 D_ab]/m )
+
+with A = (m^2 - D_ab D_ba) and B = (m^2 - D_ba D_ab)
+
+with even-odd preconditioning we can write the solution as
+
+D^-1 (x) = ( A^-1 z                )
+     (y)   ( y/m - D_ba A^-1 z / m )
+
+with z = m x - D_ab y.
+
+this is curently implemented below using z/m as the "projection" and
+A/m^2 as the matrix for the inner CG.
+***************************************************************************/
 #include <qop_internal.h>
 
-extern QDP_ColorVector *QOPPC(asqtad_dslash_get_tmp)(QOP_FermionLinksAsqtad *fla, QOP_evenodd_t eo, int n);
+extern QDP_ColorVector *QOPPC(asqtad_dslash_get_tmp)
+     (QOP_FermionLinksAsqtad *fla, QOP_evenodd_t eo, int n);
 
 /* inverter stuff */
 
@@ -9,6 +33,7 @@ static REAL gl_mass;
 static QOP_evenodd_t gl_eo;
 static QDP_ColorVector *gl_tmp, *gl_tmp2;
 
+/* calculates out = mass*in - D*in on subset eo */
 #define project(fla, mass, out, in, eo) \
 { \
   QOP_asqtad_diaginv_qdp(NULL, fla, mass, gl_tmp2, in, oppsub(eo)); \
@@ -56,7 +81,9 @@ QOP_asqtad_invert(QOP_info_t *info,
   QDP_Subset insub, cgsub;
   QOP_evenodd_t ineo, cgeo;
   int iter = 0;
-  int nrestart=0, max_restarts=inv_arg->max_restarts;
+  int max_iter_old=inv_arg->max_iter;
+  int max_restarts_old=inv_arg->max_restarts;
+  int nrestart=-1, max_restarts=inv_arg->max_restarts;
   if(max_restarts<=0) max_restarts = 5;
 
   ineo = inv_arg->evenodd;
@@ -97,9 +124,12 @@ QOP_asqtad_invert(QOP_info_t *info,
   QDP_r_eq_norm2_V(&insq, in->cv, insub);
   //printf("insq = %g\n", insq);
   rsqstop = insq * res_arg->rsqmin;
+  VERB(LOW, "ASQTAD_INVERT: rsqstop = %g\n", rsqstop);
   rsqminold = res_arg->rsqmin;
   res_arg->rsqmin *= 0.5;
+  inv_arg->max_restarts = 0;
   do {
+    inv_arg->max_iter = max_iter_old - iter;
 
     dtime -= QOP_time();
 
@@ -125,16 +155,20 @@ QOP_asqtad_invert(QOP_info_t *info,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     res_arg->rsqmin *= 0.5*rsqstop/rsq;
     iter += res_arg->final_iter;
-  } while((rsq>rsqstop)&&(nrestart++<max_restarts));
+    VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g\n", iter, rsq);
+  } while((rsq>rsqstop)&&(++nrestart<max_restarts));
 
   QDP_V_eq_V(out->cv, qdpout, insub);
 
   QDP_destroy_V(qdpin);
   QDP_destroy_V(qdpout);
 
+  inv_arg->max_iter = max_iter_old;
+  inv_arg->max_restarts = max_restarts_old;
   res_arg->rsqmin = rsqminold;
   res_arg->final_iter = iter;
-  res_arg->final_rsq = rsq;
+  res_arg->final_rsq = rsq/insq;
+  res_arg->final_restart = nrestart;
 
   info->final_sec = dtime;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
@@ -271,6 +305,13 @@ QOP_asqtad_invert_multi(QOP_info_t *info,
 #endif  // real multimass
 
   dtime += QDP_time();
+
+  for(i=0; i<nsrc; i++) {
+    for(j=0; j<nmass[i]; j++) {
+      QLA_Real minv = 1.0/masses[i][j];
+      QDP_V_eq_r_times_V(out_pt[i][j]->cv, &minv, out_pt[i][j]->cv, cgsub);
+    }
+  }
 
   info->final_sec = dtime;
   info->status = QOP_SUCCESS;

@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.9.0, [josborn at physics.bu.edu])
+AC_INIT(qopqdp, 0.10.0, [josborn at physics.bu.edu])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 
@@ -87,6 +87,7 @@ AC_PROG_RANLIB
 #AC_PROG_LIBTOOL
 AC_PROG_CC(cc gcc)
 AC_CHECK_TOOL(AR, ar, [ar])
+AM_PROG_CC_C_O
 
 # pass configuration to distcheck target
 DISTCHECK_CONFIGURE_FLAGS="CC=\"$CC\" CFLAGS=\"$CFLAGS\" LDFLAGS=\"$LDFLAGS\" LIBS=\"$LIBS\""
