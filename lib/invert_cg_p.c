@@ -14,7 +14,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   QLA_Real insq;
   QLA_Real rsqstop;
   Vector *r, *Mp;
-  int iteration=0, total_iterations=0, nrestart=0;
+  int iteration=0, total_iterations=0, nrestart=-1;
   int restart_iterations=inv_arg->restart;
   int max_iterations=inv_arg->max_iter;
   int max_restarts=inv_arg->max_restarts;
@@ -38,7 +38,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 
       if( (total_iterations>=max_iterations) ||
 	  (nrestart>=max_restarts) ) break;
-      if(total_iterations>0) nrestart++;
+      nrestart++;
 
       V_eq_V(p, out, subset);
       linop(Mp, p, subset);

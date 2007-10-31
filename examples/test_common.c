@@ -73,7 +73,8 @@ det(QLA_ColorMatrix *m)
 static void
 normalize(QLA_ColorMatrix *m, int r)
 {
-  QLA_Real n, t;
+  //QLA_Real n, t;
+  QLA_Real n;
   int c;
 
   n = 0;
