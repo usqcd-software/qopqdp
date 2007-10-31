@@ -1,3 +1,22 @@
+2007-10-30 22:51  tag qopqdp0-10-0
+
+2007-10-30 22:51  osborn
+
+	* examples/asqtad_invert_bench.c, examples/test_common.c,
+	  lib/asqtad_invert_p.c, lib/invert_cg_p.c: fixed asqtad inverter
+
+2007-10-30 22:23  osborn
+
+	* NEWS, README, aclocal.m4, configure, configure.ac,
+	  examples/test_common.c, include/qop.h, include/qop_config.h.in,
+	  include/qop_internal.h, lib/asqtad_invert_p.c, lib/invert_cg_p.c,
+	  lib/wilson_invert_p.c: Fixed asqtad multimass inverter to use
+	  updated conventions.	Added final_restart value to resid_arg_t
+	  struct.  Made returned residual be divided by the norm of the
+	  input vector.  Added named verbosity levels.	Added some inverter
+	  output when verbosity is set.  Fixed some alignment problems in
+	  test programs.
+
 2007-09-19 22:29  tag qopqdp0-9-0
 
 2007-09-19 22:29  osborn
