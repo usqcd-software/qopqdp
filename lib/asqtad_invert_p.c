@@ -17,9 +17,6 @@ D^-1 (x) = ( A^-1 z                )
      (y)   ( y/m - D_ba A^-1 z / m )
 
 with z = m x - D_ab y.
-
-this is curently implemented below using z/m as the "projection" and
-A/m^2 as the matrix for the inner CG.
 ***************************************************************************/
 #include <qop_internal.h>
 
@@ -34,31 +31,38 @@ static QOP_evenodd_t gl_eo;
 static QDP_ColorVector *gl_tmp, *gl_tmp2;
 
 /* calculates out = mass*in - D*in on subset eo */
-#define project(fla, mass, out, in, eo) \
-{ \
-  QOP_asqtad_diaginv_qdp(NULL, fla, mass, gl_tmp2, in, oppsub(eo)); \
-  QOP_asqtad_dslash_qdp(NULL, fla, mass, out, gl_tmp2, eo, oppsub(eo)); \
-  QDP_V_eq_V_minus_V(out, in, out, qdpsub(eo)); \
+static void
+project(QOP_FermionLinksAsqtad *fla, QLA_Real mass, QDP_ColorVector *out,
+	QDP_ColorVector *in, QOP_evenodd_t eo)
+{
+  //QOP_asqtad_diaginv_qdp(NULL, fla, mass, gl_tmp2, in, oppsub(eo));
+  //QOP_asqtad_dslash_qdp(NULL, fla, mass, out, gl_tmp2, eo, oppsub(eo));
+  //QDP_V_eq_V_minus_V(out, in, out, qdpsub(eo));
+  QOP_asqtad_dslash_qdp(NULL, fla, mass, out, in, eo, oppsub(eo));
+  QDP_V_eq_r_times_V_minus_V(out, &mass, in, out, qdpsub(eo));
 }
 
-#define reconstruct(fla, mass, out, soln, src, eo) \
-{ \
-  QDP_V_eq_V(gl_tmp, soln, qdpsub(oppsub(eo))); \
-  QOP_asqtad_dslash_qdp(NULL, fla, mass, out, gl_tmp, eo, oppsub(eo)); \
-  QDP_V_eq_V_minus_V(gl_tmp, src, out, qdpsub(eo)); \
-  QOP_asqtad_diaginv_qdp(NULL, fla, mass, out, gl_tmp, eo); \
+/* calculates out = (src - D*soln)/mass on subset eo */
+static void
+reconstruct(QOP_FermionLinksAsqtad *fla, QLA_Real mass, QDP_ColorVector *out,
+	    QDP_ColorVector *soln, QDP_ColorVector *src, QOP_evenodd_t eo)
+{
+  QDP_V_eq_V(gl_tmp, soln, qdpsub(oppsub(eo)));
+  QOP_asqtad_dslash_qdp(NULL, fla, mass, out, gl_tmp, eo, oppsub(eo));
+  QDP_V_eq_V_minus_V(out, src, out, qdpsub(eo));
+  QOP_asqtad_diaginv_qdp(NULL, fla, mass, out, out, eo);
 }
 
 void
 QOPPC(asqtad_invert_d2)(QDP_ColorVector *out, QDP_ColorVector *in,
 			QDP_Subset subset)
 {
-  //QLA_Real m2 = gl_mass*gl_mass;
-  QLA_Real m2 = -1.0/(gl_mass*gl_mass);
+  QLA_Real m2 = gl_mass*gl_mass;
+  //QLA_Real m2 = -1.0/(gl_mass*gl_mass);
   QOP_asqtad_dslash_qdp(NULL,gl_fla,gl_mass, gl_tmp2, in, oppsub(gl_eo),gl_eo);
   QOP_asqtad_dslash_qdp(NULL,gl_fla,gl_mass, out,gl_tmp2, gl_eo,oppsub(gl_eo));
-  //QDP_V_eq_r_times_V_minus_V(out, &m2, in, out, qdpsub(gl_eo));
-  QDP_V_eq_r_times_V_plus_V(out, &m2, out, in, qdpsub(gl_eo));
+  QDP_V_eq_r_times_V_minus_V(out, &m2, in, out, qdpsub(gl_eo));
+  //QDP_V_eq_r_times_V_plus_V(out, &m2, out, in, qdpsub(gl_eo));
 }
 
 void
@@ -81,9 +85,9 @@ QOP_asqtad_invert(QOP_info_t *info,
   QDP_Subset insub, cgsub;
   QOP_evenodd_t ineo, cgeo;
   int iter = 0;
-  int max_iter_old=inv_arg->max_iter;
-  int max_restarts_old=inv_arg->max_restarts;
-  int nrestart=-1, max_restarts=inv_arg->max_restarts;
+  int max_iter_old = inv_arg->max_iter;
+  int max_restarts_old = inv_arg->max_restarts;
+  int nrestart = -1, max_restarts = inv_arg->max_restarts;
   if(max_restarts<=0) max_restarts = 5;
 
   ineo = inv_arg->evenodd;
@@ -107,22 +111,24 @@ QOP_asqtad_invert(QOP_info_t *info,
 
   QDP_V_eq_zero(qdpin, QDP_all);
   if(ineo==cgeo) {
-    QDP_V_eq_V(qdpin, in->cv, insub);
+    QLA_Real m = mass;
+    //QDP_V_eq_V(qdpin, in->cv, insub);
+    QDP_V_eq_r_times_V(qdpin, &m, in->cv, insub);
   } else {
     QDP_V_eq_zero(cgp, QDP_all);
-    QDP_V_eq_V(cgp, in->cv, insub);
-    project(fla, mass, qdpin, cgp, cgeo);
+    QDP_V_eq_V(gl_tmp2, in->cv, insub);
+    project(fla, mass, qdpin, gl_tmp2, cgeo);
+    QDP_V_eq_V(qdpin, in->cv, qdpsub(oppsub(ineo)));
   }
-  QOP_asqtad_diaginv_qdp(NULL, fla, mass, cgp, qdpin, cgeo);
-  QDP_V_eq_V(qdpin, cgp, cgsub);
-  if(ineo!=QOP_EVENODD && ineo!=cgeo) {
-    QDP_V_eq_zero(qdpout, cgsub);
-    reconstruct(fla, mass, qdpout, out->cv, qdpout, oppsub(ineo));
-  }
-  QDP_V_eq_V(qdpout, out->cv, insub);
+  //QOP_asqtad_diaginv_qdp(NULL, fla, mass, cgp, qdpin, cgeo);
+  //QDP_V_eq_V(qdpin, cgp, cgsub);
+  //if(ineo!=QOP_EVENODD && ineo!=cgeo) {
+  //QDP_V_eq_zero(qdpout, cgsub);
+  //reconstruct(fla, mass, qdpout, out->cv, qdpout, oppsub(ineo));
+  //}
+  QDP_V_eq_V(qdpout, out->cv, cgsub);
 
   QDP_r_eq_norm2_V(&insq, in->cv, insub);
-  //printf("insq = %g\n", insq);
   rsqstop = insq * res_arg->rsqmin;
   VERB(LOW, "ASQTAD_INVERT: rsqstop = %g\n", rsqstop);
   rsqminold = res_arg->rsqmin;
@@ -139,11 +145,10 @@ QOP_asqtad_invert(QOP_info_t *info,
 
     dtime += QOP_time();
 
-    if(ineo==QOP_EVENODD) {
-      reconstruct(fla, mass, qdpout, qdpout, in->cv, oppsub(cgeo));
-    } else {
-      reconstruct(fla, mass, qdpout, qdpout, qdpin, oppsub(cgeo));
-    }
+    reconstruct(fla, mass, qdpout, qdpout, qdpin, oppsub(cgeo));
+    //QOP_asqtad_dslash_qdp(NULL, fla, mass, cgr, qdpout, oppsub(ineo), QOP_EVENODD);
+    //QDP_r_eq_norm2_V(&rsq, cgr, qdpsub(oppsub(ineo)));
+    //printf("0 ?= %g\n", rsq);
 
     // get final residual
     //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
@@ -275,7 +280,7 @@ QOP_asqtad_invert_multi(QOP_info_t *info,
 
     QDP_destroy_V(x0);
     QDP_destroy_V(src);
-  } else {
+  } else { // regular multimass
     for(i=0; i<nsrc; i++) {
       //QLA_Real shifts[nmass[i]];
       //QDP_ColorVector *cv[nmass[i]];
@@ -308,8 +313,10 @@ QOP_asqtad_invert_multi(QOP_info_t *info,
 
   for(i=0; i<nsrc; i++) {
     for(j=0; j<nmass[i]; j++) {
-      QLA_Real minv = 1.0/masses[i][j];
-      QDP_V_eq_r_times_V(out_pt[i][j]->cv, &minv, out_pt[i][j]->cv, cgsub);
+      //QLA_Real minv = 1.0/masses[i][j];
+      //QDP_V_eq_r_times_V(out_pt[i][j]->cv, &minv, out_pt[i][j]->cv, cgsub);
+      QLA_Real m = masses[i][j];
+      QDP_V_eq_r_times_V(out_pt[i][j]->cv, &m, out_pt[i][j]->cv, cgsub);
     }
   }
 
