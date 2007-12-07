@@ -1,3 +1,13 @@
+2007-12-07 00:49  osborn
+
+	* NEWS, examples/asqtad_invert_bench.c, examples/dw_invert_bench.c,
+	  examples/test_common.c, examples/test_common.h,
+	  examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/qop_internal_p.h, lib/Makefile.am,
+	  lib/invert_eigcg_D_d.c, lib/invert_eigcg_D_f.c,
+	  lib/invert_eigcg_p.c, lib/wilson_dslash_p.c, lib/wilson_invert.c,
+	  lib/wilson_invert_p.c: Added eigCG routine.
+
 2007-11-17 20:05  tag qopqdp0-10-1
 
 2007-11-17 20:05  osborn
