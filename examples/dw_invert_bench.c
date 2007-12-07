@@ -239,20 +239,16 @@ main(int argc, char *argv[])
     }
   }
 
+  QDP_set_latsize(ndim, lattice_size);
+  QDP_create_layout();
+
   if(QDP_this_node==0) {
-    printf("size = %i", lattice_size[0]);
-    for(i=1; i<ndim; i++) {
-      printf(" %i", lattice_size[i]);
-    }
-    printf("\n");
+    print_layout();
     printf("m0 = %g\n", m0);
     printf("M = %g\n", M);
     printf("Ls = %i\n", Ls);
     printf("seed = %i\n", seed);
   }
-
-  QDP_set_latsize(ndim, lattice_size);
-  QDP_create_layout();
 
   rs = QDP_create_S();
   seed_rand(rs, seed);

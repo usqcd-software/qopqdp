@@ -56,6 +56,12 @@ struct QOPPC(Force_struct) {
   REAL **raw;
 };
 
+typedef struct {
+  QDP_DiracFermion **u;
+  QLA_Real *l;
+  int numax, nu, nev, m, nv;
+} QOPPC(eigcg_t_D);
+
   /* Asqtad datatypes */
 
 struct QOPPC(FermionLinksAsqtad_struct) {
@@ -78,6 +84,7 @@ struct QOPPC(FermionLinksWilson_struct) {
   QDPPC(DiracPropagator) *qdpclov;
   REAL *clov, *clovinv;
   REAL **rawlinks, *rawclov;
+  QOPPC(eigcg_t_D) eigcg;
 };
 
   /* Domain Wall datatypes */
@@ -176,5 +183,16 @@ QOPPC(invert_bicgstab_D)(QOPPC(linop_t_D) *linop,
 			 QDP_DiracFermion *p,
 			 QDP_DiracFermion *r,
 			 QDP_Subset subset);
+
+QOP_status_t
+QOPPC(invert_eigcg_D)(QOPPC(linop_t_D) *linop,
+		      QOP_invert_arg_t *inv_arg,
+		      QOP_resid_arg_t *res_arg,
+		      QDP_DiracFermion *out,
+		      QDP_DiracFermion *in,
+		      QDP_DiracFermion *p,
+		      QDP_Subset subset,
+		      QOPPC(eigcg_t_D) *eigcg);
+
 
 #endif /* _QOP_INTERNALP_H */

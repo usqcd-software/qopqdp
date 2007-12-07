@@ -14,6 +14,7 @@ static double rsqmin=1e-8;
 static int style=-1;
 static int cgtype=-1;
 static int clover=0;
+static int verb=0;
 
 static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
@@ -37,6 +38,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   int i, iter=0;
   QOP_DiracFermion *qopout, *qopin;
 
+  QDP_D_eq_gaussian_S(in, rs, QDP_all);
   QDP_D_eq_zero(out, QDP_all);
   for(i=0; i<=nit; i++) {
     if(i==0 || !test_restart) {
@@ -118,6 +120,7 @@ start(void)
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
+  QOP_verbose(verb);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //flw = QOP_wilson_create_L_from_qdp(u, clov);
   gf = QOP_create_G_from_qdp(u);
@@ -206,6 +209,7 @@ usage(char *s)
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("c\tcgtype (0=CGNE, 1=BiCGStab\n");
+  printf("v\tverbosity\n");
   printf("w\tclover term (0=off, 1=on)\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
@@ -229,8 +233,9 @@ main(int argc, char *argv[])
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
-    case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
+    case 'v' : verb=atoi(&argv[i][1]); break;
     case 'w' : clover=atoi(&argv[i][1]); break;
+    case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     default : usage(argv[0]);
     }
   }
@@ -250,20 +255,16 @@ main(int argc, char *argv[])
     }
   }
 
+  QDP_set_latsize(ndim, lattice_size);
+  QDP_create_layout();
+
   if(QDP_this_node==0) {
-    printf("size = %i", lattice_size[0]);
-    for(i=1; i<ndim; i++) {
-      printf(" %i", lattice_size[i]);
-    }
-    printf("\n");
+    print_layout();
     printf("kappa = %g\n", kappa);
     printf("seed = %i\n", seed);
     printf("cgtype = %i\n", cgtype);
     printf("clover = %i\n", clover);
   }
-
-  QDP_set_latsize(ndim, lattice_size);
-  QDP_create_layout();
 
   rs = QDP_create_S();
   seed_rand(rs, seed);

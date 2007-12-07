@@ -8,6 +8,7 @@
 
 extern QDP_RandomState *rs;
 
+void print_layout(void);
 void seed_rand(QDP_RandomState *rs, int seed);
 void make_unitary(QDP_ColorMatrix **m, int n);
 QLA_Real get_plaq(QDP_ColorMatrix *link[]);

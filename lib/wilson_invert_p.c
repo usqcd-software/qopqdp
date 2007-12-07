@@ -30,6 +30,9 @@
 #define LU
 
 extern int QOP_wilson_cgtype;
+extern int QOP_wilson_eigcg_numax;
+extern int QOP_wilson_eigcg_m;
+extern int QOP_wilson_eigcg_nev;
 extern QDP_DiracFermion *QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *flw, QOP_evenodd_t eo, int n);
 
 /* inverter stuff */
@@ -128,6 +131,12 @@ QOP_wilson_invert(QOP_info_t *info,
   int nrestart=0, max_restarts=inv_arg->max_restarts;
   if(max_restarts<=0) max_restarts = 5;
 
+  if(QOP_wilson_cgtype==2) {
+    flw->eigcg.numax = QOP_wilson_eigcg_numax;
+    flw->eigcg.m = QOP_wilson_eigcg_m;
+    flw->eigcg.nev = QOP_wilson_eigcg_nev;
+  }
+
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
 
@@ -174,12 +183,12 @@ QOP_wilson_invert(QOP_info_t *info,
     QDP_D_eq_D(cgp, in->df, insub);
     project(flw, kappa, 1, qdpin, cgp, cgeo);
   }
-  if(QOP_wilson_cgtype==0) {
-    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
-    dslash2(flw, kappa, -1, qdpin, gl_tmp2, cgp, cgeo);
-  } else {
+  if(QOP_wilson_cgtype==1) {
     QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
     QDP_D_eq_D(qdpin, cgp, cgsub);
+  } else {
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
+    dslash2(flw, kappa, -1, qdpin, gl_tmp2, cgp, cgeo);
   }
 #else
   gl_tmp2 = cgr;
@@ -206,7 +215,10 @@ QOP_wilson_invert(QOP_info_t *info,
     dtime -= QOP_time();
 
 #ifdef LU
-    if(QOP_wilson_cgtype==1) {
+    if(QOP_wilson_cgtype==2) {
+      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+    } else if(QOP_wilson_cgtype==1) {
       QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
 			       qdpout, qdpin, cgp, cgr, cgsub);
     } else {
@@ -214,7 +226,10 @@ QOP_wilson_invert(QOP_info_t *info,
 			 qdpout, qdpin, cgp, cgsub);
     }
 #else
-    if(QOP_wilson_cgtype==1) {
+    if(QOP_wilson_cgtype==2) {
+      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+    } else if(QOP_wilson_cgtype==1) {
       QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d), inv_arg, res_arg,
 			       qdpout, qdpin, cgp, cgr, cgsub);
     } else {

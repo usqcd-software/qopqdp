@@ -28,6 +28,40 @@ seed_rand(QDP_RandomState *rs, int seed)
   QDP_destroy_I(li);
 }
 
+void
+print_layout(void)
+{
+  int i, ndim, *latsize;
+
+  ndim = QDP_ndim();
+  latsize = (int *)malloc(ndim*sizeof(int));
+  QDP_latsize(latsize);
+
+  printf("nodes = %i\n", QMP_get_number_of_nodes());
+  printf("size = %i", latsize[0]);
+  for(i=1; i<ndim; i++) {
+    printf(" %i", latsize[i]);
+  }
+  printf("\n");
+  if(QMP_logical_topology_is_declared()) {
+    int nd;
+    const int *ld;
+    nd = QMP_get_logical_number_of_dimensions();
+    ld = QMP_get_logical_dimensions();
+    printf("machine size = %i", ld[0]);
+    for(i=1; i<nd; i++) {
+      printf(" %i", ld[i]);
+    }
+    printf("\n");
+    printf("sublattice = %i", latsize[0]/ld[0]);
+    for(i=1; i<nd; i++) {
+      printf(" %i", latsize[i]/ld[i]);
+    }
+    printf("\n");
+  }
+  free(latsize);
+}
+
 static QLA_Complex
 det(QLA_ColorMatrix *m)
 {

@@ -241,28 +241,7 @@ main(int argc, char *argv[])
   }
 
   if(QDP_this_node==0) {
-    printf("nodes = %i\n", QMP_get_number_of_nodes());
-    printf("size = %i", lattice_size[0]);
-    for(i=1; i<ndim; i++) {
-      printf(" %i", lattice_size[i]);
-    }
-    printf("\n");
-    if(QMP_logical_topology_is_declared()) {
-      int nd;
-      const int *ld;
-      nd = QMP_get_logical_number_of_dimensions();
-      ld = QMP_get_logical_dimensions();
-      printf("machine size = %i", ld[0]);
-      for(i=1; i<nd; i++) {
-        printf(" %i", ld[i]);
-      }
-      printf("\n");
-      printf("sublattice = %i", lattice_size[0]/ld[0]);
-      for(i=1; i<nd; i++) {
-        printf(" %i", lattice_size[i]/ld[i]);
-      }
-      printf("\n");
-    }
+    print_layout();
     printf("mass = %g\n", mass);
     printf("seed = %i\n", seed);
   }

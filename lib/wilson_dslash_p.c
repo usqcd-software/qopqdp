@@ -261,6 +261,13 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
   }
   free(flw->bcklinks);
   free(flw->dbllinks);
+  if(flw->eigcg.u) {
+    for(i=0; i<flw->eigcg.numax; i++) {
+      QDP_destroy_D(flw->eigcg.u[i]);
+    }
+    free(flw->eigcg.u);
+    free(flw->eigcg.l);
+  }
   free(flw);
 }
 
@@ -391,6 +398,7 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   flw->rawclov = NULL;
   flw->qopgf = NULL;
   flw->qdpclov = clov;
+  flw->eigcg.u = NULL;
   return flw;
 }
 

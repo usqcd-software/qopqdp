@@ -66,7 +66,8 @@ am_libqopqdp_a_OBJECTS = common.$(OBJEXT) common_f.$(OBJEXT) \
 	invert_cg_V_f.$(OBJEXT) invert_cg_V_d.$(OBJEXT) \
 	invert_cg_D_f.$(OBJEXT) invert_cg_D_d.$(OBJEXT) \
 	invert_cg_vD_f.$(OBJEXT) invert_cg_vD_d.$(OBJEXT) \
-	invert_bicgstab_D_f.$(OBJEXT) invert_bicgstab_D_d.$(OBJEXT)
+	invert_bicgstab_D_f.$(OBJEXT) invert_bicgstab_D_d.$(OBJEXT) \
+	invert_eigcg_D_f.$(OBJEXT) invert_eigcg_D_d.$(OBJEXT)
 libqopqdp_a_OBJECTS = $(am_libqopqdp_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/include@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -196,7 +197,8 @@ libqopqdp_a_SOURCES = \
   invert_cg_V_f.c invert_cg_V_d.c \
   invert_cg_D_f.c invert_cg_D_d.c \
   invert_cg_vD_f.c invert_cg_vD_d.c \
-  invert_bicgstab_D_f.c invert_bicgstab_D_d.c
+  invert_bicgstab_D_f.c invert_bicgstab_D_d.c \
+  invert_eigcg_D_f.c invert_eigcg_D_d.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -209,7 +211,8 @@ EXTRA_DIST = \
   wilson_invert_p.c \
   dw_invert_p.c \
   invert_cg_p.c \
-  invert_bicgstab_p.c
+  invert_bicgstab_p.c \
+  invert_eigcg_p.c
 
 all: all-am
 
@@ -308,6 +311,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_V_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_vD_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_cg_vD_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_eigcg_D_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_eigcg_D_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_dslash_d.Po@am__quote@
@@ -534,6 +539,8 @@ invert_cg_vD_f.o: invert_cg_p.c
 invert_cg_vD_d.o: invert_cg_p.c
 invert_bicgstab_D_f.o: invert_bicgstab_p.c
 invert_bicgstab_D_d.o: invert_bicgstab_p.c
+invert_eigcg_D_f.o: invert_eigcg_p.c
+invert_eigcg_D_d.o: invert_eigcg_p.c
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

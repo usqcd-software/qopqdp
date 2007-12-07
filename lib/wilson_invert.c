@@ -8,6 +8,9 @@ int QOP_wilson_nsvec = 4;
 int QOP_wilson_nvec = 4;
 int QOP_wilson_cgtype = 1;
 int QOP_wilson_optnum = 16;
+int QOP_wilson_eigcg_numax = 20;
+int QOP_wilson_eigcg_m = 10;
+int QOP_wilson_eigcg_nev = 3;
 
 QOP_status_t
 QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
@@ -42,11 +45,17 @@ QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
 	return QOP_FAIL;
       }
     } else if(!strcmp(tag,"cg")) {
-      if((value==0)||(value==1)) {
+      if((value==0)||(value==1)||(value==2)) {
 	QOP_wilson_cgtype = (int) value;
       } else {
 	return QOP_FAIL;
       }
+    } else if(!strcmp(tag,"eigcg_l")) {
+      QOP_wilson_eigcg_numax = (int) value;
+    } else if(!strcmp(tag,"eigcg_m")) {
+      QOP_wilson_eigcg_m = (int) value;
+    } else if(!strcmp(tag,"eigcg_nev")) {
+      QOP_wilson_eigcg_nev = (int) value;
     }
   }
   QOP_wilson_optnum = OPTNUM;
