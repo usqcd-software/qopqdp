@@ -1,0 +1,6 @@
+#define QDP_Precision 1
+#define QOP_Precision 1
+#include <qop_internal.h>
+#include <generic_V.h>
+
+#include "invert_eigcg_p.c"

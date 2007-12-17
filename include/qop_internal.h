@@ -52,6 +52,10 @@ typedef struct {
   int nsvec;
   int nvec;
   int optnum;
+  int cgtype;
+  int eigcg_nev;
+  int eigcg_m;
+  int eigcg_numax;
   QDP_Shift shifts[8];
   QDP_Shift shifts_dbl[16];
   QDP_ShiftDir shiftdirs_dbl[16];

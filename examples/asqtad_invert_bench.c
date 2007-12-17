@@ -9,6 +9,7 @@ static int seed;
 static int nit=5;
 static QLA_Real mass=-1;
 static int style=-1;
+static int cgtype=0;
 static int verb=0;
 
 static const int sta[] = {0, 1};
@@ -108,6 +109,10 @@ start(void)
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   QOP_verbose(verb);
+  QOP_opt_t optcg;
+  optcg.tag = "cg";
+  optcg.value = cgtype;
+  QOP_asqtad_invert_set_opts(&optcg, 1);
   if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }
   gf = QOP_convert_G_from_qdp(u);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
@@ -209,6 +214,7 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;

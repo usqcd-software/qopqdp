@@ -6,14 +6,18 @@
 
 #define V_eq_zero		QDP_V_eq_zero
 #define V_eq_V			QDP_V_eq_V
+#define V_peq_V			QDP_V_peq_V
 #define V_eq_r_times_V		QDP_V_eq_r_times_V
 #define V_peq_r_times_V		QDP_V_peq_r_times_V
 #define V_meq_r_times_V		QDP_V_meq_r_times_V
+#define V_peq_c_times_V		QDP_V_peq_c_times_V
+#define V_meq_c_times_V		QDP_V_meq_c_times_V
 #define V_eq_V_plus_V		QDP_V_eq_V_plus_V
 #define V_eq_V_minus_V		QDP_V_eq_V_minus_V
 #define V_eq_r_times_V_plus_V	QDP_V_eq_r_times_V_plus_V
 #define r_eq_norm2_V		QDP_r_eq_norm2_V
 #define r_eq_re_V_dot_V		QDP_r_eq_re_V_dot_V
+#define c_eq_V_dot_V		QDP_c_eq_V_dot_V
 
 #define V_veq_zero		QDP_V_veq_zero
 #define V_veq_V			QDP_V_veq_V
