@@ -16,6 +16,7 @@ libqopqdp_a_SOURCES = \
   invert_cg_D_f.c invert_cg_D_d.c \
   invert_cg_vD_f.c invert_cg_vD_d.c \
   invert_bicgstab_D_f.c invert_bicgstab_D_d.c \
+  invert_eigcg_V_f.c invert_eigcg_V_d.c \
   invert_eigcg_D_f.c invert_eigcg_D_d.c
 
 common_f.o: common_p.c
@@ -44,6 +45,8 @@ invert_cg_vD_f.o: invert_cg_p.c
 invert_cg_vD_d.o: invert_cg_p.c
 invert_bicgstab_D_f.o: invert_bicgstab_p.c
 invert_bicgstab_D_d.o: invert_bicgstab_p.c
+invert_eigcg_V_f.o: invert_eigcg_p.c
+invert_eigcg_V_d.o: invert_eigcg_p.c
 invert_eigcg_D_f.o: invert_eigcg_p.c
 invert_eigcg_D_d.o: invert_eigcg_p.c
 
@@ -59,4 +62,5 @@ EXTRA_DIST = \
   dw_invert_p.c \
   invert_cg_p.c \
   invert_bicgstab_p.c \
+  invert_eigcg_p.c \
   invert_eigcg_p.c

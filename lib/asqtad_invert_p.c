@@ -20,6 +20,7 @@ with z = m x - D_ab y.
 ***************************************************************************/
 #include <qop_internal.h>
 
+extern QOP_asqtad_t QOP_asqtad;
 extern QDP_ColorVector *QOPPC(asqtad_dslash_get_tmp)
      (QOP_FermionLinksAsqtad *fla, QOP_evenodd_t eo, int n);
 
@@ -90,6 +91,12 @@ QOP_asqtad_invert(QOP_info_t *info,
   int nrestart = -1, max_restarts = inv_arg->max_restarts;
   if(max_restarts<=0) max_restarts = 5;
 
+  if(QOP_asqtad.cgtype==1) {
+    fla->eigcg.numax = QOP_asqtad.eigcg_numax;
+    fla->eigcg.m = QOP_asqtad.eigcg_m;
+    fla->eigcg.nev = QOP_asqtad.eigcg_nev;
+  }
+
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
 
@@ -139,8 +146,13 @@ QOP_asqtad_invert(QOP_info_t *info,
 
     dtime -= QOP_time();
 
-    QOPPC(invert_cg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
-		       qdpout, qdpin, cgp, cgsub);
+    if(QOP_asqtad.cgtype==1) {
+      QOPPC(invert_eigcg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgsub, &fla->eigcg);
+    } else {
+      QOPPC(invert_cg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub);
+    }
     //printf("resid = %g\n", res_arg->final_rsq);
 
     dtime += QOP_time();

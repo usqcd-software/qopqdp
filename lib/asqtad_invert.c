@@ -38,6 +38,10 @@ QOP_asqtad_invert_init(void)
   QOP_asqtad.nsvec = 8;
   QOP_asqtad.nvec = 8;
   QOP_asqtad.optnum = OPTNUM;
+  QOP_asqtad.cgtype = 0;
+  QOP_asqtad.eigcg_nev = 10;
+  QOP_asqtad.eigcg_m = 100;
+  QOP_asqtad.eigcg_numax = 200;
   return QOP_SUCCESS;
 }
 
@@ -54,10 +58,14 @@ QOP_asqtad_invert_init(void)
 QOP_status_t
 QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
-  int st, ns, nm;
+  int st, ns, nm, cg, nev, m, numax;
   st = QOP_asqtad.style;
   ns = QOP_asqtad.nsvec;
   nm = QOP_asqtad.nvec;
+  cg = QOP_asqtad.cgtype;
+  nev = QOP_asqtad.eigcg_nev;
+  m = QOP_asqtad.eigcg_m;
+  numax = QOP_asqtad.eigcg_numax;
 
   setvar(st, int, "st", opts, nopts);
   if(!valid_style(st)) return QOP_FAIL;
@@ -70,10 +78,19 @@ QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
   if(!valid_nvec(ns,st)) return QOP_FAIL;
   if(!valid_nvec(nm,st)) return QOP_FAIL;
 
+  setvar(cg, int, "cg", opts, nopts);
+  setvar(nev, int, "eigcg_nev", opts, nopts);
+  setvar(m, int, "eigcg_m", opts, nopts);
+  setvar(numax, int, "eigcg_l", opts, nopts);
+
   QOP_asqtad.style = st;
   QOP_asqtad.nsvec = ns;
   QOP_asqtad.nvec = nm;
   QOP_asqtad.optnum = OPTNUM;
+  QOP_asqtad.cgtype = cg;
+  QOP_asqtad.eigcg_nev = nev;
+  QOP_asqtad.eigcg_m = m;
+  QOP_asqtad.eigcg_numax = numax;
 
   return QOP_SUCCESS;
 }

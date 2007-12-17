@@ -146,6 +146,7 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   }
 
   check_setup(fla);
+  fla->eigcg.u = NULL;
 
   return fla;
 }
@@ -474,6 +475,13 @@ QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *fla)
   free(fla->fwdlinks);
   free(fla->bcklinks);
   free(fla->dbllinks);
+  if(fla->eigcg.u) {
+    for(i=0; i<fla->eigcg.numax; i++) {
+      QDP_destroy_V(fla->eigcg.u[i]);
+    }
+    free(fla->eigcg.u);
+    free(fla->eigcg.l);
+  }
   free(fla);
 }
 
