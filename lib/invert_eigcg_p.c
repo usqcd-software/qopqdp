@@ -1,11 +1,20 @@
 /* eigCG of Stathopoulos and Orginos (arXiv:0707.0131) */
+#include <float.h>
 #include "linalg.h"
 
 //#define TRACE printf("%s %s %i\n", __FILE__, __func__, __LINE__);
 #define TRACE
+#define printf0 if(QDP_this_node==0) printf
 
+#if 0
 #define BEGIN_TIMER {double _dt=-QOP_time();
 #define END_TIMER _dt+=QOP_time(); printf("%i: %i\n", __LINE__, (int)(1e6*_dt));}
+#else
+#define BEGIN_TIMER
+#define END_TIMER
+#endif
+
+static int ngood;
 
 typedef struct {
   vecr td, td1, td2;
@@ -147,8 +156,8 @@ orthonormalize(Vector *v[], int i0, int n, QDP_Subset subset)
 }
 
 static void
-rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QOPPCV(linop_t) *linop,
-	     Vector *p, Vector *Mp, QDP_Subset subset)
+rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QLA_Real *rsq,
+	     QOPPCV(linop_t) *linop, Vector *p, Vector *Mp, QDP_Subset subset)
 {
   QLA_Complex zz;
   int i, j, n=nu+nv;
@@ -203,29 +212,48 @@ rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QOPPCV(linop_t) *linop,
     BEGIN_TIMER;
     rotate_vecsc(u, tt, subset);
     END_TIMER;
-    for(i=0; i<n; i++) {
-      l[i] = vv.vec->data[i];
-#if 0
-      QLA_Real ev, evi, n2, rn2;
+    if(!rsq) {
+      for(i=0; i<n; i++) {
+	l[i] = vv.vec->data[i];
+      }
+    } else {
       Vector *r;
       create_V(r);
-      V_eq_V(p, u[i], subset);
-      linop(Mp, p, subset);
-      r_eq_re_V_dot_V(&ev, u[i], Mp, subset);
-      r_eq_norm2_V(&n2, u[i], subset);
-      ev = ev/n2;
-      evi = -1/ev;
-      V_eq_r_times_V_plus_V(r, &evi, Mp, u[i], subset);
-      r_eq_norm2_V(&rn2, r, subset);
-      printf(" %i %-10g %-10g %-10g %-10g\n", i, l[i], ev, rn2, n2);
+      for(i=0; i<n; i++) {
+	QLA_Real ev, evi, n2, rn2;
+	V_eq_V(p, u[i], subset);
+	linop(Mp, p, subset);
+	r_eq_re_V_dot_V(&ev, u[i], Mp, subset);
+	r_eq_norm2_V(&n2, u[i], subset);
+	ev = ev/n2;
+	evi = -1/ev;
+	V_eq_r_times_V_plus_V(r, &evi, Mp, u[i], subset);
+	r_eq_norm2_V(&rn2, r, subset);
+	rn2 /= n2;
+	//printf0(" %i %-10g %-10g %-10g %-10g\n", i, vv.vec->data[i], ev, rn2, n2);
+	l[i] = ev;
+	rsq[i] = rn2;
+      }
       destroy_V(r);
-#endif
     }
     free_vec(vv);
     free_matc(mm);
     free_matc(tt);
     if(n==1) l[1] = 0;
     VERB(MED, "CG: ev[0] %g ev[1] %g ev[%i] %g\n", l[0], l[1], n-1, l[n-1]);
+    if(rsq) {
+      int ni, ia[6]={0,1,0,0,0,0};
+      for(i=0; i<n; i++) if(rsq[i]>1e-4) break;
+      ngood = i;
+      ni = 2;
+      if(i-1>1 && i-1<n-2) ia[ni++] = i-1;
+      if(i>1 && i<n-2) ia[ni++] = i;
+      ia[ni++] = n-2;
+      ia[ni++] = n-1;
+      for(i=0; i<ni; i++) printf0("%-12i", ia[i]); printf0("\n");
+      for(i=0; i<ni; i++) printf0("%-12g", l[ia[i]]); printf0("\n");
+      for(i=0; i<ni; i++) printf0("%-12g", rsq[ia[i]]); printf0("\n");
+    }
   }
 }
 
@@ -269,8 +297,8 @@ gett_func(gsl_matrix *tt, Vector *v[], int n, QOPPCV(linop_t) *linop,
     }
 
 static void
-diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
-       QDP_Subset subset)
+diag_t_old(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
+	   QDP_Subset subset)
 {
   // t  : R  m x m  symm
   // t1 : t(0,0 : m-1,m-1)
@@ -290,6 +318,20 @@ diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
   // y1 : y(0,nev : m,nev)
   // h  : R  2*nev x 2*nev
 #if 0
+  matr 
+  subvec(et->td1, et->td, 0, m-1);
+  subvec(et->td2, et->td, 0, 2*nev);
+  submat(et->t1, et->t, 0, 0, m-1, m-1);
+  submat(et->ta1, et->ta, 0, 0, m-1, m-1);
+  submat(et->ta2, et->ta, 0, 0, 2*nev, 2*nev);
+  submat(et->tb0, et->tb, 0, 0, m, nev);
+  submat(et->tb1, et->tb, 0, 0, m-1, m-1);
+  submat(et->tb2, et->tb, m-1, 0, 1, nev);
+  submat(et->tb3, et->tb, 0, 0, m, 2*nev);
+  submat(et->y0, et->y, 0, 0, m, nev);
+  submat(et->y1, et->y, 0, nev, m, nev);
+#endif
+#if 0
   printf("cmp1:\n");
   gett(ta, v, m, linop, p, Mp, subset);
   compmr(ta, t);
@@ -301,6 +343,13 @@ diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
   eigsr(et->ta, et->td, et->tb, nev);
   //printf("tm:\n");
   //printvr(td);
+
+  {
+    matr tb2;
+    submat(tb2, et->tb, 0, 0, m, 2*nev);
+    copyr(et->y, tb2);
+  }
+#if 0
   copyr(et->y0, et->tb0);
   copyr(et->ta1, et->t1);
   eigsr(et->ta1, et->td1, et->tb1, nev);
@@ -310,6 +359,7 @@ diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
   //printf("y^T y:\n");
   //printmr(h);
   orthocolsr(et->y1, et->y0);
+#endif
   //mmultanr(h, y, y);
   //printf("y^T y:\n");
   //printmr(h);
@@ -335,6 +385,32 @@ diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
   TRACE;
   rotate_vecs(v, et->tb3, subset);
   TRACE;
+}
+
+static void
+diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
+       QDP_Subset subset)
+{
+  matr t0, ta0, tb0;
+  vecr td0;
+
+  submat(t0, et->t, 0, 0, nv, nv);
+  submat(ta0, et->ta, 0, 0, nv, nv);
+  subvec(td0, et->td, 0, nv);
+  submat(tb0, et->tb, 0, 0, nv, nv);
+  copyr(ta0, t0);
+  eigsr(ta0, td0, tb0, nv);
+}
+
+static void
+rot_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
+      QDP_Subset subset)
+{
+  matr tb0;
+  int n=2*nev;
+  if(n>nv) n = nv;
+  submat(tb0, et->tb, 0, 0, nv, n);
+  rotate_vecs(v, tb0, subset);
 }
 
 static void
@@ -420,11 +496,14 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   Vector **v = NULL;
   Vector **u = eigcg->u;
   QLA_Real *l = eigcg->l;
+  QLA_Real *evrsq;
+  QLA_Real new_low=FLT_MAX;
   int nev = eigcg->nev;
   int m = eigcg->m;
   int numax = eigcg->numax;
   int nu = eigcg->nu;
   int nv = eigcg->nv;
+  int nuold;
   eigcg_temps_t *et;
 
   TRACE;
@@ -441,6 +520,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   VERB(MED, "CG: numax %i m %i nev %i nu %i nv %i\n", numax, m, nev, nu, nv);
 
   et = create_temps(nev, m);
+  evrsq = (QLA_Real *)malloc(numax*sizeof(QLA_Real));
   TRACE;
 
   create_V(r);
@@ -452,6 +532,13 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   rsq = 0;
   oldrsq = rsq;
 
+  if(nv) {
+    rayleighRitz(u, l, 0, nu+nv, evrsq, linop, p, Mp, subset);
+    nu += nv; nv = 0;
+  }
+  //if(nu>ngood+nev) nu = ngood+nev;
+  if( nuold>=numax-m && ngood>(numax-m)/2 ) { addvecs = 0; }
+#if 0
   if(nv>nev) {
     BEGIN_TIMER;
     rayleighRitz(u+nu, l+nu, 0, nv, linop, p, Mp, subset);
@@ -465,6 +552,13 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     nu += nv; nv = 0;
     END_TIMER;
   }
+#endif
+  if(nv) {
+    BEGIN_TIMER;
+    rayleighRitz(u, l, nu, nv, NULL, linop, p, Mp, subset);
+    nu += nv; nv = 0;
+    END_TIMER;
+  }
   BEGIN_TIMER;
   V_eq_V(p, out, subset);
   linop(Mp, p, subset);
@@ -472,6 +566,8 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   initcg(p, u, l, nu, r, subset);
   V_peq_V(out, p, subset);
   END_TIMER;
+  if(nu>numax-m) nu = numax - m;
+  nuold = nu;
   while(1) {
 
     if( (total_iterations==0) ||
@@ -494,27 +590,49 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       if( (rsq<rsqstop) ||
 	  (total_iterations>=max_iterations) ) break;
 
-#if 1
+#if 0
       if(nv>nev) {
 	BEGIN_TIMER;
-	rayleighRitz(v, l+nu, 0, nv, linop, p, Mp, subset);
+	rayleighRitz(v, l+nu, 0, nv, NULL, linop, p, Mp, subset);
 	nv = nev;
 	END_TIMER;
       }
       if(nv==nev) {
 	BEGIN_TIMER;
 	//nv = 1;
-	rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
+	rayleighRitz(u, l, nu, nv, NULL, linop, p, Mp, subset);
 	nu += nv; nv = 0;
 	END_TIMER;
       }
 #endif
-      //if(nu+m>numax) nu = numax - m;
-      if(nu+m>numax) addvecs = 0;
+      if(addvecs) {
+      printf0(" %i %i %i %i\n", total_iterations, nuold, nu, nv);
+      if(nv) {
+	int nuadd=nv;
+	//if(nuadd>nev) nuadd = nev;
+	diag_t(et, nev, m, v, nv, subset);
+	printf0("ev: %g %g %g %g\n", l[0], l[nuold-1], new_low, getvr(et->td,0));
+	if(getvr(et->td,0)<new_low) new_low = getvr(et->td,0);
+	rot_t(et, nev, m, v, nv, subset);
+	nu += nuadd;
+	nv = 0;
+      }
+      if(nu>numax-m) {
+	if(new_low<l[nuold-1]) {
+	  //int nl = numax - m - nev;
+	  int nl = 0;
+	  rayleighRitz(u+nl, l+nl, 0, nu-nl, NULL, linop, p, Mp, subset);
+	  if(nuold>nl) nuold = nl;
+	}
+	nu = numax - m;
+	new_low = FLT_MAX;
+      }
+      //if(nu+m>numax) addvecs = 0;
       v = u + nu;
-      nv = 0;
+      //nv = 0;
       zeror(et->t);
       TRACE;
+      }
 
       V_eq_V(p, r, subset);
 
@@ -536,26 +654,29 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     a0 = a;
     a = rsq / pkp;
 
-  if(addvecs) {
-    if(nv==0) {
-      setr(et->t, 0, 0, 1./a);
-      setv();
-    } else if(nv<m) {
-      QLA_Real ts;
-      setr(et->t, nv, nv, 1./a + b/a0);
-      ts = -sqrt(b)/a0;
-      setr(et->t, nv, nv-1, ts);
-      setr(et->t, nv-1, nv, ts);
-      setv();
-    } else {
-      BEGIN_TIMER;
-      diag_t(et, nev, m, v, nv, subset);
-      END_TIMER;
-      BEGIN_TIMER;
-      reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
-      END_TIMER;
+    if(addvecs) {
+      if(nv==0) {
+	setr(et->t, 0, 0, 1./a);
+	setv();
+      } else if(nv<m) {
+	QLA_Real ts;
+	setr(et->t, nv, nv, 1./a + b/a0);
+	ts = -sqrt(b)/a0;
+	setr(et->t, nv, nv-1, ts);
+	setr(et->t, nv-1, nv, ts);
+	setv();
+      } else {
+	BEGIN_TIMER;
+	diag_t(et, nev, m, v, nv, subset);
+	END_TIMER;
+	BEGIN_TIMER;
+	rot_t(et, nev, m, v, nv, subset);
+	END_TIMER;
+	BEGIN_TIMER;
+	reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
+	END_TIMER;
+      }
     }
-  }
 #if 0
     for(i=0; i<nv; i++) {
       QLA_Real nrm;
@@ -572,10 +693,14 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   }
   //rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
   VERB(LOW, "done: nu %i nv %i\n", nu, nv);
+
+  //if( nuold>=numax-m && ngood>(numax-m)/2 ) { nu = nuold; nv = 0; }
+
   eigcg->nu = nu;
   eigcg->nv = nv;
 
   free_temps(et);
+  free(evrsq);
 
   destroy_V(r);
   destroy_V(Mp);
