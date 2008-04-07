@@ -6,7 +6,7 @@
 static int ndim=4;
 static int *lattice_size;
 static int seed;
-static int nit=3;
+static int nit=2;
 static QLA_Real m0=2;
 static QLA_Real M=0.1;
 static int Ls=8;

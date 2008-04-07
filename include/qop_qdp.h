@@ -99,6 +99,10 @@ void QOP_F3_asqtad_diaginv_qdp(QOP_info_t *info,
 			       QDP_F3_ColorVector *in,
 			       QOP_evenodd_t eo);
 
+void QOP_F3_asqtad_get_eigcg(QOP_F3_FermionLinksAsqtad *asqtad,
+			     QDP_F3_ColorVector **evecs,
+			     QLA_F_Real *evals, int *nv);
+
   /* double precision */
 
 QOP_D3_FermionLinksAsqtad *
@@ -136,6 +140,9 @@ void QOP_D3_asqtad_diaginv_qdp(QOP_info_t *info,
 			       QDP_D3_ColorVector *in,
 			       QOP_evenodd_t eo);
 
+void QOP_D3_asqtad_get_eigcg(QOP_D3_FermionLinksAsqtad *asqtad,
+			     QDP_D3_ColorVector **evecs,
+			     QLA_D_Real *evals, int *nv);
 
   /*********************/
   /*  Wilson routines  */
@@ -300,6 +307,7 @@ void QOP_D3_dw_load_L_from_qdp(QOP_D3_FermionLinksDW *dw,
 #define QOP_asqtad_load_L_from_qdp    QOP_F3_asqtad_load_L_from_qdp
 #define QOP_asqtad_dslash_qdp         QOP_F3_asqtad_dslash_qdp
 #define QOP_asqtad_diaginv_qdp        QOP_F3_asqtad_diaginv_qdp
+#define QOP_asqtad_get_eigcg          QOP_F3_asqtad_get_eigcg
 
 #define QOP_wilson_create_L_from_qdp  QOP_F3_wilson_create_L_from_qdp
 #define QOP_wilson_extract_L_to_qdp   QOP_F3_wilson_extract_L_to_qdp
@@ -344,6 +352,7 @@ void QOP_D3_dw_load_L_from_qdp(QOP_D3_FermionLinksDW *dw,
 #define QOP_asqtad_load_L_from_qdp    QOP_D3_asqtad_load_L_from_qdp
 #define QOP_asqtad_dslash_qdp         QOP_D3_asqtad_dslash_qdp
 #define QOP_asqtad_diaginv_qdp        QOP_D3_asqtad_diaginv_qdp
+#define QOP_asqtad_get_eigcg          QOP_D3_asqtad_get_eigcg
 
 #define QOP_wilson_create_L_from_qdp  QOP_D3_wilson_create_L_from_qdp
 #define QOP_wilson_extract_L_to_qdp   QOP_D3_wilson_extract_L_to_qdp

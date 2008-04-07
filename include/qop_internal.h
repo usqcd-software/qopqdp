@@ -32,7 +32,7 @@
 
 #define QOP_error(str) \
   fprintf(stderr, "QOP error: %s\n", str); \
-  QDP_abort();
+  QDP_abort(1);
 
 
 typedef struct {

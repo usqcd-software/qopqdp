@@ -540,8 +540,8 @@ QOP_wilson_diaginv_qdp(QOP_info_t *info,
 
 
 
-QLA_Real clov_mkappa, *clov_clov;
-QLA_DiracFermion *clov_dsl, *clov_in;
+static QLA_Real clov_mkappa, *clov_clov;
+static QLA_DiracFermion *clov_dsl, *clov_in;
 
 #define cmplx(x) (*((QLA_Complex *)(&(x))))
 

@@ -1,6 +1,6 @@
 /* eigCG of Stathopoulos and Orginos (arXiv:0707.0131) */
 #include <float.h>
-#include "linalg.h"
+//#include "linalg.h"
 
 //#define TRACE printf("%s %s %i\n", __FILE__, __func__, __LINE__);
 #define TRACE
@@ -8,11 +8,13 @@
 
 #if 0
 #define BEGIN_TIMER {double _dt=-QOP_time();
-#define END_TIMER _dt+=QOP_time(); printf("%i: %i\n", __LINE__, (int)(1e6*_dt));}
+#define END_TIMER _dt+=QOP_time(); printf0("%i: %i\n", __LINE__, (int)(1e6*_dt));}
 #else
 #define BEGIN_TIMER
 #define END_TIMER
 #endif
+
+#if 0
 
 static int ngood;
 
@@ -166,7 +168,7 @@ rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QLA_Real *rsq,
 
   if(n>0) {
     VERB(MED, "eigCG: rr: nu %i nv %i\n", nu, nv);
-    printf("CG: rr: nu %i nv %i\n", nu, nv);
+    //printf0("CG: rr: nu %i nv %i\n", nu, nv);
     alloc_vec(vv, n);
     alloc_matc(mm, n, n);
     alloc_matc(tt, n, n);
@@ -468,6 +470,8 @@ reset_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int *nvp,
   *nvp = nv;
 }
 
+#endif
+
 QOP_status_t
 QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 		     QOP_invert_arg_t *inv_arg,
@@ -479,6 +483,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 		     QOPPCV(eigcg_t) *eigcg
 		     vIndexDef)
 {
+#if 0
   QLA_Real a, b, a0;
   QLA_Real rsq, oldrsq, pkp;
   QLA_Real insq;
@@ -709,5 +714,6 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   res_arg->final_iter = total_iterations;
   res_arg->final_restart = nrestart;
 
+#endif
   return QOP_SUCCESS;
 }
