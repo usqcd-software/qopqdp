@@ -1,3 +1,12 @@
+2008-04-07 14:30  tag qopqdp0-11-0
+
+2008-04-07 14:30  osborn
+
+	* NEWS, configure, configure.ac, examples/dw_invert_bench.c,
+	  include/qop_internal.h, include/qop_qdp.h, lib/invert_eigcg_p.c,
+	  lib/wilson_dslash_p.c: Udated to work with QDP 1.8.0.  Requires
+	  QDP version >= 1.8.0.
+
 2008-01-15 18:26  osborn
 
 	* lib/invert_eigcg_p.c: updates to eigcg
