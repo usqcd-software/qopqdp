@@ -58,7 +58,7 @@ if test "X${QMPDIR}X" = "XX" ; then
 else
   AC_PATH_PROG([QMP_CONFIG], [qmp-config], [], [${QMPDIR}/bin ${PATH}])
 fi
- 
+
 if test "X${QMP_CONFIG}X" != "XX" ; then
   AC_MSG_NOTICE([Found QMP configuration program ${QMP_CONFIG}])
   # use the QMP CC unless it is explicitly set by the user
@@ -80,7 +80,7 @@ fi
 
 CFLAGS="$CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
 LDFLAGS="$LDFLAGS $QDP_LDFLAGS $QLA_LDFLAGS $QIO_LDFLAGS $QMP_LDFLAGS"
-LIBS="$LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS"
+LIBS="$LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS -lblas -lm"
 
 AC_PROG_RANLIB
 #AC_DISABLE_SHARED

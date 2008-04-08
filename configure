@@ -2378,7 +2378,7 @@ fi
 
 CFLAGS="$CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
 LDFLAGS="$LDFLAGS $QDP_LDFLAGS $QLA_LDFLAGS $QIO_LDFLAGS $QMP_LDFLAGS"
-LIBS="$LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS"
+LIBS="$LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS -lblas -lm"
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
