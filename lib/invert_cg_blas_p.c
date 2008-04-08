@@ -1,11 +1,17 @@
 extern void sscal(int *, float *, float *, int *);
+extern void saxpy(int *, float *, float *, int *, float *, int *);
 extern double dsdot(int *, float *, int *, float *, int *);
 extern void ccopy(int *, QLA_F_Complex *, int *, QLA_F_Complex *, int *);
-extern void caxpy(int *, QLA_F_Complex *, QLA_F_Complex *, int *, QLA_F_Complex *, int *);
-extern void saxpy(int *, float *, float *, int *, float *, int *);
 extern float scnrm2(int *, QLA_F_Complex *, int *);
 
+extern void dscal(int *, double *, double *, int *);
+extern void daxpy(int *, double *, double *, int *, double *, int *);
+extern double ddot(int *, double *, int *, double *, int *);
+extern void zcopy(int *, QLA_D_Complex *, int *, QLA_D_Complex *, int *);
+extern double dznrm2(int *, QLA_D_Complex *, int *);
+
 #if QOP_Precision == 1
+
 #define v_eq_zero(r, n) {float zero=0.0; int one=1; sscal(&n, &zero, (float *)r, &one);}
 #define v_eq_v(r, a, n) {int one=1; ccopy(&n, a, &one, r, &one);}
 #define v_peq_v(r, a, n) {float p_one=1.0; int one=1,n2=2*(n); saxpy(&n2, &p_one, (float *)a, &one, (float *)r, &one);}
@@ -16,7 +22,20 @@ extern float scnrm2(int *, QLA_F_Complex *, int *);
 #define v_meq_r_times_v(r, s, a, n) {float ms=-s; int one=1,n2=2*(n); saxpy(&n2, &ms, (float *)a, &one, (float *)r, &one);}
 #define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = scnrm2(&n, a, &one); QMP_sum_double(&lnrm2); lnrm2*lnrm2;})
 #define re_v_dot_v(a, b, n) ({double ldot; int one=1,n2=2*(n); ldot = dsdot(&n2, (float *)a, &one, (float *)b, &one); QMP_sum_double(&ldot); ldot;})
+
 #else
+
+#define v_eq_zero(r, n) {double zero=0.0; int one=1; dscal(&n, &zero, (double *)r, &one);}
+#define v_eq_v(r, a, n) {int one=1; zcopy(&n, a, &one, r, &one);}
+#define v_peq_v(r, a, n) {double p_one=1.0; int one=1,n2=2*(n); daxpy(&n2, &p_one, (double *)a, &one, (double *)r, &one);}
+#define v_meq_v(r, a, n) {double m_one=-1.0; int one=1,n2=2*(n); daxpy(&n2, &m_one, (double *)a, &one, (double *)r, &one);}
+#define v_eq_v_minus_v(r, a, b, n) { v_eq_v(r, a, n); v_meq_v(r, b, n); }
+#define v_teq_r(r, s, n) {double ss=s; int one=1,n2=2*(n); dscal(&n2, &ss, (double *)r, &one);}
+#define v_peq_r_times_v(r, s, a, n) {double ss=s; int one=1,n2=2*(n); daxpy(&n2, &ss, (double *)a, &one, (double *)r, &one);}
+#define v_meq_r_times_v(r, s, a, n) {double ms=-s; int one=1,n2=2*(n); daxpy(&n2, &ms, (double *)a, &one, (double *)r, &one);}
+#define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = dznrm2(&n, a, &one); QMP_sum_double(&lnrm2); lnrm2*lnrm2;})
+#define re_v_dot_v(a, b, n) ({double ldot; int one=1,n2=2*(n); ldot = ddot(&n2, (double *)a, &one, (double *)b, &one); QMP_sum_double(&ldot); ldot;})
+
 #endif
 
 typedef void (*linop_blas_t)(QLA_Complex *out, QLA_Complex *in, void *args);
