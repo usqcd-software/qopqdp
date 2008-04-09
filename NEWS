@@ -1,5 +1,6 @@
 2008-04-08:	James Osborn
 	Initial version of blas based CG.
+	Now initializes asqtad inverter when options are set.
 
 ===========================================================================
 2008-04-07      version 0.11.0

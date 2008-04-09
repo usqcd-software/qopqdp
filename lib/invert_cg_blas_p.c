@@ -53,6 +53,8 @@ extern double dznrm2(int *, QLA_D_Complex *, int *);
 
 #endif
 
+#define v_eq_r_times_v(r, s, a, n) { v_eq_v(r,a,n); v_teq_r(r,s,n); }
+
 typedef void (*linop_blas_t)(QLA_Complex *out, QLA_Complex *in, void *args);
 
 /* regular CG */
@@ -107,22 +109,23 @@ QOPPC(invert_cg)(linop_blas_t linop,
       if( (rsq<rsqstop) ||
 	  (total_iterations>=max_iterations) ) break;
 
-      v_eq_v(p, r, n);
-      //b = 1.0;
+      //v_eq_v(p, r, n);
+      QLA_Real s = 1.0 / rsq;
+      v_eq_r_times_v(p, s, r, n);
 
     } else {
 
       //r_eq_re_V_dot_V(&b, Mp, r, subset);
       //b = -a*b/oldrsq;
-      b = rsq / oldrsq;
+      //b *= rsq / oldrsq;
+      //b = rsq;
       //v_eq_r_times_v_plus_v(p, b, p, r, n);
-      v_teq_r(p, b, n);
-      v_peq_v(p, r, n);
-      //QLA_Real s = 1.0 / b;
-      //v_peq_r_times_v(p, s, r, n);
+      //v_teq_r(p, b, n);
+      //v_peq_v(p, r, n);
+      QLA_Real s = 1.0 / rsq;
+      v_peq_r_times_v(p, s, r, n);
 
     }
-    oldrsq = rsq;
 
     linop(Mp, p, args);
     iteration++;
@@ -130,14 +133,16 @@ QOPPC(invert_cg)(linop_blas_t linop,
 
     pkp = re_v_dot_v(p, Mp, n);
 
-    a = rsq / pkp;
+    //a = rsq / pkp;
+    //v_peq_r_times_v(out, a, p, n);
+    //v_meq_r_times_v(r, a, Mp, n);
+
+    //QLA_Real s = a / b;
+    a = 1.0 / pkp;
     v_peq_r_times_v(out, a, p, n);
     v_meq_r_times_v(r, a, Mp, n);
 
-    //QLA_Real s = a / b;
-    //v_peq_r_times_v(out, s, p, n);
-    //v_meq_r_times_v(r, s, Mp, n);
-
+    oldrsq = rsq;
     rsq = norm2_v(r, n);
     VERB(MED, "CG: iter %i rsq = %g\n", total_iterations, rsq);
   }
