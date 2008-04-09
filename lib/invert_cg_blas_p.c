@@ -25,7 +25,7 @@ extern double dznrm2(int *, QLA_D_Complex *, int *);
 
 #if QOP_Precision == 1
 
-#define v_eq_zero(r, n) {float zero=0.0; int one=1,n2=2*(n); sscal(&n2, &zero, (float *)r, &one);}
+#define v_eq_zero(r, n) {int ii,n2=2*(n); for(ii=0; ii<n2; ii++) ((float *)(r))[ii] = 0.0; }
 #define v_eq_v(r, a, n) {int one=1; ccopy(&n, a, &one, r, &one);}
 #define v_peq_v(r, a, n) {float p_one=1.0; int one=1,n2=2*(n); saxpy(&n2, &p_one, (float *)a, &one, (float *)r, &one);}
 #define v_meq_v(r, a, n) {float m_one=-1.0; int one=1,n2=2*(n); saxpy(&n2, &m_one, (float *)a, &one, (float *)r, &one);}
@@ -39,7 +39,7 @@ extern double dznrm2(int *, QLA_D_Complex *, int *);
 
 #else
 
-#define v_eq_zero(r, n) {double zero=0.0; int one=1,n2=2*(n); dscal(&n2, &zero, (double *)r, &one);}
+#define v_eq_zero(r, n) {int ii,n2=2*(n); for(ii=0; ii<n2; ii++) ((double *)(r))[ii] = 0.0; }
 #define v_eq_v(r, a, n) {int one=1; zcopy(&n, a, &one, r, &one);}
 #define v_peq_v(r, a, n) {double p_one=1.0; int one=1,n2=2*(n); daxpy(&n2, &p_one, (double *)a, &one, (double *)r, &one);}
 #define v_meq_v(r, a, n) {double m_one=-1.0; int one=1,n2=2*(n); daxpy(&n2, &m_one, (double *)a, &one, (double *)r, &one);}
