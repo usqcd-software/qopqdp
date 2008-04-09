@@ -1,3 +1,17 @@
+2008-04-08 18:32  osborn
+
+	* lib/: Makefile.am, invert_cg_V_d.c, invert_cg_blas_p.c: added V_d
+	  version of blas CG
+
+2008-04-08 18:19  osborn
+
+	* lib/: Makefile.am, invert_cg_blas_p.c: added missing file
+
+2008-04-08 18:16  osborn
+
+	* NEWS, configure, configure.ac, include/generic_V.h,
+	  lib/invert_cg_V_f.c: Initial version of blas based CG.
+
 2008-04-07 14:30  tag qopqdp0-11-0
 
 2008-04-07 14:30  osborn
