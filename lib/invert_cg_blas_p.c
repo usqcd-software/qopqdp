@@ -33,7 +33,8 @@ extern double dznrm2(int *, QLA_D_Complex *, int *);
 #define v_teq_r(r, s, n) {float ss=s; int one=1,n2=2*(n); sscal(&n2, &ss, (float *)r, &one);}
 #define v_peq_r_times_v(r, s, a, n) {float ss=s; int one=1,n2=2*(n); saxpy(&n2, &ss, (float *)a, &one, (float *)r, &one);}
 #define v_meq_r_times_v(r, s, a, n) {float ms=-s; int one=1,n2=2*(n); saxpy(&n2, &ms, (float *)a, &one, (float *)r, &one);}
-#define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = scnrm2(&n, a, &one); lnrm2 *= lnrm2; QMP_sum_double(&lnrm2); lnrm2;})
+//#define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = scnrm2(&n, a, &one); lnrm2 *= lnrm2; QMP_sum_double(&lnrm2); lnrm2;})
+#define norm2_v(a, n) ({double lnrm2; int one=1,n2=2*(n); lnrm2 = dsdot(&n2, (float *)a, &one, (float *)a, &one); QMP_sum_double(&lnrm2); lnrm2;})
 #define re_v_dot_v(a, b, n) ({double ldot; int one=1,n2=2*(n); ldot = dsdot(&n2, (float *)a, &one, (float *)b, &one); QMP_sum_double(&ldot); ldot;})
 
 #else
@@ -46,7 +47,8 @@ extern double dznrm2(int *, QLA_D_Complex *, int *);
 #define v_teq_r(r, s, n) {double ss=s; int one=1,n2=2*(n); dscal(&n2, &ss, (double *)r, &one);}
 #define v_peq_r_times_v(r, s, a, n) {double ss=s; int one=1,n2=2*(n); daxpy(&n2, &ss, (double *)a, &one, (double *)r, &one);}
 #define v_meq_r_times_v(r, s, a, n) {double ms=-s; int one=1,n2=2*(n); daxpy(&n2, &ms, (double *)a, &one, (double *)r, &one);}
-#define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = dznrm2(&n, a, &one); lnrm2 *= lnrm2; QMP_sum_double(&lnrm2); lnrm2;})
+//#define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = dznrm2(&n, a, &one); lnrm2 *= lnrm2; QMP_sum_double(&lnrm2); lnrm2;})
+#define norm2_v(a, n) ({double lnrm2; int one=1,n2=2*(n); lnrm2 = ddot(&n2, (double *)a, &one, (double *)a, &one); QMP_sum_double(&lnrm2); lnrm2;})
 #define re_v_dot_v(a, b, n) ({double ldot; int one=1,n2=2*(n); ldot = ddot(&n2, (double *)a, &one, (double *)b, &one); QMP_sum_double(&ldot); ldot;})
 
 #endif
