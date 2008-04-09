@@ -166,6 +166,9 @@ QOP_asqtad_invert(QOP_info_t *info,
     //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
     //printf("nrm = %g\n", rsq);
     QOP_asqtad_dslash_qdp(NULL, fla, mass, cgr, qdpout, ineo, QOP_EVENODD);
+    //QDP_V_eq_V(cgp, qdpout, insub);
+    //QOPPC(asqtad_invert_d2)(qdpr, cgp, insub);
+    //QDP_V_meq_V(qdpr, qdpin, insub);
     QDP_V_meq_V(cgr, in->cv, insub);
     QDP_r_eq_norm2_V(&rsq, cgr, insub);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,

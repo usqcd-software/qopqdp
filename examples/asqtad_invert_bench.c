@@ -37,6 +37,8 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
     QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+    //printf0("%i %i %10g %10g %10g\n", i,res_arg->final_iter,info->final_sec,
+    //info->final_flop, info->final_flop/(1e6*info->final_sec));
     if(i>0) {
       iter += res_arg->final_iter;
       sec += info->final_sec;
@@ -192,12 +194,14 @@ start(void)
 void
 usage(char *s)
 {
-  printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
+  printf("%s [c#] [n#] [s#] [S#] [x# [# ...]] [v#]\n",s);
   printf("\n");
+  printf("c\tcgtype\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
+  printf("v\tverbose\n");
   printf("\n");
   exit(1);
 }

@@ -11,6 +11,8 @@ static int nit=5;
 static QLA_Real mass=-1;
 static int style=-1;
 static int nmass=1;
+static int cgtype=0;
+static int verb=0;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -118,16 +120,26 @@ start(void)
   res_arg.rsqmin = 1e-4;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
+  inv_arg.max_restarts = 5;
   inv_arg.evenodd = QOP_EVEN;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
+  QOP_verbose(verb);
+  QOP_opt_t optcg;
+  optcg.tag = "cg";
+  optcg.value = cgtype;
+  QOP_asqtad_invert_set_opts(&optcg, 1);
   if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }
   gf = QOP_convert_G_from_qdp(u);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
-  //fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
+  QDP_profcontrol(1);
+  fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
+  QDP_profcontrol(0);
+  if(QDP_this_node==0) { printf("load links: secs = %g\t mflops = %g\n", info.final_sec, info.final_flop/(1e6*info.final_sec)); }
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
+  //QOP_asqtad_destroy_L(fla);
 
   best_mf = 0;
   best_st = sta[0];
@@ -157,9 +169,9 @@ start(void)
 	for(bsi=0; bsi<bsn; bsi++) {
 	  bs = bsa[bsi];
 	  QDP_set_block_size(bs);
-  fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
+	  //fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
 	  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
-  QOP_asqtad_destroy_L(fla);
+	  //QOP_asqtad_destroy_L(fla);
 	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
 		  ns, nm, bs, res_arg.final_iter, info.final_sec, mf);
 	  if(mf>best_mf) {
@@ -173,7 +185,7 @@ start(void)
       }
     }
   }
-  fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
+  //fla = QOP_asqtad_create_L_from_G(&info, &coeffs, gf);
 
   optst.value = best_st;
   optns.value = best_ns;
@@ -201,14 +213,16 @@ start(void)
 void
 usage(char *s)
 {
-  printf("%s [m#] [M#] [n#] [s#] [S#] [x# [# ...]]\n",s);
+  printf("%s [c#] [m#] [M#] [n#] [s#] [S#] [x# [# ...]] [v#]\n",s);
   printf("\n");
+  printf("c\tcgtype\n");
   printf("m\tlightest mass\n");
   printf("M\tnumber of masses\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
+  printf("v\tverbose\n");
   printf("\n");
   exit(1);
 }
@@ -225,12 +239,14 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'M' : nmass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
+    case 'v' : verb=atoi(&argv[i][1]); break;
     default : usage(argv[0]);
     }
   }
@@ -257,28 +273,7 @@ main(int argc, char *argv[])
   }
 
   if(QDP_this_node==0) {
-    printf("nodes = %i\n", QMP_get_number_of_nodes());
-    printf("size = %i", lattice_size[0]);
-    for(i=1; i<ndim; i++) {
-      printf(" %i", lattice_size[i]);
-    }
-    printf("\n");
-    if(QMP_logical_topology_is_declared()) {
-      int nd;
-      const int *ld;
-      nd = QMP_get_logical_number_of_dimensions();
-      ld = QMP_get_logical_dimensions();
-      printf("machine size = %i", ld[0]);
-      for(i=1; i<nd; i++) {
-        printf(" %i", ld[i]);
-      }
-      printf("\n");
-      printf("sublattice = %i", lattice_size[0]/ld[0]);
-      for(i=1; i<nd; i++) {
-        printf(" %i", lattice_size[i]/ld[i]);
-      }
-      printf("\n");
-    }
+    print_layout();
     printf("mass = %g\n", mass);
     printf("seed = %i\n", seed);
   }

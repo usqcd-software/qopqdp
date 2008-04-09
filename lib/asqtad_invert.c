@@ -59,6 +59,9 @@ QOP_status_t
 QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
   int st, ns, nm, cg, nev, m, numax;
+
+  if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
+
   st = QOP_asqtad.style;
   ns = QOP_asqtad.nsvec;
   nm = QOP_asqtad.nvec;
