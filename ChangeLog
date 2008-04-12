@@ -1,3 +1,16 @@
+2008-04-12 14:26  tag qopqdp0-11-1
+
+2008-04-12 14:26  osborn
+
+	* NEWS, README, configure, configure.ac,
+	  examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/generic_V.h, include/generic_vD.h,
+	  include/qop_internal_p.h, lib/Makefile.am, lib/invert_cg_D_d.c,
+	  lib/invert_cg_D_f.c, lib/invert_cg_V_d.c, lib/invert_cg_V_f.c,
+	  lib/invert_cg_blas_p.c, lib/invert_cg_vD_d.c,
+	  lib/invert_cg_vD_f.c, lib/wilson_dslash_p.c: fixed up clover
+	  term, now should be usable.
+
 2008-04-09 18:55  osborn
 
 	* NEWS, lib/invert_cg_blas_p.c: small tweaks to blas CG
