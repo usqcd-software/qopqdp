@@ -1,5 +1,6 @@
 QOPQDP -- SciDAC Level 3 over QDP/C
 
+===============================================================================
 ------------------------------------------------------
 --- below are some notes on the asqtad conventions ---
 --- which are also similar to the wilson case --------
@@ -45,3 +46,11 @@ simple analysis codes.
 
 Also starting in version 0.10.0 the residual returned is divided by the
 norm of the input vector.
+===============================================================================
+*** Wilson Clover ***
+
+Conventions for passing the Wilson clover term as raw data can be found in
+lib/wilson_dslash_p.c
+
+The creation of the clover term from the gauge field is not implemented yet.
+===============================================================================

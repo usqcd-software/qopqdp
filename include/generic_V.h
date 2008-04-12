@@ -1,5 +1,6 @@
 #define QOPPCV(x)		QOPPC(x ## _V)
 #define Vector			QDP_ColorVector
+#define _N                      1
 #define vIndexDef
 #define create_V(r)		r = QDP_create_V()
 #define destroy_V		QDP_destroy_V

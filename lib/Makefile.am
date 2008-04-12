@@ -37,8 +37,8 @@ wilson_invert_f.o: wilson_invert_p.c
 wilson_invert_d.o: wilson_invert_p.c
 dw_invert_f.o: dw_invert_p.c
 dw_invert_d.o: dw_invert_p.c
-invert_cg_V_f.o: invert_cg_blas_p.c
-invert_cg_V_d.o: invert_cg_blas_p.c
+invert_cg_V_f.o: invert_cg_p.c
+invert_cg_V_d.o: invert_cg_p.c
 invert_cg_D_f.o: invert_cg_p.c
 invert_cg_D_d.o: invert_cg_p.c
 invert_cg_vD_f.o: invert_cg_p.c

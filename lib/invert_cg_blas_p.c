@@ -1,3 +1,5 @@
+#define sscal sscal_
+#define dscal dscal_
 #if 0
 #define sscal sscal_
 #define saxpy saxpy_
@@ -170,9 +172,9 @@ QOPPC(invert_cgms)(linop_blas_t linop,
 		   QLA_Complex *in,
 		   int n)
 {
-  QLA_Real a[nshifts], b[nshifts];
+  QLA_Real a[nshifts], b[nshifts], s[nshifts];
   QLA_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
-  QLA_Real rsq, oldrsq, pkp;
+  QLA_Real rsq, oldrsq, pkp, t;
   QLA_Real insq;
   QLA_Real rsqstop;
   int iteration=0, i, imin;
@@ -195,6 +197,7 @@ QOPPC(invert_cgms)(linop_blas_t linop,
     zo[i] = z[i] = 1;
     bo[i] = -1;
     a[i] = 0;
+    s[i] = 1;
   }
 
   rsqstop = res_arg[imin]->rsqmin * insq;
@@ -209,7 +212,7 @@ QOPPC(invert_cgms)(linop_blas_t linop,
     //if(shifts[imin]!=0.0) V_peq_r_times_V(Mp, shifts+imin, p, subset);
     iteration++;
 
-    pkp = re_v_dot_v(pm[imin], Mp, n);
+    pkp = s[imin]*s[imin] * re_v_dot_v(pm[imin], Mp, n);
 
     b[imin] = rsq / pkp;
     zn[imin] = 1;
@@ -227,10 +230,14 @@ QOPPC(invert_cgms)(linop_blas_t linop,
     }
 
     for(i=0; i<nshifts; i++) {
-      v_peq_r_times_v(out[i], b[i], pm[i], n);
+      //v_peq_r_times_v(out[i], b[i], pm[i], n);
+      t = b[i] * s[i];
+      v_peq_r_times_v(out[i], t, pm[i], n);
     }
 
-    v_meq_r_times_v(r, b[imin], Mp, n);
+    //v_meq_r_times_v(r, b[imin], Mp, n);
+    t = b[imin] * s[imin];
+    v_meq_r_times_v(r, t, Mp, n);
     rsq = norm2_v(r, n);
     VERB(MED, "CGMS: iter %i rsq = %g\n", iteration, rsq);
 
@@ -250,14 +257,20 @@ QOPPC(invert_cgms)(linop_blas_t linop,
     }
 
     //V_eq_r_times_V_plus_V(p, a+imin, p, r, subset);
-    v_teq_r(pm[imin], a[imin], n);
-    v_peq_v(pm[imin], r, n);
+    //v_teq_r(pm[imin], a[imin], n);
+    //v_peq_v(pm[imin], r, n);
+    s[imin] *= a[imin];
+    t = 1.0/s[imin];
+    v_peq_r_times_v(pm[imin], t, r, n);
     for(i=0; i<nshifts; i++) {
       if(i!=imin) {
 	//v_eq_r_times_v(Mp, zn[i], r, n);
 	//v_eq_r_times_v_plus_v(pm[i], a+i, pm[i], Mp, subset);
-	v_teq_r(pm[i], a[i], n);
-	v_peq_r_times_v(pm[i], zn[i], r, n);
+	//v_teq_r(pm[i], a[i], n);
+	//v_peq_r_times_v(pm[i], zn[i], r, n);
+	s[i] *= a[i];
+	t = zn[i]/s[i];
+	v_peq_r_times_v(pm[i], t, r, n);
       }
     }
 
@@ -290,16 +303,18 @@ typedef struct {
   Vector *in, *out;
   QDP_Subset subset;
   QOPPCV(linop_t) *linop;
+  int _n;
 } linop_args_t;
 
 static void
 linop_blas(QLA_Complex *out, QLA_Complex *in, void *args)
 {
   linop_args_t *a = (linop_args_t *)args;
-  insert_packed_V(a->in, (void *)in, a->subset);
+  int _n = a->_n;
+  insert_packed_V(a->in, in, a->subset);
   //insert_packed_V(a->out, out, a->subset);
   a->linop(a->out, a->in, a->subset);
-  extract_packed_V((void *)out, a->out, a->subset);
+  extract_packed_V(out, a->out, a->subset);
   //int n = QDP_subset_len(a->subset)*csize_V;
   //v_eq_v(out, in, n);
 }
@@ -325,12 +340,13 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   args.in = p;
   create_V(args.out);
   args.subset = subset;
+  args._n = _N;
 
   bin = (QLA_Complex *) malloc(n*sizeof(QLA_Complex));
   bout = (QLA_Complex *) malloc(n*sizeof(QLA_Complex));
 
-  extract_packed_V((void *)bin, in, subset);
-  extract_packed_V((void *)bout, out, subset);
+  extract_packed_V(bin, in, subset);
+  extract_packed_V(bout, out, subset);
 
   //V_eq_V(p, out, subset);
   //linop(args.out, p, subset);
@@ -345,7 +361,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 
   st = QOPPC(invert_cg)(linop_blas, (void *)&args, inv_arg, res_arg, bout, bin, n);
 
-  insert_packed_V(out, (void *)bout, subset);
+  insert_packed_V(out, bout, subset);
 
   free(bin);
   free(bout);

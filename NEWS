@@ -1,5 +1,11 @@
+===========================================================================
+2008-04-12      version 0.11.1
+===========================================================================
+2008-04-12:	James Osborn
+	Fixed up clover term, should now be usable if passed in.
+
 2008-04-08:	James Osborn
-	Initial version of blas based CG.
+	Initial version of blas based CG, disabled for now.
 	Now initializes asqtad inverter when options are set.
 
 ===========================================================================

@@ -1,12 +1,17 @@
 #define QOPPCV(x)		QOPPC(x ## _D)
 #define Vector			QDP_DiracFermion
+#define _N                      1
 #define vIndexDef
 #define create_V(r)		r = QDP_create_D()
 #define destroy_V		QDP_destroy_D
+#define insert_packed_V         QDP_insert_packed_D
+#define extract_packed_V        QDP_extract_packed_D
+#define csize_V                 12
 
 #define V_eq_zero		QDP_D_eq_zero
 #define V_eq_V			QDP_D_eq_D
 #define V_peq_V			QDP_D_peq_D
+#define V_meq_V			QDP_D_meq_D
 #define V_eq_r_times_V		QDP_D_eq_r_times_D
 #define V_peq_r_times_V		QDP_D_peq_r_times_D
 #define V_meq_r_times_V		QDP_D_meq_r_times_D

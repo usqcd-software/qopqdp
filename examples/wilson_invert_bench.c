@@ -38,7 +38,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   int i, iter=0;
   QOP_DiracFermion *qopout, *qopin;
 
-  QDP_D_eq_gaussian_S(in, rs, QDP_all);
+  //QDP_D_eq_gaussian_S(in, rs, QDP_all);
   QDP_D_eq_zero(out, QDP_all);
   for(i=0; i<=nit; i++) {
     if(i==0 || !test_restart) {
@@ -133,6 +133,7 @@ start(void)
     optcg.value = cgtype;
     QOP_wilson_invert_set_opts(&optcg, 1);
   }
+  QDP_D_eq_gaussian_S(in, rs, QDP_all);
 
   best_mf = 0;
   best_st = sta[0];
@@ -208,7 +209,7 @@ usage(char *s)
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
-  printf("c\tcgtype (0=CGNE, 1=BiCGStab\n");
+  printf("c\tcgtype (0=CGNE, 1=BiCGStab)\n");
   printf("v\tverbosity\n");
   printf("w\tclover term (0=off, 1=on)\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");

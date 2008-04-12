@@ -83,6 +83,7 @@ struct QOPPC(FermionLinksAsqtad_struct) {
   /* Wilson datatypes */
 
 struct QOPPC(FermionLinksWilson_struct) {
+  REAL clovinvkappa;
   int dblstored;
   QDPPC(ColorMatrix) **links;
   QDPPC(ColorMatrix) **bcklinks;
