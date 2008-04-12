@@ -40,7 +40,7 @@ extern QDP_DiracFermion *QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *fl
 static QOP_FermionLinksWilson *gl_flw;
 static REAL gl_kappa;
 static QOP_evenodd_t gl_eo;
-static QDP_DiracFermion *gl_tmp, *gl_tmp2;
+static QDP_DiracFermion *gl_tmp, *gl_tmp2, *ctmp;
 
 #define project(flw, kappa, sign, out, in, eo) \
 { \
@@ -59,10 +59,18 @@ static QDP_DiracFermion *gl_tmp, *gl_tmp2;
 
 #define dslash2(flw, kappa, sign, out, tmp, in, eo) \
 { \
-  QLA_Real mk2 = -4*kappa*kappa; \
-  QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, tmp, in, oppsub(eo), eo); \
-  QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, out, tmp, eo, oppsub(eo)); \
-  QDP_D_eq_r_times_D_plus_D(out, &mk2, out, in, qdpsub(eo)); \
+  if(flw->clov==NULL) { \
+    QLA_Real mk2 = -4*kappa*kappa; \
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, tmp, in, oppsub(eo), eo); \
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, out, tmp, eo, oppsub(eo)); \
+    QDP_D_eq_r_times_D_plus_D(out, &mk2, out, in, qdpsub(eo)); \
+  } else { \
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, ctmp, in, oppsub(eo), eo); \
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, tmp, ctmp, oppsub(eo)); \
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, sign, ctmp, tmp, eo, oppsub(eo)); \
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, out, ctmp, eo); \
+    QDP_D_eq_D_minus_D(out, in, out, qdpsub(eo)); \
+  } \
 }
 
 void
@@ -142,6 +150,7 @@ QOP_wilson_invert(QOP_info_t *info,
 
   qdpin = QDP_create_D();
   qdpout = QDP_create_D();
+  if(flw->clov!=NULL) ctmp = QDP_create_D();
 
   gl_flw = flw;
   gl_kappa = kappa;
@@ -149,20 +158,27 @@ QOP_wilson_invert(QOP_info_t *info,
   /* cg has 5 * 48 = 240 flops/site/it */
   /* bicg has 9*4*24 = 864 flops/site/it */
 #ifdef LU
-  /* MdagM -> 2*(2*(144+168*7)+48) = 5376 flops/site */
-  if(QOP_wilson_cgtype==1) {
-    nflop = 0.5 * 6240;  /* half for half of the sites */
+  /* MdagM(no clov) -> 2*(2*(144+168*7)+48) = 5376 flops/site */
+  /* MdagM(clov)    -> 2*(2*(144+168*7+12*42)+24) = 7344 flops/site */
+  if(flw->clov==NULL) {
+    nflop = 5376;
   } else {
-    nflop = 0.5 * 5616;  /* half for half of the sites */
+    nflop = 7344;
   }
+  if(QOP_wilson_cgtype==1) {
+    nflop += 864;
+  } else {
+    nflop += 240;
+  }
+  nflop *= 0.5; /* half for half of the sites */
   cgeo = ineo;
   if(ineo==QOP_EVENODD) cgeo = QOP_EVEN;
 #else
   /* MdagM -> 2*((144+168*7)+48) = 2736 flops/site */
-  /* clov -> 2*(12*44) = 1056 flops/site */
+  /* clov -> 2*(12*(42-2)) = 960 flops/site */
   nflop = 2736 + 240;
   if(QOP_wilson_cgtype==1) nflop += (864-240);
-  if(flw->clov!=NULL) nflop += 1056;
+  if(flw->clov!=NULL) nflop += 960;
   cgeo = QOP_EVENODD;
 #endif
   cgsub = qdpsub(cgeo);
@@ -266,6 +282,7 @@ QOP_wilson_invert(QOP_info_t *info,
 
   QDP_destroy_D(qdpin);
   QDP_destroy_D(qdpout);
+  if(flw->clov!=NULL) QDP_destroy_D(ctmp);
 
   res_arg->rsqmin = rsqminold;
   res_arg->final_iter = iter;
