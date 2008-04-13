@@ -1,3 +1,7 @@
+2008-04-12 18:51  osborn
+
+	* NEWS, lib/wilson_invert_p.c: Fix to clover term.
+
 2008-04-12 14:26  tag qopqdp0-11-1
 
 2008-04-12 14:26  osborn
