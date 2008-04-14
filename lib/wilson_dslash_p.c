@@ -205,10 +205,17 @@ get_clov(QDP_DiracPropagator *clov, QDP_ColorMatrix *links[], double csw)
 {
   // dummy for now -- needs real clover term calculation
   QLA_DiracPropagator p;
-  //int i, j;
+  int ic, is, jc, js;
   QLA_P_eq_zero(&p);
-  //for(i=0; i<QLA_Nc; i++) for(j=0; j<QLA_Ns; j++)
-  //QLA_c_eq_r(QLA_elem_P(p, i, j, i, j), 1);
+  for(ic=0; ic<QLA_Nc; ic++)
+    for(is=0; is<QLA_Ns; is++)
+      for(jc=0; jc<QLA_Nc; jc++) 
+	for(js=0; js<QLA_Ns; js++)
+	  QLA_c_eq_r(QLA_elem_P(p, ic, is, jc, js), 0.1);
+  //QLA_c_eq_r(QLA_elem_P(p, 0, 0, 0, 1), 0.1);
+  //QLA_c_eq_r(QLA_elem_P(p, 0, 1, 0, 0), 0.1);
+  //QLA_c_eq_r(QLA_elem_P(p, 0, 0, 1, 0), 0.1);
+  //QLA_c_eq_r(QLA_elem_P(p, 1, 0, 0, 0), 0.1);
   QDP_P_eq_p(clov, &p, QDP_all);
 }
 
@@ -291,6 +298,18 @@ clov_invert(QLA_Complex ci[6][6], QLA_Complex c[6][6])
 }
 
 static void
+printcm(QLA_Complex *m, int nr, int nc)
+{
+  int i, j;
+  for(i=0; i<nr; i++) {
+    for(j=0; j<nc; j++) {
+      printf("%f %f ", QLA_real(m[i*nc+j]), QLA_imag(m[i*nc+j]));
+    }
+    printf("\n");
+  }
+}
+
+static void
 get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
 {
   QLA_Real m4 = 0.5/kappa;
@@ -301,8 +320,13 @@ get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
     QLA_Complex cu[6][6], ciu[6][6];
     clov_unpack(cu, flw->clov+(CLOV_REALS/2)*i);
     for(j=0; j<6; j++) QLA_c_peq_r(cu[j][j], m4);
+    //if(i==0) printcm(flw->clov, 3, 6);
+    //if(i==0) printcm(cu, 6, 6);
     clov_invert(ciu, cu);
     clov_pack(flw->clovinv+(CLOV_REALS/2)*i, ciu);
+    //if(i==0) printcm(cu, 6, 6);
+    //if(i==0) printcm(ciu, 6, 6);
+    //if(i==0) printcm(flw->clovinv, 3, 6);
   }
   flw->clovinvkappa = kappa;
 }
@@ -691,7 +715,7 @@ apply_clov(REAL *clov, QLA_Real m4, QDP_DiracFermion *out,
 	xb = 36*(2*x+b);  // chiral block offset (in REALs)
 
 #define clov_diag(i) clov[xb+i]
-#define clov_offd(i) cmplx(clov[xb+6+i])
+#define clov_offd(i) cmplx(clov[xb+6+2*i])
 #define src(i) QLA_elem_D(clov_in[x],i/2,2*b+i%2)
 #define dest(i) QLA_elem_D(clov_out[x],i/2,2*b+i%2)
 	{

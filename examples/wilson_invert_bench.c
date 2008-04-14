@@ -8,7 +8,7 @@ static int test_restart=0;
 static int ndim=4;
 static int *lattice_size;
 static int seed;
-static int nit=5;
+static int nit=4;
 static QLA_Real kappa=0.15;
 static double rsqmin=1e-8;
 static int style=-1;

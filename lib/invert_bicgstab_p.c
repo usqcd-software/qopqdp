@@ -17,8 +17,10 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   QLA_Real insq;
   QLA_Real rsqstop;
   Vector *r0, *t, *v;
-  int iteration=0;
-  int nrestart=-1, max_restarts=inv_arg->max_restarts;
+  int iteration=0, total_iterations=0, nrestart=-1;
+  int restart_iterations=inv_arg->restart;
+  int max_iterations=inv_arg->max_iter;
+  int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
 
   create_V(r0);
@@ -27,28 +29,32 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
+  VERB(LOW, "BICG: rsqstop = %g\n", rsqstop);
   rsq = 0;
 
   while(1) {
 
-    if( (iteration%inv_arg->restart==0) ||
-	(iteration>=inv_arg->max_iter) ||
+    if( (total_iterations==0) ||
+	(iteration>=restart_iterations) ||
+	(total_iterations>=max_iterations) ||
 	(rsq<rsqstop) ) {  /* only way out */
-      /* (re)start */
+
+      if( (total_iterations>=max_iterations) ||
+	  (nrestart>=max_restarts) ) break;
       nrestart++;
 
       V_eq_V(p, out, subset);
       linop(r, p, subset);
+      iteration = 1;
+      total_iterations++;
 
       V_eq_V_minus_V(r, in, r, subset);
       V_eq_V(r0,r,subset);
-      //printf("%d\tbefore restart: %e\n", iteration, rsq);
       r_eq_norm2_V(&rsq, r, subset);
+      VERB(LOW, "BICG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
 
-      //printf("  \tafter restart: %e\n", rsq);
       if( (rsq<rsqstop) ||
-	  (iteration>=inv_arg->max_iter) ||
-	  (nrestart>max_restarts) ) break;
+	  (total_iterations>=max_iterations) ) break;
 
       V_eq_zero(v, subset);
       V_eq_zero(p, subset);
@@ -81,6 +87,8 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
     }
 
     linop(v, p, subset);
+    iteration++;
+    total_iterations++;
 
     c_eq_V_dot_V(&ctmp1,r0,v,subset);
 
@@ -111,11 +119,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 #endif
 
     r_eq_norm2_V(&rsq, r, subset);
-    //printf("%e %e %e %e %e %e\n", alpha.real, alpha.imag, beta.real, beta.imag, omega.real, omega.imag);
-    //printf("%d r^2 = %e\n", iteration, rsq);
-
-    iteration++;
-    //printf("%i\t%g\n", iteration, rsq);
+    VERB(MED, "BICG: iter %i rsq = %g\n", total_iterations, rsq);
   }
 
   destroy_V(r0);
