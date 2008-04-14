@@ -1,4 +1,7 @@
 
+2008-04-14:	James Osborn
+	Now make sure QOP is initialized before using.
+
 2008-04-12:	James Osborn
 	Fix to clover term.
 

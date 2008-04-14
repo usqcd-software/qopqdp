@@ -24,6 +24,8 @@ QOP_asqtad_force_set_opts(QOP_opt_t opts[], int nopts)
 {
   int fsm, vl;
 
+  ASQTAD_FORCE_BEGIN;
+
   fsm = QOP_asqtad_ff.fnmat_src_min;
   setvar(fsm, int, "fnmat_src_min", opts, nopts);
   if(!valid_fnmat_src_min(fsm)) return QOP_FAIL;
@@ -34,5 +36,6 @@ QOP_asqtad_force_set_opts(QOP_opt_t opts[], int nopts)
   if(!valid_veclength(vl)) return QOP_FAIL;
   QOP_asqtad_ff.veclength = vl;
 
+  ASQTAD_FORCE_END;
   return QOP_SUCCESS;
 }

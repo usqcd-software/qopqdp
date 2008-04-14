@@ -337,6 +337,8 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
   QOP_FermionLinksWilson *flw;
   QOP_GaugeField *gf;
 
+  WILSON_INVERT_BEGIN;
+
   gf = QOP_create_G_from_raw(links, evenodd);
   flw = QOP_wilson_convert_L_from_qdp(gf->links, NULL);
 
@@ -352,6 +354,7 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
   flw->qdpclov = NULL;
   flw->qopgf = gf;
 
+  WILSON_INVERT_END;
   return flw;
 }
 
@@ -361,6 +364,9 @@ QOP_wilson_create_L_from_G(QOP_info_t *info, QOP_wilson_coeffs_t *coeffs,
 {
   QOP_FermionLinksWilson *flw;
   QDP_DiracPropagator *clov;
+
+  WILSON_INVERT_BEGIN;
+
   if(coeffs->clov_c==0.) {
     clov = NULL;
   } else {
@@ -376,6 +382,8 @@ QOP_wilson_create_L_from_G(QOP_info_t *info, QOP_wilson_coeffs_t *coeffs,
   }
   flw = QOP_wilson_create_L_from_qdp(gauge->links, clov);
   if(clov) QDP_destroy_P(clov);
+
+  WILSON_INVERT_END;
   return flw;
 }
 
@@ -383,13 +391,17 @@ void
 QOP_wilson_extract_L_to_raw(REAL *links[], REAL *clov,
 			    QOP_FermionLinksWilson *src, QOP_evenodd_t evenodd)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_extract_L_to_raw unimplemented.");
+  WILSON_INVERT_END;
 }
 
 void
 QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
 {
   int i;
+
+  WILSON_INVERT_BEGIN;
 
   if(flw->qopgf) {
     QOP_destroy_G(flw->qopgf);
@@ -415,13 +427,16 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
     free(flw->eigcg.l);
   }
   free(flw);
+  WILSON_INVERT_END;
 }
 
 QOP_FermionLinksWilson *
 QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov,
 			      QOP_evenodd_t evenodd)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_from_raw unimplemented");
+  WILSON_INVERT_END;
   return NULL;
 }
 
@@ -429,21 +444,27 @@ void
 QOP_wilson_convert_L_to_raw(REAL ***links, REAL **clov,
 			    QOP_FermionLinksWilson *src, QOP_evenodd_t evenodd)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_to_raw unimplemented");
+  WILSON_INVERT_END;
 }
 
 QOP_FermionLinksWilson *
 QOP_wilson_convert_L_from_G(QOP_info_t *info, QOP_wilson_coeffs_t *coeffs,
 			    QOP_GaugeField *gauge)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_from_G unimplemented");
+  WILSON_INVERT_END;
   return NULL;
 }
 
 QOP_GaugeField *
 QOP_wilson_convert_L_to_G(QOP_FermionLinksWilson *links)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_to_G unimplemented");
+  WILSON_INVERT_END;
   return NULL;
 }
 
@@ -455,6 +476,8 @@ QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[],
   QDP_ColorMatrix *newlinks[4];
   int i;
 
+  WILSON_INVERT_BEGIN;
+
   for(i=0; i<4; i++) {
     newlinks[i] = QDP_create_M();
     QDP_M_eq_M(newlinks[i], links[i], QDP_all);
@@ -463,6 +486,7 @@ QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[],
   flw = QOP_wilson_convert_L_from_qdp(newlinks, clov);
   flw->qdpclov = NULL;
 
+  WILSON_INVERT_END;
   return flw;
 }
 
@@ -471,7 +495,9 @@ QOP_wilson_extract_L_to_qdp(QDP_ColorMatrix *links[],
 			    QDP_DiracPropagator *clov,
 			    QOP_FermionLinksWilson *src)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_extract_L_to_qdp unimplemented");
+  WILSON_INVERT_END;
 }
 
 QOP_FermionLinksWilson *
@@ -480,6 +506,8 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 {
   QOP_FermionLinksWilson *flw;
   int i;
+
+  WILSON_INVERT_BEGIN;
 
   QOP_malloc(flw, QOPPC(FermionLinksWilson), 1);
   QOP_malloc(flw->links, QDPPC(ColorMatrix) *, 4);
@@ -543,6 +571,8 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   flw->qopgf = NULL;
   flw->qdpclov = clov;
   flw->eigcg.u = NULL;
+
+  WILSON_INVERT_END;
   return flw;
 }
 
@@ -551,7 +581,9 @@ QOP_wilson_convert_L_to_qdp(QDP_ColorMatrix ***links,
 			    QDP_DiracPropagator **clov,
 			    QOP_FermionLinksWilson *src)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_to_qdp unimplemented");
+  WILSON_INVERT_END;
 }
 
 

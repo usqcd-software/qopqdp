@@ -10,6 +10,9 @@ QOP_status_t
 QOP_dw_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
   int i;
+
+  DW_INVERT_BEGIN;
+
   for(i=0; i<nopts; i++) {
     char *tag = opts[i].tag;
     double value = opts[i].value;
@@ -41,5 +44,6 @@ QOP_dw_invert_set_opts(QOP_opt_t opts[], int nopts)
     }
   }
 
+  DW_INVERT_END;
   return QOP_SUCCESS;
 }

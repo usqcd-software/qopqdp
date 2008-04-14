@@ -20,6 +20,21 @@
     exit(1);							       \
   }
 
+#define ASQTAD_DSLASH_BEGIN CHECK_INIT
+#define ASQTAD_DSLASH_END
+#define ASQTAD_FORCE_BEGIN CHECK_INIT
+#define ASQTAD_FORCE_END
+#define ASQTAD_INVERT_BEGIN CHECK_INIT
+#define ASQTAD_INVERT_END
+
+#define WILSON_DSLASH_BEGIN CHECK_INIT
+#define WILSON_DSLASH_END
+#define WILSON_INVERT_BEGIN CHECK_INIT
+#define WILSON_INVERT_END
+
+#define DW_INVERT_BEGIN CHECK_INIT
+#define DW_INVERT_END
+
 #define QOP_malloc(var, type, num)					\
   (var) = (type *) malloc(num*sizeof(type));				\
   if(!(var)) {								\

@@ -91,7 +91,9 @@ QOPPC(asqtad_force)(QOP_info_t *info, QOP_GaugeField *gauge, QOP_Force *force,
 		    QOP_asqtad_coeffs_t *coeffs, REAL eps,
 		    QOP_ColorVector *in_pt)
 {
+  ASQTAD_FORCE_BEGIN;
   QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coeffs, &eps, &in_pt, 1);
+  ASQTAD_FORCE_END;
 }
 
 void
@@ -103,6 +105,8 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
   int vl = QOP_asqtad_ff.veclength;
   int fsm = QOP_asqtad_ff.fnmat_src_min;
   QOP_info_t tinfo;
+
+  ASQTAD_FORCE_BEGIN;
 
   if( nsrc < fsm ) {
     info->final_sec = 0;
@@ -118,6 +122,8 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
   } else {
     QOPPC(asqtad_force_multi_fnmat)(info, gauge, force, coef, eps, in_pt, nsrc);
   }
+
+  ASQTAD_FORCE_END;
 }
 
 void
@@ -158,7 +164,7 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
   double nflop = nflop1 + (nflop2-nflop1)*(nsrc-1);
   double dtime;
 
-  dtime = -QOP_time();
+  ASQTAD_FORCE_BEGIN;
 
   for(i=0; i<nsrc; i++) {
     xin[i] = in_pt[i]->cv;
@@ -252,6 +258,8 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 #endif
 
   /* *************************************** */
+
+  dtime = -QOP_time();
 
   QOP_trace("start force loop\n");
   for(mu=0; mu<8; mu++) {
@@ -452,6 +460,8 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
   QOP_trace("test 6\n");
   QOP_trace("test 7\n");
 
+  dtime += QOP_time();
+
   for(mu=0; mu<4; mu++) {
     QDP_M_eqm_M(tempmom_qdp[mu], tempmom_qdp[mu], QDP_odd);
   }
@@ -509,11 +519,11 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
     QDP_destroy_M(fblink[i]);
   }
 
-  dtime += QOP_time();
-
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+
+  ASQTAD_FORCE_END;
 }
 
 #undef Pmu          

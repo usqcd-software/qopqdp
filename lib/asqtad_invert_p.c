@@ -54,7 +54,7 @@ reconstruct(QOP_FermionLinksAsqtad *fla, QLA_Real mass, QDP_ColorVector *out,
   QOP_asqtad_diaginv_qdp(NULL, fla, mass, out, out, eo);
 }
 
-void
+static void
 QOPPC(asqtad_invert_d2)(QDP_ColorVector *out, QDP_ColorVector *in,
 			QDP_Subset subset)
 {
@@ -90,6 +90,8 @@ QOP_asqtad_invert(QOP_info_t *info,
   int max_restarts_old = inv_arg->max_restarts;
   int nrestart = -1, max_restarts = inv_arg->max_restarts;
   if(max_restarts<=0) max_restarts = 5;
+
+  ASQTAD_INVERT_BEGIN;
 
   if(QOP_asqtad.cgtype==1) {
     fla->eigcg.numax = QOP_asqtad.eigcg_numax;
@@ -193,6 +195,8 @@ QOP_asqtad_invert(QOP_info_t *info,
   info->final_sec = dtime;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+
+  ASQTAD_INVERT_END;
 }
 
 void
@@ -214,6 +218,8 @@ QOP_asqtad_invert_multi(QOP_info_t *info,
   QDP_Subset insub, cgsub;
   QOP_evenodd_t ineo, cgeo;
   int i, j;
+
+  ASQTAD_INVERT_BEGIN;
 
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
@@ -337,4 +343,6 @@ QOP_asqtad_invert_multi(QOP_info_t *info,
 
   info->final_sec = dtime;
   info->status = QOP_SUCCESS;
+
+  ASQTAD_INVERT_END;
 }

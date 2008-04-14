@@ -16,6 +16,9 @@ QOP_status_t
 QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
   int i;
+
+  WILSON_INVERT_BEGIN;
+
   for(i=0; i<nopts; i++) {
     char *tag = opts[i].tag;
     double value = opts[i].value;
@@ -60,5 +63,6 @@ QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
   }
   QOP_wilson_optnum = OPTNUM;
 
+  WILSON_INVERT_END;
   return QOP_SUCCESS;
 }

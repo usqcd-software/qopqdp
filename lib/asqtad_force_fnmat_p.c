@@ -385,16 +385,12 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
   Q_path *this_path;	// pointer to current path
   Q_path *last_path;	// pointer to previous path
 
-
-  char myname[] = "QOP_asqtad_force_fnmat";
-
-
   double dtime;
 
   if( nterms==0 )return;
 
-  dtime=-QOP_time();
-	
+  ASQTAD_FORCE_BEGIN;
+
   /* Allocate fields */
   for(i=0;i<=MAX_PATH_LENGTH;i++){
      oprod_along_path[i] = QDP_create_M();
@@ -412,7 +408,7 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
   vec_tmp[0] = QDP_create_V();
   vec_tmp[1] = QDP_create_V();
   if( vec_tmp[1] == NULL ){
-    QOP_printf0("%s NO ROOM\n",myname); 
+    QOP_printf0("%s NO ROOM\n",__func__); 
     exit(0);
   }
   
@@ -431,7 +427,9 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
     }
     first_force=0;
   }
-  
+
+  dtime=-QOP_time();
+
   //  QOP_printf0 ("\n\n sortedpath coeff = %e\n", q_paths_sorted[13].coeff);
   //  QOP_printf0 (" length = %i\n", q_paths_sorted[13].length);
   //  QOP_printf0 (" fwdbck = %e\n", q_paths_sorted[13].forwback);
@@ -588,6 +586,8 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
   }
   //tempflops+=4*18;
   //tempflops+=4*18;
+
+  dtime += QOP_time();
   
   QDP_destroy_V( vec_tmp[0] );
   QDP_destroy_V( vec_tmp[1] );
@@ -604,12 +604,10 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
      QDP_destroy_M( force_accum[i] );
   }
 
-  dtime += QOP_time();
   double nflop = 966456 + 1440*nterms;
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+
+  ASQTAD_FORCE_END;
 }
-
-
-

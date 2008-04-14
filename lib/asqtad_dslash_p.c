@@ -121,6 +121,7 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   int i;
   QOPPC(FermionLinksAsqtad) *fla;
 
+  ASQTAD_DSLASH_BEGIN;
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
 
   QOP_malloc(fla, QOPPC(FermionLinksAsqtad), 1);
@@ -148,6 +149,7 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   check_setup(fla);
   fla->eigcg.u = NULL;
 
+  ASQTAD_DSLASH_END;
   return fla;
 }
 
@@ -159,6 +161,8 @@ QOPPC(asqtad_create_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   QDP_ColorMatrix *fl[4], *ll[4];
   int i;
 
+  ASQTAD_DSLASH_BEGIN;
+
   for(i=0; i<4; i++) {
     fl[i] = QDP_create_M();
     QDP_M_eq_M(fl[i], fatlinks[i], QDP_all);
@@ -168,6 +172,7 @@ QOPPC(asqtad_create_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
 
   fla = QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
 
+  ASQTAD_DSLASH_END;
   return fla;
 }
 
@@ -177,6 +182,9 @@ QOPPC(asqtad_load_L_from_qdp)(QOPPC(FermionLinksAsqtad) *fla,
 			      QDP_ColorMatrix *longlinks[])
 {
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   // copy and scale links
   for(i=0; i<4; i++) {
     QLA_Real f = 0.5;
@@ -185,6 +193,7 @@ QOPPC(asqtad_load_L_from_qdp)(QOPPC(FermionLinksAsqtad) *fla,
   }
   fla->dblstored = 0;
   check_setup(fla);
+  ASQTAD_DSLASH_END;
 }
 
 QOPPC(FermionLinksAsqtad) *
@@ -193,12 +202,17 @@ QOPPC(asqtad_convert_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
 {
   QDP_ColorMatrix *fl[4], *ll[4];
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   for(i=0; i<4; i++) {
     fl[i] = QDP_create_M();
     QDP_insert_M(fl[i], (QLA_ColorMatrix *)fatlinks[i], QDP_all);
     ll[i] = QDP_create_M();
     QDP_insert_M(ll[i], (QLA_ColorMatrix *)longlinks[i], QDP_all);
   }
+
+  ASQTAD_DSLASH_END;
   return QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
 }
 
@@ -208,12 +222,17 @@ QOPPC(asqtad_create_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
 {
   QDP_ColorMatrix *fl[4], *ll[4];
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   for(i=0; i<4; i++) {
     fl[i] = QDP_create_M();
     QOP_qdp_eq_raw(M, fl[i], fatlinks[i], evenodd);
     ll[i] = QDP_create_M();
     QOP_qdp_eq_raw(M, ll[i], longlinks[i], evenodd);
   }
+
+  ASQTAD_DSLASH_END;
   return QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
 }
 
@@ -223,6 +242,9 @@ QOPPC(asqtad_load_L_from_raw)(QOPPC(FermionLinksAsqtad) *fla,
 			      QOP_evenodd_t evenodd)
 {
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   for(i=0; i<4; i++) {
     QOP_qdp_eq_raw(M, fla->fatlinks[i], fatlinks[i], evenodd);
     QOP_qdp_eq_raw(M, fla->longlinks[i], longlinks[i], evenodd);
@@ -235,6 +257,7 @@ QOPPC(asqtad_load_L_from_raw)(QOPPC(FermionLinksAsqtad) *fla,
   }
 
   check_setup(fla);
+  ASQTAD_DSLASH_END;
 }
 
 /* Computes the staple :
@@ -395,12 +418,16 @@ QOPPC(asqtad_create_L_from_G)(QOP_info_t *info,
   QDP_ColorMatrix *fl[4], *ll[4];
   int i;
 
+  ASQTAD_DSLASH_BEGIN;
+
   for(i=0; i<4; i++) {
     fl[i] = QDP_create_M();
     ll[i] = QDP_create_M();
   }
   make_imp_links(info, fl, ll, coeffs, gauge->links);
   fla = QOPPC(asqtad_convert_L_from_qdp)(fl, ll);
+
+  ASQTAD_DSLASH_END;
   return fla;
 }
 
@@ -412,6 +439,8 @@ QOPPC(asqtad_load_L_from_G)(QOP_info_t *info,
 {
   int i;
 
+  ASQTAD_DSLASH_BEGIN;
+
   make_imp_links(info, fla->fatlinks, fla->longlinks, coeffs, gauge->links);
   fla->dblstored = 0;
   // scale links
@@ -420,6 +449,8 @@ QOPPC(asqtad_load_L_from_G)(QOP_info_t *info,
     QDP_M_eq_r_times_M(fla->fwdlinks[i], &f, fla->fwdlinks[i], QDP_all);
   }
   check_setup(fla);
+
+  ASQTAD_DSLASH_END;
 }
 
 void
@@ -428,12 +459,17 @@ QOPPC(asqtad_extract_L_to_qdp)(QDP_ColorMatrix *fatlinks[],
 			       QOP_FermionLinksAsqtad *src)
 {
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   // copy and unscale links
   for(i=0; i<4; i++) {
     QLA_Real f = 2.0;
     QDP_M_eq_r_times_M(fatlinks[i], &f, src->fatlinks[i], QDP_all);
     QDP_M_eq_r_times_M(longlinks[i], &f, src->longlinks[i], QDP_all);
   }
+
+  ASQTAD_DSLASH_END;
 }
 
 void
@@ -442,6 +478,9 @@ QOPPC(asqtad_extract_L_to_raw)(REAL *fatlinks[], REAL *longlinks[],
 			       QOP_evenodd_t evenodd)
 {
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   // unscale links
   for(i=0; i<8; i++) {
     QLA_Real f = 2.0;
@@ -456,12 +495,17 @@ QOPPC(asqtad_extract_L_to_raw)(REAL *fatlinks[], REAL *longlinks[],
     QLA_Real f = 0.5;
     QDP_M_eq_r_times_M(fla->fwdlinks[i], &f, fla->fwdlinks[i], QDP_all);
   }
+
+  ASQTAD_DSLASH_END;
 }
 
 void
 QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *fla)
 {
   int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
   for(i=0; i<8; i++) {
     QDP_destroy_M(fla->fwdlinks[i]);
   }
@@ -483,6 +527,8 @@ QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *fla)
     free(fla->eigcg.l);
   }
   free(fla);
+
+  ASQTAD_DSLASH_END;
 }
 
 

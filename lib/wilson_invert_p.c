@@ -176,6 +176,8 @@ QOP_wilson_invert(QOP_info_t *info,
   int nrestart = -1, max_restarts = inv_arg->max_restarts;
   if(max_restarts<=0) max_restarts = 5;
 
+  WILSON_INVERT_BEGIN;
+
   if(QOP_wilson_cgtype==2) {
     flw->eigcg.numax = QOP_wilson_eigcg_numax;
     flw->eigcg.m = QOP_wilson_eigcg_m;
@@ -349,6 +351,8 @@ QOP_wilson_invert(QOP_info_t *info,
   info->final_sec = dtime;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+
+  WILSON_INVERT_END;
 }
 
 void
@@ -362,5 +366,7 @@ QOP_wilson_invert_multi(QOP_info_t *info,
 			QOP_DiracFermion *in_pt[],
 			int nsrc)
 {
+  WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_invert_multi unimplemented");
+  WILSON_INVERT_END;
 }

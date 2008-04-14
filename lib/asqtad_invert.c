@@ -11,6 +11,8 @@ QOP_asqtad_invert_init(void)
   int i;
   int disp[4]={0,0,0,0};
 
+  ASQTAD_INVERT_BEGIN;
+
   for(i=0; i<4; i++) {
     QOP_asqtad.shifts[2*i] = QDP_neighbor[i];
     disp[i] = 3;
@@ -42,6 +44,8 @@ QOP_asqtad_invert_init(void)
   QOP_asqtad.eigcg_nev = 10;
   QOP_asqtad.eigcg_m = 100;
   QOP_asqtad.eigcg_numax = 200;
+
+  ASQTAD_INVERT_END;
   return QOP_SUCCESS;
 }
 
@@ -60,6 +64,7 @@ QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
   int st, ns, nm, cg, nev, m, numax;
 
+  ASQTAD_INVERT_BEGIN;
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
 
   st = QOP_asqtad.style;
@@ -95,5 +100,6 @@ QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
   QOP_asqtad.eigcg_m = m;
   QOP_asqtad.eigcg_numax = numax;
 
+  ASQTAD_INVERT_END;
   return QOP_SUCCESS;
 }
