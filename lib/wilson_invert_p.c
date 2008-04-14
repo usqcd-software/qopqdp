@@ -275,7 +275,7 @@ QOP_wilson_invert(QOP_info_t *info,
   rsqstop = insq * res_arg->rsqmin;
   VERB(LOW, "WILSON_INVERT: rsqstop = %g\n", rsqstop);
   rsqminold = res_arg->rsqmin;
-  res_arg->rsqmin *= 0.9;
+  res_arg->rsqmin *= 0.5;
   inv_arg->max_restarts = 0;
   do {
     inv_arg->max_iter = max_iter_old - iter;
@@ -327,7 +327,7 @@ QOP_wilson_invert(QOP_info_t *info,
     QDP_r_eq_norm2_D(&rsq, cgr, insub);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
-    res_arg->rsqmin *= 0.9*rsqstop/rsq;
+    res_arg->rsqmin *= 0.5*rsqstop/rsq;
     iter += res_arg->final_iter;
     VERB(LOW, "WILSON_INVERT: iter %i rsq = %g\n", iter, rsq);
   } while((rsq>rsqstop)&&(nrestart++<max_restarts));
