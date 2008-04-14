@@ -1,3 +1,18 @@
+2008-04-14 15:57  tag qopqdp0-11-2
+
+2008-04-14 15:57  osborn
+
+	* NEWS, configure, configure.ac: prepare for 0.11.2 release
+
+2008-04-14 13:56  osborn
+
+	* NEWS, include/qop_internal.h, lib/asqtad_dslash_p.c,
+	  lib/asqtad_force.c, lib/asqtad_force_fnmat_p.c,
+	  lib/asqtad_force_p.c, lib/asqtad_invert.c, lib/asqtad_invert_p.c,
+	  lib/dw_invert.c, lib/dw_invert_p.c, lib/wilson_dslash_p.c,
+	  lib/wilson_invert.c, lib/wilson_invert_p.c: Now make sure QOP is
+	  initialized before using.
+
 2008-04-13 21:35  osborn
 
 	* lib/wilson_invert_p.c: restored wilson inverter inner residual
