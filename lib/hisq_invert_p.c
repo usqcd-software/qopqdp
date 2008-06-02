@@ -15,7 +15,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   QOPPC(FermionLinksAsqtad) *fla;
   QOPPC(FermionLinksHisq) *flh;
   QOP_asqtad_coeffs_t acoeffs;
-  int i,j;
+  int i;
   QDP_ColorMatrix *tempM;
 
 
@@ -134,7 +134,7 @@ void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
 
   const int npolyterm=14;
   QLA_Real poly_c[npolyterm+1], poly_d[npolyterm+1];
-  int i,j,idiag,is,ic,jc;
+  int j,idiag,ic,jc;
 
 // Definition for the fraction:
   poly_c[0] = 0.085091;
@@ -352,7 +352,7 @@ void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
 void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv)
 {
 
-  int i,j,i1,j1,i2,j2;
+  int i,j,i1=0,j1=0,i2=0,j2=0;
 
   QDP_Real *re_cofactor[3][3];
   QDP_Real *im_cofactor[3][3];
@@ -369,7 +369,6 @@ void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv)
   QDP_Real *absdet;
   QLA_Real minusone=-1.;
   QLA_Real one=1.;
-  QLA_Real *qlareal;
 
   for(i=0;i<3;i++){
     for(j=0;j<3;j++){
@@ -550,7 +549,7 @@ void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det)
 {
 
   int i,j;
-  int i1,j1,i2,j2;
+  int j1=0,j2=0;
 
   QDP_Real *re_cofactor[3];
   QDP_Real *im_cofactor[3];
@@ -561,7 +560,6 @@ void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det)
   QDP_Complex *complextemp;
   QDP_Real *rtemp;
   QLA_Real minusone=-1.;
-  QLA_Real *qlareal;
 
   for(i=0;i<3;i++){
       re_cofactor[i]=QDP_create_R();
