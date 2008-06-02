@@ -20,7 +20,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
 #include <complex.h>
 #include <float.h>
-#include "linalg2.h"
+#include "linalg.h"
 
 #define printf0 QOP_printf0
 //#define TRACE printf0("%s %s %i\n", __FILE__, __func__, __LINE__);

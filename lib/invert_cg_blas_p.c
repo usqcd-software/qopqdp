@@ -1,4 +1,4 @@
-#include "linalg2.h"
+#include "linalg.h"
 
 typedef void (*linop_blas_t)(QLA_Complex *out, QLA_Complex *in, void *args);
 
