@@ -1,3 +1,17 @@
+2008-06-02 11:21  tag qopqdp0-11-3
+
+2008-06-02 11:21  detar
+
+	* lib/hisq_invert_p.c: Config update; Eliminate harmless gcc
+	  compilation warnings.
+
+2008-06-02 11:14  detar
+
+	* NEWS, aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/hisq_invert_bench.c, include/qop.h, lib/Makefile.am,
+	  lib/hisq_invert_d.c, lib/hisq_invert_f.c, lib/hisq_invert_p.c:
+	  Add HISQ inverter by Alan Gray.
+
 2008-04-14 15:57  tag qopqdp0-11-2
 
 2008-04-14 15:57  osborn
