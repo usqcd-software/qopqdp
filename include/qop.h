@@ -116,6 +116,24 @@ typedef struct {
 typedef struct QOP_F3_FermionLinksAsqtad_struct QOP_F3_FermionLinksAsqtad;
 typedef struct QOP_D3_FermionLinksAsqtad_struct QOP_D3_FermionLinksAsqtad;
 
+  /* HISQ datatypes*/
+typedef struct {
+  double fat7_one_link;
+  double fat7_three_staple;
+  double fat7_five_staple;
+  double fat7_seven_staple;
+  double asqtad_one_link;
+  double asqtad_three_staple;
+  double asqtad_five_staple;
+  double asqtad_seven_staple;
+  double asqtad_lepage;
+  double asqtad_naik;
+} QOP_hisq_coeffs_t;
+
+typedef struct QOP_F3_FermionLinksHisq_struct QOP_F3_FermionLinksHisq;
+typedef struct QOP_D3_FermionLinksHisq_struct QOP_D3_FermionLinksHisq;
+
+
   /* Wilson datatypes */
 
 typedef struct {
@@ -462,6 +480,67 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
 			       double eps[],
 			       QOP_D3_ColorVector *in_pt[],
 			       int nsrc);
+
+
+  /*********************/
+  /*  HISQ routines  */
+  /*********************/
+
+  /* fermion matrix link routines */
+
+  /* single precision */
+
+QOP_F3_FermionLinksHisq *
+  QOP_F3_hisq_create_L_from_G(QOP_info_t *info,
+				QOP_hisq_coeffs_t *coeffs,
+				QOP_F3_GaugeField *gauge);
+
+  /* double precision */
+
+QOP_D3_FermionLinksHisq *
+  QOP_D3_hisq_create_L_from_G(QOP_info_t *info,
+				QOP_hisq_coeffs_t *coeffs,
+				QOP_D3_GaugeField *gauge);
+
+
+  /* inverter routines */
+
+void QOP_F3_hisq_invert(QOP_info_t *info,
+			  QOP_F3_FermionLinksHisq *hisq,
+			  QOP_invert_arg_t *inv_arg,
+			  QOP_resid_arg_t *res_arg,
+			  float mass,
+			  QOP_F3_ColorVector *out_pt,
+			  QOP_F3_ColorVector *in_pt);
+
+void QOP_F3_hisq_invert_multi(QOP_info_t *info,
+				QOP_F3_FermionLinksHisq *hisq,
+				QOP_invert_arg_t *inv_arg,
+				QOP_resid_arg_t **res_arg[],
+				float *masses[],
+				int nmass[],
+				QOP_F3_ColorVector **out_pt[],
+				QOP_F3_ColorVector *in_pt[],
+				int nsrc);
+
+void QOP_D3_hisq_invert(QOP_info_t *info,
+			  QOP_D3_FermionLinksHisq *hisq,
+			  QOP_invert_arg_t *inv_arg,
+			  QOP_resid_arg_t *res_arg,
+			  double mass,
+			  QOP_D3_ColorVector *out_pt,
+			  QOP_D3_ColorVector *in_pt);
+
+void QOP_D3_hisq_invert_multi(QOP_info_t *info,
+				QOP_D3_FermionLinksHisq *hisq,
+				QOP_invert_arg_t *inv_arg,
+				QOP_resid_arg_t **res_arg[],
+				double *masses[],
+				int nmass[],
+				QOP_D3_ColorVector **out_pt[],
+				QOP_D3_ColorVector *in_pt[],
+				int nsrc);
+
 
 
   /*********************/
@@ -890,6 +969,13 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_force        QOP_F3_asqtad_force
 #define QOP_asqtad_force_multi  QOP_F3_asqtad_force_multi
 
+
+#define QOP_FermionLinksHisq        QOP_F3_FermionLinksHisq
+#define QOP_hisq_create_L_from_G    QOP_F3_hisq_create_L_from_G
+
+#define QOP_hisq_invert       QOP_F3_hisq_invert
+#define QOP_hisq_invert_multi QOP_F3_hisq_invert_multi
+
 #define QOP_FermionLinksWilson        QOP_F3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_F3_wilson_create_L_from_raw
 #define QOP_wilson_create_L_from_G    QOP_F3_wilson_create_L_from_G
@@ -976,6 +1062,12 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_invert_multi QOP_D3_asqtad_invert_multi
 #define QOP_asqtad_force        QOP_D3_asqtad_force
 #define QOP_asqtad_force_multi  QOP_D3_asqtad_force_multi
+
+#define QOP_FermionLinksHisq       QOP_D3_FermionLinksHisq
+#define QOP_hisq_create_L_from_G   QOP_D3_hisq_create_L_from_G
+
+#define QOP_hisq_invert       QOP_D3_hisq_invert
+#define QOP_hisq_invert_multi QOP_D3_hisq_invert_multi
 
 #define QOP_FermionLinksWilson        QOP_D3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_D3_wilson_create_L_from_raw

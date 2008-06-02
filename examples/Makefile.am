@@ -12,6 +12,7 @@ check_PROGRAMS = \
   asqtad_test_f3 asqtad_test_d3 \
   asqtad_invert_bench_f3 asqtad_invert_bench_d3 \
   asqtad_force_bench_f3 asqtad_force_bench_d3 \
+  hisq_invert_bench_f3 hisq_invert_bench_d3 \
   wilson_test_f3 wilson_test_d3 \
   wilson_invert_bench_f3 wilson_invert_bench_d3 \
   dw_invert_bench_f3 dw_invert_bench_d3
@@ -47,6 +48,15 @@ asqtad_invert_bench_d3_LDADD = $(D3_LDADD)
 asqtad_force_bench_d3_SOURCES = test_common.h test_common.c asqtad_force_bench.c
 asqtad_force_bench_d3_CFLAGS = $(D3_CFLAGS)
 asqtad_force_bench_d3_LDADD = $(D3_LDADD)
+
+
+hisq_invert_bench_f3_SOURCES = test_common.h test_common.c hisq_invert_bench.c
+hisq_invert_bench_f3_CFLAGS = $(F3_CFLAGS)
+hisq_invert_bench_f3_LDADD = $(F3_LDADD)
+
+hisq_invert_bench_d3_SOURCES = test_common.h test_common.c hisq_invert_bench.c
+hisq_invert_bench_d3_CFLAGS = $(D3_CFLAGS)
+hisq_invert_bench_d3_LDADD = $(D3_LDADD)
 
 
 wilson_test_f3_SOURCES = test_common.h test_common.c wilson_test.c
