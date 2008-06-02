@@ -53,7 +53,7 @@ QOP_make_paths_and_dirs(QOP_asqtad_coeffs_t *coef) {
     shiftdirs[i] = QDP_neighbor[i];
     shiftdirs[i+4] = neighbor3[i];
   }
-  
+
 #ifdef DEBUG_FNMAT
   QOP_printf0("%s\n",QUARK_ACTION_DESCRIPTION);
 #endif

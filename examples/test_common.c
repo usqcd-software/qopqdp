@@ -253,3 +253,92 @@ get_random_links(QDP_ColorMatrix **u, int n, QLA_Real r)
   QDP_destroy_M(cm);
   make_unitary(u, n);
 }
+
+void
+get_latsize(int *ndim, int **ls, char *fn)
+{
+  QIO_Layout ql;
+  QIO_Reader *qr;
+  QIO_String *qs;
+  int i, *rls;
+
+  ql.latdim = 0;
+  ql.latsize = NULL;
+  ql.this_node = QMP_get_node_number();
+  ql.number_of_nodes = QMP_get_number_of_nodes();
+
+  qs = QIO_string_create();
+
+  qr = QIO_open_read(qs, fn, &ql, NULL, NULL);
+
+  *ndim = QIO_get_reader_latdim(qr);
+  printf0("lattice ndim = %i\n", *ndim);
+  rls = QIO_get_reader_latsize(qr);
+  *ls = (int *) malloc(*ndim*sizeof(int));
+  printf0("lattice size =");
+  for(i=0; i<*ndim; i++) {
+    (*ls)[i] = rls[i];
+    printf0(" %i", (*ls)[i]);
+  }
+  printf0("\n");
+}
+
+void
+load_lattice(QDP_ColorMatrix *gauge[], char *fn)
+{
+  QDP_Reader *qr;
+  QDP_String *md;
+  int ndim = QDP_ndim();
+
+  printf0("loading lattice file %s\n", fn);
+
+  md = QDP_string_create();
+  qr = QDP_open_read(md, fn);
+
+#if QDP_Precision == 'F'
+  QDP_F3_vread_M(qr, md, gauge, ndim);
+#else
+  {
+    int i;
+    QDP_F3_ColorMatrix *tm[ndim];
+    for(i=0; i<ndim; i++) {
+      tm[i] = QDP_F3_create_M();
+    }
+    QDP_F3_vread_M(qr, md, tm, ndim);
+    for(i=0; i<ndim; i++) {
+      QDP_DF3_M_eq_M(gauge[i], tm[i], QDP_all);
+      QDP_F3_destroy_M(tm[i]);
+    }
+  }
+#endif
+
+  QDP_close_read(qr);
+  QDP_string_destroy(md);
+}
+
+void
+load_fermion(QDP_DiracFermion *df, char *fn)
+{
+  QDP_Reader *qr;
+  QDP_String *md;
+
+  printf0("loading fermion file %s\n", fn);
+
+  md = QDP_string_create();
+  qr = QDP_open_read(md, fn);
+
+#if QDP_Precision == 'F'
+  QDP_F3_read_D(qr, md, df);
+#else
+  {
+    QDP_F3_DiracFermion *tdf;
+    tdf = QDP_F3_create_D();
+    QDP_F3_read_D(qr, md, tdf);
+    QDP_DF3_D_eq_D(df, tdf, QDP_all);
+    QDP_F3_destroy_D(tdf);
+  }
+#endif
+
+  QDP_close_read(qr);
+  QDP_string_destroy(md);
+}

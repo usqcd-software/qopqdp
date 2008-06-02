@@ -3,6 +3,7 @@
 
 #include <qop.h>
 #include <qop_qdp.h>
+#include <qop_config.h>
 #include <qop_internal_p.h>
 #include <qmp.h>
 

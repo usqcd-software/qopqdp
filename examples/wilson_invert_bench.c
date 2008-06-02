@@ -207,6 +207,7 @@ usage(char *s)
   printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
   printf("\n");
   printf("n\tnumber of iterations\n");
+  printf("r\ttest restart\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("c\tcgtype (0=CGNE, 1=BiCGStab)\n");
@@ -232,6 +233,7 @@ main(int argc, char *argv[])
     case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'k' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
+    case 'r' : test_restart=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
     case 'v' : verb=atoi(&argv[i][1]); break;

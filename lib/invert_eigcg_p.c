@@ -1,10 +1,30 @@
 /* eigCG of Stathopoulos and Orginos (arXiv:0707.0131) */
-#include <float.h>
-//#include "linalg.h"
+#ifndef HAVE_LAPACK
 
-//#define TRACE printf("%s %s %i\n", __FILE__, __func__, __LINE__);
+QOP_status_t
+QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
+		     QOP_invert_arg_t *inv_arg,
+		     QOP_resid_arg_t *res_arg,
+		     Vector *out,
+		     Vector *in,
+		     Vector *p,
+		     QDP_Subset subset,
+		     QOPPCV(eigcg_t) *eigcg
+		     vIndexDef)
+{
+  QOP_error("need to compile QOP with --enable-lapack for eigcg!\n");
+  return QOP_FAIL;
+}
+
+#else
+
+#include <complex.h>
+#include <float.h>
+#include "linalg2.h"
+
+#define printf0 QOP_printf0
+//#define TRACE printf0("%s %s %i\n", __FILE__, __func__, __LINE__);
 #define TRACE
-#define printf0 if(QDP_this_node==0) printf
 
 #if 0
 #define BEGIN_TIMER {double _dt=-QOP_time();
@@ -14,13 +34,14 @@
 #define END_TIMER
 #endif
 
-#if 0
+#define drotate_vecs(v,r,s) drotate_vecs_func(v,&(r),s)
+#define zrotate_vecs(v,r,s) zrotate_vecs_func(v,&(r),s)
 
 static int ngood;
 
 typedef struct {
-  vecr td, td1, td2;
-  matr t, t1, ta, ta1, ta2, tb, tb0, tb1, tb2, tb3, y, y0, y1, h;
+  dvec td, td1, td2;
+  dmat t, t1, ta, ta1, ta2, tb, tb0, tb1, tb2, tb3, y, y0, y1, h;
 } eigcg_temps_t;
 
 static eigcg_temps_t *
@@ -45,23 +66,25 @@ create_temps(int nev, int m)
   // h  : R  2*nev x 2*nev
   eigcg_temps_t *et;
   et = malloc(sizeof(eigcg_temps_t));
-  alloc_vec(et->td, m);
-  alloc_mat(et->t, m, m);
-  alloc_mat(et->ta, m, m);
-  alloc_mat(et->tb, m, m);
-  alloc_mat(et->y, m, 2*nev);
-  alloc_mat(et->h, 2*nev, 2*nev);
-  subvec(et->td1, et->td, 0, m-1);
-  subvec(et->td2, et->td, 0, 2*nev);
-  submat(et->t1, et->t, 0, 0, m-1, m-1);
-  submat(et->ta1, et->ta, 0, 0, m-1, m-1);
-  submat(et->ta2, et->ta, 0, 0, 2*nev, 2*nev);
-  submat(et->tb0, et->tb, 0, 0, m, nev);
-  submat(et->tb1, et->tb, 0, 0, m-1, m-1);
-  submat(et->tb2, et->tb, m-1, 0, 1, nev);
-  submat(et->tb3, et->tb, 0, 0, m, 2*nev);
-  submat(et->y0, et->y, 0, 0, m, nev);
-  submat(et->y1, et->y, 0, nev, m, nev);
+  dvec_alloc(et->td, m);
+  dmat_alloc(et->t, m, m);
+  dmat_alloc(et->ta, m, m);
+  dmat_alloc(et->tb, m, m);
+  dmat_alloc(et->y, m, 2*nev);
+  dmat_alloc(et->h, 2*nev, 2*nev);
+  //#if 0
+  dsubvec(et->td1, et->td, 0, m-1);
+  dsubvec(et->td2, et->td, 0, 2*nev);
+  dsubmat(et->t1, et->t, 0, 0, m-1, m-1);
+  dsubmat(et->ta1, et->ta, 0, 0, m-1, m-1);
+  dsubmat(et->ta2, et->ta, 0, 0, 2*nev, 2*nev);
+  dsubmat(et->tb0, et->tb, 0, 0, m, nev);
+  dsubmat(et->tb1, et->tb, 0, 0, m-1, m-1);
+  dsubmat(et->tb2, et->tb, m-1, 0, 1, nev);
+  dsubmat(et->tb3, et->tb, 0, 0, m, 2*nev);
+  dsubmat(et->y0, et->y, 0, 0, m, nev);
+  dsubmat(et->y1, et->y, 0, nev, m, nev);
+  //#endif
   // === end eigCG struct
   return et;
 }
@@ -69,24 +92,32 @@ create_temps(int nev, int m)
 static void
 free_temps(eigcg_temps_t *et)
 {
-  free_vec(et->td);
-  free_mat(et->t);
-  free_mat(et->ta);
-  free_mat(et->tb);
-  free_mat(et->y);
-  free_mat(et->h);
+  dvec_free(et->td);
+  dmat_free(et->t);
+  dmat_free(et->ta);
+  dmat_free(et->tb);
+  dmat_free(et->y);
+  dmat_free(et->h);
   free(et);
 }
 
 static void
-rotate_vecs_func(Vector *v[], gsl_matrix *r, QDP_Subset subset)
+drotate_vecs_func(Vector *v[], dmat *r, QDP_Subset subset)
 {
   int i, j;
   int n1 = r->size1;
   int n2 = r->size2;
   Vector **tv;
 
-  //printf("%i %i\n", n1, n2);
+#if 0
+  printf("%i %i\n", n1, n2);
+  dmat_print(*r);
+  for(j=0; j<n1; j++) {
+    QLA_Real nrm2;
+    r_eq_norm2_V(&nrm2, v[j], subset);
+    printf(" %i %g\n", j, nrm2);
+  }
+#endif
   tv = malloc(n2*sizeof(Vector *));
   for(j=0; j<n2; j++) {
     TRACE;
@@ -94,12 +125,19 @@ rotate_vecs_func(Vector *v[], gsl_matrix *r, QDP_Subset subset)
     TRACE;
     V_eq_zero(tv[j], subset);
     for(i=0; i<n1; i++) {
-      QLA_Real s = gsl_matrix_get(r, i, j);
+      QLA_Real s = dmat_get(*r, i, j);
       TRACE;
       V_peq_r_times_V(tv[j], &s, v[i], subset);
       TRACE;
     }
   }
+#if 0
+  for(j=0; j<n2; j++) {
+    QLA_Real nrm2;
+    r_eq_norm2_V(&nrm2, tv[j], subset);
+    printf(" %i %g\n", j, nrm2);
+  }
+#endif
   for(j=0; j<n2; j++) {
     V_eq_V(v[j], tv[j], subset);
     destroy_V(tv[j]);
@@ -107,24 +145,40 @@ rotate_vecs_func(Vector *v[], gsl_matrix *r, QDP_Subset subset)
 }
 
 static void
-rotate_vecsc_func(Vector **v, gsl_matrix_complex *r, QDP_Subset subset)
+zrotate_vecs_func(Vector *v[], zmat *r, QDP_Subset subset)
 {
   int i, j;
   int n1 = r->size1;
   int n2 = r->size2;
   Vector **tv;
 
+#if 0
+  printf("%i %i\n", n1, n2);
+  zmat_print(*r);
+  for(j=0; j<n1; j++) {
+    QLA_Real nrm2;
+    r_eq_norm2_V(&nrm2, v[j], subset);
+    printf(" %i %g\n", j, nrm2);
+  }
+#endif
   tv = malloc(n2*sizeof(Vector *));
   for(j=0; j<n2; j++) {
     create_V(tv[j]);
     V_eq_zero(tv[j], subset);
     for(i=0; i<n1; i++) {
-      gsl_complex gs = gsl_matrix_complex_get(r, i, j);
+      _Complex double cs = zmat_get(*r, i, j);
       QLA_Complex s;
-      QLA_c_eq_r_plus_ir(s, GSL_REAL(gs), GSL_IMAG(gs));
+      QLA_c_eq_r_plus_ir(s, creal(cs), cimag(cs));
       V_peq_c_times_V(tv[j], &s, v[i], subset);
     }
   }
+#if 0
+  for(j=0; j<n2; j++) {
+    QLA_Real nrm2;
+    r_eq_norm2_V(&nrm2, tv[j], subset);
+    printf(" %i %g\n", j, nrm2);
+  }
+#endif
   for(j=0; j<n2; j++) {
     V_eq_V(v[j], tv[j], subset);
     destroy_V(tv[j]);
@@ -161,17 +215,16 @@ static void
 rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QLA_Real *rsq,
 	     QOPPCV(linop_t) *linop, Vector *p, Vector *Mp, QDP_Subset subset)
 {
-  QLA_Complex zz;
   int i, j, n=nu+nv;
-  vecr vv;
-  matc mm, tt;
+  dvec vv;
+  zmat mm, tt;
 
   if(n>0) {
     VERB(MED, "eigCG: rr: nu %i nv %i\n", nu, nv);
     //printf0("CG: rr: nu %i nv %i\n", nu, nv);
-    alloc_vec(vv, n);
-    alloc_matc(mm, n, n);
-    alloc_matc(tt, n, n);
+    dvec_alloc(vv, n);
+    zmat_alloc(mm, n, n);
+    zmat_alloc(tt, n, n);
 
     BEGIN_TIMER;
     orthonormalize(u, nu, nv, subset);
@@ -179,44 +232,56 @@ rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QLA_Real *rsq,
 
     BEGIN_TIMER;
     for(i=0; i<nu; i++) {
-      QLA_c_eq_r(zz, 0.);
+      _Complex double zz;
+      zz = 0.;
       for(j=0; j<nu; j++) {
-	setc(mm, i, j, zz);
+	zmat_set(mm, i, j, zz);
       }
-      QLA_c_eq_r(zz, l[i]);
-      setc(mm, i, i, zz);
+      zz = l[i];
+      zmat_set(mm, i, i, zz);
     }
+    //printf("test\n");
 
     for(j=nu; j<n; j++) {
+      _Complex double zz;
+      QLA_Complex qz;
       //QLA_Real nrm;
       //r_eq_norm2_V(&nrm, u[j], subset);
       //printf("nrm = %g\n", nrm);
       V_eq_V(p, u[j], subset);
       linop(Mp, p, subset);
       for(i=0; i<j; i++) {
-	c_eq_V_dot_V(&zz, u[i], Mp, subset);
-	//printf("%i %i %g %g\n", i, j, QLA_real(zz), QLA_imag(zz));
-	setc(mm, i, j, zz);
-	QLA_c_eq_ca(zz, zz);
-	setc(mm, j, i, zz);
+	c_eq_V_dot_V(&qz, u[i], Mp, subset);
+	//printf("%i %i %g %g\n", i, j, QLA_real(qz), QLA_imag(qz));
+	zz = QLA_real(qz) + I*QLA_imag(qz);
+	//printf("%i %i %g %g\n", i, j, creal(zz), cimag(zz));
+	zmat_set(mm, i, j, zz);
+	zz = conj(zz);
+	zmat_set(mm, j, i, zz);
       }
-      c_eq_V_dot_V(&zz, u[j], Mp, subset);
-      setc(mm, j, j, zz);
+      c_eq_V_dot_V(&qz, u[j], Mp, subset);
+      zz = QLA_real(qz) + I*QLA_imag(qz);
+      zmat_set(mm, j, j, zz);
     }
     END_TIMER;
     //printf(" mm:\n");
     //gsl_matrix_complex_fprintf(stdout, mm.mat, "  %10g");
     BEGIN_TIMER;
-    eigsc(mm, vv, tt, n);
+    //printf("zeigs\n");
+    //printf("mm\n"); zmat_print(mm);
+    zeigs(mm, vv, tt, n);
+    //printf("zeigs\n");
     END_TIMER;
     //printf(" tt:\n");
     //gsl_matrix_complex_fprintf(stdout, tt.mat, "  %10g");
     BEGIN_TIMER;
-    rotate_vecsc(u, tt, subset);
+    //printf("zrot\n");
+    zrotate_vecs(u, tt, subset);
+    //printf("zrot\n");
     END_TIMER;
     if(!rsq) {
       for(i=0; i<n; i++) {
-	l[i] = vv.vec->data[i];
+	l[i] = vv.data[i];
       }
     } else {
       Vector *r;
@@ -234,15 +299,15 @@ rayleighRitz(Vector *u[], QLA_Real l[], int nu, int nv, QLA_Real *rsq,
 	rn2 /= n2;
 	//printf0(" %i %-10g %-10g %-10g %-10g\n", i, vv.vec->data[i], ev, rn2, n2);
 	l[i] = ev;
-	rsq[i] = rn2;
+	rsq[i] = ev*sqrt(rn2);
       }
       destroy_V(r);
     }
-    free_vec(vv);
-    free_matc(mm);
-    free_matc(tt);
+    dvec_free(vv);
+    zmat_free(mm);
+    zmat_free(tt);
     if(n==1) l[1] = 0;
-    VERB(MED, "CG: ev[0] %g ev[1] %g ev[%i] %g\n", l[0], l[1], n-1, l[n-1]);
+    VERB(MED, "eigCG: ev[0] %g ev[1] %g ev[%i] %g\n", l[0], l[1], n-1, l[n-1]);
     if(rsq) {
       int ni, ia[6]={0,1,0,0,0,0};
       for(i=0; i<n; i++) if(rsq[i]>1e-4) break;
@@ -275,21 +340,31 @@ initcg(Vector *x, Vector *u[], QLA_Real l[], int n, Vector *b,
   }
 }
 
+#define gett(ta,v,m,linop,p,Mp,subset) gett_func(&ta,v,m,linop,p,Mp,subset) 
 static void
-gett_func(gsl_matrix *tt, Vector *v[], int n, QOPPCV(linop_t) *linop,
+gett_func(dmat *tt, Vector *v[], int n, QOPPCV(linop_t) *linop,
 	  Vector *p, Vector *Mp, QDP_Subset subset)
 {
   int i, j;
+  Vector *sp, *sMp;
+  create_V(sp);
+  create_V(sMp);
+  V_eq_V(sp, p, subset);
+  V_eq_V(sMp, Mp, subset);
   for(j=0; j<n; j++) {
     V_eq_V(p, v[j], subset);
     linop(Mp, p, subset);
     for(i=0; i<n; i++) {
       QLA_Complex zz;
       c_eq_V_dot_V(&zz, v[i], Mp, subset);
-      gsl_matrix_set(tt, i, j, QLA_real(zz));
+      dmat_set(*tt, i, j, QLA_real(zz));
       //printf("%i %i %g\n", i, j, QLA_real(zz));
     }
   }
+  V_eq_V(p, sp, subset);
+  V_eq_V(Mp, sMp, subset);
+  destroy_V(sp);
+  destroy_V(sMp);
 }
 
 #define setv() { \
@@ -320,99 +395,148 @@ diag_t_old(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
   // y1 : y(0,nev : m,nev)
   // h  : R  2*nev x 2*nev
 #if 0
-  matr 
-  subvec(et->td1, et->td, 0, m-1);
-  subvec(et->td2, et->td, 0, 2*nev);
-  submat(et->t1, et->t, 0, 0, m-1, m-1);
-  submat(et->ta1, et->ta, 0, 0, m-1, m-1);
-  submat(et->ta2, et->ta, 0, 0, 2*nev, 2*nev);
-  submat(et->tb0, et->tb, 0, 0, m, nev);
-  submat(et->tb1, et->tb, 0, 0, m-1, m-1);
-  submat(et->tb2, et->tb, m-1, 0, 1, nev);
-  submat(et->tb3, et->tb, 0, 0, m, 2*nev);
-  submat(et->y0, et->y, 0, 0, m, nev);
-  submat(et->y1, et->y, 0, nev, m, nev);
+  dmat 
+  dsubvec(et->td1, et->td, 0, m-1);
+  dsubvec(et->td2, et->td, 0, 2*nev);
+  dsubmat(et->t1, et->t, 0, 0, m-1, m-1);
+  dsubmat(et->ta1, et->ta, 0, 0, m-1, m-1);
+  dsubmat(et->ta2, et->ta, 0, 0, 2*nev, 2*nev);
+  dsubmat(et->tb0, et->tb, 0, 0, m, nev);
+  dsubmat(et->tb1, et->tb, 0, 0, m-1, m-1);
+  dsubmat(et->tb2, et->tb, m-1, 0, 1, nev);
+  dsubmat(et->tb3, et->tb, 0, 0, m, 2*nev);
+  dsubmat(et->y0, et->y, 0, 0, m, nev);
+  dsubmat(et->y1, et->y, 0, nev, m, nev);
 #endif
 #if 0
   printf("cmp1:\n");
   gett(ta, v, m, linop, p, Mp, subset);
   compmr(ta, t);
-  eigsr(ta, td, tb, nev);
+  deigs(ta, td, tb, nev);
   printf("t:\n");
   printvr(td);
 #endif
-  copyr(et->ta, et->t);
-  eigsr(et->ta, et->td, et->tb, nev);
+  dmat_copy(et->ta, et->t);
+  deigs(et->ta, et->td, et->tb, nev);
   //printf("tm:\n");
   //printvr(td);
 
   {
-    matr tb2;
-    submat(tb2, et->tb, 0, 0, m, 2*nev);
-    copyr(et->y, tb2);
+    dmat tb2;
+    dsubmat(tb2, et->tb, 0, 0, m, 2*nev);
+    dmat_copy(et->y, tb2);
   }
 #if 0
-  copyr(et->y0, et->tb0);
-  copyr(et->ta1, et->t1);
-  eigsr(et->ta1, et->td1, et->tb1, nev);
-  zeror(et->tb2);
-  copyr(et->y1, et->tb0);
-  //mmultanr(h, y, y);
+  dmat_copy(et->y0, et->tb0);
+  dmat_copy(et->ta1, et->t1);
+  deigs(et->ta1, et->td1, et->tb1, nev);
+  dvec_zero(et->tb2);
+  dmat_copy(et->y1, et->tb0);
+  //mmulanr(h, y, y);
   //printf("y^T y:\n");
   //printmr(h);
-  orthocolsr(et->y1, et->y0);
+  dorthocols(et->y1, et->y0);
 #endif
-  //mmultanr(h, y, y);
+  //mmulanr(h, y, y);
   //printf("y^T y:\n");
   //printmr(h);
   TRACE;
-  mmultnnr(et->tb3, et->t, et->y);
+  dmulmnn(et->tb3, et->t, et->y);
   TRACE;
-  mmultanr(et->h, et->y, et->tb3);
+  dmulman(et->h, et->y, et->tb3);
   TRACE;
-  eigsr(et->h, et->td2, et->ta2, 2*nev);
+  deigs(et->h, et->td2, et->ta2, 2*nev);
   //printf("td2:\n");
   //printvr(td2);
   TRACE;
-  mmultnnr(et->tb3, et->y, et->ta2);
+  dmulmnn(et->tb3, et->y, et->ta2);
 #if 0
   {
-    //mmultnnr(y, t, tb3);
-    //mmultanr(h, tb3, y);
-    mmultanr(h, tb3, tb3);
+    //mmulnnr(y, t, tb3);
+    //mmulanr(h, tb3, y);
+    dmulman(h, tb3, tb3);
     printf("q^T y^T t y q:\n");
     printmr(h);
   }
 #endif
   TRACE;
-  rotate_vecs(v, et->tb3, subset);
+  drotate_vecs(v, et->tb3, subset);
   TRACE;
 }
 
 static void
-diag_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
-       QDP_Subset subset)
+diag_t(eigcg_temps_t *et, int nev, int nv)
 {
-  matr t0, ta0, tb0;
-  vecr td0;
+  dmat t0, ta0, tb0;
+  dvec td0;
 
-  submat(t0, et->t, 0, 0, nv, nv);
-  submat(ta0, et->ta, 0, 0, nv, nv);
-  subvec(td0, et->td, 0, nv);
-  submat(tb0, et->tb, 0, 0, nv, nv);
-  copyr(ta0, t0);
-  eigsr(ta0, td0, tb0, nv);
+  dsubmat(t0, et->t, 0, 0, nv, nv);
+  dsubmat(ta0, et->ta, 0, 0, nv, nv);
+  dsubvec(td0, et->td, 0, nv);
+  dsubmat(tb0, et->tb, 0, 0, nv, nv);
+  dmat_copy(ta0, t0);
+  //printf("ta0\n"); dmat_print(ta0);
+  deigs(ta0, td0, tb0, nev);
+  //dvec_print(td0);
+  //printf("tb0\n"); dmat_print(tb0);
 }
 
 static void
-rot_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
-      QDP_Subset subset)
+set_y(eigcg_temps_t *et, int noff, int nev, int nv, int n)
 {
-  matr tb0;
+  dmat y0, tb0;
+  int nz = n-nv;
+
+  dsubmat(y0, et->y, 0, noff, nv, nev);
+  dsubmat(tb0, et->tb, 0, 0, nv, nev);
+  dmat_copy(y0, tb0);
+  //printf("tb0\n"); dmat_print(tb0);
+  //printf("y0\n"); dmat_print(y0);
+  if(nz) {
+    dmat y1;
+    dsubmat(y1, et->y, nv, noff, nz, nev);
+    dmat_zero(y1);
+  }
+  if(noff) {
+    dmat y2, y3;
+    dsubmat(y2, et->y, 0, 0, n, noff);
+    dsubmat(y3, et->y, 0, noff, n, nev);
+    //printf("y2\n"); dmat_print(y2);
+    //printf("y3\n"); dmat_print(y3);
+    dorthocols(y3, y2);
+    //printf("y2\n"); dmat_print(y2);
+    //printf("y3\n"); dmat_print(y3);
+
+    dmat tb1, t0, y4;
+    dsubmat(tb1, et->tb, 0, 0, n, noff+nev);
+    dsubmat(t0, et->t, 0, 0, n, n);
+    dsubmat(y4, et->y, 0, 0, n, noff+nev);
+    dmulmnn(tb1, t0, y4);
+    //printf("y4\n"); dmat_print(y4);
+
+    dmat h0;
+    dsubmat(h0, et->h, 0, 0, noff+nev, noff+nev);
+    dmulman(h0, y4, tb1);
+
+    dmat ta0;
+    dvec td0;
+    dsubmat(ta0, et->ta, 0, 0, noff+nev, noff+nev);
+    dsubvec(td0, et->td, 0, noff+nev);
+    deigs(h0, td0, ta0, noff+nev);
+
+    dmulmnn(tb1, y4, ta0);
+  }
+}
+
+static void
+rot_t(eigcg_temps_t *et, int nev, Vector *v[], int nv, QDP_Subset subset)
+{
+  dmat tb0;
   int n=2*nev;
   if(n>nv) n = nv;
-  submat(tb0, et->tb, 0, 0, nv, n);
-  rotate_vecs(v, tb0, subset);
+  dsubmat(tb0, et->tb, 0, 0, nv, n);
+  //printf("tb0\n"); dmat_print(tb0);
+  drotate_vecs(v, tb0, subset);
 }
 
 static void
@@ -430,35 +554,35 @@ reset_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int *nvp,
   nv = 2*nev;
   setv();
   TRACE;
-  zeror(et->t);
+  dmat_zero(et->t);
   V_eq_V(p, v[nv-1], subset);
   linop(Mp, p, subset);
   for(i=0; i<nv-1; i++) {
     QLA_Real rr;
     r_eq_re_V_dot_V(&rr, v[i], Mp, subset);
-    setr(et->t, i, nv-1, rr);
-    setr(et->t, nv-1, i, rr);
-    setr(et->t, i, i, getvr(et->td2,i));
+    dmat_set(et->t, i, nv-1, rr);
+    dmat_set(et->t, nv-1, i, rr);
+    dmat_set(et->t, i, i, dvec_get(et->td2,i));
   }
-  setr(et->t, nv-1, nv-1, 1./a + b/a0);
+  dmat_set(et->t, nv-1, nv-1, 1./a + b/a0);
   TRACE;
 #if 0
   {
-    vecr tv1;
-    matr tt1, tt2, tt3;
-    subvec(tv1, td, 0, 2*nev+1);
-    submat(tt1, t, 0, 0, 2*nev+1, 2*nev+1);
-    submat(tt2, ta, 0, 0, 2*nev+1, 2*nev+1);
-    submat(tt3, tb, 0, 0, 2*nev+1, 2*nev+1);
-    copyr(tt2, tt1);
-    eigsr(tt2, tv1, tt3, 2*nev+1);
+    dvec tv1;
+    dmat tt1, tt2, tt3;
+    dsubvec(tv1, et->td, 0, 2*nev+1);
+    dsubmat(tt1, et->t, 0, 0, 2*nev+1, 2*nev+1);
+    dsubmat(tt2, et->ta, 0, 0, 2*nev+1, 2*nev+1);
+    dsubmat(tt3, et->tb, 0, 0, 2*nev+1, 2*nev+1);
+    dmat_copy(tt2, tt1);
+    deigs(tt2, tv1, tt3, 2*nev+1);
     printf("t:2nev+1: theory\n");
     printvr(tv1);
 
     gett(tt2, v, 2*nev+1, linop, p, Mp, subset);
     printf("t:2nev+1: exact\n");
     compmr(tt2, tt1);
-    eigsr(tt2, tv1, tt3, 2*nev+1);
+    deigs(tt2, tv1, tt3, 2*nev+1);
     printf("t:2nev+1: exact\n");
     printvr(tv1);
   }
@@ -470,7 +594,6 @@ reset_t(eigcg_temps_t *et, int nev, int m, Vector *v[], int *nvp,
   *nvp = nv;
 }
 
-#endif
 
 QOP_status_t
 QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
@@ -483,7 +606,6 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 		     QOPPCV(eigcg_t) *eigcg
 		     vIndexDef)
 {
-#if 0
   QLA_Real a, b, a0;
   QLA_Real rsq, oldrsq, pkp;
   QLA_Real insq;
@@ -502,7 +624,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   Vector **u = eigcg->u;
   QLA_Real *l = eigcg->l;
   QLA_Real *evrsq;
-  QLA_Real new_low=FLT_MAX;
+  //QLA_Real new_low=FLT_MAX;
   int nev = eigcg->nev;
   int m = eigcg->m;
   int numax = eigcg->numax;
@@ -522,7 +644,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     nv = 0;
   }
   TRACE;
-  VERB(MED, "CG: numax %i m %i nev %i nu %i nv %i\n", numax, m, nev, nu, nv);
+  VERB(MED, "eigCG: numax %i m %i nev %i nu %i nv %i\n", numax, m, nev,nu,nv);
 
   et = create_temps(nev, m);
   evrsq = (QLA_Real *)malloc(numax*sizeof(QLA_Real));
@@ -533,16 +655,21 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
-  VERB(LOW, "CG: rsqstop = %g\n", rsqstop);
+  VERB(LOW, "eigCG: rsqstop = %g\n", rsqstop);
   rsq = 0;
   oldrsq = rsq;
 
   if(nv) {
-    rayleighRitz(u, l, 0, nu+nv, evrsq, linop, p, Mp, subset);
+    //if(nv>nev) nv=nev;
+    //rayleighRitz(u, l, 0, nu+nv, evrsq, linop, p, Mp, subset);
+    rayleighRitz(u, l, nu, nv, evrsq, linop, p, Mp, subset);
+    //if(nv>nev) nv=nev;
     nu += nv; nv = 0;
+    VERB(MED, "eigCG: ngood %i rsq[0] %g rsq[1] %g rsq[%i] %g\n", ngood,
+	 evrsq[0], evrsq[1], nu-1, evrsq[nu-1]);
   }
   //if(nu>ngood+nev) nu = ngood+nev;
-  if( nuold>=numax-m && ngood>(numax-m)/2 ) { addvecs = 0; }
+  if( nu>=numax-m && ngood>(numax-m)/2 ) { addvecs = 0; }
 #if 0
   if(nv>nev) {
     BEGIN_TIMER;
@@ -591,7 +718,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
-      VERB(LOW, "CG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
+      VERB(LOW, "eigCG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
       if( (rsq<rsqstop) ||
 	  (total_iterations>=max_iterations) ) break;
 
@@ -611,40 +738,49 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       }
 #endif
       if(addvecs) {
-      printf0(" %i %i %i %i\n", total_iterations, nuold, nu, nv);
-      if(nv) {
-	int nuadd=nv;
-	//if(nuadd>nev) nuadd = nev;
-	diag_t(et, nev, m, v, nv, subset);
-	printf0("ev: %g %g %g %g\n", l[0], l[nuold-1], new_low, getvr(et->td,0));
-	if(getvr(et->td,0)<new_low) new_low = getvr(et->td,0);
-	rot_t(et, nev, m, v, nv, subset);
-	nu += nuadd;
-	nv = 0;
-      }
-      if(nu>numax-m) {
-	if(new_low<l[nuold-1]) {
-	  //int nl = numax - m - nev;
-	  int nl = 0;
-	  rayleighRitz(u+nl, l+nl, 0, nu-nl, NULL, linop, p, Mp, subset);
-	  if(nuold>nl) nuold = nl;
+	//printf0(" %i %i %i %i\n", total_iterations, nuold, nu, nv);
+#if 0
+	if(nv) {
+	  int nuadd=nv;
+	  if(nuadd>nev) nuadd = nev;
+ 	  diag_t(et, nuadd, nv);
+	  //printf0("ev: %g %g %g %g\n", l[0], l[nuold-1], new_low, dvec_get(et->td,0));
+	  if(dvec_get(et->td,0)<new_low) new_low = dvec_get(et->td,0);
+ 	  set_y(et, 0, nuadd, nv, nv);
+ 	  //diag_t(et, nuadd, nv-1);
+ 	  //set_y(et, nuadd, nuadd, nv, nv);
+
+	  rot_t(et, nev, m, v, nv, subset);
+	  nu += nuadd;
+	  nv = 0;
 	}
-	nu = numax - m;
-	new_low = FLT_MAX;
-      }
-      //if(nu+m>numax) addvecs = 0;
-      v = u + nu;
-      //nv = 0;
-      zeror(et->t);
-      TRACE;
+	if(nu>numax-m) {
+	  if(new_low<l[nuold-1]) {
+	    //int nl = numax - m - nev;
+	    int nl = 0;
+	    rayleighRitz(u+nl, l+nl, 0, nu-nl, NULL, linop, p, Mp, subset);
+	    if(nuold>nl) nuold = nl;
+	  }
+	  nu = numax - m;
+	  new_low = FLT_MAX;
+	}
+#endif
+	rayleighRitz(u, l, 0, nu+nv, NULL, linop, p, Mp, subset);
+	nu += nv;
+	nv = 0;
+	if(nu+m>numax) nu = numax - m;
+
+	//if(nu+m>numax) addvecs = 0;
+	v = u + nu;
+	//nv = 0;
+	dmat_zero(et->t);
+	TRACE;
       }
 
       V_eq_V(p, r, subset);
 
     } else {
 
-      //r_eq_re_V_dot_V(&b, Mp, r, subset);
-      //b = -a*b/oldrsq;
       b = rsq / oldrsq;
       V_eq_r_times_V_plus_V(p, &b, p, r, subset);
 
@@ -661,27 +797,47 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
     if(addvecs) {
       if(nv==0) {
-	setr(et->t, 0, 0, 1./a);
+	dmat_set(et->t, 0, 0, 1./a);
 	setv();
       } else if(nv<m) {
 	QLA_Real ts;
-	setr(et->t, nv, nv, 1./a + b/a0);
+	dmat_set(et->t, nv, nv, 1./a + b/a0);
 	ts = -sqrt(b)/a0;
-	setr(et->t, nv, nv-1, ts);
-	setr(et->t, nv-1, nv, ts);
+	dmat_set(et->t, nv, nv-1, ts);
+	dmat_set(et->t, nv-1, nv, ts);
 	setv();
       } else {
 	BEGIN_TIMER;
-	diag_t(et, nev, m, v, nv, subset);
+	//gett(et->t, v, nv, linop, p, Mp, subset);
+	diag_t(et, nev, nv);
+	set_y(et, 0, nev, nv, nv);
+	diag_t(et, nev, nv-1);
+	set_y(et, nev, nev, nv-1, nv);
 	END_TIMER;
 	BEGIN_TIMER;
-	rot_t(et, nev, m, v, nv, subset);
+	rot_t(et, nev, v, nv, subset);
 	END_TIMER;
 	BEGIN_TIMER;
 	reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
 	END_TIMER;
       }
     }
+#if 1
+    if(QOP_common.verbosity>=QOP_VERB_HI) {
+      dmat ta0, t0, tb0;
+      dvec td0;
+      dsubmat(t0, et->t, 0, 0, nv, nv);
+      dsubmat(ta0, et->ta, 0, 0, nv, nv);
+      dsubmat(tb0, et->tb, 0, 0, nv, nv);
+      dsubvec(td0, et->td, 0, nv);
+      printf("cmp1:\n");
+      gett(ta0, v, nv, linop, p, Mp, subset);
+      dmat_comp(ta0, t0);
+      deigs(ta0, td0, tb0, nv);
+      printf("t:\n");
+      //dvec_print(td0);
+    }
+#endif
 #if 0
     for(i=0; i<nv; i++) {
       QLA_Real nrm;
@@ -694,7 +850,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     V_meq_r_times_V(r, &a, Mp, subset);
     oldrsq = rsq;
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(HI, "CG: iter %i rsq = %g\n", total_iterations, rsq);
+    VERB(HI, "eigCG: iter %i rsq = %g\n", total_iterations, rsq);
   }
   //rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
   VERB(LOW, "done: nu %i nv %i\n", nu, nv);
@@ -714,6 +870,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   res_arg->final_iter = total_iterations;
   res_arg->final_restart = nrestart;
 
-#endif
   return QOP_SUCCESS;
 }
+
+#endif //HAVE_LAPACK

@@ -1,10 +1,30 @@
-AC_INIT(qopqdp, 0.11.3, [josborn at physics.bu.edu])
+AC_INIT(qopqdp, 0.11.4, [josborn at physics.bu.edu])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_SRCDIR(include/qop.h)
 AC_CONFIG_SRCDIR(lib/common.c)
 AM_CONFIG_HEADER(include/qop_config.h)
+
+dnl --enable-blas
+AC_ARG_ENABLE(
+  blas,
+  AC_HELP_STRING([--enable-blas],
+    [enable routines that use blas (set LDFLAGS and LIBS to link to blas)]),
+  AC_DEFINE_UNQUOTED(HAVE_BLAS, [$enableval], [have blas]),
+  AC_DEFINE_UNQUOTED(HAVE_BLAS, [no], [have blas])
+)
+
+dnl --enable-lapack
+AC_ARG_ENABLE(
+  lapack,
+  AC_HELP_STRING([--enable-lapack],
+    [enable routines that use lapack and blas (set LDFLAGS and LIBS to link to lapack and blas)]),
+  AC_DEFINE_UNQUOTED(HAVE_BLAS, [$enableval], [have blas])
+  AC_DEFINE_UNQUOTED(HAVE_LAPACK, [$enableval], [have lapack]),
+  AC_DEFINE_UNQUOTED(HAVE_BLAS, [no], [have blas])
+  AC_DEFINE_UNQUOTED(HAVE_LAPACK, [no], [have lapack])
+)
 
 AC_ARG_WITH(
   qdp,
@@ -29,7 +49,7 @@ AC_ARG_WITH(
   [QIODIR="$with_qio"; WITH_QIO=1]
 )
 AC_SUBST(QIODIR)
- 
+
 AC_ARG_WITH(
   qmp,
   AC_HELP_STRING([--with-qmp=<QMP dir>],
@@ -82,12 +102,14 @@ CFLAGS="$CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
 LDFLAGS="$LDFLAGS $QDP_LDFLAGS $QLA_LDFLAGS $QIO_LDFLAGS $QMP_LDFLAGS"
 LIBS="$LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS"
 
+# Checks for programs.
 AC_PROG_RANLIB
 #AC_DISABLE_SHARED
 #AC_PROG_LIBTOOL
-AC_PROG_CC(cc gcc)
+AC_PROG_CC([c99 cc gcc])
 AC_CHECK_TOOL(AR, ar, [ar])
 AM_PROG_CC_C_O
+AC_PROG_CC_C99
 
 # pass configuration to distcheck target
 DISTCHECK_CONFIGURE_FLAGS="CC=\"$CC\" CFLAGS=\"$CFLAGS\" LDFLAGS=\"$LDFLAGS\" LIBS=\"$LIBS\""

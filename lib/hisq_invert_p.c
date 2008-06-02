@@ -42,7 +42,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
     {
       QDP_M_eq_M(gauge->links[i], fla->fatlinks[i], QDP_all);
     }
-
+  QOP_asqtad_destroy_L(fla);
 
   // projection stage 
   // project gauge fields to SU3 
@@ -71,7 +71,6 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   QDP_destroy_M(tempM);
 
   return flh;
-
 }
 
 //wrapper of asqtad inverter for hisq links
