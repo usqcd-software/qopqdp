@@ -1,6 +1,10 @@
 ===========================================================================
-2008-06-02      version 0.11.4
+2008-06-03      version 0.11.4
 ===========================================================================
+2008-06-03:	James Osborn
+	Added --enable-underscores option for linking with blas/lapack.
+	Correct for factor of 1/2 in creation of HISQ links.
+
 2008-06-02:	James Osborn
 	Added --enable-blas and --enable-lapack configure options which
 	enable blas based CG and eigCG codes.

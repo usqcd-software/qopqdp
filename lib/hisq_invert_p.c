@@ -40,7 +40,9 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   // since fat7 contains only fat links, can just copy fla->fatlinks to gauge
   for (i=0;i<4;i++)
     {
-      QDP_M_eq_M(gauge->links[i], fla->fatlinks[i], QDP_all);
+      QLA_Real two = 2.0; // correct for factor of 1/2 in links
+      //QDP_M_eq_M(gauge->links[i], fla->fatlinks[i], QDP_all);
+      QDP_M_eq_r_times_M(gauge->links[i], &two, fla->fatlinks[i], QDP_all);
     }
   QOP_asqtad_destroy_L(fla);
 
