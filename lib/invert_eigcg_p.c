@@ -373,6 +373,7 @@ gett_func(dmat *tt, Vector *v[], int n, QOPPCV(linop_t) *linop,
       nv++; \
     }
 
+#if 0
 static void
 diag_t_old(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
 	   QDP_Subset subset)
@@ -463,6 +464,7 @@ diag_t_old(eigcg_temps_t *et, int nev, int m, Vector *v[], int nv,
   drotate_vecs(v, et->tb3, subset);
   TRACE;
 }
+#endif
 
 static void
 diag_t(eigcg_temps_t *et, int nev, int nv)
@@ -529,10 +531,9 @@ set_y(eigcg_temps_t *et, int noff, int nev, int nv, int n)
 }
 
 static void
-rot_t(eigcg_temps_t *et, int nev, Vector *v[], int nv, QDP_Subset subset)
+rot_t(eigcg_temps_t *et, int n, Vector *v[], int nv, QDP_Subset subset)
 {
   dmat tb0;
-  int n=2*nev;
   if(n>nv) n = nv;
   dsubmat(tb0, et->tb, 0, 0, nv, n);
   //printf("tb0\n"); dmat_print(tb0);
@@ -623,7 +624,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   Vector **v = NULL;
   Vector **u = eigcg->u;
   QLA_Real *l = eigcg->l;
-  QLA_Real *evrsq;
+  QLA_Real *evrsq=NULL;
   //QLA_Real new_low=FLT_MAX;
   int nev = eigcg->nev;
   int m = eigcg->m;
@@ -647,7 +648,9 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   VERB(MED, "eigCG: numax %i m %i nev %i nu %i nv %i\n", numax, m, nev,nu,nv);
 
   et = create_temps(nev, m);
-  evrsq = (QLA_Real *)malloc(numax*sizeof(QLA_Real));
+  if(QOP_common.verbosity>=QOP_VERB_MED) {
+    evrsq = (QLA_Real *)malloc(numax*sizeof(QLA_Real));
+  }
   TRACE;
 
   create_V(r);
@@ -660,7 +663,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   oldrsq = rsq;
 
   if(nv) {
-    //if(nv>nev) nv=nev;
+    if(nv>nev) nv=nev;
     //rayleighRitz(u, l, 0, nu+nv, evrsq, linop, p, Mp, subset);
     rayleighRitz(u, l, nu, nv, evrsq, linop, p, Mp, subset);
     //if(nv>nev) nv=nev;
@@ -750,7 +753,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
  	  //diag_t(et, nuadd, nv-1);
  	  //set_y(et, nuadd, nuadd, nv, nv);
 
-	  rot_t(et, nev, m, v, nv, subset);
+	  rot_t(et, 2*nev, m, v, nv, subset);
 	  nu += nuadd;
 	  nv = 0;
 	}
@@ -815,7 +818,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 	set_y(et, nev, nev, nv-1, nv);
 	END_TIMER;
 	BEGIN_TIMER;
-	rot_t(et, nev, v, nv, subset);
+	rot_t(et, 2*nev, v, nv, subset);
 	END_TIMER;
 	BEGIN_TIMER;
 	reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
@@ -854,6 +857,13 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   }
   //rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
   VERB(LOW, "done: nu %i nv %i\n", nu, nv);
+
+  if(nv>nev) {
+    diag_t(et, nev, nv);
+    set_y(et, 0, nev, nv, nv);
+    rot_t(et, nev, v, nv, subset);
+    nv = nev;
+  }
 
   //if( nuold>=numax-m && ngood>(numax-m)/2 ) { nu = nuold; nv = 0; }
 

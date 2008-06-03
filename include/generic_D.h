@@ -4,8 +4,8 @@
 #define vIndexDef
 #define create_V(r)		r = QDP_create_D()
 #define destroy_V		QDP_destroy_D
-#define insert_packed_V         QDP_insert_packed_D
-#define extract_packed_V        QDP_extract_packed_D
+#define insert_packed_V(r,a,s)  QDP_insert_packed_D(r,(QLA_DiracFermion*)(a),s)
+#define extract_packed_V(r,a,s) QDP_extract_packed_D((QLA_DiracFermion*)(r),a,s)
 #define csize_V                 12
 
 #define V_eq_zero		QDP_D_eq_zero

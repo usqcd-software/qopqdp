@@ -4,8 +4,8 @@
 #define vIndexDef
 #define create_V(r)		r = QDP_create_V()
 #define destroy_V		QDP_destroy_V
-#define insert_packed_V         QDP_insert_packed_V
-#define extract_packed_V        QDP_extract_packed_V
+#define insert_packed_V(r,a,s)  QDP_insert_packed_V(r,(QLA_ColorVector*)(a),s)
+#define extract_packed_V(r,a,s) QDP_extract_packed_V((QLA_ColorVector*)(r),a,s)
 #define csize_V                 3
 
 #define V_eq_zero		QDP_V_eq_zero

@@ -1262,9 +1262,11 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-blas           enable routines that use blas (set LDFLAGS and LIBS
-                          to link to blas)
+                          to link to blas, see --enable-underscores)
   --enable-lapack         enable routines that use lapack and blas (set
-                          LDFLAGS and LIBS to link to lapack and blas)
+                          LDFLAGS and LIBS to link to lapack and blas, see
+                          --enable-underscores)
+  --enable-underscores    append underscores to lapack and blas routines
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
 
@@ -2207,44 +2209,44 @@ ac_config_headers="$ac_config_headers include/qop_config.h"
 
 # Check whether --enable-blas was given.
 if test "${enable_blas+set}" = set; then
-  enableval=$enable_blas;
-cat >>confdefs.h <<_ACEOF
-#define HAVE_BLAS $enableval
+  enableval=$enable_blas; if test "X${enableval}X" == "XyesX"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_BLAS
 _ACEOF
 
-else
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_BLAS no
-_ACEOF
-
+  fi
 
 fi
 
 
 # Check whether --enable-lapack was given.
 if test "${enable_lapack+set}" = set; then
-  enableval=$enable_lapack;
-cat >>confdefs.h <<_ACEOF
-#define HAVE_BLAS $enableval
+  enableval=$enable_lapack; if test "X${enableval}X" == "XyesX"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_BLAS
 _ACEOF
 
 
-cat >>confdefs.h <<_ACEOF
-#define HAVE_LAPACK $enableval
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_LAPACK
 _ACEOF
 
-else
+  fi
 
-cat >>confdefs.h <<_ACEOF
-#define HAVE_BLAS no
+fi
+
+
+# Check whether --enable-underscores was given.
+if test "${enable_underscores+set}" = set; then
+  enableval=$enable_underscores; if test "X${enableval}X" == "XyesX"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define USE_UNDERSCORES
 _ACEOF
 
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_LAPACK no
-_ACEOF
-
+  fi
 
 fi
 

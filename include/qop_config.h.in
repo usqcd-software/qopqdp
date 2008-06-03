@@ -27,5 +27,8 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* use underscores */
+#undef USE_UNDERSCORES
+
 /* Version number of package */
 #undef VERSION

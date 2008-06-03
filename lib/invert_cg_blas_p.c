@@ -12,7 +12,7 @@ QOPPC(invert_cg)(linop_blas_t linop,
 		 QLA_Complex *in,
 		 int n)
 {
-  QLA_Real a, b;
+  QLA_Real a;
   QLA_Real rsq, oldrsq, pkp;
   QLA_Real insq;
   QLA_Real rsqstop;

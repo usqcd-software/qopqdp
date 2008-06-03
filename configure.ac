@@ -10,20 +10,31 @@ dnl --enable-blas
 AC_ARG_ENABLE(
   blas,
   AC_HELP_STRING([--enable-blas],
-    [enable routines that use blas (set LDFLAGS and LIBS to link to blas)]),
-  AC_DEFINE_UNQUOTED(HAVE_BLAS, [$enableval], [have blas]),
-  AC_DEFINE_UNQUOTED(HAVE_BLAS, [no], [have blas])
+    [enable routines that use blas (set LDFLAGS and LIBS to link to blas, see --enable-underscores)]),
+  if test "X${enableval}X" == "XyesX"; then
+    AC_DEFINE(HAVE_BLAS, [], [have blas])
+  fi
 )
 
 dnl --enable-lapack
 AC_ARG_ENABLE(
   lapack,
   AC_HELP_STRING([--enable-lapack],
-    [enable routines that use lapack and blas (set LDFLAGS and LIBS to link to lapack and blas)]),
-  AC_DEFINE_UNQUOTED(HAVE_BLAS, [$enableval], [have blas])
-  AC_DEFINE_UNQUOTED(HAVE_LAPACK, [$enableval], [have lapack]),
-  AC_DEFINE_UNQUOTED(HAVE_BLAS, [no], [have blas])
-  AC_DEFINE_UNQUOTED(HAVE_LAPACK, [no], [have lapack])
+    [enable routines that use lapack and blas (set LDFLAGS and LIBS to link to lapack and blas, see --enable-underscores)]),
+  if test "X${enableval}X" == "XyesX"; then
+    AC_DEFINE(HAVE_BLAS, [], [have blas])
+    AC_DEFINE(HAVE_LAPACK, [], [have lapack])
+  fi
+)
+
+dnl --enable-underscores
+AC_ARG_ENABLE(
+  underscores,
+  AC_HELP_STRING([--enable-underscores],
+    [append underscores to lapack and blas routines]),
+  if test "X${enableval}X" == "XyesX"; then
+    AC_DEFINE(USE_UNDERSCORES, [], [use underscores])
+  fi
 )
 
 AC_ARG_WITH(

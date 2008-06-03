@@ -1,9 +1,8 @@
 #include <stddef.h>
 #include <math.h>
 
-//#define sscal sscal_
+#ifdef USE_UNDERSCORES
 #define dscal dscal_
-#if 1
 #define sscal sscal_
 #define saxpy saxpy_
 #define dsdot dsdot_
