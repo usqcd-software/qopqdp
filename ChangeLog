@@ -1,3 +1,10 @@
+2008-06-03 17:14  tag qopqdp0-11-4
+
+2008-06-03 17:14  osborn
+
+	* NEWS, lib/hisq_invert_p.c: Correct for factor of 1/2 in creation
+	  of HISQ links.
+
 2008-06-03 16:43  osborn
 
 	* configure, configure.ac, include/generic_D.h,
