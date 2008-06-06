@@ -147,6 +147,7 @@ drotate_vecs_func(Vector *v[], dmat *r, QDP_Subset subset)
 static void
 zrotate_vecs_func(Vector *v[], zmat *r, QDP_Subset subset)
 {
+  QLA_Complex s;
   int i, j;
   int n1 = r->size1;
   int n2 = r->size2;
@@ -167,7 +168,6 @@ zrotate_vecs_func(Vector *v[], zmat *r, QDP_Subset subset)
     V_eq_zero(tv[j], subset);
     for(i=0; i<n1; i++) {
       _Complex double cs = zmat_get(*r, i, j);
-      QLA_Complex s;
       QLA_c_eq_r_plus_ir(s, creal(cs), cimag(cs));
       V_peq_c_times_V(tv[j], &s, v[i], subset);
     }

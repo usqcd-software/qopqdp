@@ -22,8 +22,8 @@ libqopqdp_a_SOURCES = \
 
 common_f.o: common_p.c
 common_d.o: common_p.c
-symanzik_1loop_gauge_force_f.c: symanzik_1loop_gauge_force_p.c
-symanzik_1loop_gauge_force_d.c: symanzik_1loop_gauge_force_p.c
+symanzik_1loop_gauge_force_f.o: symanzik_1loop_gauge_force_p.c
+symanzik_1loop_gauge_force_d.o: symanzik_1loop_gauge_force_p.c
 asqtad_dslash_f.o: asqtad_dslash_p.c
 asqtad_dslash_d.o: asqtad_dslash_p.c
 asqtad_invert_f.o: asqtad_invert_p.c
@@ -67,4 +67,5 @@ EXTRA_DIST = \
   invert_cg_p.c \
   invert_cg_blas_p.c \
   invert_bicgstab_p.c \
-  invert_eigcg_p.c
+  invert_eigcg_p.c \
+  linalg.h
