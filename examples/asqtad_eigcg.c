@@ -140,6 +140,12 @@ start(void)
   for(i=0; i<nit; i++) {
     QDP_V_eq_gaussian_S(in, rs, QDP_all);
 
+    setopt("cg", 0);
+    mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
+    printf0("CG: %i st%2i iter%5i sec%7.4f mflops = %g\n",
+	    i, style, res_arg.final_iter, info.final_sec, mf);
+    setopt("cg", cgtype);
+
     mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
     printf0("eigCG1: %i st%2i iter%5i sec%7.4f mflops = %g\n",
 	    i, style, res_arg.final_iter, info.final_sec, mf);

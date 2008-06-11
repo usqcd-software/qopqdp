@@ -798,14 +798,18 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     a0 = a;
     a = rsq / pkp;
 
+    VERB(HI, "eigCG: a0 = %g  a = %g  b = %g\n", a0, a, b);
     if(addvecs) {
       if(nv==0) {
-	dmat_set(et->t, 0, 0, 1./a);
+	double td = 1./a;
+	VERB(HI, "eigCG: T %g\n", td);
+	dmat_set(et->t, 0, 0, td);
 	setv();
       } else if(nv<m) {
-	QLA_Real ts;
-	dmat_set(et->t, nv, nv, 1./a + b/a0);
-	ts = -sqrt(b)/a0;
+	double td = 1./a + b/a0;
+	double ts = -sqrt(b)/a0;
+	VERB(HI, "eigCG: T %g %g\n", td, ts);
+	dmat_set(et->t, nv, nv, td);
 	dmat_set(et->t, nv, nv-1, ts);
 	dmat_set(et->t, nv-1, nv, ts);
 	setv();
@@ -833,11 +837,11 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       dsubmat(ta0, et->ta, 0, 0, nv, nv);
       dsubmat(tb0, et->tb, 0, 0, nv, nv);
       dsubvec(td0, et->td, 0, nv);
-      printf("cmp1:\n");
+      printf0("cmp1:\n");
       gett(ta0, v, nv, linop, p, Mp, subset);
-      dmat_comp(ta0, t0);
+      if(QDP_this_node==0) dmat_comp(ta0, t0);
       deigs(ta0, td0, tb0, nv);
-      printf("t:\n");
+      printf0("t:\n");
       //dvec_print(td0);
     }
 #endif
