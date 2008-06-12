@@ -120,7 +120,7 @@ AC_PROG_RANLIB
 AC_PROG_CC([c99 cc gcc])
 AC_CHECK_TOOL(AR, ar, [ar])
 AM_PROG_CC_C_O
-AC_PROG_CC_C99
+#AC_PROG_CC_C99
 
 # pass configuration to distcheck target
 DISTCHECK_CONFIGURE_FLAGS="CC=\"$CC\" CFLAGS=\"$CFLAGS\" LDFLAGS=\"$LDFLAGS\" LIBS=\"$LIBS\""

@@ -147,6 +147,7 @@ drotate_vecs_func(Vector *v[], dmat *r, QDP_Subset subset)
 static void
 zrotate_vecs_func(Vector *v[], zmat *r, QDP_Subset subset)
 {
+  _Complex double dummy;
   QLA_Complex s;
   int i, j;
   int n1 = r->size1;
@@ -768,10 +769,12 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 	  new_low = FLT_MAX;
 	}
 #endif
-	rayleighRitz(u, l, 0, nu+nv, NULL, linop, p, Mp, subset);
-	nu += nv;
-	nv = 0;
-	if(nu+m>numax) nu = numax - m;
+	if(nv) {
+	  rayleighRitz(u, l, 0, nu+nv, NULL, linop, p, Mp, subset);
+	  nu += nv;
+	  nv = 0;
+	  if(nu+m>numax) nu = numax - m;
+	}
 
 	//if(nu+m>numax) addvecs = 0;
 	v = u + nu;

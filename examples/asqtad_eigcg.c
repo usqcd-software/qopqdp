@@ -18,6 +18,7 @@ static int eigcg_m=-1;
 static int eigcg_nev=-1;
 static QDP_ColorMatrix *u[4];
 static double u0=-1;
+static int restart=1000;
 
 QOP_FermionLinksAsqtad *fla;
 
@@ -116,8 +117,8 @@ start(void)
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
   res_arg.rsqmin = 1e-6;
-  inv_arg.max_iter = 2000;
-  inv_arg.restart = 500;
+  inv_arg.max_iter = 5*restart;
+  inv_arg.restart = restart;
   inv_arg.max_restarts = 5;
   inv_arg.evenodd = QOP_EVEN;
 
@@ -140,11 +141,13 @@ start(void)
   for(i=0; i<nit; i++) {
     QDP_V_eq_gaussian_S(in, rs, QDP_all);
 
+    QOP_verbose(0);
     setopt("cg", 0);
     mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
     printf0("CG: %i st%2i iter%5i sec%7.4f mflops = %g\n",
 	    i, style, res_arg.final_iter, info.final_sec, mf);
     setopt("cg", cgtype);
+    QOP_verbose(verb);
 
     mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
     printf0("eigCG1: %i st%2i iter%5i sec%7.4f mflops = %g\n",
@@ -169,6 +172,7 @@ usage(char *s)
   printf("l\tlattice file name\n");
   printf("m\tmass\n");
   printf("n\tnumber of iterations\n");
+  printf("r\trestart\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
@@ -183,6 +187,7 @@ main(int argc, char *argv[])
   char *lattice_fn=NULL;
 
   QDP_initialize(&argc, &argv);
+  QIO_verbose(0);
   QDP_profcontrol(0);
   QOP_verbose(0);
 
@@ -196,6 +201,7 @@ main(int argc, char *argv[])
     case 'm' : mass=atof(argp); break;
     case 'n' : nit=atoi(argp); break;
     case 'p' : prof = atoi(argp); break;
+    case 'r' : restart=atoi(argp); break;
     case 's' : seed=atoi(argp); break;
     case 'S' : style=atoi(argp); break;
     case 'u' : u0=atof(argp); break;
