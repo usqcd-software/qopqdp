@@ -26,7 +26,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 //#define TRACE printf0("%s %s %i\n", __FILE__, __func__, __LINE__);
 #define TRACE
 
-#if 0
+#if 1
 #define BEGIN_TIMER {double _dt=-QOP_time();
 #define END_TIMER _dt+=QOP_time(); printf0("%i: %i\n", __LINE__, (int)(1e6*_dt));}
 #else
@@ -147,7 +147,6 @@ drotate_vecs_func(Vector *v[], dmat *r, QDP_Subset subset)
 static void
 zrotate_vecs_func(Vector *v[], zmat *r, QDP_Subset subset)
 {
-  _Complex double dummy;
   QLA_Complex s;
   int i, j;
   int n1 = r->size1;
@@ -336,6 +335,24 @@ initcg(Vector *x, Vector *u[], QLA_Real l[], int n, Vector *b,
       QLA_Complex z;
       c_eq_V_dot_V(&z, u[i], b, subset);
       QLA_c_eq_c_div_r(z, z, l[i]);
+      V_peq_c_times_V(x, &z, u[i], subset);
+    }
+  }
+}
+
+static void
+initcgm(Vector *x, Vector *u[], dvec *d, int n, Vector *b,
+       QDP_Subset subset)
+{
+  if(n>0) {
+    int i;
+    V_eq_zero(x, subset);
+    for(i=0; i<n; i++) {
+      QLA_Complex z;
+      QLA_Real l;
+      c_eq_V_dot_V(&z, u[i], b, subset);
+      l = dvec_get(*d, i);
+      QLA_c_eq_c_div_r(z, z, l);
       V_peq_c_times_V(x, &z, u[i], subset);
     }
   }
@@ -618,7 +635,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   int max_iterations=inv_arg->max_iter;
   int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
-  int addvecs = 1;
+  int addvecs = 1, nn, nur;
 
   // === begin eigCG struct
   TRACE;
@@ -632,7 +649,6 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   int numax = eigcg->numax;
   int nu = eigcg->nu;
   int nv = eigcg->nv;
-  int nuold;
   eigcg_temps_t *et;
 
   TRACE;
@@ -660,222 +676,237 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
   VERB(LOW, "eigCG: rsqstop = %g\n", rsqstop);
-  rsq = 0;
-  oldrsq = rsq;
 
-  if(nv) {
-    if(nv>nev) nv=nev;
+  nur = numax - 2*m - nev*max_restarts;
+  if(nur<nev) nur = nev;
+  nn = 0;
+  if(nu+nv<nur+m) { nn = nv; nv = 0; }
+
+  if(nn==0 && nv!=0) {
+    BEGIN_TIMER;
+    //if(nv>nev) nv=nev;
     //rayleighRitz(u, l, 0, nu+nv, evrsq, linop, p, Mp, subset);
     rayleighRitz(u, l, nu, nv, evrsq, linop, p, Mp, subset);
     //if(nv>nev) nv=nev;
     nu += nv; nv = 0;
+    END_TIMER;
     VERB(MED, "eigCG: ngood %i rsq[0] %g rsq[1] %g rsq[%i] %g\n", ngood,
 	 evrsq[0], evrsq[1], nu-1, evrsq[nu-1]);
   }
+  v = u + nu + nn;
+  nv = 0;
   //if(nu>ngood+nev) nu = ngood+nev;
   if( nu>=numax-m && ngood>(numax-m)/2 ) { addvecs = 0; }
-#if 0
-  if(nv>nev) {
-    BEGIN_TIMER;
-    rayleighRitz(u+nu, l+nu, 0, nv, linop, p, Mp, subset);
-    nv = nev;
-    END_TIMER;
-  }
-  if(nv==nev) {
-    BEGIN_TIMER;
-    //nv = 1;
-    rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
-    nu += nv; nv = 0;
-    END_TIMER;
-  }
-#endif
-  if(nv) {
-    BEGIN_TIMER;
-    rayleighRitz(u, l, nu, nv, NULL, linop, p, Mp, subset);
-    nu += nv; nv = 0;
-    END_TIMER;
-  }
-  BEGIN_TIMER;
-  V_eq_V(p, out, subset);
-  linop(Mp, p, subset);
-  V_eq_V_minus_V(r, in, Mp, subset);
-  initcg(p, u, l, nu, r, subset);
-  V_peq_V(out, p, subset);
-  END_TIMER;
-  if(nu>numax-m) nu = numax - m;
-  nuold = nu;
-  while(1) {
 
-    if( (total_iterations==0) ||
-	(iteration>=restart_iterations) ||
-	(total_iterations>=max_iterations) ||
-	(rsq<rsqstop) ) {  /* only way out */
+  do {
 
-      if( (total_iterations>=max_iterations) ||
-	  (nrestart>=max_restarts) ) break;
-      nrestart++;
+    BEGIN_TIMER;
+    V_eq_V(p, out, subset);
+    linop(Mp, p, subset);
+    iteration = 1;
+    total_iterations++;
+    V_eq_V_minus_V(r, in, Mp, subset);
+    r_eq_norm2_V(&rsq, r, subset);
+    END_TIMER;
+    VERB(LOW, "eigCG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
+    if( (rsq<rsqstop) ||
+	(total_iterations>=max_iterations) ) break;
 
+    if(nu>0) {
+      BEGIN_TIMER;
+      initcg(p, u, l, nu, r, subset);
+      V_peq_V(out, p, subset);
+      END_TIMER;
+      BEGIN_TIMER;
       V_eq_V(p, out, subset);
       linop(Mp, p, subset);
       iteration = 1;
       total_iterations++;
-
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
-      VERB(LOW, "eigCG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
+      END_TIMER;
+      VERB(LOW, "eigCG: proj u: iter %i rsq = %g\n", total_iterations, rsq);
       if( (rsq<rsqstop) ||
 	  (total_iterations>=max_iterations) ) break;
+      if(nv==0 && nn==0 && nu>nur) nu = nur;
+    }
+
+    if(nn+nv) {
+      nn += nv;
+      nv = 0;
+      rayleighRitz(u+nu, l+nu, 0, nn, evrsq+nu, linop, p, Mp, subset);
+
+      BEGIN_TIMER;
+      initcg(p, u+nu, l+nu, nn, r, subset);
+      V_peq_V(out, p, subset);
+      END_TIMER;
+      BEGIN_TIMER;
+      V_eq_V(p, out, subset);
+      linop(Mp, p, subset);
+      iteration = 1;
+      total_iterations++;
+      V_eq_V_minus_V(r, in, Mp, subset);
+      r_eq_norm2_V(&rsq, r, subset);
+      END_TIMER;
+      VERB(LOW, "eigCG: proj n: iter %i rsq = %g\n", total_iterations, rsq);
+      if( (rsq<rsqstop) ||
+	  (total_iterations>=max_iterations) ) break;
+    }
+    if(nu+nn>numax-m) nn = numax - nu - m;
 
 #if 0
-      if(nv>nev) {
-	BEGIN_TIMER;
-	rayleighRitz(v, l+nu, 0, nv, NULL, linop, p, Mp, subset);
-	nv = nev;
-	END_TIMER;
-      }
-      if(nv==nev) {
-	BEGIN_TIMER;
-	//nv = 1;
-	rayleighRitz(u, l, nu, nv, NULL, linop, p, Mp, subset);
-	nu += nv; nv = 0;
-	END_TIMER;
-      }
+    if(nv<2) nv = 0;
+    if(nv) {
+      //BEGIN_TIMER;
+      //if(nv>nev) nv=nev;
+      //rayleighRitz(u, l, 0, nu+nv, evrsq, linop, p, Mp, subset);
+      //rayleighRitz(u, l, nu, nv, evrsq, linop, p, Mp, subset);
+      //if(nv>nev) nv=nev;
+      //nu += nv; nv = 0;
+      //END_TIMER;
+      //VERB(MED, "eigCG: ngood %i rsq[0] %g rsq[1] %g rsq[%i] %g\n", ngood,
+      //evrsq[0], evrsq[1], nu-1, evrsq[nu-1]);
+
+      int nnv = nv/2;
+      BEGIN_TIMER;
+      //gett(et->t, v, nv, linop, p, Mp, subset);
+      if(nnv>nev) nnv = nev;
+      diag_t(et, nnv, nv);
+      set_y(et, 0, nnv, nv, nv);
+      diag_t(et, nnv, nv-1);
+      set_y(et, nnv, nnv, nv-1, nv);
+      END_TIMER;
+      BEGIN_TIMER;
+      rot_t(et, 2*nnv, v, nv, subset);
+      END_TIMER;
+      nv = 2*nnv;
+
+      BEGIN_TIMER;
+      initcgm(p, v, &et->td, nv, r, subset);
+      V_peq_V(out, p, subset);
+      END_TIMER;
+      BEGIN_TIMER;
+      V_eq_V(p, out, subset);
+      linop(Mp, p, subset);
+      iteration = 1;
+      total_iterations++;
+      V_eq_V_minus_V(r, in, Mp, subset);
+      r_eq_norm2_V(&rsq, r, subset);
+      END_TIMER;
+      VERB(LOW, "eigCG: proj v: iter %i rsq = %g\n", total_iterations, rsq);
+      if( (rsq<rsqstop) ||
+	  (total_iterations>=max_iterations) ) break;
+      nn += nv/2;
+      nv = 0;
+      if(nu+nn>numax-m) nn = numax - nu - m;
+    }
 #endif
+
+    if(addvecs) {
+      v = u + nu + nn;
+      dmat_zero(et->t);
+      TRACE;
+    }
+
+    V_eq_V(p, r, subset);
+
+    while(1) {
+
+      linop(Mp, p, subset);
+      iteration++;
+      total_iterations++;
+
+      r_eq_re_V_dot_V(&pkp, p, Mp, subset);
+
+      a0 = a;
+      a = rsq / pkp;
+
+      VERB(HI, "eigCG: a0 = %g  a = %g  b = %g\n", a0, a, b);
       if(addvecs) {
-	//printf0(" %i %i %i %i\n", total_iterations, nuold, nu, nv);
-#if 0
-	if(nv) {
-	  int nuadd=nv;
-	  if(nuadd>nev) nuadd = nev;
- 	  diag_t(et, nuadd, nv);
-	  //printf0("ev: %g %g %g %g\n", l[0], l[nuold-1], new_low, dvec_get(et->td,0));
-	  if(dvec_get(et->td,0)<new_low) new_low = dvec_get(et->td,0);
- 	  set_y(et, 0, nuadd, nv, nv);
- 	  //diag_t(et, nuadd, nv-1);
- 	  //set_y(et, nuadd, nuadd, nv, nv);
-
-	  rot_t(et, 2*nev, m, v, nv, subset);
-	  nu += nuadd;
-	  nv = 0;
+	if(nv==0) {
+	  double td = 1./a;
+	  VERB(HI, "eigCG: T %g\n", td);
+	  dmat_set(et->t, 0, 0, td);
+	  setv();
+	} else if(nv<m) {
+	  double td = 1./a + b/a0;
+	  double ts = -sqrt(b)/a0;
+	  VERB(HI, "eigCG: T %g %g\n", td, ts);
+	  dmat_set(et->t, nv, nv, td);
+	  dmat_set(et->t, nv, nv-1, ts);
+	  dmat_set(et->t, nv-1, nv, ts);
+	  setv();
+	} else {
+	  BEGIN_TIMER;
+	  //gett(et->t, v, nv, linop, p, Mp, subset);
+	  diag_t(et, nev, nv);
+	  set_y(et, 0, nev, nv, nv);
+	  diag_t(et, nev, nv-1);
+	  set_y(et, nev, nev, nv-1, nv);
+	  END_TIMER;
+	  BEGIN_TIMER;
+	  rot_t(et, 2*nev, v, nv, subset);
+	  END_TIMER;
+	  BEGIN_TIMER;
+	  reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
+	  END_TIMER;
 	}
-	if(nu>numax-m) {
-	  if(new_low<l[nuold-1]) {
-	    //int nl = numax - m - nev;
-	    int nl = 0;
-	    rayleighRitz(u+nl, l+nl, 0, nu-nl, NULL, linop, p, Mp, subset);
-	    if(nuold>nl) nuold = nl;
+	if(QOP_common.verbosity>=QOP_VERB_HI) {
+	  dmat ta0, t0, tb0;
+	  dvec td0;
+	  dsubmat(t0, et->t, 0, 0, nv, nv);
+	  dsubmat(ta0, et->ta, 0, 0, nv, nv);
+	  dsubmat(tb0, et->tb, 0, 0, nv, nv);
+	  dsubvec(td0, et->td, 0, nv);
+	  printf0("cmp1:\n");
+	  gett(ta0, v, nv, linop, p, Mp, subset);
+	  if(QDP_this_node==0) dmat_comp(ta0, t0);
+	  deigs(ta0, td0, tb0, nv);
+	  printf0("t:\n");
+	  //dvec_print(td0);
+	  for(i=0; i<nv; i++) {
+	    QLA_Real nrm;
+	    r_eq_norm2_V(&nrm, v[i], subset);
+	    printf("nrm(v[%i]) = %g\n", i, nrm);
 	  }
-	  nu = numax - m;
-	  new_low = FLT_MAX;
 	}
-#endif
-	if(nv) {
-	  rayleighRitz(u, l, 0, nu+nv, NULL, linop, p, Mp, subset);
-	  nu += nv;
-	  nv = 0;
-	  if(nu+m>numax) nu = numax - m;
-	}
-
-	//if(nu+m>numax) addvecs = 0;
-	v = u + nu;
-	//nv = 0;
-	dmat_zero(et->t);
-	TRACE;
       }
 
-      V_eq_V(p, r, subset);
+      V_peq_r_times_V(out, &a, p, subset);
+      V_meq_r_times_V(r, &a, Mp, subset);
+      oldrsq = rsq;
+      r_eq_norm2_V(&rsq, r, subset);
+      VERB(HI, "eigCG: iter %i rsq = %g\n", total_iterations, rsq);
 
-    } else {
+      if( (iteration>=restart_iterations) ||
+	  (total_iterations>=max_iterations) ||
+	  (rsq<rsqstop) ) break;
 
       b = rsq / oldrsq;
       V_eq_r_times_V_plus_V(p, &b, p, r, subset);
 
-    }
+    } // end of main CG loop
 
-    linop(Mp, p, subset);
-    iteration++;
-    total_iterations++;
+    nrestart++;
+  } while( (total_iterations<max_iterations) &&
+	   (nrestart<max_restarts) );
 
-    r_eq_re_V_dot_V(&pkp, p, Mp, subset);
-
-    a0 = a;
-    a = rsq / pkp;
-
-    VERB(HI, "eigCG: a0 = %g  a = %g  b = %g\n", a0, a, b);
-    if(addvecs) {
-      if(nv==0) {
-	double td = 1./a;
-	VERB(HI, "eigCG: T %g\n", td);
-	dmat_set(et->t, 0, 0, td);
-	setv();
-      } else if(nv<m) {
-	double td = 1./a + b/a0;
-	double ts = -sqrt(b)/a0;
-	VERB(HI, "eigCG: T %g %g\n", td, ts);
-	dmat_set(et->t, nv, nv, td);
-	dmat_set(et->t, nv, nv-1, ts);
-	dmat_set(et->t, nv-1, nv, ts);
-	setv();
-      } else {
-	BEGIN_TIMER;
-	//gett(et->t, v, nv, linop, p, Mp, subset);
-	diag_t(et, nev, nv);
-	set_y(et, 0, nev, nv, nv);
-	diag_t(et, nev, nv-1);
-	set_y(et, nev, nev, nv-1, nv);
-	END_TIMER;
-	BEGIN_TIMER;
-	rot_t(et, 2*nev, v, nv, subset);
-	END_TIMER;
-	BEGIN_TIMER;
-	reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
-	END_TIMER;
-      }
-    }
-#if 1
-    if(QOP_common.verbosity>=QOP_VERB_HI) {
-      dmat ta0, t0, tb0;
-      dvec td0;
-      dsubmat(t0, et->t, 0, 0, nv, nv);
-      dsubmat(ta0, et->ta, 0, 0, nv, nv);
-      dsubmat(tb0, et->tb, 0, 0, nv, nv);
-      dsubvec(td0, et->td, 0, nv);
-      printf0("cmp1:\n");
-      gett(ta0, v, nv, linop, p, Mp, subset);
-      if(QDP_this_node==0) dmat_comp(ta0, t0);
-      deigs(ta0, td0, tb0, nv);
-      printf0("t:\n");
-      //dvec_print(td0);
-    }
-#endif
-#if 0
-    for(i=0; i<nv; i++) {
-      QLA_Real nrm;
-      r_eq_norm2_V(&nrm, v[i], subset);
-      printf("nrm(v[%i]) = %g\n", i, nrm);
-    }
-#endif
-
-    V_peq_r_times_V(out, &a, p, subset);
-    V_meq_r_times_V(r, &a, Mp, subset);
-    oldrsq = rsq;
-    r_eq_norm2_V(&rsq, r, subset);
-    VERB(HI, "eigCG: iter %i rsq = %g\n", total_iterations, rsq);
-  }
   //rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
   VERB(LOW, "done: nu %i nv %i\n", nu, nv);
 
+#if 0
   if(nv>nev) {
     diag_t(et, nev, nv);
     set_y(et, 0, nev, nv, nv);
     rot_t(et, nev, v, nv, subset);
     nv = nev;
   }
+#endif
 
   //if( nuold>=numax-m && ngood>(numax-m)/2 ) { nu = nuold; nv = 0; }
 
   eigcg->nu = nu;
-  eigcg->nv = nv;
+  eigcg->nv = nn+nv;
 
   free_temps(et);
   free(evrsq);
