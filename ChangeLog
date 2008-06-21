@@ -1,3 +1,7 @@
+2008-06-20 19:04  osborn
+
+	* lib/invert_eigcg_p.c: more changes to eigCG
+
 2008-06-20 16:29  osborn
 
 	* aclocal.m4, configure, lib/invert_eigcg_p.c: changes to eigCG
