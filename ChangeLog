@@ -1,3 +1,10 @@
+2008-06-23 12:07  osborn
+
+	* NEWS, aclocal.m4, configure, examples/asqtad_eigcg.c,
+	  examples/test_common.c, examples/test_common.h,
+	  lib/asqtad_invert_p.c, lib/invert_eigcg_p.c: Improve inner rsq
+	  request in asqtad inverter.  More changes to eigCG.
+
 2008-06-20 19:04  osborn
 
 	* lib/invert_eigcg_p.c: more changes to eigCG
