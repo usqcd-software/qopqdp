@@ -1,3 +1,11 @@
+2008-06-23 14:09  tag qopqdp0-11-5
+
+2008-06-23 14:09  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_eigcg.c, lib/invert_bicgstab_p.c,
+	  lib/wilson_invert_p.c: prepare for 0.11.5
+
 2008-06-23 12:07  osborn
 
 	* NEWS, aclocal.m4, configure, examples/asqtad_eigcg.c,
