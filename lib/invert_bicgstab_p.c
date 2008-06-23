@@ -126,7 +126,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   destroy_V(t);
   destroy_V(v);
 
-  res_arg->final_rsq = rsq;
+  res_arg->final_rsq = rsq/insq;
   res_arg->final_iter = iteration;
 
   return QOP_SUCCESS;

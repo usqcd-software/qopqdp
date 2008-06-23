@@ -152,7 +152,7 @@ start(void)
     x[1] = k%QDP_coord_size(1); k /= QDP_coord_size(1);
     x[2] = k%QDP_coord_size(2); k /= QDP_coord_size(2);
     x[3] = k%QDP_coord_size(3); k /= QDP_coord_size(3);
-    if((x[0]+x[1]+x[2]+x[3])&1==1) x[3]++;
+    if( ((x[0]+x[1]+x[2]+x[3])&1) != 0 ) x[3]++;
     point_source_V(in, x, c);
 
     QOP_verbose(0);
