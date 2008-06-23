@@ -342,3 +342,18 @@ load_fermion(QDP_DiracFermion *df, char *fn)
   QDP_close_read(qr);
   QDP_string_destroy(md);
 }
+
+void
+point_source_V(QDP_ColorVector *v, int *x, int c)
+{
+  QLA_ColorVector *q;
+  int n, i;
+  QDP_V_eq_zero(v, QDP_all);
+  q = QDP_expose_V(v);
+  n = QDP_node_number(x);
+  i = QDP_index(x);
+  if(n==QDP_this_node) {
+    QLA_c_eq_r(QLA_elem_V(q[i], c), 1);
+  }
+  QDP_reset_V(v);
+}

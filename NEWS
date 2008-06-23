@@ -1,3 +1,7 @@
+2008-06-22:	James Osborn
+	Improve inner rsq request in asqtad inverter.
+	More changes to eigCG.
+
 2008-06-06:	James Osborn
 	Added linalg.h to Makefile.am.
 

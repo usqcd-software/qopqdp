@@ -745,9 +745,9 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       oldl = l[nr];
       if(nu==0) oldl = 9999;
       BEGIN_TIMER;
+      //rayleighRitz(u, l, 0, nu+nn, evrsq, linop, p, Mp, subset);
+      rayleighRitz(u, l, nu, nn, evrsq, linop, p, Mp, subset);
       nu += nn;
-      rayleighRitz(u, l, 0, nu, evrsq, linop, p, Mp, subset);
-      //rayleighRitz(u, l, nu, nv, evrsq, linop, p, Mp, subset);
       nn = 0;
       END_TIMER;
       VERB(MED, "eigCG: ev[0] %g ev[1] %g ev[%i] %g ev[%i] %g\n", l[0], l[1],

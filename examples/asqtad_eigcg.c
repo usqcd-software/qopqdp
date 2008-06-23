@@ -18,7 +18,9 @@ static int eigcg_m=-1;
 static int eigcg_nev=-1;
 static QDP_ColorMatrix *u[4];
 static double u0=-1;
-static int restart=1000;
+static int restart=1500;
+static int nrestart=10;
+static double rsqmin=1e-6;
 
 QOP_FermionLinksAsqtad *fla;
 
@@ -56,6 +58,9 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
     } else {
       QOP_asqtad_invert_multi(info, fla, inv_arg, &pra, &pm, &nmass, &pqo, &qopin, 1);
+    }
+    if(res_arg->final_rsq>res_arg->rsqmin) {
+      printf0("CG FAILED: %i %g %g\n", res_arg->final_iter, res_arg->final_rsq, res_arg->rsqmin);
     }
     if(i>=0) {
       iter += res_arg->final_iter;
@@ -116,10 +121,10 @@ start(void)
   QOP_info_t info;
   QOP_invert_arg_t inv_arg;
   QOP_resid_arg_t res_arg;
-  res_arg.rsqmin = 1e-6;
-  inv_arg.max_iter = 5*restart;
+  res_arg.rsqmin = rsqmin;
+  inv_arg.max_iter = nrestart*restart;
   inv_arg.restart = restart;
-  inv_arg.max_restarts = 5;
+  inv_arg.max_restarts = nrestart;
   inv_arg.evenodd = QOP_EVEN;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
@@ -139,7 +144,16 @@ start(void)
   //QDP_set_block_size(bs);
 
   for(i=0; i<nit; i++) {
-    QDP_V_eq_gaussian_S(in, rs, QDP_all);
+    //QDP_V_eq_gaussian_S(in, rs, QDP_all);
+    int x[4], c, k;
+    k = i;
+    c = k%3; k /= 3;
+    x[0] = k%QDP_coord_size(0); k /= QDP_coord_size(0);
+    x[1] = k%QDP_coord_size(1); k /= QDP_coord_size(1);
+    x[2] = k%QDP_coord_size(2); k /= QDP_coord_size(2);
+    x[3] = k%QDP_coord_size(3); k /= QDP_coord_size(3);
+    if((x[0]+x[1]+x[2]+x[3])&1==1) x[3]++;
+    point_source_V(in, x, c);
 
     QOP_verbose(0);
     setopt("cg", 0);
@@ -152,9 +166,9 @@ start(void)
     mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
     printf0("eigCG1: %i st%2i iter%5i sec%7.4f mflops = %g\n",
 	    i, style, res_arg.final_iter, info.final_sec, mf);
-    mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
-    printf0("eigCG2: %i st%2i iter%5i sec%7.4f mflops = %g\n",
-	    i, style, res_arg.final_iter, info.final_sec, mf);
+    //mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
+    //printf0("eigCG2: %i st%2i iter%5i sec%7.4f mflops = %g\n",
+    //i, style, res_arg.final_iter, info.final_sec, mf);
   }
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
@@ -173,6 +187,8 @@ usage(char *s)
   printf("m\tmass\n");
   printf("n\tnumber of iterations\n");
   printf("r\trestart\n");
+  printf("R\tnrestart\n");
+  printf("q\trsqmin\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
@@ -202,6 +218,8 @@ main(int argc, char *argv[])
     case 'n' : nit=atoi(argp); break;
     case 'p' : prof = atoi(argp); break;
     case 'r' : restart=atoi(argp); break;
+    case 'R' : nrestart=atoi(argp); break;
+    case 'q' : rsqmin=atof(argp); break;
     case 's' : seed=atoi(argp); break;
     case 'S' : style=atoi(argp); break;
     case 'u' : u0=atof(argp); break;
@@ -247,6 +265,9 @@ main(int argc, char *argv[])
     printf("seed = %i\n", seed);
     if(lattice_fn) printf("lattice file = %s\n", lattice_fn);
     //printf("u0 = %g\n", u0);
+    printf("restart = %i\n", restart);
+    printf("nrestarts = %i\n", nrestart);
+    printf("rsqmin = %g\n", rsqmin);
     printf("eigcg_l = %i\n", eigcg_l);
     printf("eigcg_m = %i\n", eigcg_m);
     printf("eigcg_nev = %i\n", eigcg_nev);

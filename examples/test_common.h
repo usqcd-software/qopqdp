@@ -15,5 +15,6 @@ QLA_Real get_plaq(QDP_ColorMatrix *link[]);
 void get_random_links(QDP_ColorMatrix **u, int n, QLA_Real r);
 void get_latsize(int *ndim, int **ls, char *fn);
 void load_lattice(QDP_ColorMatrix *gauge[], char *fn);
+void point_source_V(QDP_ColorVector *v, int *x, int c);
 
 #endif /* _TEST_COMMON_H */

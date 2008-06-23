@@ -175,7 +175,7 @@ QOP_asqtad_invert(QOP_info_t *info,
     QDP_r_eq_norm2_V(&rsq, cgr, insub);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
-    res_arg->rsqmin *= 0.9*rsqstop/rsq;
+    res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
     iter += res_arg->final_iter;
     VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g\n", iter, rsq);
   } while((rsq>rsqstop)&&(++nrestart<max_restarts));
