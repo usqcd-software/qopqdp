@@ -116,6 +116,14 @@ start(void)
     coeffs.seven_staple = -(u4*u2)/384.0;
     coeffs.lepage = -u4/16.0;
     coeffs.naik = -u2/24.0;
+#define cp(x) printf0(#x " = %g\n", coeffs.x);
+    cp(one_link);
+    cp(three_staple);
+    cp(five_staple);
+    cp(seven_staple);
+    cp(lepage);
+    cp(naik);
+#undef cp
   }
 
   QOP_info_t info;
@@ -144,7 +152,9 @@ start(void)
   //QDP_set_block_size(bs);
 
   for(i=0; i<nit; i++) {
-    //QDP_V_eq_gaussian_S(in, rs, QDP_all);
+#if 1
+    QDP_V_eq_gaussian_S(in, rs, QDP_all);
+#else
     int x[4], c, k;
     k = i;
     c = k%3; k /= 3;
@@ -154,6 +164,7 @@ start(void)
     x[3] = k%QDP_coord_size(3); k /= QDP_coord_size(3);
     if( ((x[0]+x[1]+x[2]+x[3])&1) != 0 ) x[3]++;
     point_source_V(in, x, c);
+#endif
 
     QOP_verbose(0);
     setopt("cg", 0);

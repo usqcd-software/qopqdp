@@ -888,6 +888,18 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 	  setv();
 	} else {
 	  BEGIN_TIMER;
+	  Vector *sp, *sMp;
+	  create_V(sp);
+	  create_V(sMp);
+	  V_eq_V(sp, p, subset);
+	  V_eq_V(sMp, Mp, subset);
+	  rayleighRitz(v, l+nu+nn, 0, nv, evrsq, linop, p, Mp, subset);
+	  V_eq_V(p, sp, subset);
+	  V_eq_V(Mp, sMp, subset);
+	  destroy_V(sp);
+	  destroy_V(sMp);
+	  nv = nev;
+#if 0
 	  //gett(et->t, v, nv, linop, p, Mp, subset);
 	  diag_t(et, nev, nv);
 	  set_y(et, 0, nev, nv, nv);
@@ -899,6 +911,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 	  END_TIMER;
 	  BEGIN_TIMER;
 	  reset_t(et, nev, m, v, &nv, a0, a, b, r, rsq, linop, p, Mp, subset);
+#endif
 	  END_TIMER;
 	}
 	if(QOP_common.verbosity>=QOP_VERB_HI) {
