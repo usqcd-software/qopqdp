@@ -74,8 +74,9 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
     V_peq_r_times_V(out, &a, p, subset);
     V_meq_r_times_V(r, &a, Mp, subset);
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(MED, "CG: iter %i rsq = %g\n", total_iterations, rsq);
+    VERB(HI, "CG: iter %i rsq = %g\n", total_iterations, rsq);
   }
+  VERB(LOW, "CG: done: iter %i rsq = %g\n", total_iterations, rsq);
 
   destroy_V(r);
   destroy_V(Mp);
@@ -163,7 +164,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 
     V_meq_r_times_V(r, b+imin, Mp, subset);
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(MED, "CGMS: iter %i rsq = %g\n", iteration, rsq);
+    VERB(HI, "CGMS: iter %i rsq = %g\n", iteration, rsq);
 
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
@@ -206,7 +207,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
     res_arg[i]->final_iter = iteration;
     res_arg[i]->final_restart = 0;
   }
-  VERB(MED, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
+  VERB(LOW, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
 
   return QOP_SUCCESS;
 }

@@ -124,10 +124,10 @@ QOP_asqtad_invert(QOP_info_t *info,
     //QDP_V_eq_V(qdpin, in->cv, insub);
     QDP_V_eq_r_times_V(qdpin, &m, in->cv, insub);
   } else {
-    QDP_V_eq_zero(cgp, QDP_all);
+    QDP_V_eq_zero(gl_tmp2, QDP_all);
     QDP_V_eq_V(gl_tmp2, in->cv, insub);
     project(fla, mass, qdpin, gl_tmp2, cgeo);
-    QDP_V_eq_V(qdpin, in->cv, qdpsub(oppsub(ineo)));
+    QDP_V_eq_V(qdpin, in->cv, qdpsub(oppsub(cgeo)));
   }
   //QOP_asqtad_diaginv_qdp(NULL, fla, mass, cgp, qdpin, cgeo);
   //QDP_V_eq_V(qdpin, cgp, cgsub);

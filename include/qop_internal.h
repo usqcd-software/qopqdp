@@ -46,6 +46,12 @@
 #define QOP_printf0 if(QDP_this_node==0) printf
 #define VERB(PRI, ...) if(QOP_common.verbosity>=QOP_VERB_##PRI) QOP_printf0(__VA_ARGS__)
 
+#ifdef DO_TRACE
+#define TRACE QOP_printf0("%s %s %i\n", __FILE__, __func__, __LINE__);
+#else
+#define TRACE
+#endif
+
 #define QOP_error(str) \
   fprintf(stderr, "QOP error: %s\n", str); \
   QDP_abort(1);

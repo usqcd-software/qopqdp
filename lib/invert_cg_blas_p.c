@@ -89,8 +89,9 @@ QOPPC(invert_cg)(linop_blas_t linop,
 
     oldrsq = rsq;
     rsq = norm2_v(r, n);
-    VERB(MED, "CG: iter %i rsq = %g\n", total_iterations, rsq);
+    VERB(HI, "CG: iter %i rsq = %g\n", total_iterations, rsq);
   }
+  VERB(LOW, "CG: done: iter %i rsq = %g\n", total_iterations, rsq);
 
   free(r);
   free(p);
@@ -115,11 +116,12 @@ QOPPC(invert_cgms)(linop_blas_t linop,
 		   QLA_Complex *in,
 		   int n)
 {
-  QLA_Real a[nshifts], b[nshifts], s[nshifts];
-  QLA_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
-  QLA_Real rsq, oldrsq, pkp, t;
-  QLA_Real insq;
-  QLA_Real rsqstop;
+  double a[nshifts], b[nshifts], s[nshifts];
+  double bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
+  double rsq, oldrsq, pkp;
+  double insq;
+  double rsqstop;
+  QLA_Real t;
   int iteration=0, i, imin;
   QLA_Complex *r, *Mp, *pm[nshifts];
 
@@ -182,7 +184,7 @@ QOPPC(invert_cgms)(linop_blas_t linop,
     t = b[imin] * s[imin];
     v_meq_r_times_v(r, t, Mp, n);
     rsq = norm2_v(r, n);
-    VERB(MED, "CGMS: iter %i rsq = %g\n", iteration, rsq);
+    VERB(HI, "CGMS: iter %i rsq = %g\n", iteration, rsq);
 
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
@@ -235,7 +237,7 @@ QOPPC(invert_cgms)(linop_blas_t linop,
     res_arg[i]->final_iter = iteration;
     res_arg[i]->final_restart = 0;
   }
-  VERB(MED, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
+  VERB(LOW, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
 
   return QOP_SUCCESS;
 }

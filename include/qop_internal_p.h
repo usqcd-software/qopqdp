@@ -60,12 +60,14 @@ typedef struct {
   QDP_ColorVector **u;
   QLA_Real *l;
   int numax, nu, nev, m, nv;
+  int nn, addvecs;
 } QOPPC(eigcg_t_V);
 
 typedef struct {
   QDP_DiracFermion **u;
   QLA_Real *l;
   int numax, nu, nev, m, nv;
+  int nn, addvecs;
 } QOPPC(eigcg_t_D);
 
   /* Asqtad datatypes */

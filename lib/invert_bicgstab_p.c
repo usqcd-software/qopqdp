@@ -119,8 +119,9 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 #endif
 
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(MED, "BICG: iter %i rsq = %g\n", total_iterations, rsq);
+    VERB(HI, "BICG: iter %i rsq = %g\n", total_iterations, rsq);
   }
+  VERB(LOW, "BICG: done: iter %i rsq = %g\n", total_iterations, rsq);
 
   destroy_V(r0);
   destroy_V(t);

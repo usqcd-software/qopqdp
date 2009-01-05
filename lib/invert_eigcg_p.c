@@ -28,7 +28,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
 #if 1
 #define BEGIN_TIMER {double _dt=-QOP_time();
-#define END_TIMER _dt+=QOP_time(); printf0("%i: %i\n", __LINE__, (int)(1e6*_dt));}
+#define END_TIMER _dt+=QOP_time(); VERB(MED, "%i: %i\n", __LINE__, (int)(1e6*_dt));}
 #else
 #define BEGIN_TIMER
 #define END_TIMER
@@ -342,7 +342,7 @@ initcg(Vector *x, Vector *u[], QLA_Real l[], int n, Vector *b,
 
 static void
 initcgm(Vector *x, Vector *u[], dvec *d, int n, Vector *b,
-       QDP_Subset subset)
+	QDP_Subset subset)
 {
   if(n>0) {
     int i;
@@ -635,7 +635,6 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   int max_iterations=inv_arg->max_iter;
   int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
-  static int addvecs = 1;
 
   // === begin eigCG struct
   TRACE;
@@ -649,7 +648,8 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   int numax = eigcg->numax;
   int nu = eigcg->nu;
   int nv = eigcg->nv;
-  static int nn;
+  int addvecs = eigcg->addvecs;
+  int nn = eigcg->nn;
   eigcg_temps_t *et;
 
   TRACE;
@@ -662,6 +662,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     nu = 0;
     nv = 0;
     nn = 0;
+    addvecs = 1;
   }
   TRACE;
   VERB(MED, "eigCG: numax %i m %i nev %i nu %i nn %i nv %i\n", numax, m, nev,nu,nn,nv);
@@ -888,6 +889,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 	  setv();
 	} else {
 	  BEGIN_TIMER;
+#if 0
 	  Vector *sp, *sMp;
 	  create_V(sp);
 	  create_V(sMp);
@@ -899,8 +901,9 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 	  destroy_V(sp);
 	  destroy_V(sMp);
 	  nv = nev;
-#if 0
-	  //gett(et->t, v, nv, linop, p, Mp, subset);
+#else
+	  //orthonormalize(v, 0, nv, subset);
+ 	  //gett(et->t, v, nv, linop, p, Mp, subset);
 	  diag_t(et, nev, nv);
 	  set_y(et, 0, nev, nv, nv);
 	  diag_t(et, nev, nv-1);
@@ -952,9 +955,24 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
     if(addvecs) {
       if(nv>nev) {
+#if 0
+	Vector *sp, *sMp;
+	create_V(sp);
+	create_V(sMp);
+	V_eq_V(sp, p, subset);
+	V_eq_V(sMp, Mp, subset);
+	rayleighRitz(v, l+nu+nn, 0, nv, evrsq, linop, p, Mp, subset);
+	V_eq_V(p, sp, subset);
+	V_eq_V(Mp, sMp, subset);
+	destroy_V(sp);
+	destroy_V(sMp);
+#else
+	orthonormalize(v, 0, nv, subset);
+	gett(et->t, v, nv, linop, p, Mp, subset);
 	diag_t(et, nev, nv);
 	set_y(et, 0, nev, nv, nv);
 	rot_t(et, nev, v, nv, subset);
+#endif
 	nn += nev;
       }
       nv = 0;
@@ -964,8 +982,13 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   } while( (total_iterations<max_iterations) &&
 	   (nrestart<max_restarts) );
 
-  //rayleighRitz(u, l, nu, nv, linop, p, Mp, subset);
   VERB(LOW, "done: nu %i nn %i nv %i\n", nu, nn, nv);
+  if(addvecs) {
+    rayleighRitz(u, l, 0, nu+nn+nv, evrsq, linop, p, Mp, subset);
+    nu += nn + nv;
+    nn = 0;
+    nv = 0;
+  }
 
 #if 0
   if(nv>nev) {
@@ -981,6 +1004,8 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 
   eigcg->nu = nu;
   eigcg->nv = nv;
+  eigcg->nn = nn;
+  eigcg->addvecs = addvecs;
 
   free_temps(et);
   free(evrsq);
