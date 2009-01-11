@@ -4,7 +4,7 @@ typedef void (*linop_blas_t)(QLA_Complex *out, QLA_Complex *in, void *args);
 
 /* regular CG */
 QOP_status_t
-QOPPC(invert_cg)(linop_blas_t linop,
+QOPPCV(invert_cg)(linop_blas_t linop,
 		 void *args,
 		 QOP_invert_arg_t *inv_arg,
 		 QOP_resid_arg_t *res_arg,
@@ -106,7 +106,7 @@ QOPPC(invert_cg)(linop_blas_t linop,
 
 /* milti-shift CG */
 QOP_status_t
-QOPPC(invert_cgms)(linop_blas_t linop,
+QOPPCV(invert_cgms)(linop_blas_t linop,
 		   void *args,
 		   QOP_invert_arg_t *inv_arg,
 		   QOP_resid_arg_t **res_arg,
@@ -304,7 +304,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   //v_meq_v(bout, bin, n);
   //VERB(LOW, "CG: (re)start: iter 0 rsq = %g\n", norm2_v(bout, n));
 
-  st = QOPPC(invert_cg)(linop_blas, (void *)&args, inv_arg, res_arg, bout, bin, n);
+  st = QOPPCV(invert_cg)(linop_blas, (void *)&args, inv_arg, res_arg, bout, bin, n);
 
   insert_packed_V(out, bout, subset);
 
@@ -347,7 +347,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
     //extract_packed_V((void *)bout, out, subset);
   }
 
-  st = QOPPC(invert_cgms)(linop_blas, (void *)&args, inv_arg, res_arg, shifts, nshifts, bout, bin, n);
+  st = QOPPCV(invert_cgms)(linop_blas, (void *)&args, inv_arg, res_arg, shifts, nshifts, bout, bin, n);
 
   for(i=0; i<nshifts; i++) {
     insert_packed_V(out[i], (void *)bout[i], subset);
