@@ -1,3 +1,8 @@
+2009-01-11 12:53  osborn
+
+	* NEWS, lib/invert_cg_blas_p.c: Fixed name conflict in
+	  invert_cg_blas_p.c.
+
 2009-01-04 22:43  osborn
 
 	* NEWS, aclocal.m4, configure, configure.ac,
