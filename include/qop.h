@@ -137,7 +137,8 @@ typedef struct QOP_D3_FermionLinksHisq_struct QOP_D3_FermionLinksHisq;
   /* Wilson datatypes */
 
 typedef struct {
-  double clov_c;
+  double clov_s;
+  double clov_t;
   double aniso;
 } QOP_wilson_coeffs_t;
 

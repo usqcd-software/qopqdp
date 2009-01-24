@@ -1,3 +1,7 @@
+2009-01-24:	James Osborn
+	Added Bugra's clover term generation code.
+	Changed QOP_wilson_coeffs_t to allow anisotropic clover term.
+
 2009-01-11:	James Osborn
 	Fixed name conflict in invert_cg_blas_p.c.
 

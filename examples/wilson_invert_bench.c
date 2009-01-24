@@ -87,10 +87,12 @@ start(void)
   if(clover) {
     //clov = QDP_create_P();
     //QDP_P_eq_zero(clov, QDP_all);
-    coeffs.clov_c = 0.1;
+    coeffs.clov_s = 0.1;
+    coeffs.clov_t = 0.1;
   } else {
     //clov = NULL;
-    coeffs.clov_c = 0;
+    coeffs.clov_s = 0;
+    coeffs.clov_t = 0;
   }
   coeffs.aniso = 0;
 

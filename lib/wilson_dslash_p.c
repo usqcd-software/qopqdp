@@ -58,6 +58,7 @@ and likewise for the second block by adding 2 to all is,js values above.
 */
 
 #include <string.h>
+#include <math.h>
 #include <qop_internal.h>
 
 //#define printf0 QOP_printf0
@@ -195,29 +196,301 @@ QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *flw,
   else return NULL;
 }
 
-
-/********************/
-/*  link functions  */
-/********************/
-
+/* ---------------------------------------------------------------- */
+/* This part is added by Bugra :::::------------------------------- */
+/* F_mu_nu calculates the $F_{\mu\nu}$ Field Strength Tensor  ----- */
+/* --------------------------------------------------------------   */
 static void
-get_clov(QDP_DiracPropagator *clov, QDP_ColorMatrix *links[], double csw)
+f_mu_nu(QDP_ColorMatrix *fmn, QDP_ColorMatrix *link[], int mu, int nu)
 {
-  // dummy for now -- needs real clover term calculation
-  QLA_DiracPropagator p;
-  int ic, is, jc, js;
-  QLA_P_eq_zero(&p);
-  for(ic=0; ic<QLA_Nc; ic++)
-    for(is=0; is<QLA_Ns; is++)
-      for(jc=0; jc<QLA_Nc; jc++) 
-	for(js=0; js<QLA_Ns; js++)
-	  QLA_c_eq_r(QLA_elem_P(p, ic, is, jc, js), 0.1);
-  //QLA_c_eq_r(QLA_elem_P(p, 0, 0, 0, 1), 0.1);
-  //QLA_c_eq_r(QLA_elem_P(p, 0, 1, 0, 0), 0.1);
-  //QLA_c_eq_r(QLA_elem_P(p, 0, 0, 1, 0), 0.1);
-  //QLA_c_eq_r(QLA_elem_P(p, 1, 0, 0, 0), 0.1);
-  QDP_P_eq_p(clov, &p, QDP_all);
+  int i, order_flag;
+
+  QDP_ColorMatrix *temp1,*temp2,*temp3,*temp4,*tmat4;
+  QDP_ColorMatrix *pqt0,*pqt1,*pqt2,*pqt3;
+  QDP_ColorMatrix *pqt4;
+  QLA_Real a = 0.125;           // 1/8 factor
+
+  temp1 = QDP_create_M();
+  temp2 = QDP_create_M();
+  temp3 = QDP_create_M();
+  temp4 = QDP_create_M();
+  tmat4 = QDP_create_M();
+  pqt0  = QDP_create_M();
+  pqt1  = QDP_create_M();
+  pqt2  = QDP_create_M();
+  pqt3  = QDP_create_M();
+  pqt4  = QDP_create_M();
+
+  /* chech if mu <nu */
+  if(mu>nu){
+    i = mu;
+    mu = nu;
+    nu = i;
+    order_flag=1;
+  }
+  else{
+    order_flag=0;
+  }
+
+  /* Get pqt0 = U_nu(x+mu) : U_nu(x) from mu direction    */
+  /* Get pqt1 = U_mu(x+nu) : U_mu(x) from nu direction    */
+  QDP_M_eq_sM(pqt0,link[nu],QDP_neighbor[mu],QDP_forward,QDP_all);
+  QDP_M_eq_sM(pqt1,link[mu],QDP_neighbor[nu],QDP_forward,QDP_all);
+
+  /* creating a corner : temp1 = U^d_nu(x) U_mu(x) */
+  QDP_M_eq_Ma_times_M(temp1,link[nu],link[mu],QDP_all);
+
+  /* ------------------------------------------------- */
+  /* creating a corner : fmn = [pqt0]*[pqt1^d]         */
+  /*                     fmn = U_nu(x+mu) U^d_mu(x+nu) */
+  QDP_M_eq_M_times_Ma(fmn,pqt0,pqt1,QDP_all);
+
+  /* Create the following loops */
+  /* U^d_nu(x) U_mu(x) U_nu(x+mu) U^d_mu(x+nu)  */
+  QDP_M_eq_M_times_M(temp2,temp1,fmn,QDP_all);
+
+  /* U_nu(x+mu) U^d_mu(x+nu) U^d_nu(x) U_mu(x) */
+  QDP_M_eq_M_times_M(temp3,fmn,temp1,QDP_all);
+
+  /* Creating the following +mu -nu plaquette */
+  QDP_M_eq_sM(pqt2,temp2,QDP_neighbor[nu],QDP_backward,QDP_all);
+
+  /* Creating the following -mu +nu plaquette */
+  QDP_M_eq_sM(pqt3,temp3,QDP_neighbor[mu],QDP_backward,QDP_all);
+  //QDP_discard_M(temp3); /* data in temp3 is no longer needed */
+
+  /* creating +mu +nu plaquette and pit it in fmn      */
+  /* tmat4 = U_mu(x) U_nu(x+mu) U^d_mu(x+nu)           */
+  /* fmn   = U_mu(x) U_nu(x+mu) U^d_mu(x+nu) U^d_nu(x) */ 
+  QDP_M_eq_M_times_M(tmat4,link[mu],fmn,QDP_all);
+  QDP_M_eq_M_times_Ma(fmn,tmat4,link[nu],QDP_all);
+
+  /* What is left is +mu -nu plaquette and adding them up */
+  /* Right hand side of the clover field */
+  QDP_M_eq_M_plus_M(fmn,pqt2,fmn,QDP_all);
+
+  /* tmat4 = [(pqt[1]^d)   ] * [(tempmat1 )            ]  */
+  /*       = [U^d_mu(x+nu) ] * [U^dagger_nu(x) *U_mu(x)]  */
+  /* temp2 = [tmat4]*[pqt0 ]                            */
+  /*       = [U^d_mu(x+nu) U^d_nu(x) U_mu(x)*[U_nu(x+mu)] */
+  QDP_M_eq_Ma_times_M(tmat4,pqt1,temp1,QDP_all);
+  QDP_M_eq_M_times_M(temp2,tmat4,pqt0,QDP_all);
+  /* temp1 is a result of a shift and won't be needed   */
+  QDP_discard_M(temp1);
+
+  /* temp2 is now a plaquette -mu -nu and must be gathered */
+  /* with displacement -mu-nu */
+  /* pqt4 = U^d_mu(x-nu)U^d(x-mu-nu)U_mu(x-mu-nu)U_nu(x-nu) */
+  QDP_M_eq_sM(temp4,temp2,QDP_neighbor[mu],QDP_backward,QDP_all);
+  QDP_M_eq_sM(pqt4,temp4,QDP_neighbor[nu],QDP_backward,QDP_all);
+  QDP_discard_M(temp2);
+
+  /* Now gather -mu +nu  plaquette and add to fmn    */
+  /* f_mn was the right hand side of the clover term */
+  /* I add the third plaquette : f_mn = f_mn+pqt3    */
+  /* U_nu(x) U^d(x-mu+nu) U^d_nu(x-mu) U_mu(x-mu)    */
+  QDP_M_eq_M_plus_M(fmn,fmn,pqt3,QDP_all);
+
+  /* finally add the last plaquette        */
+  /* fmn = fmn+ pqt4                       */
+  /* pqt4 is the last plaquette missing    */
+  /* This completes the 4-plaquette        */
+  QDP_M_eq_M_plus_M(fmn,fmn,pqt4,QDP_all);
+
+  /* F_munu  is now 1/8 of f_mn-f_mn^dagger */
+  /* QDP_T_eqop_Ta(Type *r, Type *a, subset) : r=conjugate(a) */
+  /* tmat4  =Hermitian(fmn) */
+  QDP_M_eq_Ma(tmat4,fmn,QDP_all);
+
+  if(order_flag ==0){
+    QDP_M_eq_M_minus_M(tmat4,fmn,tmat4,QDP_all);
+  }
+  else {
+    QDP_M_eq_M_minus_M(tmat4,tmat4,fmn,QDP_all);
+  }
+
+  /* F_mn = 1/8 *tmat4 */
+  /* QDP_T_eq_r_times_T(Type *r, QLA_real *a, Type *b, subset); */
+  QDP_M_eq_r_times_M(fmn,&a,tmat4,QDP_all);
+
+  QDP_destroy_M(temp1);
+  QDP_destroy_M(temp2);
+  QDP_destroy_M(temp3);
+  QDP_destroy_M(temp4);
+  QDP_destroy_M(tmat4);
+  QDP_destroy_M(pqt0);
+  QDP_destroy_M(pqt1);
+  QDP_destroy_M(pqt2);
+  QDP_destroy_M(pqt3);
+  QDP_destroy_M(pqt4);
 }
+
+/* -------------------------------------------------------- */
+/* -- Calculation of the clover term :: added by Bugra ---- */
+/* -------------------------------------------------------- */
+static void
+get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real csw)
+{
+  //printf(":: Calculating clover coefficients....:::\n\n\n");
+  //int ic,is,jc,js;
+  int i,j,k;
+  int ik,jk;
+
+  /* Fist I create A[0],A[1],B[0] and B[1] matrices */
+
+  QDP_ColorMatrix *a[2],*b[2];
+  QDP_ColorMatrix *f_mn;
+  QDP_ColorMatrix *xm,*ym;
+
+  f_mn  = QDP_create_M();
+  a[0]  = QDP_create_M();
+  a[1]  = QDP_create_M();
+  xm = QDP_create_M();
+  ym = QDP_create_M();
+
+  f_mu_nu(f_mn, link, 0, 1);             /* f_mn = F_{01}        */
+  QDP_M_eq_M(a[0], f_mn, QDP_all);       /* a[0] = F_{01}        */
+  QDP_M_eq_M(a[1], f_mn, QDP_all);       /* a[1] = F_{01}        */
+
+  f_mu_nu(f_mn, link, 2, 3);             /* f_mn = F_{23}        */ 
+  QDP_M_meq_M(a[0], f_mn, QDP_all);      /* a[0] = F_{01}-F_{23} */
+  QDP_M_peq_M(a[1], f_mn, QDP_all);      /* a[1] = F_{01}+F_{23} */
+
+  // PS: One cannot QDP_M_eq_i_M(a,b,subset) with a=b 
+  QDP_M_eq_i_M(xm, a[0], QDP_all);       /* xm = i(F_{01}-F_{23}) */ 
+  QDP_M_eq_i_M(ym, a[1], QDP_all);       /* ym = i(F_{01}+F_{23}) */
+  QDP_M_eq_r_times_M(a[0], &csw, xm, QDP_all); /* a[0] = csw*i(F_{01}-F_{23})*/
+  QDP_M_eq_r_times_M(a[1], &csw, ym, QDP_all); /* a[1] = csw*i(F_{01}+F_{23})*/
+
+  /* PART 1 and PART 2 */
+  QLA_ColorMatrix *A[2];
+  A[0] = QDP_expose_M(a[0]);
+  A[1] = QDP_expose_M(a[1]);
+
+  for(i=0; i<QDP_sites_on_node; i++) {
+    for(j=0; j<3; j++) {
+      /* diagoal elements numbered from 00 to 05 for the matrix X */
+      /* c(0,0, 0,0) = clov[0]  c(1,1, 1,1) = clov[3]             */
+      /* c(0,1, 0,1) = clov[1]  c(2,0, 2,0) = clov[4]             */
+      /* c(1,0, 1,0) = clov[2]  c(2,1, 2,1) = clov[5]             */
+      clov[(72*i)+(j   )] = QLA_real(QLA_elem_M(A[0][i],j,j));
+      clov[(72*i)+(j+3 )] = -QLA_real(QLA_elem_M(A[0][i],j,j));
+      /* diagoal elements numbered from 36 to 41 for the matrix Y */
+      /* c(0,2, 0,2) = clov[36]  c(1,3, 1,3) = clov[39]           */
+      /* c(0,3, 0,3) = clov[37]  c(2,2, 2,2) = clov[40]           */
+      /* c(1,2, 1,2) = clov[38]  c(2,3, 2,3) = clov[41]           */
+      clov[(72*i)+(j+36)] = QLA_imag(QLA_elem_M(A[1][i],j,j));
+      clov[(72*i)+(j+39)] = -QLA_imag(QLA_elem_M(A[1][i],j,j));
+      /* -------------------------------------------------------- */
+      /* 12 real number are assigned to the array clov            */
+
+      /* Below the triangular which have A[0] and A[1] only       */
+      for(k=0; k<j; k++) { 
+	/* c(0,1, 0,0) = clov[ 6]+i*clov[ 7] */
+	/* c(1,0, 0,0) = clov[ 8]+i*clov[ 9] */
+	/* c(1,0, 0,1) = clov[16]+i*clov[17] */
+	jk = (2*j+4)*(k+1);
+	clov[(72*i)+(jk  ) ] = QLA_real(QLA_elem_M(A[0][i],j,k));
+	clov[(72*i)+(jk+1) ] = QLA_imag(QLA_elem_M(A[0][i],j,k));
+	clov[(72*i)+(jk+36)] = QLA_real(QLA_elem_M(A[1][i],j,k));
+	clov[(72*i)+(jk+37)] = QLA_imag(QLA_elem_M(A[1][i],j,k));
+
+	/* c(2,0, 1,1) = clov[30]+i*clov[31] */
+	/* c(2,1, 1,1) = clov[32]+i*clov[33] */
+	/* c(2,1, 2,0) = clov[34]+i*clov[35] */
+	ik = (30+(2*j-2))+(2*k);
+	clov[(72*i)+(ik   )] = -QLA_real(QLA_elem_M(A[0][i],j,k));
+	clov[(72*i)+(ik+1 )] = -QLA_imag(QLA_elem_M(A[0][i],j,k));
+	clov[(72*i)+(ik+36)] = -QLA_real(QLA_elem_M(A[1][i],j,k));
+	clov[(72*i)+(ik+37)] = -QLA_imag(QLA_elem_M(A[1][i],j,k));
+      }
+    }
+  }
+
+  QDP_reset_M(a[0]);
+  QDP_reset_M(a[1]);
+
+  QDP_destroy_M(a[0]);
+  QDP_destroy_M(a[1]);
+
+  /* Creating B[0] and B[1] : 3x3 matrices for X and Y                     */
+  /* ------------------ NOTATION ------------------------------------------*/
+  /* For the 3x3 part of X   : B[0] above                                  */
+  /* c(1,1, 0,0) = clov[10]+i*clov[11]; c(1,1, 1,0) = clov[24]+i*clov[25]; */
+  /* c(2,0, 0,0) = clov[12]+i*clov[13]; c(2,0, 1,0) = clov[26]+i*clov[27]; */
+  /* c(2,1, 0,0) = clov[14]+i*clov[15]; c(2,1, 1,0) = clov[28]+i*clov[29]; */
+  /* c(1,1, 0,1) = clov[18]+i*clov[19]; */
+  /* c(2,0, 0,1) = clov[20]+i*clov[21]; */
+  /* c(2,1, 0,1) = clov[22]+i*clov[23]; */
+  /* For the 3x3 part of Y   : B[1] above                                  */
+  /* c(1,3, 0,2) = clov[46]+i*clov[47]; c(1,3, 1,2) = clov[60]+i*clov[61]; */
+  /* c(2,2, 0,2) = clov[48]+i*clov[49]; c(2,2, 1,2) = clov[62]+i*clov[63]; */
+  /* c(2,3, 0,2) = clov[50]+i*clov[51]; c(2,3, 1,2) = clov[64]+i*clov[65]; */
+  /* c(1,3, 0,3) = clov[54]+i*clov[55]; */
+  /* c(2,2, 0,3) = clov[56]+i*clov[57]; */
+  /* c(2,3, 0,3) = clov[58]+i*clov[59]; */
+
+  b[0] = QDP_create_M();
+  b[1] = QDP_create_M();
+
+  f_mu_nu(b[0], link, 1, 2);                     /* b[0] = F_{12}         */  
+  f_mu_nu(f_mn, link, 0, 3);                     /* f_mn = F_{03}         */
+
+  QDP_M_eq_M_plus_M(b[1], b[0], f_mn, QDP_all);  /* b[1] = F_{12}+F_{03}    */
+  QDP_M_meq_M(b[0], f_mn, QDP_all);              /* b[0] = F_{12}-F_{03}    */
+
+  QDP_M_eq_i_M(xm, b[0], QDP_all);               /* xm = i*b[0] */
+  QDP_M_eq_i_M(ym, b[1], QDP_all);               /* ym = i*b[1] */
+
+  QDP_M_eq_M(b[0], xm, QDP_all);         /* b[0] = i*(F_{12}-F_{03})*/
+  QDP_M_eq_M(b[1], ym, QDP_all);         /* b[1] = i*(F_{12}+F_{03})*/ 
+
+  f_mu_nu(f_mn, link, 0, 2);             /* f_mn = F_{02}           */
+  QDP_M_meq_M(b[0], f_mn, QDP_all);      /* b[0] = b[0]-F_{02}      */
+  QDP_M_meq_M(b[1], f_mn, QDP_all);      /* b[1] = b[1]-F_{02}      */
+
+  f_mu_nu(f_mn, link, 1, 3);             /* f_mn = F_{13}           */
+  QDP_M_meq_M(b[0], f_mn, QDP_all);      /* b[0] = b[0]-F_{13}      */
+  QDP_M_peq_M(b[1], f_mn, QDP_all);      /* b[1] = b[1]+F_{13}      */
+
+  /* | b[0]=c_sw(b[0]) => b[0] = c_sw[i(F_{12}-F_{03})-(F_{02}+F_{13})]    */
+  /* | b[1]=c_sw(b[1]) => b[1] = c_sw[i(F_{12}+F_{03})-(F_{02}-F_{13})]    */
+  /* V                                                                     */
+  QDP_M_eq_r_times_M(b[0],&csw,b[0],QDP_all);
+  QDP_M_eq_r_times_M(b[1],&csw,b[1],QDP_all);
+
+  QLA_ColorMatrix *B[2];
+  B[0] = QDP_expose_M(b[0]);
+  B[1] = QDP_expose_M(b[1]);
+  for(i=0; i<QDP_sites_on_node; i++) {
+    for(j=0; j<3; j++) {
+      for(k=0; k<3; k++) {
+	jk = (2*j+10)+(9-k)*k;
+	clov[72*i+(jk   )] = QLA_real(QLA_elem_M(B[0][i],j,k));
+	clov[72*i+(jk+1 )] = QLA_imag(QLA_elem_M(B[0][i],j,k));
+	clov[72*i+(jk+36)] = QLA_real(QLA_elem_M(B[1][i],j,k));
+	clov[72*i+(jk+37)] = QLA_imag(QLA_elem_M(B[1][i],j,k));
+      }
+    }
+  }
+  QDP_destroy_M(b[0]);
+  QDP_destroy_M(b[1]);
+
+  QDP_destroy_M(f_mn);
+  QDP_destroy_M(xm);
+  QDP_destroy_M(ym);
+
+  /* 2*(3x3)=2*(18 real) = 36 real numbers are assiged to array clov  */
+  /* ---------------------------------------------------------------- */
+}
+
+/* ---------------------------------------------------------------------- */
+/* -------- End of the calculation of Clover Coefficients  -------------  */
+/* ---------------------------------------------------------------------- */
+
+
+
+// ************************************************************************ 
 
 static void
 clov_unpack(QLA_Complex u[6][6], REAL *p)
@@ -296,7 +569,7 @@ clov_invert(QLA_Complex ci[6][6], QLA_Complex c[6][6])
     }
   }
 }
-
+/*
 static void
 printcm(QLA_Complex *m, int nr, int nc)
 {
@@ -308,6 +581,7 @@ printcm(QLA_Complex *m, int nr, int nc)
     printf("\n");
   }
 }
+*/
 
 static void
 get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
@@ -357,35 +631,99 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
   WILSON_INVERT_END;
   return flw;
 }
+/* --------------------------------------------------- */
+/* This part is added by Bugra ----------------------- */
 
-QOP_FermionLinksWilson *
-QOP_wilson_create_L_from_G(QOP_info_t *info, QOP_wilson_coeffs_t *coeffs,
-			   QOP_GaugeField *gauge)
+static QOP_FermionLinksWilson *
+wilson_initialize_gauge_L()
 {
   QOP_FermionLinksWilson *flw;
-  QDP_DiracPropagator *clov;
 
   WILSON_INVERT_BEGIN;
 
-  if(coeffs->clov_c==0.) {
-    clov = NULL;
-  } else {
-    clov = QDP_create_P();
-    get_clov(clov, gauge->links, coeffs->clov_c);
+  QOP_malloc(flw          ,QOPPC(FermionLinksWilson),1);
+  QOP_malloc(flw->links   ,QDPPC(ColorMatrix) *     ,4);
+  QOP_malloc(flw->bcklinks,QDPPC(ColorMatrix) *     ,4);
+  QOP_malloc(flw->dbllinks,QDPPC(ColorMatrix) *,     8);
+
+  flw->dblstored = 0;
+  flw->clov      = NULL;
+  flw->clovinv   = NULL;
+  flw->rawlinks  = NULL;
+  flw->qopgf     = NULL;
+  flw->qdpclov   = NULL;
+  flw->eigcg.u   = NULL;
+
+  WILSON_INVERT_END;
+
+  return flw;
+}
+
+
+/* ----------------This part is added by Bugra ------------- */
+/* --------------------------------------------------------- */
+QOP_FermionLinksWilson *
+QOP_wilson_create_L_from_G(QOP_info_t *info, 
+			   QOP_wilson_coeffs_t *coeffs,
+			   QOP_GaugeField *gauge)
+{ 
+  QOP_FermionLinksWilson *flw;
+  QDP_ColorMatrix        *newlinks[4];
+  int                    i;
+
+  WILSON_INVERT_BEGIN;
+
+  /* initialize FermionLinksWilson and allocate memory---- */
+  flw = wilson_initialize_gauge_L();
+
+  /* First create QDP Color Matrices */
+  for(i=0; i<4; i++) {
+    newlinks[i] = QDP_create_M();
+    QDP_M_eq_M(newlinks[i], gauge->links[i], QDP_all);
   }
-  if(coeffs->aniso!=0.) {
-    int i;
-    for(i=0; i<3; i++) {
-      QLA_Real f = coeffs->aniso;
-      QDP_M_eq_r_times_M(gauge->links[i], &f, gauge->links[i], QDP_all);
+
+  /* get the clover coefficients and put them in flw->clow */
+  /* Usage : get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real csw) */
+  if(coeffs->clov_s != 0 || coeffs->clov_t != 0) {
+    int nreals = QDP_sites_on_node*CLOV_REALS;
+    QOP_malloc(flw->clov, REAL, nreals);
+    if(coeffs->clov_s != coeffs->clov_t) {
+      QLA_Real t;
+      t = sqrt(coeffs->clov_t/coeffs->clov_s);
+      QDP_M_eq_r_times_M(newlinks[3], &t, gauge->links[3], QDP_all);
+      get_clov(flw->clov, newlinks, 0.5*coeffs->clov_s);
+      QDP_M_eq_M(newlinks[3], gauge->links[3], QDP_all);
+    } else {
+      get_clov(flw->clov, newlinks, 0.5*coeffs->clov_t);
+      //for(i=0; i<QDP_sites_on_node*CLOV_REALS; i++) flw->clov[i] = 0;
     }
   }
-  flw = QOP_wilson_create_L_from_qdp(gauge->links, clov);
-  if(clov) QDP_destroy_P(clov);
+
+  /* Check the anisotropy -------------------------------  */
+  if(coeffs->aniso != 0.) {
+    for(i=0; i<3; i++) {
+      QLA_Real f = coeffs->aniso;
+      QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], QDP_all);
+    }
+  }
+
+  /* Scale the links ------------------------------------- */
+  for(i=0; i<4; i++) {
+    QLA_Real f    = -0.5;
+    QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], QDP_all);
+  }
+
+  /* newlinks go to flw->links --------------------------- */
+  for(i=0; i<4; i++) {
+    flw->links[i] = newlinks[i];
+  }
 
   WILSON_INVERT_END;
   return flw;
 }
+
+/* --------------------------------------------------------- */
+/* --------------------------------------------------------- */
 
 void
 QOP_wilson_extract_L_to_raw(REAL *links[], REAL *clov,
@@ -564,7 +902,7 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
     QDP_M_eq_r_times_M(flw->links[i], &f, flw->links[i], QDP_all);
   }
 
-  check_setup(flw);
+  //check_setup(flw);
 
   flw->rawlinks = NULL;
   flw->rawclov = NULL;
