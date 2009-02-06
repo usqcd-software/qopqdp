@@ -1,3 +1,7 @@
+2009-02-06 02:35  osborn
+
+	* lib/wilson_dslash_p.c: attempt to fix clover term
+
 2009-01-24 14:14  osborn
 
 	* NEWS, aclocal.m4, configure, configure.ac,
