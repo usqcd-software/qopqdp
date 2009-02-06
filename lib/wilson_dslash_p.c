@@ -334,7 +334,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real csw)
   //printf(":: Calculating clover coefficients....:::\n\n\n");
   //int ic,is,jc,js;
   int i,j,k;
-  int ik,jk;
+  int jk;
 
   /* Fist I create A[0],A[1],B[0] and B[1] matrices */
 
@@ -373,36 +373,38 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real csw)
       /* c(0,0, 0,0) = clov[0]  c(1,1, 1,1) = clov[3]             */
       /* c(0,1, 0,1) = clov[1]  c(2,0, 2,0) = clov[4]             */
       /* c(1,0, 1,0) = clov[2]  c(2,1, 2,1) = clov[5]             */
-      clov[(72*i)+(j   )] = QLA_real(QLA_elem_M(A[0][i],j,j));
-      clov[(72*i)+(j+3 )] = -QLA_real(QLA_elem_M(A[0][i],j,j));
+      //clov[(72*i)+(j   )] = QLA_real(QLA_elem_M(A[0][i],j,j));
+      //clov[(72*i)+(j+3 )] = -QLA_real(QLA_elem_M(A[0][i],j,j));
+      clov[(72*i)+(2*j  )] = QLA_real(QLA_elem_M(A[0][i],j,j));
+      clov[(72*i)+(2*j+1)] = -QLA_real(QLA_elem_M(A[0][i],j,j));
       /* diagoal elements numbered from 36 to 41 for the matrix Y */
       /* c(0,2, 0,2) = clov[36]  c(1,3, 1,3) = clov[39]           */
       /* c(0,3, 0,3) = clov[37]  c(2,2, 2,2) = clov[40]           */
       /* c(1,2, 1,2) = clov[38]  c(2,3, 2,3) = clov[41]           */
-      clov[(72*i)+(j+36)] = QLA_imag(QLA_elem_M(A[1][i],j,j));
-      clov[(72*i)+(j+39)] = -QLA_imag(QLA_elem_M(A[1][i],j,j));
+      clov[(72*i)+(2*j+36)] = QLA_imag(QLA_elem_M(A[1][i],j,j));
+      clov[(72*i)+(2*j+37)] = -QLA_imag(QLA_elem_M(A[1][i],j,j));
       /* -------------------------------------------------------- */
       /* 12 real number are assigned to the array clov            */
 
       /* Below the triangular which have A[0] and A[1] only       */
       for(k=0; k<j; k++) { 
-	/* c(0,1, 0,0) = clov[ 6]+i*clov[ 7] */
 	/* c(1,0, 0,0) = clov[ 8]+i*clov[ 9] */
-	/* c(1,0, 0,1) = clov[16]+i*clov[17] */
-	jk = (2*j+4)*(k+1);
+	/* c(2,0, 0,0) = clov[12]+i*clov[13] */
+	/* c(2,0, 1,0) = clov[26]+i*clov[27] */
+	jk = 4 + (4*j) + (14*k);
 	clov[(72*i)+(jk  ) ] = QLA_real(QLA_elem_M(A[0][i],j,k));
 	clov[(72*i)+(jk+1) ] = QLA_imag(QLA_elem_M(A[0][i],j,k));
 	clov[(72*i)+(jk+36)] = QLA_real(QLA_elem_M(A[1][i],j,k));
 	clov[(72*i)+(jk+37)] = QLA_imag(QLA_elem_M(A[1][i],j,k));
 
-	/* c(2,0, 1,1) = clov[30]+i*clov[31] */
+	/* c(1,1, 0,1) = clov[18]+i*clov[19] */
+	/* c(2,1, 0,1) = clov[22]+i*clov[23] */
 	/* c(2,1, 1,1) = clov[32]+i*clov[33] */
-	/* c(2,1, 2,0) = clov[34]+i*clov[35] */
-	ik = (30+(2*j-2))+(2*k);
-	clov[(72*i)+(ik   )] = -QLA_real(QLA_elem_M(A[0][i],j,k));
-	clov[(72*i)+(ik+1 )] = -QLA_imag(QLA_elem_M(A[0][i],j,k));
-	clov[(72*i)+(ik+36)] = -QLA_real(QLA_elem_M(A[1][i],j,k));
-	clov[(72*i)+(ik+37)] = -QLA_imag(QLA_elem_M(A[1][i],j,k));
+	jk = 14 + (4*j) + (10*k);
+	clov[(72*i)+(jk   )] = -QLA_real(QLA_elem_M(A[0][i],j,k));
+	clov[(72*i)+(jk+1 )] = -QLA_imag(QLA_elem_M(A[0][i],j,k));
+	clov[(72*i)+(jk+36)] = -QLA_real(QLA_elem_M(A[1][i],j,k));
+	clov[(72*i)+(jk+37)] = -QLA_imag(QLA_elem_M(A[1][i],j,k));
       }
     }
   }
@@ -465,11 +467,28 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real csw)
   for(i=0; i<QDP_sites_on_node; i++) {
     for(j=0; j<3; j++) {
       for(k=0; k<3; k++) {
-	jk = (2*j+10)+(9-k)*k;
-	clov[72*i+(jk   )] = QLA_real(QLA_elem_M(B[0][i],j,k));
-	clov[72*i+(jk+1 )] = QLA_imag(QLA_elem_M(B[0][i],j,k));
-	clov[72*i+(jk+36)] = QLA_real(QLA_elem_M(B[1][i],j,k));
-	clov[72*i+(jk+37)] = QLA_imag(QLA_elem_M(B[1][i],j,k));
+	if(j>k) {
+	  /* c(1,0, 0,1) = clov[16]+i*clov[17] */
+	  /* c(2,0, 0,1) = clov[20]+i*clov[21] */
+	  /* c(2,0, 1,1) = clov[30]+i*clov[31] */
+	  jk = 12 + 4*j + 10*k;
+	  clov[72*i+(jk   )] = QLA_real(QLA_elem_M(B[0][i],j,k));
+	  clov[72*i+(jk+1 )] = QLA_imag(QLA_elem_M(B[0][i],j,k));
+	  clov[72*i+(jk+36)] = QLA_real(QLA_elem_M(B[1][i],j,k));
+	  clov[72*i+(jk+37)] = QLA_imag(QLA_elem_M(B[1][i],j,k));
+	} else {
+	  /* c(0,0, 0,1)* = clov[ 6]+i*clov[ 7] */
+	  /* c(0,0, 1,1)* = clov[10]+i*clov[11] */
+	  /* c(0,0, 2,1)* = clov[14]+i*clov[15] */
+	  /* c(1,0, 1,1)* = clov[24]+i*clov[25] */
+	  /* c(1,0, 2,1)* = clov[28]+i*clov[29] */
+	  /* c(2,0, 2,1)* = clov[34]+i*clov[35] */
+	  jk = 6 + j*(18-4*j) + 4*k;
+	  clov[72*i+(jk   )] = QLA_real(QLA_elem_M(B[0][i],j,k));
+	  clov[72*i+(jk+1 )] = -QLA_imag(QLA_elem_M(B[0][i],j,k));
+	  clov[72*i+(jk+36)] = QLA_real(QLA_elem_M(B[1][i],j,k));
+	  clov[72*i+(jk+37)] = -QLA_imag(QLA_elem_M(B[1][i],j,k));
+	}
       }
     }
   }
