@@ -1,3 +1,9 @@
+2009-02-07 17:33  osborn
+
+	* NEWS, lib/wilson_dslash_p.c: merged fixes to clover term
+	  generation.  small changes to clover term application to improve
+	  performance.
+
 2009-02-06 02:35  osborn
 
 	* lib/wilson_dslash_p.c: attempt to fix clover term
