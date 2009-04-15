@@ -1,3 +1,9 @@
+2009-04-15 15:32  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_test.c, include/qop.h, lib/common_p.c: Added
+	  missing rephase functions.  Added raw set/get accessor macros.
+
 2009-02-07 17:33  osborn
 
 	* NEWS, lib/wilson_dslash_p.c: merged fixes to clover term
