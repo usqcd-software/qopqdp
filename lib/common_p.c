@@ -385,3 +385,51 @@ QOPPC(convert_F_to_qdp)(QOPPC(Force) *src)
   free(src);
   return ret;
 }
+
+/* rephase */
+
+static int nd;
+static int bc_dir;
+static int bc_coord;
+static QLA_Complex bc_phase;
+static int staggered_sign_bits;
+
+static void
+rephase_func(QLA_ColorMatrix *m, int coords[])
+{
+  if(bc_dir>=0) {
+    if(coords[bc_dir]==bc_coord) {
+      QLA_ColorMatrix t;
+      QLA_M_eq_c_times_M(&t, &bc_phase, m);
+      QLA_M_eq_M(m, &t);
+    }
+  }
+  if(staggered_sign_bits) {
+    int s=0;
+    for(int i=0; i<nd; i++) s += ((staggered_sign_bits>>i)&1) * coords[i];
+    if(s&1) {
+      QLA_M_eqm_M(m, m);
+    }
+  }
+}
+
+void
+QOP_rephase_G(QOP_GaugeField *links,
+	      QOP_bc_t *bc,
+	      QOP_staggered_sign_t *sign)
+{
+  nd = QDP_ndim();
+  for(int i=0; i<nd; i++) {
+    bc_dir = -1;
+    staggered_sign_bits = 0;
+    if(bc && (bc->phase[i].re!=1. || bc->phase[i].im!=0.)) {
+      bc_dir = i;
+      bc_coord = QDP_coord_size(i) - 1;
+      QLA_c_eq_r_plus_ir(bc_phase, bc->phase[i].re, bc->phase[i].im);
+    }
+    if(sign) {
+      staggered_sign_bits = sign->signmask[i];
+    }
+    QDP_M_eq_func(links->links[i], rephase_func, QDP_all);
+  }
+}

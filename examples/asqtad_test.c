@@ -132,6 +132,14 @@ start(void)
   QOP_asqtad_invert_set_opts(&optcg, 1);
   if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }
   gf = QOP_convert_G_from_qdp(u);
+  if(QDP_this_node==0) { printf("rephase gauge field\n"); fflush(stdout); }
+  QOP_Complex phase[4] = {{1,0},{1,0},{1,0},{-1,0}};
+  int signmask[4] = {0,1,3,7};
+  QOP_bc_t bc;
+  QOP_staggered_sign_t ss;
+  bc.phase = phase;
+  ss.signmask = signmask;
+  QOP_rephase_G(gf, &bc, &ss);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
   QDP_profcontrol(1);

@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.12.0, [osborn at alcf.anl.gov])
+AC_INIT(qopqdp, 0.13.0, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 

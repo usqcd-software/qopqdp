@@ -176,6 +176,43 @@ int QOP_sites_on_node_raw_D(QOP_evenodd_t evenodd);
 int QOP_sites_on_node_raw_G(QOP_evenodd_t evenodd);
 int QOP_sites_on_node_raw_F(QOP_evenodd_t evenodd);
 
+#define QOP_qla_type_F3_V QLA_F3_ColorVector
+#define QOP_qla_type_F3_D QLA_F3_DiracFermion
+#define QOP_qla_type_F3_M QLA_F3_ColorMatrix
+#define QOP_qla_type_D3_V QLA_D3_ColorVector
+#define QOP_qla_type_D3_D QLA_D3_DiracFermion
+#define QOP_qla_type_D3_M QLA_D3_ColorMatrix
+#define QOP_raw_size(P, T) (QDP_sites_on_node*sizeof(QOP_qla_type_##P##3_##T))
+#define QOP_F3_raw_size_V(evenodd) QOP_raw_size(F, V)
+#define QOP_F3_raw_size_D(evenodd) QOP_raw_size(F, D)
+#define QOP_F3_raw_size_G(evenodd) QOP_raw_size(F, M)
+#define QOP_F3_raw_size_F(evenodd) QOP_raw_size(F, M)
+#define QOP_D3_raw_size_V(evenodd) QOP_raw_size(D, V)
+#define QOP_D3_raw_size_D(evenodd) QOP_raw_size(D, D)
+#define QOP_D3_raw_size_G(evenodd) QOP_raw_size(D, M)
+#define QOP_D3_raw_size_F(evenodd) QOP_raw_size(D, M)
+
+#define QOP_elem(P, T, raw, i, ...) QLA_##P##3_elem_##T(((QOP_qla_type##P##3_##T *)raw)[i], __ARGV__)
+#define QOP_set(P, T, raw, i, re, im, ...) QLA_c_eq_r_plus_ir(QOP_elem(P, T, raw, i, __ARGV__), re, im)
+#define QOP_F3_raw_set_V(raw, evenodd, i, ic, re, im) QOP_set(F, V, raw, i, re, im, ic)
+#define QOP_F3_raw_set_D(raw, evenodd, i, ic, is, re, im) QOP_set(F, D, raw, i, re, im, ic, is)
+#define QOP_F3_raw_set_G(raw, evenodd, i, ic, jc, re, im) QOP_set(F, M, raw, i, re, im, ic, jc)
+#define QOP_F3_raw_set_F(raw, evenodd, i, ic, jc, re, im) QOP_set(F, M, raw, i, re, im, ic, jc)
+#define QOP_D3_raw_set_V(raw, evenodd, i, ic, re, im) QOP_set(D, V, raw, i, re, im, ic)
+#define QOP_D3_raw_set_D(raw, evenodd, i, ic, is, re, im) QOP_set(D, D, raw, i, re, im, ic, is)
+#define QOP_D3_raw_set_G(raw, evenodd, i, ic, jc, re, im) QOP_set(D, M, raw, i, re, im, ic, jc)
+#define QOP_D3_raw_set_F(raw, evenodd, i, ic, jc, re, im) QOP_set(D, M, raw, i, re, im, ic, jc)
+#define QOP_get(P, T, re, im, raw, i, ...) { QLA_##P##_Complex _c = QOP_elem(P, T, raw, i, __ARGV__); re = QLA_real(_c); im = QLA_imag(_c); }
+#define QOP_F3_raw_get_V(re, im, raw, evenodd, i, ic) QOP_set(F, V, re, im, raw, i, ic)
+#define QOP_F3_raw_get_D(re, im, raw, evenodd, i, ic, is) QOP_set(F, D, re, im, raw, i, ic, is)
+#define QOP_F3_raw_get_M(re, im, raw, evenodd, i, ic, jc) QOP_set(F, M, re, im, raw, i, ic, jc)
+#define QOP_F3_raw_get_G(re, im, raw, evenodd, i, ic, jc) QOP_set(F, M, re, im, raw, i, ic, jc)
+#define QOP_D3_raw_get_V(re, im, raw, evenodd, i, ic) QOP_set(D, V, re, im, raw, i, ic)
+#define QOP_D3_raw_get_D(re, im, raw, evenodd, i, ic, is) QOP_set(D, D, re, im, raw, i, ic, is)
+#define QOP_D3_raw_get_M(re, im, raw, evenodd, i, ic, jc) QOP_set(D, M, re, im, raw, i, ic, jc)
+#define QOP_D3_raw_get_G(re, im, raw, evenodd, i, ic, jc) QOP_set(D, M, re, im, raw, i, ic, jc)
+
+
   /* single precision */
 
 /* create a QOP field with a copy of the raw source field */
@@ -951,6 +988,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_convert_G_to_raw QOP_F3_convert_G_to_raw
 #define QOP_convert_F_to_raw QOP_F3_convert_F_to_raw
 
+#define QOP_rephase_G QOP_F3_rephase_G
+
 #define QOP_symanzik_1loop_gauge_force  QOP_F3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksAsqtad        QOP_F3_FermionLinksAsqtad
@@ -1044,6 +1083,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_convert_D_to_raw QOP_D3_convert_D_to_raw
 #define QOP_convert_G_to_raw QOP_D3_convert_G_to_raw
 #define QOP_convert_F_to_raw QOP_D3_convert_F_to_raw
+
+#define QOP_rephase_G QOP_D3_rephase_G
 
 #define QOP_symanzik_1loop_gauge_force  QOP_D3_symanzik_1loop_gauge_force
 
