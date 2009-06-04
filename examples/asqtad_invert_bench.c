@@ -11,6 +11,7 @@ static QLA_Real mass=-1;
 static int style=-1;
 static int cgtype=0;
 static int verb=0;
+static double naik=0.1;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -97,7 +98,7 @@ start(void)
   coeffs.five_staple = 0.1;
   coeffs.seven_staple = 0.1;
   coeffs.lepage = 0.1;
-  coeffs.naik = 0.1;
+  coeffs.naik = naik;
 
   QOP_info_t info;
   QOP_invert_arg_t inv_arg;
@@ -197,6 +198,7 @@ usage(char *s)
   printf("%s [c#] [n#] [s#] [S#] [x# [# ...]] [v#]\n",s);
   printf("\n");
   printf("c\tcgtype\n");
+  printf("k\tmaik term\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
@@ -219,6 +221,7 @@ main(int argc, char *argv[])
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
     case 'c' : cgtype=atoi(&argv[i][1]); break;
+    case 'k' : naik=atof(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
@@ -254,6 +257,7 @@ main(int argc, char *argv[])
     print_layout();
     printf("mass = %g\n", mass);
     printf("seed = %i\n", seed);
+    printf("naik = %g\n", naik);
   }
 
   rs = QDP_create_S();

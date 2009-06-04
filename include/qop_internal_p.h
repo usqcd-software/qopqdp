@@ -73,13 +73,16 @@ typedef struct {
   /* Asqtad datatypes */
 
 struct QOPPC(FermionLinksAsqtad_struct) {
-  int dblstored;
+  int dblstored, nlinks;
   QDPPC(ColorMatrix) **fatlinks;
   QDPPC(ColorMatrix) **longlinks;
   QDPPC(ColorMatrix) **fwdlinks;
   QDPPC(ColorMatrix) **bcklinks;
   QDPPC(ColorMatrix) **dbllinks;
   QOPPC(eigcg_t_V) eigcg;
+  QDP_Shift shifts[8];
+  QDP_Shift shifts_dbl[16];
+  QDP_ShiftDir shiftdirs_dbl[16];
 };
 
   /* Wilson datatypes */
