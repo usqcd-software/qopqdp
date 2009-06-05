@@ -1,3 +1,15 @@
+2009-06-04 20:48  osborn
+
+	* lib/asqtad_dslash_p.c: fixed performance of plain staggered
+	  dslash when communicating
+
+2009-06-04 19:36  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_invert_bench.c, include/qop_internal_p.h,
+	  lib/asqtad_dslash_p.c: Optimized asqtad dslash for case when
+	  naik=0.
+
 2009-04-15 15:32  tag qopqdp0-13-0
 
 2009-04-15 15:32  osborn
