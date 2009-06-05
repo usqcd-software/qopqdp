@@ -8,7 +8,7 @@ extern QOP_asqtad_t QOP_asqtad;
 static int old_style=-1;
 static int old_optnum=-1;
 
-#define NTMPSUB 2
+#define NTMPSUB 4
 #define NTMP (3*NTMPSUB)
 #define NVTMP 24
 static int dslash_setup = 0;
@@ -127,6 +127,7 @@ QOPPC(asqtad_dslash_get_tmp)(QOP_FermionLinksAsqtad *fla,
                              QOP_evenodd_t eo, int n)
 {
   check_setup(fla);
+  if(fla->nlinks==8) n += 2;
   if(n>=1 && n<=NTMPSUB) return tmpsub(eo,n);
   else return NULL;
 }
@@ -635,7 +636,7 @@ asqtad_dslash1(QOP_FermionLinksAsqtad *fla,
   while(1) { \
     if(src==tmpsub(eo,_n)) break; \
     if(_n==NTMPSUB) { \
-      _n = 1; \
+      _n = (fla->nlinks==16) ? 1 : 3;		\
       tsrc = tmpsub(eo,_n); \
       QDP_V_eq_V(tsrc, src, qdpsub(oppsub(eo))); \
       break; \
