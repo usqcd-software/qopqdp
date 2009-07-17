@@ -128,6 +128,8 @@ typedef struct {
   double asqtad_seven_staple;
   double asqtad_lepage;
   double asqtad_naik;
+  double difference_one_link;
+  double difference_naik;
 } QOP_hisq_coeffs_t;
 
 typedef struct QOP_F3_FermionLinksHisq_struct QOP_F3_FermionLinksHisq;
@@ -580,6 +582,36 @@ void QOP_D3_hisq_invert_multi(QOP_info_t *info,
 				int nsrc);
 
 
+  /* fermion force routines */
+
+void QOP_F3_hisq_force_multi(QOP_info_t *info,
+			     QOP_F3_GaugeField *Ugauge,
+			     QOP_F3_GaugeField *Vgauge,
+			     QOP_F3_GaugeField *Wgauge,
+			     QOP_F3_Force *force,
+			     QOP_hisq_coeffs_t *coef,
+			     float eps[],
+			     QOP_F3_ColorVector *in_pt[],
+			     int nsrc,
+			     int n_naiks,
+			     int n_order_naik_total,
+			     int *n_orders_naik,
+			     float *eps_naik);
+  
+
+void QOP_D3_hisq_force_multi(QOP_info_t *info,
+			     QOP_D3_GaugeField *Ugauge,
+			     QOP_D3_GaugeField *Vgauge,
+			     QOP_D3_GaugeField *Wgauge,
+			     QOP_D3_Force *force,
+			     QOP_hisq_coeffs_t *coef,
+			     double eps[],
+			     QOP_D3_ColorVector *in_pt[],
+			     int nsrc,
+			     int n_naiks,
+			     int n_order_naik_total,
+			     int *n_orders_naik,
+			     double *eps_naik);
 
   /*********************/
   /*  Wilson routines  */
@@ -668,6 +700,14 @@ void QOP_D3_wilson_load_L_from_G(QOP_info_t *info,
 				 QOP_D3_FermionLinksWilson *wilson,
 				 QOP_wilson_coeffs_t *coeffs,
 				 QOP_D3_GaugeField *gauge);
+
+  /* create single-precision QOP objects from double-precision */
+
+QOP_F3_GaugeField *
+QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double);
+
+QOP_F3_FermionLinksWilson *
+QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double);
 
   /* inverter routines */
 
@@ -1016,6 +1056,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_hisq_invert       QOP_F3_hisq_invert
 #define QOP_hisq_invert_multi QOP_F3_hisq_invert_multi
 
+#define QOP_hisq_force_multi  QOP_F3_hisq_force_multi
+
 #define QOP_FermionLinksWilson        QOP_F3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_F3_wilson_create_L_from_raw
 #define QOP_wilson_create_L_from_G    QOP_F3_wilson_create_L_from_G
@@ -1110,6 +1152,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 
 #define QOP_hisq_invert       QOP_D3_hisq_invert
 #define QOP_hisq_invert_multi QOP_D3_hisq_invert_multi
+
+#define QOP_hisq_force_multi  QOP_D3_hisq_force_multi
 
 #define QOP_FermionLinksWilson        QOP_D3_FermionLinksWilson
 #define QOP_wilson_create_L_from_raw  QOP_D3_wilson_create_L_from_raw
