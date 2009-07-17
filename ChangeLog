@@ -1,3 +1,31 @@
+2009-07-17 14:12  tag qopqdp0-14-0
+
+2009-07-17 14:12  detar
+
+	* NEWS, aclocal.m4, configure, configure.ac: Uptick to version
+	  0.14.0
+
+2009-07-17 14:11  detar
+
+	* include/Makefile.am, include/qop.h, lib/Makefile.am: Add HISQ
+	  Alan Gray's force routines from EPCC
+
+2009-07-17 14:05  detar
+
+	* lib/: hisq_force_d.c, hisq_force_f.c, hisq_force_fnmat_d.c,
+	  hisq_force_fnmat_f.c, hisq_force_fnmat_p.c, hisq_force_p.c,
+	  hisq_invert_p.c, hisq_reunit_d.c, hisq_reunit_f.c,
+	  hisq_reunit_p.c: Add EPCC HISQ modules from Alan Gray
+
+2009-07-17 14:04  detar
+
+	* lib/wilson_dslash_p.c: Add precision conversion capability for
+	  Wilson fermion link type
+
+2009-07-17 14:03  detar
+
+	* lib/asqtad_dslash_p.c: CD: Fix a couple pointer bugs.
+
 2009-06-04 20:48  osborn
 
 	* lib/asqtad_dslash_p.c: fixed performance of plain staggered
