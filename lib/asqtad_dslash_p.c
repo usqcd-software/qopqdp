@@ -261,14 +261,14 @@ QOPPC(asqtad_convert_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
 
   ASQTAD_DSLASH_BEGIN;
 
-  lp = ll;
+  lp = NULL;
   for(i=0; i<4; i++) {
     fl[i] = QDP_create_M();
     QDP_insert_M(fl[i], (QLA_ColorMatrix *)fatlinks[i], QDP_all);
     if(longlinks) {
       ll[i] = QDP_create_M();
       QDP_insert_M(ll[i], (QLA_ColorMatrix *)longlinks[i], QDP_all);
-      lp = NULL;
+      lp = ll;
     }
   }
 
@@ -285,14 +285,14 @@ QOPPC(asqtad_create_L_from_raw)(REAL *fatlinks[], REAL *longlinks[],
 
   ASQTAD_DSLASH_BEGIN;
 
-  lp = ll;
+  lp = NULL;
   for(i=0; i<4; i++) {
     fl[i] = QDP_create_M();
     QOP_qdp_eq_raw(M, fl[i], fatlinks[i], evenodd);
     if(longlinks) {
       ll[i] = QDP_create_M();
       QOP_qdp_eq_raw(M, ll[i], longlinks[i], evenodd);
-      lp = NULL;
+      lp = ll;
     }
   }
 
