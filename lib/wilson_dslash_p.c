@@ -764,8 +764,8 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
     QOP_destroy_G(flw->qopgf);
   } else {
     for(i=0; i<4; i++) QDP_destroy_M(flw->links[i]);
-    free(flw->links);
   }
+  free(flw->links);
   if(flw->dblstored) {
     for(i=0; i<4; i++) QDP_destroy_M(flw->bcklinks[i]);
   }
