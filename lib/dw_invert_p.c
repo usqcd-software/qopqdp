@@ -117,19 +117,15 @@ reset_temps(QOP_FermionLinksDW *flw)
 /* link routines */
 
 QOP_FermionLinksDW *
-QOP_dw_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
+QOP_dw_create_L_from_raw(REAL *links[], QOP_evenodd_t evenodd)
 {
   QOP_FermionLinksDW *flw;
   QOP_GaugeField *gf;
 
   DW_INVERT_BEGIN;
 
-  if(clov!=NULL) {
-    QOP_error("clover term is not implemented yet.");
-  }
-
   gf = QOP_create_G_from_raw(links, evenodd);
-  flw = QOP_dw_convert_L_from_qdp(gf->links, NULL);
+  flw = QOP_dw_convert_L_from_qdp(gf->links);
 
   flw->raw = NULL;
   flw->qopgf = gf;
@@ -149,7 +145,7 @@ QOP_dw_create_L_from_G(QOP_info_t *info, QOP_dw_coeffs_t *coeffs,
 }
 
 void
-QOP_dw_extract_L_to_raw(REAL *links[], REAL *clov, QOP_FermionLinksDW *src,
+QOP_dw_extract_L_to_raw(REAL *links[], QOP_FermionLinksDW *src,
 			QOP_evenodd_t evenodd)
 {
   DW_INVERT_BEGIN;
@@ -181,7 +177,7 @@ QOP_dw_destroy_L(QOP_FermionLinksDW *flw)
 }
 
 QOP_FermionLinksDW *
-QOP_dw_convert_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
+QOP_dw_convert_L_from_raw(REAL *links[], QOP_evenodd_t evenodd)
 {
   DW_INVERT_BEGIN;
   QOP_error("QOP_dw_convert_L_from_raw unimplemented");
@@ -190,7 +186,7 @@ QOP_dw_convert_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 }
 
 void
-QOP_dw_convert_L_to_raw(REAL ***links, REAL **clov, QOP_FermionLinksDW *src,
+QOP_dw_convert_L_to_raw(REAL ***links, QOP_FermionLinksDW *src,
 			QOP_evenodd_t evenodd)
 {
   DW_INVERT_BEGIN;
@@ -218,7 +214,7 @@ QOP_dw_convert_L_to_G(QOP_FermionLinksDW *links)
 }
 
 QOP_FermionLinksDW *
-QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[], QDP_DiracPropagator *clov)
+QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[])
 {
   QOP_FermionLinksDW *flw;
   QDP_ColorMatrix *newlinks[4];
@@ -226,16 +222,12 @@ QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[], QDP_DiracPropagator *clov)
 
   DW_INVERT_BEGIN;
 
-  if(clov!=NULL) {
-    QOP_error("clover term is not implemented yet.");
-  }
-
   for(i=0; i<4; i++) {
     newlinks[i] = QDP_create_M();
     QDP_M_eq_M(newlinks[i], links[i], QDP_all);
   }
 
-  flw = QOP_dw_convert_L_from_qdp(newlinks, clov);
+  flw = QOP_dw_convert_L_from_qdp(newlinks);
 
   DW_INVERT_END;
   return flw;
@@ -243,7 +235,6 @@ QOP_dw_create_L_from_qdp(QDP_ColorMatrix *links[], QDP_DiracPropagator *clov)
 
 void
 QOP_dw_extract_L_to_qdp(QDP_ColorMatrix *links[],
-			QDP_DiracPropagator *clov,
 			QOP_FermionLinksDW *src)
 {
   DW_INVERT_BEGIN;
@@ -252,17 +243,12 @@ QOP_dw_extract_L_to_qdp(QDP_ColorMatrix *links[],
 }
 
 QOP_FermionLinksDW *
-QOP_dw_convert_L_from_qdp(QDP_ColorMatrix *links[],
-			  QDP_DiracPropagator *clov)
+QOP_dw_convert_L_from_qdp(QDP_ColorMatrix *links[])
 {
   QOP_FermionLinksDW *flw;
   int i;
 
   DW_INVERT_BEGIN;
-
-  if(clov!=NULL) {
-    QOP_error("clover term is not implemented yet.");
-  }
 
   QOP_malloc(flw, QOPPC(FermionLinksDW), 1);
   QOP_malloc(flw->links, QDPPC(ColorMatrix) *, 4);
@@ -293,8 +279,7 @@ QOP_dw_convert_L_from_qdp(QDP_ColorMatrix *links[],
 }
 
 void
-QOP_dw_convert_L_to_qdp(QDP_ColorMatrix ***link, QDP_DiracPropagator **clov,
-			QOP_FermionLinksDW *src)
+QOP_dw_convert_L_to_qdp(QDP_ColorMatrix ***link, QOP_FermionLinksDW *src)
 {
   DW_INVERT_BEGIN;
   QOP_error("QOP_dw_convert_L_to_qdp unimpleented");
@@ -906,15 +891,18 @@ QoeQeeinv(QOP_FermionLinksDW *flw, QDP_DiracFermion *out[],
   Qoe(flw, out, out, m0, M, Ls);
 }
 
-#if 0
 static void
 Qxx(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-    QLA_Real m0, QLA_Real M, int Ls, int sign, QDP_Subset subset)
+    QLA_Real m0, QLA_Real M, int Ls, int sign, QDP_Subset subset, int add)
 {
   int i;
   sign = -sign;
   for(i=0; i<Ls; i++) {
-    QDP_D_eq_r_times_D(out[i], &m0, in[i], subset);
+    if(add) {
+      QDP_D_peq_r_times_D(out[i], &m0, in[i], subset);
+    } else {
+      QDP_D_eq_r_times_D(out[i], &m0, in[i], subset);
+    }
 
     if(i<Ls-1) {
       QDP_D_meq_spproj_D(out[i], in[i+1], 4, sign, subset);
@@ -929,6 +917,14 @@ Qxx(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
       QDP_D_meq_spproj_D(out[i], in[i-1], 4, -sign, subset);
     }
   }
+}
+
+#if 0
+static void
+Qee(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+    QLA_Real m0, QLA_Real M, int Ls)
+{
+  Qxx(out, in, m0, M, Ls, 1, QDP_even);
 }
 
 static void
@@ -1050,4 +1046,58 @@ dw_dslash2(QOP_FermionLinksDW *flw,
 {
   dw_dslash1(flw, ttv, in, 1, subset, othersubset, m0, M, Ls);
   dw_dslash1(flw, out, ttv, -1, subset, othersubset, m0, M, Ls);
+}
+
+void
+QOP_dw_dslash_qdp(QOP_info_t *info,
+		  QOP_FermionLinksDW *links,
+		  REAL M5,
+		  REAL m,
+		  int sign,
+		  QDP_DiracFermion *out[],
+		  QDP_DiracFermion *in[],
+		  int Ls,
+		  QOP_evenodd_t eo_out,
+		  QOP_evenodd_t eo_in)
+{
+  if( eo_out==QOP_EVEN || eo_out==QOP_EVENODD ) {
+    if( eo_in==QOP_ODD ) {
+      Qxy(links, out, in, M5, m, Ls, sign, QDP_even, QDP_odd);
+    } else if( eo_in==QOP_EVEN ) {
+      Qxx(out, in, M5, m, Ls, sign, QDP_even, 0);
+    } else {
+      Qxy(links, out, in, M5, m, Ls, sign, QDP_even, QDP_odd);
+      Qxx(out, in, M5, m, Ls, sign, QDP_even, 1);
+    }
+  }
+  if( eo_out==QOP_ODD || eo_out==QOP_EVENODD ) {
+    if( eo_in==QOP_EVEN ) {
+      Qxy(links, out, in, M5, m, Ls, sign, QDP_odd, QDP_even);
+    } else if( eo_in==QOP_ODD ) {
+      Qxx(out, in, M5, m, Ls, sign, QDP_odd, 0);
+    } else {
+      Qxy(links, out, in, M5, m, Ls, sign, QDP_odd, QDP_even);
+      Qxx(out, in, M5, m, Ls, sign, QDP_odd, 1);
+    }
+  }
+}
+
+void
+QOP_dw_dslash(QOP_info_t *info,
+	      QOP_FermionLinksDW *links,
+	      REAL M5,
+	      REAL m,
+	      int sign,
+	      QOP_DiracFermion *out_pt[],
+	      QOP_DiracFermion *in_pt[],
+	      int Ls,
+	      QOP_evenodd_t eo_out,
+	      QOP_evenodd_t eo_in)
+{
+  QDP_DiracFermion *qo[Ls], *qi[Ls];
+  for(int i=0; i<Ls; i++) {
+    qo[i] = out_pt[i]->df;
+    qi[i] = in_pt[i]->df;
+  }
+  QOP_dw_dslash_qdp(info, links, M5, m, sign, qo, qi, Ls, eo_out, eo_in);
 }

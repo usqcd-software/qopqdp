@@ -116,7 +116,7 @@ start(void)
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
-  flw = QOP_dw_create_L_from_qdp(u, NULL);
+  flw = QOP_dw_create_L_from_qdp(u);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
 
   best_mf = 0;

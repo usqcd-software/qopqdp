@@ -3,9 +3,9 @@
 
 #include <qop_internal.h>
 
-static void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det);
-static void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv);
-static void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
+extern void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det);
+extern void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv);
+extern void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
 
 
 //create HISQ links from QOPPC(GaugeField)

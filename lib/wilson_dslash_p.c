@@ -57,6 +57,8 @@ c(2,1, 2,0)
 and likewise for the second block by adding 2 to all is,js values above.
 */
 
+//#define DO_TRACE
+
 #include <string.h>
 #include <math.h>
 #include <qop_internal.h>
@@ -604,9 +606,9 @@ printcm(QLA_Complex *m, int nr, int nc)
   int i, j;
   for(i=0; i<nr; i++) {
     for(j=0; j<nc; j++) {
-      printf("%f %f ", QLA_real(m[i*nc+j]), QLA_imag(m[i*nc+j]));
+      printf0("%f %f ", QLA_real(m[i*nc+j]), QLA_imag(m[i*nc+j]));
     }
-    printf("\n");
+    printf0("\n");
   }
 }
 */
@@ -980,12 +982,14 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
     } \
     _n++; \
   } \
-  /*printf("%i %i\n", eo, _n);*/ \
+  TRACE; \
+  printf0("%i %i\n", eo, _n); \
   if(dblstore_style(QOP_wilson_style)) { \
     wilson_dslash1(flw, dest, tsrc, sign, eo, _n); \
   } else { \
     wilson_dslash0(flw, dest, tsrc, sign, eo, _n); \
   } \
+  TRACE; \
 }
 
 void
@@ -1011,17 +1015,12 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
 		      QOP_evenodd_t eo_out,
 		      QOP_evenodd_t eo_in)
 {
-  //printf("testd1\n");
   check_setup(flw);
-  //printf("testd2\n");
 
   if(eo_in==eo_out) {
     if(eo_out==QOP_EVENODD) {
-      //printf("testd21\n");
       wilson_hop(flw, out, in, sign, QOP_EVENODD);
-      //printf("testd22\n");
       clov(flw, kappa, out, in, QDP_all, 1);
-      //printf("testd23\n");
     } else if(eo_out==QOP_EVEN) {
       clov(flw, kappa, out, in, QDP_even, 0);
     } else {
@@ -1049,7 +1048,6 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
       }
     }
   }
-  //printf("testd3\n");
 }
 
 void
@@ -1410,6 +1408,7 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
 	       int sign, QOP_evenodd_t eo, int n)
 {
+  TRACE;
   int mu, ntmp;
   QDP_DiracFermion *vsrc[8];
   QDP_DiracFermion *vdest[8];
@@ -1441,7 +1440,7 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
   /* Take Wilson projection for src displaced in up direction, gather
      it to "our site" */
 
-  //printf0("ds1 1\n");
+  TRACE;
   if(shiftd_style(QOP_wilson_style)) {
     for(mu=0; mu<8; mu+=QOP_wilson_nsvec) {
       QDP_D_veq_sD(dtemp[ntmp]+mu, vsrc+mu, sh+mu, sd+mu, subset,
@@ -1455,27 +1454,45 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
 		   QOP_wilson_nsvec);
     }
   }
-  //printf0("ds1 2\n");
 
   /* Set dest to zero */
   /* Take Wilson projection for src displaced in up direction, gathered,
      multiply it by link matrix, expand it, and add to dest */
 
+  TRACE;
   QDP_D_eq_zero(dest, subset);
-  //printf0("ds1 3\n");
+  TRACE;
   if(shiftd_style(QOP_wilson_style)) {
+    //QOP_wilson_nvec = 1;
+    //printf0("%p %p %p %p %p %p %i\n", vdest, flw->dbllinks, dtemp[ntmp], dir, sgn, subset, QOP_wilson_nvec);
     for(mu=0; mu<8; mu+=QOP_wilson_nvec) {
+      //TRACE;
+      //printf0("%i %p %p %p %i %i\n", mu, vdest[mu], flw->dbllinks[mu], dtemp[ntmp][mu], dir[mu], sgn[mu]);
+      //QDP_D_eq_zero(vdest[mu], subset);
+      //TRACE;
+      //QDP_M_eq_zero(flw->dbllinks[mu], subset);
+      //QDP_ColorMatrix *m = QDP_create_M();
+      //QDP_M_eq_M(m, flw->dbllinks[mu], subset);
+      //QDP_destroy_M(m);
+      //TRACE;
+      //QDP_D_eq_D(vdest[mu], dtemp[ntmp][mu], subset);
+      //TRACE;
       QDP_D_vpeq_spproj_M_times_D(vdest+mu, flw->dbllinks+mu, dtemp[ntmp]+mu,
-			          dir+mu, sgn+mu, subset, QOP_wilson_nvec);
+				  dir+mu, sgn+mu, subset, QOP_wilson_nvec);
+      //QDP_D_vpeq_spproj_M_times_D(vdest+mu, flw->dbllinks+mu, dtemp[ntmp],
+      //		          dir+mu, sgn+mu, subset, QOP_wilson_nvec);
+      //TRACE;
     }
   } else {
     for(mu=0; mu<8; mu+=QOP_wilson_nvec) {
+      TRACE;
       QDP_D_vpeq_sprecon_M_times_H(vdest+mu, flw->dbllinks+mu, htemp[ntmp]+mu,
 				   dir+mu, sgn+mu, subset, QOP_wilson_nvec);
+      TRACE;
     }
   }
-  //printf0("ds1 4\n");
 
+  TRACE;
   if(shiftd_style(QOP_wilson_style)) {
     for(mu=0; mu<8; mu++) {
       QDP_discard_D(dtemp[ntmp][mu]);
@@ -1485,4 +1502,5 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
       QDP_discard_H(htemp[ntmp][mu]);
     }
   }
-} /* end of dslash_special_qdp() */
+  TRACE;
+}
