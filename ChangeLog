@@ -1,3 +1,11 @@
+2009-09-11 17:43  tag qopqdp0-15-0
+
+2009-09-11 17:43  osborn
+
+	* NEWS, configure.ac, examples/dw_invert_bench.c, include/qop.h,
+	  include/qop_qdp.h, lib/dw_invert_p.c, lib/hisq_invert_p.c,
+	  lib/wilson_dslash_p.c: Added interface for DW dslash.
+
 2009-08-23 17:28  tag qopqdp0-14-0
 
 2009-08-23 17:28  detar
