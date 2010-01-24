@@ -21,7 +21,10 @@ libqopqdp_a_SOURCES = \
   invert_cg_vD_f.c invert_cg_vD_d.c \
   invert_bicgstab_D_f.c invert_bicgstab_D_d.c \
   invert_eigcg_V_f.c invert_eigcg_V_d.c \
-  invert_eigcg_D_f.c invert_eigcg_D_d.c
+  invert_eigcg_D_f.c invert_eigcg_D_d.c \
+  invert_utilities_V_d.c invert_utilities_V_f.c \
+  invert_utilities_D_d.c invert_utilities_D_f.c \
+  invert_utilities_vD_d.c invert_utilities_vD_f.c
 
 common_f.o: common_p.c
 common_d.o: common_p.c
@@ -61,6 +64,12 @@ invert_eigcg_V_f.o: invert_eigcg_p.c
 invert_eigcg_V_d.o: invert_eigcg_p.c
 invert_eigcg_D_f.o: invert_eigcg_p.c
 invert_eigcg_D_d.o: invert_eigcg_p.c
+invert_utilities_V_f.o: invert_utilities_p.c
+invert_utilities_V_d.o: invert_utilities_p.c
+invert_utilities_D_f.o: invert_utilities_p.c
+invert_utilities_D_d.o: invert_utilities_p.c
+invert_utilities_vD_f.o: invert_utilities_p.c
+invert_utilities_vD_d.o: invert_utilities_p.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -80,4 +89,5 @@ EXTRA_DIST = \
   invert_cg_blas_p.c \
   invert_bicgstab_p.c \
   invert_eigcg_p.c \
+  invert_utilities_p.c \
   linalg.h

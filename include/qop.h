@@ -78,8 +78,10 @@ typedef struct {
 
   /* these are quantities that vary for each mass in the multi inverter */
 typedef struct {
-  double rsqmin;           /* (in) desired squared residual */
+  double rsqmin;           /* (in) desired squared residual. Ignored if 0. */
   double final_rsq;        /* (out) actual squared residual */
+  double relmin;           /* (in) desired squared relative norm Ignored if 0. */
+  double final_rel;        /* (out) actual squared relative norm. */
   int final_iter;          /* (out) number of iterations done */
   int final_restart;       /* (out) number of restarts done */
 } QOP_resid_arg_t;
@@ -383,6 +385,11 @@ void QOP_F3_asqtad_load_L_from_G(QOP_info_t *info,
 				 QOP_asqtad_coeffs_t *coeffs,
 				 QOP_F3_GaugeField *gauge);
 
+void QOP_F3_asqtad_rephase_L(QOP_F3_FermionLinksAsqtad *fla,
+			     QOP_bc_t *bc,
+			     QOP_staggered_sign_t *sign);
+
+
   /* double precision */
 
 QOP_D3_FermionLinksAsqtad *
@@ -416,6 +423,10 @@ void QOP_D3_asqtad_load_L_from_G(QOP_info_t *info,
 				 QOP_D3_FermionLinksAsqtad *asqtad,
 				 QOP_asqtad_coeffs_t *coeffs,
 				 QOP_D3_GaugeField *gauge);
+
+void QOP_D3_asqtad_rephase_L(QOP_D3_FermionLinksAsqtad *fla,
+			     QOP_bc_t *bc,
+			     QOP_staggered_sign_t *sign);
 
   /* inverter routines */
 
@@ -1058,6 +1069,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_convert_L_to_raw   QOP_F3_asqtad_convert_L_to_raw
 #define QOP_asqtad_load_L_from_raw    QOP_F3_asqtad_load_L_from_raw
 #define QOP_asqtad_load_L_from_G      QOP_F3_asqtad_load_L_from_G
+#define QOP_asqtad_rephase_L          QOP_F3_asqtad_rephase_L
 
 #define QOP_asqtad_dslash       QOP_F3_asqtad_dslash
 #define QOP_asqtad_diaginv      QOP_F3_asqtad_diaginv
@@ -1157,6 +1169,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_convert_L_to_raw   QOP_D3_asqtad_convert_L_to_raw
 #define QOP_asqtad_load_L_from_raw    QOP_D3_asqtad_load_L_from_raw
 #define QOP_asqtad_load_L_from_G      QOP_D3_asqtad_load_L_from_G
+#define QOP_asqtad_rephase_L          QOP_D3_asqtad_rephase_L
 
 #define QOP_asqtad_dslash       QOP_D3_asqtad_dslash
 #define QOP_asqtad_diaginv      QOP_D3_asqtad_diaginv

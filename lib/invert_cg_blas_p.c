@@ -13,7 +13,7 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
 		       int n)
 {
   QLA_Real a;
-  QLA_Real rsq, oldrsq, pkp;
+  QLA_Real rsq, oldrsq, pkp, relnorm2;
   QLA_Real insq;
   QLA_Real rsqstop;
   QLA_Complex *r, *p, *Mp;
@@ -31,27 +31,60 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
   rsqstop = res_arg->rsqmin * insq;
   VERB(LOW, "CG: rsqstop = %g\n", rsqstop);
   rsq = 0;
+  relnorm2 = 1.;
   oldrsq = rsq;
+
+  /* Default output values unless reassigned */
+  res_arg->final_rsq = 0;
+  res_arg->final_rel = 0;
+  res_arg->final_iter = 0;
+  res_arg->final_restart = 0;
+  
+  /* Special case of exactly zero source */
+  if(insq == 0.){
+    VERB(LOW, "CG: exiting because of zero source\n");
+    free(Mp);
+    free(p);
+    free(r);
+    v_eq_zero(out, n);
+    
+    return QOP_SUCCESS;
+  }
 
   while(1) {
 
     if( (total_iterations==0) ||
 	(iteration>=restart_iterations) ||
 	(total_iterations>=max_iterations) ||
-	(rsq<rsqstop) ) {  /* only way out */
+	((rsqstop <= 0 || rsq<rsqstop) &&
+	 (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ){
+      /* only way out */
 
+      /* stop when we exhaust iterations */
       if( (total_iterations>=max_iterations) ||
 	  (nrestart>=max_restarts) ) break;
+
+      /* otherwise, restart */
       nrestart++;
 
+      /* compute true residual */
       linop(Mp, out, args);
       iteration = 1;
       total_iterations++;
 
       v_eq_v_minus_v(r, in, Mp, n);
       rsq = norm2_v(r, n);
-      VERB(LOW, "CG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
-      if( (rsq<rsqstop) ||
+
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_v(r, out, n);
+
+      VERB(LOW, "CG: (re)start: iter %i rsq = %g rel = %g\n", 
+	   total_iterations, rsq, relnorm2);
+
+      /* stop here if converged */
+      if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
 	  (total_iterations>=max_iterations) ) break;
 
       //v_eq_v(p, r, n);
@@ -89,15 +122,23 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
 
     oldrsq = rsq;
     rsq = norm2_v(r, n);
-    VERB(HI, "CG: iter %i rsq = %g\n", total_iterations, rsq);
+
+    /* compute FNAL norm if requested */
+    if(res_arg->relmin > 0)
+      relnorm2 = relnorm2_v(r, out, n);
+
+    VERB(HI, "CG: iter %i rsq = %g rel = %g\n", 
+	 total_iterations, rsq, relnorm2);
   }
-  VERB(LOW, "CG: done: iter %i rsq = %g\n", total_iterations, rsq);
+  VERB(LOW, "CG: done: iter %i rsq = %g rel = %g\n", 
+       total_iterations, rsq, relnorm2);
 
   free(r);
   free(p);
   free(Mp);
 
   res_arg->final_rsq = rsq/insq;
+  res_arg->final_rel = relnorm2;
   res_arg->final_iter = total_iterations;
   res_arg->final_restart = nrestart;
 
@@ -118,15 +159,18 @@ QOPPCV(invert_cgms_blas)(linop_blas_t linop,
 {
   double a[nshifts], b[nshifts], s[nshifts];
   double bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
-  double rsq, oldrsq, pkp;
+  double rsq, oldrsq, pkp, relnorm2;
   double insq;
   double rsqstop;
   QLA_Real t;
-  int iteration=0, i, imin;
+  int iteration=0, i, imin, imax;
   QLA_Complex *r, *Mp, *pm[nshifts];
 
   imin = 0;
   for(i=1; i<nshifts; i++) if(shifts[i]<shifts[imin]) imin = i;
+
+  imax = 0;
+  for(i=1; i<nshifts; i++) if(shifts[i]>shifts[imax]) imax = i;
 
   r = (QLA_Complex *) malloc(n*sizeof(QLA_Complex));
   Mp = (QLA_Complex *) malloc(n*sizeof(QLA_Complex));
@@ -148,6 +192,7 @@ QOPPCV(invert_cgms_blas)(linop_blas_t linop,
   rsqstop = res_arg[imin]->rsqmin * insq;
   VERB(LOW, "CGMS: rsqstop = %g\n", rsqstop);
   rsq = insq;
+  relnorm2 = 0;
   //printf("start %g\n", rsq);
 
   while(1) {
@@ -184,11 +229,24 @@ QOPPCV(invert_cgms_blas)(linop_blas_t linop,
     t = b[imin] * s[imin];
     v_meq_r_times_v(r, t, Mp, n);
     rsq = norm2_v(r, n);
-    VERB(HI, "CGMS: iter %i rsq = %g\n", iteration, rsq);
+
+    /* compute FNAL norm if requested */
+    /* here we look at the largest shift, since the FNAL norm is
+       most stringent for that case */
+    if(res_arg[imax]->relmin > 0){
+      t = b[imax] * s[imax];
+      v_meq_r_times_v(r, t, Mp, n);
+      relnorm2 = relnorm2_v(r, out[imax], n);
+    }
+
+    VERB(HI, "CGMS: iter %i rsq = %g rel = %g\n", iteration, rsq,
+	 relnorm2);
 
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
-	(rsq<rsqstop) ) {  /* only way out */
+	((rsqstop <= 0 || rsq<rsqstop) &&
+	 (res_arg[imax]->relmin <= 0 || relnorm2<res_arg[imax]->relmin)) ) {
+      /* only way out */
       break;
     }
 
@@ -234,6 +292,7 @@ QOPPCV(invert_cgms_blas)(linop_blas_t linop,
 
   for(i=0; i<nshifts; i++) {
     res_arg[i]->final_rsq = rsq/insq;
+    res_arg[i]->final_rel = relnorm2;
     res_arg[i]->final_iter = iteration;
     res_arg[i]->final_restart = 0;
   }

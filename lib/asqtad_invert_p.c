@@ -80,7 +80,7 @@ QOP_asqtad_invert(QOP_info_t *info,
   double dtime = 0;
   double nflop = 0.5 * 2364;
   double rsqminold;
-  QLA_Real rsq, rsqstop, insq;
+  QLA_Real rsq, rsqstop, relnorm2, insq;
   QDP_ColorVector *qdpin, *qdpout;
   QDP_ColorVector *cgp, *cgr;
   QDP_Subset insub, cgsub;
@@ -140,6 +140,8 @@ QOP_asqtad_invert(QOP_info_t *info,
   QDP_r_eq_norm2_V(&insq, in->cv, insub);
   rsqstop = insq * res_arg->rsqmin;
   VERB(LOW, "ASQTAD_INVERT: rsqstop = %g\n", rsqstop);
+  rsq = 0;
+  relnorm2 = 1.;
   rsqminold = res_arg->rsqmin;
   res_arg->rsqmin *= 0.9;
   inv_arg->max_restarts = 0;
@@ -173,12 +175,17 @@ QOP_asqtad_invert(QOP_info_t *info,
     //QDP_V_meq_V(qdpr, qdpin, insub);
     QDP_V_meq_V(cgr, in->cv, insub);
     QDP_r_eq_norm2_V(&rsq, cgr, insub);
+    if(res_arg->relmin > 0)
+      relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
     iter += res_arg->final_iter;
-    VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g\n", iter, rsq);
-  } while((rsq>rsqstop)&&(++nrestart<max_restarts));
+    VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq,
+	 relnorm2);
+  } while((rsqstop > 0 && rsq > rsqstop) &&
+	  (res_arg->relmin > 0 && relnorm2 > res_arg->relmin) &&
+	  (nrestart++ < max_restarts));
 
   QDP_V_eq_V(out->cv, qdpout, insub);
 
@@ -190,6 +197,7 @@ QOP_asqtad_invert(QOP_info_t *info,
   res_arg->rsqmin = rsqminold;
   res_arg->final_iter = iter;
   res_arg->final_rsq = rsq/insq;
+  res_arg->final_rel = relnorm2;
   res_arg->final_restart = nrestart;
 
   info->final_sec = dtime;

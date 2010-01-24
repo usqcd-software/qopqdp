@@ -56,6 +56,24 @@ extern int zheev(char *jobz, char *uplo, int *n, _Complex double *a,
 #define norm2_v(a, n) ({double lnrm2; int one=1,n2=2*(n); lnrm2 = dsdot(&n2, (float *)a, &one, (float *)a, &one); QMP_sum_double(&lnrm2); lnrm2;})
 #define re_v_dot_v(a, b, n) ({double ldot; int one=1,n2=2*(n); ldot = dsdot(&n2, (float *)a, &one, (float *)b, &one); QMP_sum_double(&ldot); ldot;})
 
+#define relnorm2_v(r, o, n) \
+({\
+  int _i, _j, _n2=2*(n);\
+  float _rel, _rsdm, _outm;\
+  float *_rf=(float *)r, *_of=(float *)o;\
+  _rel = 0;\
+  for(_i = 0; _i < _n2; _i += 2*csize_V){\
+    _rsdm = _outm = 0;\
+    for(_j = 0; _j < 2*csize_V; _j++){\
+      _rsdm += _rf[_i+_j]*_rf[_i+_j];\
+      _outm += _of[_i+_j]*_of[_i+_j];\
+    }\
+    _rel += (_outm==0.) ? 1.0 : (_rsdm/_outm);\
+  }\
+  QMP_sum_float(&_rel);\
+  _rel;\
+})
+
 #else
 
 #define v_eq_zero(r, n) {int ii,n2=2*(n); for(ii=0; ii<n2; ii++) ((double *)(r))[ii] = 0.0; }
@@ -69,6 +87,24 @@ extern int zheev(char *jobz, char *uplo, int *n, _Complex double *a,
 //#define norm2_v(a, n) ({double lnrm2; int one=1; lnrm2 = dznrm2(&n, a, &one); lnrm2 *= lnrm2; QMP_sum_double(&lnrm2); lnrm2;})
 #define norm2_v(a, n) ({double lnrm2; int one=1,n2=2*(n); lnrm2 = ddot(&n2, (double *)a, &one, (double *)a, &one); QMP_sum_double(&lnrm2); lnrm2;})
 #define re_v_dot_v(a, b, n) ({double ldot; int one=1,n2=2*(n); ldot = ddot(&n2, (double *)a, &one, (double *)b, &one); QMP_sum_double(&ldot); ldot;})
+
+#define relnorm2_v(r, o, n) \
+({\
+  int _i, _j, _n2=2*(n);\
+  double _rel, _rsdm, _outm;\
+  double *_rd=(double *)r, *_od=(double *)o;\
+  _rel = 0;\
+  for(_i = 0; _i < _n2; _i += 2*csize_V){\
+    _rsdm = _outm = 0;\
+    for(_j = 0; _j < 2*csize_V; _j++){\
+      _rsdm += _rd[_i+_j]*_rd[_i+_j];\
+      _outm += _od[_i+_j]*_od[_i+_j];\
+    }\
+    _rel += (_outm==0.) ? 1.0 : (_rsdm/_outm);\
+  }\
+  QMP_sum_double(&_rel);\
+  _rel;\
+})
 
 #endif
 

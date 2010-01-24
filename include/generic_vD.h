@@ -1,6 +1,7 @@
 #define QOPPCV(x)		QOPPC(x ## _vD)
 //#define Vector			QDP_DiracFermion *
 typedef QDP_DiracFermion * Vector;
+#define Vector2			QDP_DiracFermion
 #define _N                      _n
 #define vIndexDef               , int _n
 #define create_V(r)		{ int _i; r = malloc(_n*sizeof(Vector)); for(_i=0; _i<_n; _i++) r[_i] = QDP_create_D(); }
@@ -8,6 +9,15 @@ typedef QDP_DiracFermion * Vector;
 #define insert_packed_V(r,a,s)  { int _i,_s=QDP_subset_len(s)*12; for(_i=0; _i<_n; _i++) QDP_insert_packed_D((r)[_i],(void*)((a)+_s*_i),s); }
 #define extract_packed_V(r,a,s)  { int _i,_s=QDP_subset_len(s)*12; for(_i=0; _i<_n; _i++) QDP_extract_packed_D((void*)((r)+_s*_i),(a)[_i],s); }
 #define csize_V                 (12*_n)
+
+/* Macros that are not vectorized */
+#define vector                 QLA_DiracFermion
+#define expose_V               QDP_expose_D
+#define reset_V                QDP_reset_D
+#define r_eq_norm2_v	       QLA_R_eq_norm2_D
+#define V_eq_funci             QDP_D_eq_funci
+
+#define relnorm2_V(r,o,s)      QOPPCV(relnorm2)(r, o, s, _n)
 
 #define V_eq_V(r,a,s)		QDP_D_veq_D(r,a,s,_n)
 #define V_eq_V_plus_V(r,a,b,s)	QDP_D_veq_D_plus_D(r,a,b,s,_n)
@@ -30,3 +40,4 @@ typedef QDP_DiracFermion * Vector;
 #define V_veq_r_times_V_plus_V	QDP_D_veq_r_times_D_plus_D
 #define r_veq_norm2_V		QDP_r_veq_norm2_D
 #define r_veq_re_V_dot_V	QDP_r_veq_re_D_dot_D
+

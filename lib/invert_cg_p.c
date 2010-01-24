@@ -10,7 +10,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 		  vIndexDef)
 {
   QLA_Real a, b;
-  QLA_Real rsq, oldrsq, pkp;
+  QLA_Real rsq, oldrsq, pkp, relnorm2;
   QLA_Real insq;
   QLA_Real rsqstop;
   Vector *r, *Mp;
@@ -27,19 +27,42 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   rsqstop = res_arg->rsqmin * insq;
   VERB(LOW, "CG: rsqstop = %g\n", rsqstop);
   rsq = 0;
+  relnorm2 = 1.;
   oldrsq = rsq;
+
+  /* Default output values unless reassigned */
+  res_arg->final_rsq = 0;
+  res_arg->final_rel = 0;
+  res_arg->final_iter = 0;
+  res_arg->final_restart = 0;
+  
+  /* Special case of exactly zero source */
+  if(insq == 0.){
+    VERB(LOW, "CG: exiting because of zero source\n");
+    destroy_V(r);
+    destroy_V(Mp);
+    V_eq_zero(out, subset);
+    
+    return QOP_SUCCESS;
+  }
 
   while(1) {
 
     if( (total_iterations==0) ||
 	(iteration>=restart_iterations) ||
 	(total_iterations>=max_iterations) ||
-	(rsq<rsqstop) ) {  /* only way out */
+	((rsqstop <= 0 || rsq<rsqstop) &&
+	 (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ){
+      /* only way out */
 
+      /* stop when we exhaust iterations */
       if( (total_iterations>=max_iterations) ||
 	  (nrestart>=max_restarts) ) break;
+
+      /* otherwise, restart */
       nrestart++;
 
+      /* compute true residual */
       V_eq_V(p, out, subset);
       linop(Mp, p, subset);
       iteration = 1;
@@ -47,8 +70,17 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
-      VERB(LOW, "CG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
-      if( (rsq<rsqstop) ||
+
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_V(r, out, subset);
+
+      VERB(LOW, "CG: (re)start: iter %i rsq = %g rel = %g\n", 
+	   total_iterations, rsq, relnorm2);
+
+      /* stop here if converged */
+      if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
 	  (total_iterations>=max_iterations) ) break;
 
       V_eq_V(p, r, subset);
@@ -74,21 +106,29 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
     V_peq_r_times_V(out, &a, p, subset);
     V_meq_r_times_V(r, &a, Mp, subset);
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(HI, "CG: iter %i rsq = %g\n", total_iterations, rsq);
+
+    /* compute FNAL norm if requested */
+    if(res_arg->relmin > 0)
+      relnorm2 = relnorm2_V(r, out, subset);
+
+    VERB(HI, "CG: iter %i rsq = %g rel = %g\n", 
+	 total_iterations, rsq, relnorm2);
   }
-  VERB(LOW, "CG: done: iter %i rsq = %g\n", total_iterations, rsq);
+  VERB(LOW, "CG: done: iter %i rsq = %g rel = %g\n", 
+       total_iterations, rsq, relnorm2);
 
   destroy_V(r);
   destroy_V(Mp);
 
   res_arg->final_rsq = rsq/insq;
+  res_arg->final_rel = relnorm2;
   res_arg->final_iter = total_iterations;
   res_arg->final_restart = nrestart;
 
   return QOP_SUCCESS;
 }
 
-/* milti-shift CG */
+/* multi-shift CG */
 QOP_status_t
 QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 		    QOP_invert_arg_t *inv_arg,
@@ -103,14 +143,17 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 {
   QLA_Real a[nshifts], b[nshifts];
   QLA_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
-  QLA_Real rsq, oldrsq, pkp;
+  QLA_Real rsq, oldrsq, pkp, relnorm2;
   QLA_Real insq;
   QLA_Real rsqstop;
-  int iteration=0, i, imin;
+  int iteration=0, i, imin, imax;
   Vector *r, *Mp, *pm[nshifts];
 
   imin = 0;
   for(i=1; i<nshifts; i++) if(shifts[i]<shifts[imin]) imin = i;
+
+  imax = 0;
+  for(i=1; i<nshifts; i++) if(shifts[i]>shifts[imax]) imax = i;
 
   create_V(r);
   create_V(Mp);
@@ -129,9 +172,26 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
     a[i] = 0;
   }
 
+  /* Special case - source is exactly zero */
+  if(insq == 0.){
+    destroy_V(r);
+    destroy_V(Mp);
+    for(i=0; i<nshifts; i++)
+      if(i!=imin)
+	destroy_V(pm[i]);
+    for(i=0; i<nshifts; i++) {
+      res_arg[i]->final_rsq = 0;
+      res_arg[i]->final_rel = 0;
+      res_arg[i]->final_iter = 0;
+      res_arg[i]->final_restart = 0;
+    }
+    return QOP_SUCCESS;
+  }
+
   rsqstop = res_arg[imin]->rsqmin * insq;
   VERB(LOW, "CGMS: rsqstop = %g\n", rsqstop);
   rsq = insq;
+  relnorm2 = 0;
   //printf("start %g\n", rsq);
 
   while(1) {
@@ -164,11 +224,23 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 
     V_meq_r_times_V(r, b+imin, Mp, subset);
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(HI, "CGMS: iter %i rsq = %g\n", iteration, rsq);
+
+    /* compute FNAL norm if requested */
+    /* here we look at the largest shift, since the FNAL norm is
+       most stringent for that case */
+    if(res_arg[imax]->relmin > 0){
+      V_meq_r_times_V(r, b+imax, Mp, subset);
+      relnorm2 = relnorm2_V(r, out[imax], subset);
+    }
+
+    VERB(HI, "CGMS: iter %i rsq = %g rel = %g\n", iteration, rsq,
+	 relnorm2);
 
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
-	(rsq<rsqstop) ) {  /* only way out */
+	((rsqstop <= 0 || rsq<rsqstop) &&
+	 (res_arg[imax]->relmin <= 0 || relnorm2<res_arg[imax]->relmin)) ) {
+      /* only way out */
       break;
     }
 
@@ -204,6 +276,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 
   for(i=0; i<nshifts; i++) {
     res_arg[i]->final_rsq = rsq/insq;
+    res_arg[i]->final_rel = relnorm2;
     res_arg[i]->final_iter = iteration;
     res_arg[i]->final_restart = 0;
   }

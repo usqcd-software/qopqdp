@@ -626,7 +626,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
 		     vIndexDef)
 {
   QLA_Real a, b, a0;
-  QLA_Real rsq, oldrsq, pkp;
+  QLA_Real rsq, relnorm2, oldrsq, pkp;
   QLA_Real insq;
   QLA_Real rsqstop;
   Vector *r, *Mp;
@@ -679,6 +679,24 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
   VERB(LOW, "eigCG: rsqstop = %g\n", rsqstop);
+  rsq = 0;
+  relnorm2 = 1.;
+
+  /* Default output values unless reassigned */
+  res_arg->final_rsq = 0;
+  res_arg->final_rel = 0;
+  res_arg->final_iter = 0;
+  res_arg->final_restart = 0;
+
+  /* Special case of exactly zero source */
+  if(insq == 0.){
+    VERB(LOW, "eigCG: exiting because of zero source\n");
+    destroy_V(r);
+    destroy_V(Mp);
+    V_eq_zero(out, subset);
+    
+    return QOP_SUCCESS;
+  }
 
   //nur = numax - 2*m - nev*max_restarts;
   //if(nur<nev) nur = nev;
@@ -733,10 +751,12 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
     V_eq_V_minus_V(r, in, Mp, subset);
     r_eq_norm2_V(&rsq, r, subset);
     END_TIMER;
-    VERB(LOW, "eigCG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
-    if( (rsq<rsqstop) ||
+    VERB(LOW, "eigCG: (re)start: iter %i rsq = %g rel = %g\n", 
+	 total_iterations, rsq, relnorm2);
+    if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	 (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
 	(total_iterations>=max_iterations) ) break;
-
+    
     if(addvecs && nn>=m) {
       double oldl, delta;
       int nr;
@@ -773,9 +793,16 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       total_iterations++;
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
+
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_V(r, out, subset);
+      
       END_TIMER;
-      VERB(LOW, "eigCG: proj u: iter %i rsq = %g\n", total_iterations, rsq);
-      if( (rsq<rsqstop) ||
+      VERB(LOW, "eigCG: proj u: iter %i rsq = %g rel = %g\n", 
+	   total_iterations, rsq, relnorm2);
+      if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
 	  (total_iterations>=max_iterations) ) break;
       //if(nv==0 && nn==0 && nu>nur) nu = nur;
     }
@@ -795,8 +822,14 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       total_iterations++;
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
+
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_V(r, out, subset);
+      
       END_TIMER;
-      VERB(LOW, "eigCG: proj v: iter %i rsq = %g\n", total_iterations, rsq);
+      VERB(LOW, "eigCG: proj v: iter %i rsq = %g rel = %g\n", 
+	   total_iterations, rsq, relnorm2);
       if( (rsq<rsqstop) ||
 	  (total_iterations>=max_iterations) ) break;
       if(nv<nev) nn += nv; else nn += nev;
@@ -843,9 +876,16 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       total_iterations++;
       V_eq_V_minus_V(r, in, Mp, subset);
       r_eq_norm2_V(&rsq, r, subset);
+
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_V(r, out, subset);
+
       END_TIMER;
-      VERB(LOW, "eigCG: proj v: iter %i rsq = %g\n", total_iterations, rsq);
-      if( (rsq<rsqstop) ||
+      VERB(LOW, "eigCG: proj v: iter %i rsq = %g rel = %g\n", 
+	   total_iterations, rsq, relnorm2);
+      if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
 	  (total_iterations>=max_iterations) ) break;
       nn += nv/2;
       nv = 0;
@@ -942,11 +982,17 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       V_meq_r_times_V(r, &a, Mp, subset);
       oldrsq = rsq;
       r_eq_norm2_V(&rsq, r, subset);
-      VERB(HI, "eigCG: iter %i rsq = %g\n", total_iterations, rsq);
 
-      if( (iteration>=restart_iterations) ||
-	  (total_iterations>=max_iterations) ||
-	  (rsq<rsqstop) ) break;
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_V(r, out, subset);
+      
+      VERB(HI, "eigCG: iter %i rsq = %g\n", 
+	   total_iterations, rsq, relnorm2);
+
+      if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
+	  (total_iterations>=max_iterations) ) break;
 
       b = rsq / oldrsq;
       V_eq_r_times_V_plus_V(p, &b, p, r, subset);
@@ -1014,6 +1060,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
   destroy_V(Mp);
 
   res_arg->final_rsq = rsq/insq;
+  res_arg->final_rel = relnorm2;
   res_arg->final_iter = total_iterations;
   res_arg->final_restart = nrestart;
 

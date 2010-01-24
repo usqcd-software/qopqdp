@@ -73,7 +73,10 @@ am_libqopqdp_a_OBJECTS = common.$(OBJEXT) common_f.$(OBJEXT) \
 	invert_cg_vD_d.$(OBJEXT) invert_bicgstab_D_f.$(OBJEXT) \
 	invert_bicgstab_D_d.$(OBJEXT) invert_eigcg_V_f.$(OBJEXT) \
 	invert_eigcg_V_d.$(OBJEXT) invert_eigcg_D_f.$(OBJEXT) \
-	invert_eigcg_D_d.$(OBJEXT)
+	invert_eigcg_D_d.$(OBJEXT) invert_utilities_V_d.$(OBJEXT) \
+	invert_utilities_V_f.$(OBJEXT) invert_utilities_D_d.$(OBJEXT) \
+	invert_utilities_D_f.$(OBJEXT) invert_utilities_vD_d.$(OBJEXT) \
+	invert_utilities_vD_f.$(OBJEXT)
 libqopqdp_a_OBJECTS = $(am_libqopqdp_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -123,6 +126,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 QDPDIR = @QDPDIR@
@@ -210,7 +214,10 @@ libqopqdp_a_SOURCES = \
   invert_cg_vD_f.c invert_cg_vD_d.c \
   invert_bicgstab_D_f.c invert_bicgstab_D_d.c \
   invert_eigcg_V_f.c invert_eigcg_V_d.c \
-  invert_eigcg_D_f.c invert_eigcg_D_d.c
+  invert_eigcg_D_f.c invert_eigcg_D_d.c \
+  invert_utilities_V_d.c invert_utilities_V_f.c \
+  invert_utilities_D_d.c invert_utilities_D_f.c \
+  invert_utilities_vD_d.c invert_utilities_vD_f.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -230,6 +237,7 @@ EXTRA_DIST = \
   invert_cg_blas_p.c \
   invert_bicgstab_p.c \
   invert_eigcg_p.c \
+  invert_utilities_p.c \
   linalg.h
 
 all: all-am
@@ -341,6 +349,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_eigcg_D_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_eigcg_V_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_eigcg_V_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_utilities_D_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_utilities_D_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_utilities_V_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_utilities_V_f.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_utilities_vD_d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invert_utilities_vD_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symanzik_1loop_gauge_force_f.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_dslash.Po@am__quote@
@@ -579,6 +593,12 @@ invert_eigcg_V_f.o: invert_eigcg_p.c
 invert_eigcg_V_d.o: invert_eigcg_p.c
 invert_eigcg_D_f.o: invert_eigcg_p.c
 invert_eigcg_D_d.o: invert_eigcg_p.c
+invert_utilities_V_f.o: invert_utilities_p.c
+invert_utilities_V_d.o: invert_utilities_p.c
+invert_utilities_D_f.o: invert_utilities_p.c
+invert_utilities_D_d.o: invert_utilities_p.c
+invert_utilities_vD_f.o: invert_utilities_p.c
+invert_utilities_vD_d.o: invert_utilities_p.c
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

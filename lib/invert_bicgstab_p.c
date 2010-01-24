@@ -13,7 +13,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   QLA_Complex alpha, beta, omega;
   QLA_Complex ctmp1, ctmp2;
   QLA_Real t2;
-  QLA_Real rsq;
+  QLA_Real rsq, relnorm2;
   QLA_Real insq;
   QLA_Real rsqstop;
   Vector *r0, *t, *v;
@@ -31,18 +31,42 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   rsqstop = res_arg->rsqmin * insq;
   VERB(LOW, "BICG: rsqstop = %g\n", rsqstop);
   rsq = 0;
+  relnorm2 = 1.;
+
+  /* Default output values unless reassigned */
+  res_arg->final_rsq = 0;
+  res_arg->final_rel = 0;
+  res_arg->final_iter = 0;
+  res_arg->final_restart = 0;
+
+  /* Special case of exactly zero source */
+  if(insq == 0.){
+    VERB(LOW, "BICG: exiting because of zero source\n");
+    destroy_V(r0);
+    destroy_V(t);
+    destroy_V(v);
+    V_eq_zero(out, subset);
+    
+    return QOP_SUCCESS;
+  }
 
   while(1) {
 
     if( (total_iterations==0) ||
 	(iteration>=restart_iterations) ||
 	(total_iterations>=max_iterations) ||
-	(rsq<rsqstop) ) {  /* only way out */
+	((rsqstop <= 0 || rsq<rsqstop) &&
+	 (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ){
+      /* only way out */
 
+      /* stop when we exhaust iterations */
       if( (total_iterations>=max_iterations) ||
 	  (nrestart>=max_restarts) ) break;
+
+      /* otherwise, restart */
       nrestart++;
 
+      /* compute true residual */
       V_eq_V(p, out, subset);
       linop(r, p, subset);
       iteration = 1;
@@ -51,9 +75,12 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
       V_eq_V_minus_V(r, in, r, subset);
       V_eq_V(r0,r,subset);
       r_eq_norm2_V(&rsq, r, subset);
-      VERB(LOW, "BICG: (re)start: iter %i rsq = %g\n", total_iterations, rsq);
+      VERB(LOW, "BICG: (re)start: iter %i rsq = %g rel = %g\n", 
+	   total_iterations, rsq, relnorm2);
 
-      if( (rsq<rsqstop) ||
+      /* stop here if converged */
+      if( ((rsqstop <= 0 || rsq<rsqstop) &&
+	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
 	  (total_iterations>=max_iterations) ) break;
 
       V_eq_zero(v, subset);
@@ -119,15 +146,24 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 #endif
 
     r_eq_norm2_V(&rsq, r, subset);
-    VERB(HI, "BICG: iter %i rsq = %g\n", total_iterations, rsq);
+
+    /* compute FNAL norm if requested */
+    if(res_arg->relmin > 0)
+      relnorm2 = relnorm2_V(r, out, subset);
+
+    VERB(HI, "BICG: iter %i rsq = %g rel = %g\n", total_iterations, rsq, 
+	 relnorm2);
+
   }
-  VERB(LOW, "BICG: done: iter %i rsq = %g\n", total_iterations, rsq);
+  VERB(LOW, "BICG: done: iter %i rsq = %g rel = %g\n", 
+       total_iterations, rsq, relnorm2);
 
   destroy_V(r0);
   destroy_V(t);
   destroy_V(v);
 
   res_arg->final_rsq = rsq/insq;
+  res_arg->final_rel = relnorm2;
   res_arg->final_iter = iteration;
 
   return QOP_SUCCESS;
