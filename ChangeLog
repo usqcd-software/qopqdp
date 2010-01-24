@@ -1,3 +1,24 @@
+2010-01-24 15:41  tag qopqdp0-16-0
+
+2010-01-24 15:41  detar
+
+	* NEWS: Entry for 0.16.0
+
+2010-01-24 15:38  detar
+
+	* aclocal.m4, configure, configure.ac, include/generic_D.h,
+	  include/generic_V.h, include/generic_vD.h, include/qop.h,
+	  include/qop_config.h.in, include/qop_internal_p.h,
+	  lib/Makefile.am, lib/asqtad_dslash_p.c, lib/asqtad_invert_p.c,
+	  lib/invert_bicgstab_p.c, lib/invert_cg_blas_p.c,
+	  lib/invert_cg_p.c, lib/invert_eigcg_p.c,
+	  lib/invert_utilities_D_d.c, lib/invert_utilities_D_f.c,
+	  lib/invert_utilities_V_d.c, lib/invert_utilities_V_f.c,
+	  lib/invert_utilities_p.c, lib/invert_utilities_vD_d.c,
+	  lib/invert_utilities_vD_f.c, lib/linalg.h, lib/wilson_invert_p.c:
+	  Support Fermilab relative norm criterion for the cg stopping
+	  condition.  Adds two new members to QOP_resid_arg_t.
+
 2009-09-11 17:43  tag qopqdp0-15-0
 
 2009-09-11 17:43  osborn
