@@ -15,6 +15,7 @@ libqopqdp_a_SOURCES = \
   hisq_force_fnmat_f.c hisq_force_fnmat_d.c \
   wilson_dslash.c wilson_dslash_f.c wilson_dslash_d.c \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
+  dw_dslash.c dw_dslash_f.c dw_dslash_d.c \
   dw_invert.c dw_invert_f.c dw_invert_d.c \
   invert_cg_V_f.c invert_cg_V_d.c \
   invert_cg_D_f.c invert_cg_D_d.c \
@@ -50,6 +51,8 @@ wilson_dslash_f.o: wilson_dslash_p.c
 wilson_dslash_d.o: wilson_dslash_p.c
 wilson_invert_f.o: wilson_invert_p.c
 wilson_invert_d.o: wilson_invert_p.c
+dw_dslash_f.o: dw_dslash_p.c
+dw_dslash_d.o: dw_dslash_p.c
 dw_invert_f.o: dw_invert_p.c
 dw_invert_d.o: dw_invert_p.c
 invert_cg_V_f.o: invert_cg_p.c
@@ -84,6 +87,7 @@ EXTRA_DIST = \
   hisq_reunit_p.c \
   wilson_dslash_p.c \
   wilson_invert_p.c \
+  dw_dslash_p.c \  
   dw_invert_p.c \
   invert_cg_p.c \
   invert_cg_blas_p.c \
