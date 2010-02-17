@@ -87,7 +87,7 @@ EXTRA_DIST = \
   hisq_reunit_p.c \
   wilson_dslash_p.c \
   wilson_invert_p.c \
-  dw_dslash_p.c \  
+  dw_dslash_p.c \
   dw_invert_p.c \
   invert_cg_p.c \
   invert_cg_blas_p.c \

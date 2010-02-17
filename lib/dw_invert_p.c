@@ -58,33 +58,18 @@ reset_inv_temps(int ls)
 // -----------------------------------------------------------------
 // Domain-wall inverter
 
-extern void
-(*wilson_dslash)(QOP_FermionLinksDW *fldw,
-                 QDP_DiracFermion *dest, QDP_DiracFermion *src,
-                 int sign, QDP_Subset subset, int ntmp);
 
 extern void
-wilson_dslash0(QOP_FermionLinksDW *fldw,
-               QDP_DiracFermion *dest, QDP_DiracFermion *src,
-               int sign, QDP_Subset subset, int ntmp);
+QOPPC(dw_dslash1)(QOP_FermionLinksDW *fldw,
+                  QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+                  int sign, QDP_Subset subset, QDP_Subset othersubset,
+                  QLA_Real m0, QLA_Real M, int ls);
 
 extern void
-wilson_dslash1(QOP_FermionLinksDW *fldw,
-               QDP_DiracFermion *dest, QDP_DiracFermion *src,
-               int sign, QDP_Subset subset, int ntmp);
-
-
-extern void
-dw_dslash1(QOP_FermionLinksDW *fldw,
-           QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           int sign, QDP_Subset subset, QDP_Subset othersubset,
-           QLA_Real m0, QLA_Real M, int ls);
-
-extern void
-dw_dslash2(QOP_FermionLinksDW *fldw,
-           QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           QDP_Subset subset, QDP_Subset othersubset,
-           QLA_Real m0, QLA_Real M, int ls);
+QOPPC(dw_dslash2)(QOP_FermionLinksDW *fldw,
+                  QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+                  QDP_Subset subset, QDP_Subset othersubset,
+                  QLA_Real m0, QLA_Real M, int ls);
 
 void
 QOP_dw_invert_multi(QOP_info_t *info,
@@ -105,13 +90,13 @@ QOP_dw_invert_multi(QOP_info_t *info,
 }
 
 
-extern void Qeo(QOP_FermionLinksDW *fldw, QDP_DiracFermion *out[],
+extern void QOPPC(Qeo)(QOP_FermionLinksDW *fldw, QDP_DiracFermion *out[],
                 QDP_DiracFermion *in[], REAL m0, REAL M, int ls);
-extern void Qooinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+extern void QOPPC(Qooinv)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
                    REAL m0, REAL M, int ls);
-extern void Qeeinv(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+extern void QOPPC(Qeeinv)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
                    REAL m0, REAL M, int ls);
-extern void QoeQeeinv(QOP_FermionLinksDW *fldw, QDP_DiracFermion *out[],
+extern void QOPPC(QoeQeeinv)(QOP_FermionLinksDW *fldw, QDP_DiracFermion *out[],
                       QDP_DiracFermion *in[], REAL m0, REAL M, int ls);
 
 static QLA_Real gl_m0, gl_M;
@@ -120,10 +105,10 @@ static QDP_Subset gl_osubset;
 static QOP_FermionLinksDW *gl_fldw;
 
 void
-QOPPC(dw_dslash2)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                  QDP_Subset subset)
+QOPPC(dw_dslash2_wrap)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+                       QDP_Subset subset)
 {
-  dw_dslash2(gl_fldw, out, in, subset, gl_osubset, gl_m0, gl_M, gl_ls);
+  QOPPC(dw_dslash2)(gl_fldw, out, in, subset, gl_osubset, gl_m0, gl_M, gl_ls);
 }
 
 void
@@ -177,13 +162,13 @@ QOPPC(dw_invert)( QOP_info_t *info,
 
   {
 #ifdef LU
-    QoeQeeinv(fldw, qdpin, qdptmp, m0, M, ls);
+    QOPPC(QoeQeeinv)(fldw, qdpin, qdptmp, m0, M, ls);
     for (s=0; s<ls; s++)
       QDP_D_eq_D_minus_D(qdpin[s], qdptmp[s], qdpin[s], QDP_odd);
-    Qooinv(tiv, qdpin, m0, M, ls);
-    dw_dslash1(fldw, qdpin, tiv, -1, subset, osubset, m0, M, ls);
+    QOPPC(Qooinv)(tiv, qdpin, m0, M, ls);
+    QOPPC(dw_dslash1)(fldw, qdpin, tiv, -1, subset, osubset, m0, M, ls);
 #else
-    dw_dslash1(fldw, qdpin, qdptmp, -1, subset, osubset, m0, M, ls);
+    QOPPC(dw_dslash1)(fldw, qdpin, qdptmp, -1, subset, osubset, m0, M, ls);
 #endif
   }
 
@@ -193,7 +178,7 @@ QOPPC(dw_invert)( QOP_info_t *info,
   printf0("begin cgv\n");
   dtime = -QOP_time();
 
-  QOPPC(invert_cg_vD)(QOPPC(dw_dslash2), inv_arg, res_arg,
+  QOPPC(invert_cg_vD)(QOPPC(dw_dslash2_wrap), inv_arg, res_arg,
                       qdpout, qdpin, tiv2, subset, ls);
 
   dtime += QOP_time();
@@ -204,10 +189,10 @@ QOPPC(dw_invert)( QOP_info_t *info,
 
 #ifdef LU
   {
-    Qeo(fldw, tiv, qdpout, m0, M, ls);
+    QOPPC(Qeo)(fldw, tiv, qdpout, m0, M, ls);
     for (s=0; s<ls; s++)
       QDP_D_eq_D_minus_D(tiv[s], qdptmp[s], tiv[s], QDP_even);
-    Qeeinv(qdpout, tiv, m0, M, ls);
+    QOPPC(Qeeinv)(qdpout, tiv, m0, M, ls);
   }
 #endif
 
