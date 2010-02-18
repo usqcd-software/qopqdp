@@ -11,8 +11,8 @@ extern void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
 //create HISQ links from QOPPC(GaugeField)
 QOPPC(FermionLinksHisq) *
 QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
-			      QOP_hisq_coeffs_t *coeffs,
-			      QOPPC(GaugeField) *gauge)
+			    QOP_hisq_coeffs_t *coeffs,
+			    QOPPC(GaugeField) *gauge)
 {
   QOPPC(FermionLinksAsqtad) *fla;
   QOPPC(FermionLinksHisq) *flh;
@@ -97,7 +97,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
 
   for (i=0;i<4;i++){
     QDP_destroy_M(Vgauge[i]);
-    QDP_destroy_M(Wgauge[i]);
+    //QDP_destroy_M(Wgauge[i]);  don't destroy converted links
 }
 
   QOP_destroy_G(qopgf_tmp);

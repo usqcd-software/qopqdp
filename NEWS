@@ -1,10 +1,21 @@
 ===========================================================================
+2010-02-18      version 0.16.1
+===========================================================================
+2010-02-18:	James Osborn
+	Fixed bugs in DW inverter.  Added default initializers for invert
+ 	and resid args.
+
+2010-02-17:     Saul Cohen
+        Restructured domain-wall functions to eliminate some problems with
+        uninitialized temporaries.
+
+===========================================================================
 2010-01-24      version 0.16.0
-        Add support for Fermilab relative norm stopping criterion 
-        for CG and BiCG.  Adds two new members to QOP_resid_arg_t.
 ===========================================================================
 2010-01-24:     Carleton DeTar
-        Added 
+        Add support for Fermilab relative norm stopping criterion 
+        for CG and BiCG.  Adds two new members to QOP_resid_arg_t.
+
 ===========================================================================
 2009-09-11      version 0.15.0
 ===========================================================================

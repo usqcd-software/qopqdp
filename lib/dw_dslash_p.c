@@ -51,11 +51,16 @@ static QDP_DiracFermion *tt1=NULL, *tt2=NULL, **ttv=NULL;
 #define tmpnum(eo,n) ((eo)+3*((n)-1))
 #define tmpsub(eo,n) tin[tmpnum(eo,n)]
 
-#define check_setup(fldw,ls) \
+#define check_temps(ls) \
 { \
   if( (!dslash_initQ) ) { \
     reset_temps(ls); \
   } \
+}
+
+#define check_setup(fldw,ls) \
+{ \
+  check_temps(ls); \
   if( fldw->dblstored != dblstore_style(QOP_dw_style) ) { \
     double_store(fldw); \
   } \
@@ -620,6 +625,7 @@ QOPPC(Qxy)(QOP_FermionLinksDW *fldw,
   int i, ntmp = (subset==QDP_odd?0:1);
   lupass = 0;
   lusubset = subset;
+  check_temps(ls);
   for (i=0; i<ls; i++) {
     out0 = out[i];
     QDP_D_eq_r_times_D(tt1, &half, in[i], osubset);
@@ -664,6 +670,8 @@ QOPPC(Qxxinv)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
   QDP_HalfFermion *thf[2];
   int dirs[2]={4,4}, sgns[2]={1,-1};
   int i;
+
+  check_temps(ls);
 
   sign = -sign;
   sgns[0] *= sign;
@@ -764,6 +772,7 @@ QOPPC(Qxx)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 {
   int i;
   sign = -sign;
+  check_temps(ls);
   for (i=0; i<ls; i++) {
     if (add) {
       QDP_D_peq_r_times_D(out[i], &m0, in[i], subset);
@@ -919,8 +928,9 @@ void QOP_dw_diaginv_qdp( QOP_info_t *info,
                                 int ls,
                       QOP_evenodd_t eo)
 {
+  check_setup(fldw,ls);
   if (eo==QOP_EVEN || eo==QOP_EVENODD)
-      QOPPC(Qxxinv)(out, in, M5, m, ls, 1, QDP_even);
+    QOPPC(Qxxinv)(out, in, M5, m, ls, 1, QDP_even);
   if (eo==QOP_ODD || eo==QOP_EVENODD)
-      QOPPC(Qxxinv)(out, in, M5, m, ls, 1, QDP_odd);
+    QOPPC(Qxxinv)(out, in, M5, m, ls, 1, QDP_odd);
 }

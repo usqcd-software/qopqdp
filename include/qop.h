@@ -75,6 +75,7 @@ typedef struct {
   int max_restarts;        /* (in) number of restarts allowed */
   QOP_evenodd_t evenodd;   /* (in) subset of source vector */
 } QOP_invert_arg_t;
+#define QOP_INVERT_ARG_DEFAULT ((QOP_invert_arg_t){2000,1000,5,QOP_EVENODD})
 
   /* these are quantities that vary for each mass in the multi inverter */
 typedef struct {
@@ -85,6 +86,7 @@ typedef struct {
   int final_iter;          /* (out) number of iterations done */
   int final_restart;       /* (out) number of restarts done */
 } QOP_resid_arg_t;
+#define QOP_RESID_ARG_DEFAULT ((QOP_resid_arg_t){1e-6,0,0,0,0,0})
 
 typedef struct QOP_F3_ColorVector_struct  QOP_F3_ColorVector;
 typedef struct QOP_F3_DiracFermion_struct QOP_F3_DiracFermion;

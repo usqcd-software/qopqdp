@@ -90,7 +90,7 @@ start(void)
   qoplayout.machdim = -1;
 
   QOP_GaugeField *gf;
- QOP_hisq_coeffs_t coeffs;
+  QOP_hisq_coeffs_t coeffs;
   coeffs.fat7_one_link = 1;
   coeffs.fat7_three_staple = 0.1;
   coeffs.fat7_five_staple = 0.1;
@@ -103,8 +103,8 @@ start(void)
   coeffs.asqtad_naik = 0.1;
 
   QOP_info_t info;
-  QOP_invert_arg_t inv_arg;
-  QOP_resid_arg_t res_arg;
+  QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
+  QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
   res_arg.rsqmin = 1e-4;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
