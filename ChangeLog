@@ -1,3 +1,12 @@
+2010-02-18 16:53  osborn
+
+	* NEWS, aclocal.m4, configure, examples/asqtad_invert_bench.c,
+	  examples/asqtad_test.c, examples/dw_invert_bench.c,
+	  examples/hisq_invert_bench.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, include/qop.h, lib/dw_dslash_p.c,
+	  lib/hisq_invert_p.c: Fixed bugs in DW inverter.  Added default
+	  initializers for invert and resid args.
+
 2010-02-17 17:40  sdcohen
 
 	* aclocal.m4, configure, configure.ac, lib/Makefile.am,
