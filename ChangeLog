@@ -1,3 +1,16 @@
+2010-02-17 17:40  sdcohen
+
+	* aclocal.m4, configure, configure.ac, lib/Makefile.am,
+	  lib/dw_invert_p.c: Patch some missing precision macros in
+	  dw_invert; fix Makefile.am whitespace
+
+2010-02-17 17:07  sdcohen
+
+	* lib/: Makefile.am, dw_dslash.c, dw_dslash_d.c, dw_dslash_f.c,
+	  dw_dslash_p.c, dw_invert.c, dw_invert_p.c: Restructured
+	  domain-wall functions to eliminate some problems with
+	  uninitialized temporaries.
+
 2010-01-24 15:41  tag qopqdp0-16-0
 
 2010-01-24 15:41  detar
