@@ -1,3 +1,10 @@
+2010-02-21 22:51  tag qopqdp0-16-1
+
+2010-02-21 22:51  osborn
+
+	* NEWS, lib/invert_bicgstab_p.c: Added checks for breakdown in
+	  BiCGStab inverter.
+
 2010-02-18 16:53  osborn
 
 	* NEWS, aclocal.m4, configure, examples/asqtad_invert_bench.c,
