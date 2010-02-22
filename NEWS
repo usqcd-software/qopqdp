@@ -1,6 +1,9 @@
 ===========================================================================
-2010-02-18      version 0.16.1
+2010-02-21      version 0.16.1
 ===========================================================================
+2010-02-18:	James Osborn
+	Added checks for breakdown in BiCGStab inverter.
+
 2010-02-18:	James Osborn
 	Fixed bugs in DW inverter.  Added default initializers for invert
  	and resid args.

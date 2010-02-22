@@ -97,6 +97,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 
       QLA_c_eq_c(rho0,rho1);
       c_eq_V_dot_V(&rho1, r0, r, subset);
+      if(QLA_norm2_c(rho1)==0.) break;
       QLA_c_eq_c_times_c(ctmp1,rho1,alpha);
       QLA_c_eq_c_times_c(ctmp2,rho0,omega);
       QLA_c_eq_c_div_c(beta,ctmp1,ctmp2);
@@ -118,9 +119,8 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
     total_iterations++;
 
     c_eq_V_dot_V(&ctmp1,r0,v,subset);
-
+    if(QLA_norm2_c(ctmp1)==0.) break;
     QLA_c_eq_c_div_c(alpha, rho1, ctmp1);
-
     V_meq_c_times_V(r,&alpha,v,subset);
 
     linop(t, r, subset);
@@ -151,9 +151,10 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
     if(res_arg->relmin > 0)
       relnorm2 = relnorm2_V(r, out, subset);
 
+    if(QLA_norm2_c(omega)==0.) break;
+
     VERB(HI, "BICG: iter %i rsq = %g rel = %g\n", total_iterations, rsq, 
 	 relnorm2);
-
   }
   VERB(LOW, "BICG: done: iter %i rsq = %g rel = %g\n", 
        total_iterations, rsq, relnorm2);
