@@ -1,3 +1,9 @@
+2010-03-19 12:26  sdcohen
+
+	* aclocal.m4, configure, configure.ac, include/qop_qdp.h,
+	  lib/dw_dslash_p.c, lib/dw_invert_p.c: Corrected dw_dslash and
+	  dw_invert.
+
 2010-02-21 22:51  tag qopqdp0-16-1
 
 2010-02-21 22:51  osborn
