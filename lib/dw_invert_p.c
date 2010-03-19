@@ -177,7 +177,7 @@ QOPPC(dw_invert)( QOP_info_t *info,
   printf0("begin cgv\n");
   dtime = -QOP_time();
   //QOP_common.verbosity = QOP_VERB_DEBUG;
-  printf("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
+  //printf("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOPPC(invert_cg_vD)(QOPPC(dw_dslash2_wrap), inv_arg, res_arg,
                       qdpout, qdpin, tiv2, subset, ls);
 
