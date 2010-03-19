@@ -245,6 +245,36 @@ void QOP_F3_dw_convert_L_to_qdp(QDP_F3_ColorMatrix ***links,
 
 void QOP_F3_dw_load_L_from_qdp(QOP_F3_FermionLinksDW *dw,
 			       QDP_F3_ColorMatrix *links[]);
+			       
+void QOP_F3_dw_dslash_qdp(QOP_info_t *info,
+			  QOP_F3_FermionLinksDW *links,
+			  float M5,
+			  float m,
+			  int sign,
+			  QDP_F3_DiracFermion *out_pt[],
+			  QDP_F3_DiracFermion *in_pt[],
+			  int Ls,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+			  
+void QOP_F3_dw_dslash2_qdp(QOP_info_t *info,
+			  QOP_F3_FermionLinksDW *links,
+			  float M5,
+			  float m,
+			  QDP_F3_DiracFermion *out_pt[],
+			  QDP_F3_DiracFermion *in_pt[],
+			  int Ls,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+			       
+void QOP_F3_dw_diaginv_qdp( QOP_info_t *info,
+                    QOP_FermionLinksDW *fldw,
+                                 float M5,
+                                 float m,
+                      QDP_DiracFermion **out,
+                      QDP_DiracFermion **in,
+                                   int ls,
+                         QOP_evenodd_t eo);
 
   /* double precision */
 
@@ -263,17 +293,6 @@ void QOP_D3_dw_convert_L_to_qdp(QDP_D3_ColorMatrix ***links,
 void QOP_D3_dw_load_L_from_qdp(QOP_D3_FermionLinksDW *dw,
 			       QDP_D3_ColorMatrix *links[]);
 
-void QOP_F3_dw_dslash_qdp(QOP_info_t *info,
-			  QOP_F3_FermionLinksDW *links,
-			  float M5,
-			  float m,
-			  int sign,
-			  QDP_F3_DiracFermion *out_pt[],
-			  QDP_F3_DiracFermion *in_pt[],
-			  int Ls,
-			  QOP_evenodd_t eo_out,
-			  QOP_evenodd_t eo_in);
-
 void QOP_D3_dw_dslash_qdp(QOP_info_t *info,
 			  QOP_D3_FermionLinksDW *links,
 			  double M5,
@@ -284,6 +303,25 @@ void QOP_D3_dw_dslash_qdp(QOP_info_t *info,
 			  int Ls,
 			  QOP_evenodd_t eo_out,
 			  QOP_evenodd_t eo_in);
+			  
+void QOP_D3_dw_dslash2_qdp(QOP_info_t *info,
+			  QOP_D3_FermionLinksDW *links,
+			  double M5,
+			  double m,
+			  QDP_D3_DiracFermion *out_pt[],
+			  QDP_D3_DiracFermion *in_pt[],
+			  int Ls,
+			  QOP_evenodd_t eo_out,
+			  QOP_evenodd_t eo_in);
+			  
+void QOP_D3_dw_diaginv_qdp( QOP_info_t *info,
+                    QOP_FermionLinksDW *fldw,
+                                double M5,
+                                double m,
+                      QDP_DiracFermion **out,
+                      QDP_DiracFermion **in,
+                                   int ls,
+                         QOP_evenodd_t eo);
 
 
   /**************************************************/
@@ -335,6 +373,8 @@ void QOP_D3_dw_dslash_qdp(QOP_info_t *info,
 #define QOP_dw_convert_L_to_qdp   QOP_F3_dw_convert_L_to_qdp
 #define QOP_dw_load_L_from_qdp    QOP_F3_dw_load_L_from_qdp
 #define QOP_dw_dslash_qdp         QOP_F3_dw_dslash_qdp
+#define QOP_dw_dslash2_qdp         QOP_F3_dw_dslash2_qdp
+#define QOP_dw_diaginv_qdp        QOP_F3_dw_diaginv_qdp
 
 #else
 
@@ -381,6 +421,8 @@ void QOP_D3_dw_dslash_qdp(QOP_info_t *info,
 #define QOP_dw_convert_L_to_qdp   QOP_D3_dw_convert_L_to_qdp
 #define QOP_dw_load_L_from_qdp    QOP_D3_dw_load_L_from_qdp
 #define QOP_dw_dslash_qdp         QOP_D3_dw_dslash_qdp
+#define QOP_dw_dslash2_qdp         QOP_D3_dw_dslash2_qdp
+#define QOP_dw_diaginv_qdp        QOP_D3_dw_diaginv_qdp
 
 #endif
 
