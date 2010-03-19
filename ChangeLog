@@ -1,3 +1,19 @@
+2010-03-19 14:14  tag qopqdp0-16-2
+
+2010-03-19 14:14  osborn
+
+	* lib/dw_invert_p.c: removed debug printf
+
+2010-03-19 14:09  osborn
+
+	* NEWS, examples/asqtad_eigcg.c, examples/asqtad_invert_bench.c,
+	  examples/asqtad_test.c, examples/dw_invert_bench.c,
+	  examples/hisq_invert_bench.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, include/generic_vD.h,
+	  include/qop_internal_p.h, lib/asqtad_invert_p.c,
+	  lib/dw_invert_p.c, lib/invert_eigcg_p.c: Benchmarks now average
+	  performance over all nodes.
+
 2010-03-19 12:26  sdcohen
 
 	* aclocal.m4, configure, configure.ac, include/qop_qdp.h,
