@@ -54,11 +54,13 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       masses[j] = mass*(j+1);
       ra[j] = res_arg;
     }
+    QMP_barrier();
     if(nmass == 1) {
       QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
     } else {
       QOP_asqtad_invert_multi(info, fla, inv_arg, &pra, &pm, &nmass, &pqo, &qopin, 1);
     }
+    QMP_barrier();
     if(res_arg->final_rsq>res_arg->rsqmin) {
       printf0("CG FAILED: %i %g %g\n", res_arg->final_iter, res_arg->final_rsq, res_arg->rsqmin);
     }
@@ -66,17 +68,22 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       iter += res_arg->final_iter;
       sec += info->final_sec;
       flop += info->final_flop;
-      mf += info->final_flop/(1e6*info->final_sec);
+      //mf += info->final_flop/(1e6*info->final_sec);
     }
     for(j=0; j<nmass; j++) {
       QOP_destroy_V(qopout[j]);
     }
     QOP_destroy_V(qopin);
   }
+  mf = 1;
+  QMP_sum_double(&mf);
+  QMP_sum_double(&sec);
+  QMP_sum_double(&flop);
   res_arg->final_iter = iter/1;
-  info->final_sec = sec/1;
-  info->final_flop = flop/1;
-  return mf/1;
+  info->final_sec = sec/(mf*1);
+  info->final_flop = flop/(mf*1);
+  mf = nit*info->final_flop/(1e6*info->final_sec);
+  return mf;
 }
 
 void

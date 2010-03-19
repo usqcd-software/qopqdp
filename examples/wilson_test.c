@@ -38,26 +38,33 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   qopout = QOP_create_D_from_qdp(out);
   qopin = QOP_create_D_from_qdp(in);
   for(i=0; i<=nit; i++) {
+    QMP_barrier();
     QOP_wilson_invert(info, flw, inv_arg, res_arg, kappa, qopout, qopin);
+    QMP_barrier();
     printf("%i\t%i\t%g\t%i\n", i, res_arg->final_iter, info->final_sec, (int)info->final_flop);
     if(i>0) {
       iter += res_arg->final_iter;
       sec += info->final_sec;
       flop += info->final_flop;
-      mf += info->final_flop/(1e6*info->final_sec);
+      //mf += info->final_flop/(1e6*info->final_sec);
     }
   }
   QOP_destroy_D(qopout);
   QOP_destroy_D(qopin);
-  res_arg->final_iter = iter/nit;
-  info->final_sec = sec/nit;
-  info->final_flop = flop/nit;
   QDP_r_eq_norm2_D(&r2, out, QDP_even);
   if(r2s<0) r2s = r2;
   if(fabs(1-r2/r2s)>1e-3) {
     printf0("first norm = %g  this norn = %g\n", r2s, r2);
   }
-  return mf/nit;
+  mf = 1;
+  QMP_sum_double(&mf);
+  QMP_sum_double(&sec);
+  QMP_sum_double(&flop);
+  res_arg->final_iter = iter/nit;
+  info->final_sec = sec/(mf*nit);
+  info->final_flop = flop/(mf*nit);
+  mf = info->final_flop/(1e6*info->final_sec);
+  return mf;
 }
 
 void

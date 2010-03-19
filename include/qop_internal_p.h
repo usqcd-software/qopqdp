@@ -218,13 +218,13 @@ QOPPC(invert_eigcg_D)(QOPPC(linop_t_D) *linop,
 		      QOPPC(eigcg_t_D) *eigcg);
 
 QLA_Real
-QOPPC(relnorm2_D)(QDP_DiracFermion **rsd, 
-		  QDP_DiracFermion **out, 
+QOPPC(relnorm2_V)(QDP_ColorVector **rsd, 
+		  QDP_ColorVector **out, 
 		  QDP_Subset subset, int nv);
 
 QLA_Real
-QOPPC(relnorm2_V)(QDP_ColorVector **rsd, 
-		  QDP_ColorVector **out, 
+QOPPC(relnorm2_D)(QDP_DiracFermion **rsd, 
+		  QDP_DiracFermion **out, 
 		  QDP_Subset subset, int nv);
 
 

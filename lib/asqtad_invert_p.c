@@ -176,7 +176,7 @@ QOP_asqtad_invert(QOP_info_t *info,
     QDP_V_meq_V(cgr, in->cv, insub);
     QDP_r_eq_norm2_V(&rsq, cgr, insub);
     if(res_arg->relmin > 0)
-      relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
+      relnorm2 = QOPPC(relnorm2_V)(&cgr, &qdpout, insub, 1);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;

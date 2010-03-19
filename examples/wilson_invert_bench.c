@@ -36,7 +36,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   static QLA_Real r2s=-1, r2;
   double sec=0, flop=0, mf=0;
   int i, iter=0;
-  QOP_DiracFermion *qopout, *qopin;
+  QOP_DiracFermion *qopout=NULL, *qopin=NULL;
 
   //QDP_D_eq_gaussian_S(in, rs, QDP_all);
   QDP_D_eq_zero(out, QDP_all);
@@ -45,27 +45,34 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       qopout = QOP_create_D_from_qdp(out);
       qopin = QOP_create_D_from_qdp(in);
     }
+    QMP_barrier();
     QOP_wilson_invert(info, flw, inv_arg, res_arg, kappa, qopout, qopin);
+    QMP_barrier();
     if(i>0) {
       iter += res_arg->final_iter;
       sec += info->final_sec;
       flop += info->final_flop;
-      mf += info->final_flop/(1e6*info->final_sec);
+      //mf += info->final_flop/(1e6*info->final_sec);
     }
     if(i==nit || !test_restart) {
       QOP_destroy_D(qopout);
       QOP_destroy_D(qopin);
     }
   }
-  res_arg->final_iter = iter/nit;
-  info->final_sec = sec/nit;
-  info->final_flop = flop/nit;
   QDP_r_eq_norm2_D(&r2, out, QDP_even);
   if(r2s<0) r2s = r2;
   if(fabs(1-r2/r2s)>1e-3) {
-    printf0("first norm = %g  this norn = %g\n", r2s, r2);
+    printf0("first norm = %g  this norm = %g\n", r2s, r2);
   }
-  return mf/nit;
+  mf = 1;
+  QMP_sum_double(&mf);
+  QMP_sum_double(&sec);
+  QMP_sum_double(&flop);
+  res_arg->final_iter = iter/nit;
+  info->final_sec = sec/(mf*nit);
+  info->final_flop = flop/(mf*nit);
+  mf = info->final_flop/(1e6*info->final_sec);
+  return mf;
 }
 
 void

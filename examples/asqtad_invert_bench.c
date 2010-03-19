@@ -37,22 +37,29 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     QDP_V_eq_zero(out, QDP_all);
     qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
+    QMP_barrier();
     QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+    QMP_barrier();
     //printf0("%i %i %10g %10g %10g\n", i,res_arg->final_iter,info->final_sec,
     //info->final_flop, info->final_flop/(1e6*info->final_sec));
     if(i>0) {
       iter += res_arg->final_iter;
       sec += info->final_sec;
       flop += info->final_flop;
-      mf += info->final_flop/(1e6*info->final_sec);
+      //mf += info->final_flop/(1e6*info->final_sec);
     }
     QOP_destroy_V(qopout);
     QOP_destroy_V(qopin);
   }
+  mf = 1;
+  QMP_sum_double(&mf);
+  QMP_sum_double(&sec);
+  QMP_sum_double(&flop);
   res_arg->final_iter = iter/nit;
-  info->final_sec = sec/nit;
-  info->final_flop = flop/nit;
-  return mf/nit;
+  info->final_sec = sec/(mf*nit);
+  info->final_flop = flop/(mf*nit);
+  mf = info->final_flop/(1e6*info->final_sec);
+  return mf;
 }
 
 void
@@ -198,7 +205,7 @@ usage(char *s)
   printf("%s [c#] [n#] [s#] [S#] [x# [# ...]] [v#]\n",s);
   printf("\n");
   printf("c\tcgtype\n");
-  printf("k\tmaik term\n");
+  printf("k\tnaik term\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");

@@ -17,7 +17,7 @@ typedef QDP_DiracFermion * Vector;
 #define r_eq_norm2_v	       QLA_R_eq_norm2_D
 #define V_eq_funci             QDP_D_eq_funci
 
-#define relnorm2_V(r,o,s)      QOPPCV(relnorm2)(r, o, s, _n)
+#define relnorm2_V(r,o,s)      QOPPC(relnorm2_D)(r, o, s, _n)
 
 #define V_eq_V(r,a,s)		QDP_D_veq_D(r,a,s,_n)
 #define V_eq_V_plus_V(r,a,b,s)	QDP_D_veq_D_plus_D(r,a,b,s,_n)

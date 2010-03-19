@@ -987,7 +987,7 @@ QOPPCV(invert_eigcg)(QOPPCV(linop_t) *linop,
       if(res_arg->relmin > 0)
 	relnorm2 = relnorm2_V(r, out, subset);
       
-      VERB(HI, "eigCG: iter %i rsq = %g\n", 
+      VERB(HI, "eigCG: iter %i  rsq = %g  rel = %g\n", 
 	   total_iterations, rsq, relnorm2);
 
       if( ((rsqstop <= 0 || rsq<rsqstop) &&
