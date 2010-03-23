@@ -1,3 +1,9 @@
+2010-03-22 20:32  sdcohen
+
+	* include/qop_internal_p.h, include/qop_qdp.h, lib/dw_dslash.c,
+	  lib/dw_dslash_p.c, lib/dw_invert.c, lib/dw_invert_p.c:
+	  Domain-wall operator now properly initializes Wilson operator
+
 2010-03-19 14:14  tag qopqdp0-16-2
 
 2010-03-19 14:14  osborn
