@@ -229,6 +229,8 @@ void QOP_D3_wilson_diaginv_qdp(QOP_info_t *info,
   /*  Domain Wall routines  */
   /**************************/
 
+// Note that in our convention, free-field M5 = 1
+
   /* single precision */
 
 QOP_F3_FermionLinksDW *
@@ -248,7 +250,7 @@ void QOP_F3_dw_load_L_from_qdp(QOP_F3_FermionLinksDW *dw,
 			       
 void QOP_F3_dw_dslash_qdp(QOP_info_t *info,
 			  QOP_F3_FermionLinksDW *links,
-			  float M5,
+			  float M5, 
 			  float m,
 			  int sign,
 			  QDP_F3_DiracFermion *out_pt[],

@@ -14,8 +14,6 @@
 
 extern int QOP_dw_initQ;
 extern int QOP_dw_style;
-extern int QOP_dw_nsvec;
-extern int QOP_dw_nvec;
 
 static int old_style=-1;
 
@@ -32,9 +30,6 @@ static QDP_DiracFermion *tmpd=NULL, // Used in Qxx
 { \
   if( (!dslash_initQ) ) { \
     reset_temps(ls); \
-  } \
-  if( fldw->dblstored != dblstore_style(QOP_dw_style) ) { \
-    double_store(fldw); \
   } \
 }
 
@@ -79,32 +74,6 @@ reset_temps(int ls)
   old_style = QOP_dw_style;
 }
 
-static void
-double_store( QOP_FermionLinksDW *fldw )
-{
-  int i;
-
-  if (fldw->dblstored) {
-    for (i=0; i<4; i++)
-      QDP_destroy_M(fldw->bcklinks[i]);
-    fldw->dblstored = 0;
-  }
-
-  if (dblstore_style(QOP_dw_style)) {
-    QDP_ColorMatrix *m = QDP_create_M();
-    for(i=0; i<4; i++) {
-      fldw->bcklinks[i] = QDP_create_M();
-      fldw->dbllinks[2*i] = fldw->links[i];
-      fldw->dbllinks[2*i+1] = fldw->bcklinks[i];
-      QDP_M_eq_sM(m, fldw->links[i], QDP_neighbor[i],
-                  QDP_backward, QDP_all);
-      QDP_M_eq_Ma(fldw->bcklinks[i], m, QDP_all);
-    }
-    QDP_destroy_M(m);
-    fldw->dblstored = dblstore_style(QOP_dw_style);
-  }
-}
-
 // -----------------------------------------------------------------
 // Gauge field management
 
@@ -112,35 +81,10 @@ QOP_FermionLinksDW *
 QOP_dw_create_L_from_raw( REAL *links[], QOP_evenodd_t evenodd )
 {
   QOP_FermionLinksDW *fldw;
-  QOP_GaugeField *gf;
+  QOP_malloc(fldw, QOPPC(FermionLinksDW), 1);
+  REAL noclov = 0.0; // No clover term
 
-  DW_INVERT_BEGIN;
-
-  gf = QOP_create_G_from_raw(links, evenodd);
-  fldw = QOP_dw_convert_L_from_qdp(gf->links);
-
-  fldw->qopgf = gf;
-
-  DW_INVERT_END;
-  return fldw;
-}
-
-static QOP_FermionLinksDW *
-dw_initialize_gauge_L()
-{
-  QOP_FermionLinksDW *fldw;
-
-  DW_INVERT_BEGIN;
-
-  QOP_malloc(fldw          ,QOPPC(FermionLinksDW),1);
-  QOP_malloc(fldw->links   ,QDPPC(ColorMatrix) * ,4);
-  QOP_malloc(fldw->bcklinks,QDPPC(ColorMatrix) * ,4);
-  QOP_malloc(fldw->dbllinks,QDPPC(ColorMatrix) * ,8);
-
-  fldw->dblstored = 0;
-  fldw->qopgf     = NULL;
-
-  DW_INVERT_END;
+  fldw->flw = QOP_wilson_create_L_from_raw(links, &noclov, evenodd);
 
   return fldw;
 }
@@ -151,21 +95,15 @@ QOP_dw_create_L_from_G( QOP_info_t *info,
                     QOP_GaugeField *gauge )
 { 
   QOP_FermionLinksDW *fldw;
-  QDP_ColorMatrix    *newlinks[4];
-  int                i;
-
-  DW_INVERT_BEGIN;
-
-  fldw = dw_initialize_gauge_L();
+  QOP_malloc(fldw, QOPPC(FermionLinksDW), 1);
   
-  for (i=0; i<4; i++) {
-    newlinks[i] = QDP_create_M();
-    QDP_M_eq_M(newlinks[i], gauge->links[i], QDP_all);
-  }
+  QOP_wilson_coeffs_t wcoeffs;
+  wcoeffs.clov_s = 0.0;
+  wcoeffs.clov_t = 0.0;
+  wcoeffs.aniso = 1.0;
   
-  fldw = QOP_dw_convert_L_from_qdp(newlinks);
+  fldw->flw = QOP_wilson_create_L_from_G(info, &wcoeffs, gauge);
 
-  DW_INVERT_END;
   return fldw;
 }
 
@@ -182,29 +120,8 @@ QOP_dw_extract_L_to_raw( REAL *links[],
 void
 QOP_dw_destroy_L( QOP_FermionLinksDW *fldw )
 {
-  int i;
-
-  DW_INVERT_BEGIN;
-
-  if (fldw->qopgf) {
-    QOP_destroy_G(fldw->qopgf);
-  } else {
-    for (i=0; i<4; i++) QDP_destroy_M(fldw->links[i]);
-  }
-  free(fldw->links);
-  if (fldw->dblstored) {
-    for (i=0; i<4; i++) QDP_destroy_M(fldw->bcklinks[i]);
-  }
-  free(fldw->bcklinks);
-  free(fldw->dbllinks);
-  /*if (fldw->eigcg.u) {
-    for (i=0; i<fldw->eigcg.numax; i++)
-      QDP_destroy_D(fldw->eigcg.u[i]);
-    free(fldw->eigcg.u);
-    free(fldw->eigcg.l);
-  }*/
+  QOP_wilson_destroy_L(fldw->flw);
   free(fldw);
-  DW_INVERT_END;
 }
 
 QOP_FermionLinksDW *
@@ -251,19 +168,10 @@ QOP_FermionLinksDW *
 QOP_dw_create_L_from_qdp( QDP_ColorMatrix *links[] )
 {
   QOP_FermionLinksDW *fldw;
-  QDP_ColorMatrix *newlinks[4];
-  int i;
+  QOP_malloc(fldw, QOPPC(FermionLinksDW), 1);
 
-  DW_INVERT_BEGIN;
+  fldw->flw = QOP_wilson_create_L_from_qdp(links, NULL);
 
-  for (i=0; i<4; i++) {
-    newlinks[i] = QDP_create_M();
-    QDP_M_eq_M(newlinks[i], links[i], QDP_all);
-  }
-
-  fldw = QOP_dw_convert_L_from_qdp(newlinks);
-
-  DW_INVERT_END;
   return fldw;
 }
 
@@ -280,23 +188,10 @@ QOP_FermionLinksDW *
 QOP_dw_convert_L_from_qdp( QDP_ColorMatrix *links[] )
 {
   QOP_FermionLinksDW *fldw;
-  int i;
+  QOP_malloc(fldw, QOPPC(FermionLinksDW), 1);
 
-  DW_INVERT_BEGIN;
+  fldw->flw = QOP_wilson_convert_L_from_qdp(links, NULL);
 
-  QOP_malloc(fldw,           QOPPC(FermionLinksDW), 1);
-  QOP_malloc(fldw->links,    QDPPC(ColorMatrix)*,   4);
-  QOP_malloc(fldw->bcklinks, QDPPC(ColorMatrix)*,   4);
-  QOP_malloc(fldw->dbllinks, QDPPC(ColorMatrix)*,   8);
-
-  fldw->dblstored = 0;
-  for (i=0; i<4; i++) {
-    fldw->links[i] = links[i];
-  }
-
-  fldw->qopgf = NULL;
-
-  DW_INVERT_END;
   return fldw;
 }
 
@@ -311,7 +206,7 @@ QOP_dw_convert_L_to_qdp( QDP_ColorMatrix ***links,
 
 // -----------------------------------------------------------------
 // Even-odd operators
-// Note that these operators are functions of M0 = M5-5, not M5
+// Note that these operators are functions of M0 = 5-M5, not M5
 void
 QOPPC(Qxy)(QOP_FermionLinksDW *fldw,
            QDP_DiracFermion *out[], QDP_DiracFermion *in[],
@@ -321,43 +216,23 @@ QOPPC(Qxy)(QOP_FermionLinksDW *fldw,
 // It matches the ordering of xy, but not the standard ordering of QDP.
 {
   check_setup(fldw,ls);
-  int s;
-  QLA_Real half = 0.5;
-  QOP_FermionLinksWilson flw;
-  flw.clovinvkappa = 0;//1/(2*M0+8);
-  flw.dblstored = fldw->dblstored;
-  flw.links = fldw->links;
-  flw.bcklinks = fldw->bcklinks;
-  flw.dbllinks = fldw->dbllinks;
-  flw.qopgf = fldw->qopgf;
-  flw.qdpclov = NULL;
-  flw.clov = NULL;
-  flw.clovinv = NULL;
-  flw.rawlinks = fldw->raw;
-  flw.rawclov = NULL;
-  //flw.eigcg;
-  for (s=0; s<ls; s++) {
+  
+  for (int s=0; s<ls; s++) {
 #if SDC_DEBUG 
-QLA_Real tmp; 
+QLA_Real tmp;
 QDP_r_eq_norm2_D(&tmp, in[s], subset);
 printf("Qxy %d: %g -> ",s,sqrt(tmp));
 #endif
-    QDP_D_eq_r_times_D(tmpd, &half, in[s], subset);
-    QOP_wilson_dslash_qdp(NULL, &flw,
-                          1.0/(2*M0+8), sign,
-                		      out[s], tmpd,
+    //QDP_D_eq_r_times_D(tmpd, &mhalf, in[s], subset);
+    QOP_wilson_dslash_qdp(NULL, fldw->flw,
+                          1.0/(2*M0+8) /*not used*/, sign,
+                		      out[s], in[s],
                 		      (osubset==QDP_even?QOP_EVEN:QOP_ODD),
                 		      ( subset==QDP_even?QOP_EVEN:QOP_ODD));
 #if SDC_DEBUG
 QDP_r_eq_norm2_D(&tmp, out[s], osubset);
 printf("%g\n",sqrt(tmp));
 #endif
-    fldw->dblstored = flw.dblstored;
-    fldw->links = flw.links;
-    fldw->bcklinks = flw.bcklinks;
-    fldw->dbllinks = flw.dbllinks;
-    fldw->qopgf = flw.qopgf;
-    fldw->raw = flw.rawlinks;  
   }
 }
 
@@ -496,6 +371,7 @@ QOPPC(QoeQeeinv)(QOP_FermionLinksDW *fldw,
 {
   QOPPC(Qeeinv)(fldw, out, in, M0, mq, ls);
   QOPPC(Qoe)(fldw, out, out, M0, mq, ls);
+  // Re-use of out is ok, since Qxy will have its own temporaries
 }
 
 void
@@ -539,7 +415,7 @@ printf("Qxx(mq) %d: %g\n",s,sqrt(tmp));
 
 // -----------------------------------------------------------------
 // Domain-wall operators
-
+// Note that in our convention, free-field M5 = 1
 void
 QOPPC(dw_dslash_qdp)( QOP_info_t *info,
               QOP_FermionLinksDW *fldw,
@@ -552,7 +428,7 @@ QOPPC(dw_dslash_qdp)( QOP_info_t *info,
                    QOP_evenodd_t eo_out,
                    QOP_evenodd_t eo_in)
 {
-  REAL M0 = M5-5;
+  REAL M0 = 5-M5;
   check_setup(fldw,ls);
  
   if ( eo_out==QOP_EVEN || eo_out==QOP_EVENODD ) {
@@ -650,7 +526,7 @@ void QOPPC(dw_diaginv_qdp)( QOP_info_t *info,
                                    int ls,
                          QOP_evenodd_t eo)
 {
-  REAL M0 = M5-5;
+  REAL M0 = 5-M5;
   check_setup(fldw,ls);
   if (eo==QOP_EVEN || eo==QOP_EVENODD)
       QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, 1, QDP_even);

@@ -102,13 +102,9 @@ struct QOPPC(FermionLinksWilson_struct) {
 
   /* Domain Wall datatypes */
 
+// Current DWF implementation explicitly calls Wilson op
 struct QOPPC(FermionLinksDW_struct) {
-  int dblstored;
-  QDPPC(ColorMatrix) **links;
-  QDPPC(ColorMatrix) **bcklinks;
-  QDPPC(ColorMatrix) **dbllinks;
-  QOPPC(GaugeField) *qopgf;
-  REAL **raw;
+  QOPPC(FermionLinksWilson) *flw;
 };
 
 /* internal routines */
