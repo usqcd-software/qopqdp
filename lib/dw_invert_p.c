@@ -115,7 +115,6 @@ QOPPC(dw_invert)( QOP_info_t *info,
 
 // Even-odd precondition the input
 #ifdef LU
-  printf("Using even-odd preconditioning...\n");
   QOPPC(dw_EO_project)(fldw, tin, qdptmp, M5, mq, ls, QDP_to_QOP(subset));
 #endif
 
