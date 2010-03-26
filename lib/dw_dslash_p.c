@@ -7,8 +7,6 @@
 
 #define SDC_DEBUG 0
 
-#define LU
-
 #define dblstore_style(x) ((x)&1)
 #define shiftd_style(x) ((x)&2)
 
@@ -24,9 +22,10 @@ static int dslash_initQ = 0; // Is dslash set up?
 // The temporaries are born here
 static QDP_HalfFermion **thv0=NULL, **thv1=NULL, *tmph=NULL; // Used in Qxxinv
 static QDP_DiracFermion *tmpd=NULL, // Used in Qxx
-                        **tdv=NULL; // Used in dslash2
+                        **tdv=NULL, // Used in schur and reconstruct
+                        **tdv2=NULL; // Used in dslash2, schur2 and reconstruct
 
-#define check_setup(fldw,ls) \
+#define check_setup(ls) \
 { \
   if( (!dslash_initQ) ) { \
     reset_temps(ls); \
@@ -45,10 +44,12 @@ free_temps(int ls)
       QDP_destroy_H(thv0[s]);
       QDP_destroy_H(thv1[s]);
       QDP_destroy_D(tdv[s]);
+      QDP_destroy_D(tdv2[s]);
     }
     free(thv0);
     free(thv1);
     free(tdv);
+    free(tdv2);
   }
   dslash_initQ = 0;
 }
@@ -64,10 +65,12 @@ reset_temps(int ls)
   thv0 = (QDP_HalfFermion**) malloc(ls*sizeof(QDP_HalfFermion*));
   thv1 = (QDP_HalfFermion**) malloc(ls*sizeof(QDP_HalfFermion*));
   tdv  = (QDP_DiracFermion**) malloc(ls*sizeof(QDP_DiracFermion*));
+  tdv2 = (QDP_DiracFermion**) malloc(ls*sizeof(QDP_DiracFermion*));
   for (int s=0; s<ls; s++) {
     thv0[s] = QDP_create_H();
     thv1[s] = QDP_create_H();
     tdv[s]  = QDP_create_D();
+    tdv2[s]  = QDP_create_D();
   }
 
   dslash_initQ = 1;
@@ -206,16 +209,16 @@ QOP_dw_convert_L_to_qdp( QDP_ColorMatrix ***links,
 
 // -----------------------------------------------------------------
 // Even-odd operators
-// Note that these operators are functions of M0 = 5-M5, not M5
-void
+// Note that these operators are functions of M0 = 5-M5, not M5.
+// They will not be accessible to general users, who should use
+// dslash, diaginv, schur, EO_project and EO_reconstruct instead.
+static void
 QOPPC(Qxy)(QOP_FermionLinksDW *fldw,
            QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           REAL M0, REAL mq, int ls, int sign,
-           QDP_Subset subset, QDP_Subset osubset)
-// Note the ordering of the subsets!
-// It matches the ordering of xy, but not the standard ordering of QDP.
+           QLA_Real M0, QLA_Real mq, int ls, int sign,
+           QDP_Subset osubset, QDP_Subset subset)
 {
-  check_setup(fldw,ls);
+  check_setup(ls);
   
   for (int s=0; s<ls; s++) {
 #if SDC_DEBUG 
@@ -223,7 +226,6 @@ QLA_Real tmp;
 QDP_r_eq_norm2_D(&tmp, in[s], subset);
 printf("Qxy %d: %g -> ",s,sqrt(tmp));
 #endif
-    //QDP_D_eq_r_times_D(tmpd, &mhalf, in[s], subset);
     QOP_wilson_dslash_qdp(NULL, fldw->flw,
                           1.0/(2*M0+8) /*not used*/, sign,
                 		      out[s], in[s],
@@ -236,42 +238,49 @@ printf("%g\n",sqrt(tmp));
   }
 }
 
-void
-QOPPC(Qeo)(QOP_FermionLinksDW *fldw,
+static void
+QOPPC(Qxx)(QOP_FermionLinksDW *fldw,
            QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           REAL M0, REAL mq, int ls)
+           QLA_Real M0, QLA_Real mq, int ls, int sign,
+           QDP_Subset subset, int add)
 {
-  QOPPC(Qxy)(fldw, out, in, M0, mq, ls, 1, QDP_even, QDP_odd);
+  check_setup(ls);
+  for (int s=0; s<ls; s++) {
+    if (add) {
+      QDP_D_peq_r_times_D(out[s], &M0, in[s], subset);
+    } else {
+      QDP_D_eq_r_times_D(out[s], &M0, in[s], subset);
+    }
+#if SDC_DEBUG
+QLA_Real tmp;
+QDP_r_eq_norm2_D(&tmp, in[s], subset);
+printf("Qxx(M0) %d: %g -> ",s,sqrt(tmp));
+QDP_r_eq_norm2_D(&tmp, out[s], subset);
+printf("%g\n",sqrt(tmp));
+#endif
+    if (s<ls-1) {
+      QDP_D_meq_spproj_D(out[s], in[s+1], 4, -sign, subset);
+    } else {
+      QDP_D_eq_r_times_D(tmpd, &mq, in[0], subset);
+      QDP_D_peq_spproj_D(out[s], tmpd, 4, -sign, subset);
+    }
+    if (s>0) {
+      QDP_D_meq_spproj_D(out[s], in[s-1], 4, sign, subset);
+    } else {
+      QDP_D_eq_r_times_D(tmpd, &mq, in[ls-1], subset);
+      QDP_D_peq_spproj_D(out[s], tmpd, 4, sign, subset);
+    }
+#if SDC_DEBUG
+QDP_r_eq_norm2_D(&tmp, out[s], subset);
+printf("Qxx(mq) %d:...-> %g\n",s,sqrt(tmp));
+#endif
+  }
 }
 
-void
-QOPPC(Qoe)(QOP_FermionLinksDW *fldw,
-           QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           REAL M0, REAL mq, int ls)
-{
-  QOPPC(Qxy)(fldw, out, in, M0, mq, ls, 1, QDP_odd, QDP_even);
-}
-
-void
-QOPPC(Seo)(QOP_FermionLinksDW *fldw,
-           QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           REAL M0, REAL mq, int ls)
-{
-  QOPPC(Qxy)(fldw, out, in, M0, mq, ls, -1, QDP_even, QDP_odd);
-}
-
-void
-QOPPC(Soe)(QOP_FermionLinksDW *fldw,
-           QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           REAL M0, REAL mq, int ls)
-{
-  QOPPC(Qxy)(fldw, out, in, M0, mq, ls, -1, QDP_odd, QDP_even);
-}
-
-void
+static void
 QOPPC(Qxxinv)(QOP_FermionLinksDW *fldw,
               QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-              REAL M0, REAL mq, int ls, int sign, QDP_Subset subset)
+              QLA_Real M0, QLA_Real mq, int ls, int sign, QDP_Subset subset)
 {
   QLA_Real fac, den, mba;
   QDP_DiracFermion *tin[2];
@@ -279,7 +288,7 @@ QOPPC(Qxxinv)(QOP_FermionLinksDW *fldw,
   int dirs[2]={4,4}, sgns[2]={-sign,sign};
   int s;
   
-  check_setup(fldw,ls);
+  check_setup(ls);
 
   mba = 1.0/M0;
   den = 1.0/(1.0 + (mq/M0)*pow(mba, ls-1));
@@ -332,86 +341,52 @@ QOPPC(Qxxinv)(QOP_FermionLinksDW *fldw,
   }
 }
 
+/* For the standard case, where eo = e, project =
+  [ 1   -Qeo 1/Qoo ]
+  [ 0       1      ]
+*/
 void
-QOPPC(Qooinv)(QOP_FermionLinksDW *fldw,
-              QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-              REAL M0, REAL mq, int ls)
+QOPPC(dw_EO_project)( QOP_FermionLinksDW *fldw,
+                        QDP_DiracFermion *out[],
+                        QDP_DiracFermion *in[],
+                                QLA_Real M5,
+                                QLA_Real mq,
+                                     int ls,
+                           QOP_evenodd_t eo )
 {
-  QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, 1, QDP_odd);
+  check_setup(ls);
+  QLA_Real M0 = 5-M5;
+  QDP_Subset  eosub = (eo==QOP_EVEN?QDP_even:QDP_odd),
+             oppsub = (eo==QOP_EVEN?QDP_odd:QDP_even);
+  QOPPC(Qxxinv)(fldw,  tdv,  in, M0, mq, ls, 1, oppsub);
+  QOPPC(Qxy)   (fldw, tdv2, tdv, M0, mq, ls, 1, eosub, oppsub);
+  for (int s=0; s<ls; s++) QDP_D_eq_D_minus_D(out[s], in[s], tdv2[s], eosub);
 }
 
+/* For the standard case, where eo = e, reconstruct =
+  [       1/Qee          0   ]
+  [ -1/Qoo Qoe 1/Qee   1/Qoo ]
+*/
 void
-QOPPC(Qeeinv)(QOP_FermionLinksDW *fldw,
-              QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-              REAL M0, REAL mq, int ls)
+QOPPC(dw_EO_reconstruct)( QOP_FermionLinksDW *fldw,
+                            QDP_DiracFermion *out[],
+                            QDP_DiracFermion *in[],
+                                    QLA_Real M5,
+                                    QLA_Real mq,
+                                         int ls,
+                               QOP_evenodd_t eo )
 {
-  QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, 1, QDP_even);
+  check_setup(ls);
+  QLA_Real M0 = 5-M5;
+  QDP_Subset  eosub = (eo==QOP_EVEN?QDP_even:QDP_odd),
+             oppsub = (eo==QOP_EVEN?QDP_odd:QDP_even);
+  for (int s=0; s<ls; s++) QDP_D_eq_D(tdv[s], in[s], QDP_all);
+  QOPPC(Qxxinv)(fldw,  tdv,  in, M0, mq, ls, 1, eosub);
+  QOPPC(Qxy)   (fldw, out, tdv, M0, mq, ls, 1, oppsub, eosub);
+  for (int s=0; s<ls; s++) QDP_D_eq_D_minus_D(tdv2[s], tdv[s], out[s], QDP_all);
+  QOPPC(Qxxinv)(fldw, out, tdv2, M0, mq, ls, 1, oppsub);
 }
 
-void
-QOPPC(Sooinv)(QOP_FermionLinksDW *fldw,
-              QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-              REAL M0, REAL mq, int ls)
-{
-  QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, -1, QDP_odd);
-}
-
-void
-QOPPC(Seeinv)(QOP_FermionLinksDW *fldw,
-              QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-              REAL M0, REAL mq, int ls)
-{
-  QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, -1, QDP_even);
-}
-
-void
-QOPPC(QoeQeeinv)(QOP_FermionLinksDW *fldw,
-                 QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                 REAL M0, REAL mq, int ls)
-{
-  QOPPC(Qeeinv)(fldw, out, in, M0, mq, ls);
-  QOPPC(Qoe)(fldw, out, out, M0, mq, ls);
-  // Re-use of out is ok, since Qxy will have its own temporaries
-}
-
-void
-QOPPC(Qxx)(QOP_FermionLinksDW *fldw,
-           QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-           QLA_Real M0, QLA_Real mq, int ls, int sign,
-           QDP_Subset subset, int add)
-{
-  check_setup(fldw,ls);
-  for (int s=0; s<ls; s++) {
-    if (add) {
-      QDP_D_peq_r_times_D(out[s], &M0, in[s], subset);
-    } else {
-      QDP_D_eq_r_times_D(out[s], &M0, in[s], subset);
-    }
-#if SDC_DEBUG
-QLA_Real tmp;
-QDP_r_eq_norm2_D(&tmp, in[s], subset);
-printf("Qxx(M0) %d: %g -> ",s,sqrt(tmp));
-QDP_r_eq_norm2_D(&tmp, out[s], subset);
-printf("%g\n",sqrt(tmp));
-#endif
-    if (s<ls-1) {
-      QDP_D_meq_spproj_D(out[s], in[s+1], 4, -sign, subset);
-    } else {
-      QDP_D_eq_r_times_D(tmpd, &mq, in[0], subset);
-      QDP_D_peq_spproj_D(out[s], tmpd, 4, -sign, subset);
-    }
-    if (s>0) {
-      QDP_D_meq_spproj_D(out[s], in[s-1], 4, sign, subset);
-    } else {
-      QDP_D_eq_r_times_D(tmpd, &mq, in[ls-1], subset);
-      QDP_D_peq_spproj_D(out[s], tmpd, 4, sign, subset);
-    }
-#if SDC_DEBUG
-QDP_r_eq_norm2_D(&tmp, out[s], subset);
-printf("Qxx(mq) %d: %g\n",s,sqrt(tmp));
-#endif
-  }
-}
 
 // -----------------------------------------------------------------
 // Domain-wall operators
@@ -419,8 +394,8 @@ printf("Qxx(mq) %d: %g\n",s,sqrt(tmp));
 void
 QOPPC(dw_dslash_qdp)( QOP_info_t *info,
               QOP_FermionLinksDW *fldw,
-                            REAL M5,
-                            REAL mq,
+                        QLA_Real M5,
+                        QLA_Real mq,
                              int sign,
                 QDP_DiracFermion *out[],
                 QDP_DiracFermion *in[],
@@ -428,44 +403,43 @@ QOPPC(dw_dslash_qdp)( QOP_info_t *info,
                    QOP_evenodd_t eo_out,
                    QOP_evenodd_t eo_in)
 {
-  REAL M0 = 5-M5;
-  check_setup(fldw,ls);
- 
+  QLA_Real M0 = 5-M5;
+  check_setup(ls);
+  
   if ( eo_out==QOP_EVEN || eo_out==QOP_EVENODD ) {
     if ( eo_in==QOP_ODD ) {
-      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_odd, QDP_even); // Qoe
+      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_even, QDP_odd); // Qeo
     } else if ( eo_in==QOP_EVEN ) {
       QOPPC(Qxx)(fldw, out, in, M0, mq, ls, sign, QDP_even, 0);       // Qee
     } else {
 #if SDC_DEBUG
-printf("Checkpoint OE/EE %g:%g %g %d %d\n",M5,M0, mq, ls, sign);
+printf("Checkpoint EO/EE %g:%g %g %d %d\n",M5,M0, mq, ls, sign);
 #endif
-      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_odd, QDP_even); // Qoe
+      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_even, QDP_odd); // Qeo
       QOPPC(Qxx)(fldw, out, in, M0, mq, ls, sign, QDP_even, 1);       // Qee
     }
   }
 
   if ( eo_out==QOP_ODD || eo_out==QOP_EVENODD ) {
     if ( eo_in==QOP_EVEN ) {
-      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_even, QDP_odd); // Qeo
+      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_odd, QDP_even); // Qoe
     } else if( eo_in==QOP_ODD ) {
       QOPPC(Qxx)(fldw, out, in, M0, mq, ls, sign, QDP_odd, 0);        // Qoo
     } else {
 #if SDC_DEBUG
-printf("Checkpoint EO/OO %g:%g %g %d %d\n",M5,M0, mq, ls, sign);
+printf("Checkpoint OE/OO %g:%g %g %d %d\n",M5,M0, mq, ls, sign);
 #endif
-      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_even, QDP_odd); // Qeo
+      QOPPC(Qxy)(fldw, out, in, M0, mq, ls, sign, QDP_odd, QDP_even); // Qoe
       QOPPC(Qxx)(fldw, out, in, M0, mq, ls, sign, QDP_odd, 1);        // Qoo
     }
   }
-
 }
 
 void
 QOPPC(dw_dslash)( QOP_info_t *info,
           QOP_FermionLinksDW *fldw,
-                        REAL M5,
-                        REAL mq,
+                    QLA_Real M5,
+                    QLA_Real mq,
                          int sign,
             QOP_DiracFermion *out_pt[],
             QOP_DiracFermion *in_pt[],
@@ -484,25 +458,25 @@ QOPPC(dw_dslash)( QOP_info_t *info,
 void
 QOPPC(dw_dslash2_qdp)( QOP_info_t *info,
                QOP_FermionLinksDW *fldw,
-                             REAL M5,
-                             REAL mq,
+                         QLA_Real M5,
+                         QLA_Real mq,
                  QDP_DiracFermion *out[],
                  QDP_DiracFermion *in[],
                               int ls,
                     QOP_evenodd_t eo_out,
                     QOP_evenodd_t eo_in) {
-  check_setup(fldw,ls);
-  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq,  1, tdv, in, ls,
+  check_setup(ls);
+  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq,  1, tdv2, in, ls,
                        QOP_EVENODD, eo_in);
-  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, out, tdv, ls,
+  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, out, tdv2, ls,
                        eo_out, QOP_EVENODD);
 }
 
 void
 QOPPC(dw_dslash2)( QOP_info_t *info,
            QOP_FermionLinksDW *fldw,
-                         REAL M5,
-                         REAL mq,
+                     QLA_Real M5,
+                     QLA_Real mq,
              QOP_DiracFermion *out_pt[],
              QOP_DiracFermion *in_pt[],
                           int ls,
@@ -517,19 +491,67 @@ QOPPC(dw_dslash2)( QOP_info_t *info,
   QOPPC(dw_dslash2_qdp)(info, fldw, M5, mq, qo, qi, ls, eo_out, eo_in);
 }
 
-void QOPPC(dw_diaginv_qdp)( QOP_info_t *info,
-                    QOP_FermionLinksDW *fldw,
-                                  REAL M5,
-                                  REAL mq,
-                      QDP_DiracFermion **out,
-                      QDP_DiracFermion **in,
-                                   int ls,
-                         QOP_evenodd_t eo)
+void
+QOPPC(dw_diaginv_qdp)( QOP_info_t *info,
+               QOP_FermionLinksDW *fldw,
+                         QLA_Real M5,
+                         QLA_Real mq,
+                 QDP_DiracFermion **out,
+                 QDP_DiracFermion **in,
+                              int ls,
+                    QOP_evenodd_t eo)
 {
-  REAL M0 = 5-M5;
-  check_setup(fldw,ls);
+  QLA_Real M0 = 5-M5;
   if (eo==QOP_EVEN || eo==QOP_EVENODD)
       QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, 1, QDP_even);
   if (eo==QOP_ODD || eo==QOP_EVENODD)
       QOPPC(Qxxinv)(fldw, out, in, M0, mq, ls, 1, QDP_odd);
+}
+
+/* For the standard case, where eo = e, schur =
+  [ 1 - Qeo 1/Qoo Qoe 1/Qee   0 ]
+  [           0               1 ]
+*/
+void
+QOPPC(dw_schur_qdp)( QOP_info_t *info,
+             QOP_FermionLinksDW *fldw,
+                       QLA_Real M5,
+                       QLA_Real mq,
+                           int sign,
+               QDP_DiracFermion **out,
+               QDP_DiracFermion **in,
+                            int ls,
+                  QOP_evenodd_t eo)
+{
+  QLA_Real M0 = 5-M5;
+  QDP_Subset  eosub = (eo==QOP_EVEN?QDP_even:QDP_odd),
+             oppsub = (eo==QOP_EVEN?QDP_odd:QDP_even);
+  if (sign>0) {
+    QOPPC(Qxxinv)(fldw, out,  in, M0, mq, ls, sign, eosub);
+    QOPPC(Qxy)   (fldw, tdv, out, M0, mq, ls, sign, oppsub, eosub);
+    QOPPC(Qxxinv)(fldw, out, tdv, M0, mq, ls, sign, oppsub);
+    QOPPC(Qxy)   (fldw, tdv, out, M0, mq, ls, sign, eosub, oppsub);
+  } else {
+    QOPPC(Qxy)   (fldw, out,  in, M0, mq, ls, sign, oppsub, eosub);
+    QOPPC(Qxxinv)(fldw, tdv, out, M0, mq, ls, sign, oppsub);
+    QOPPC(Qxy)   (fldw, out, tdv, M0, mq, ls, sign, eosub, oppsub);
+    QOPPC(Qxxinv)(fldw, tdv, out, M0, mq, ls, sign, eosub);
+  }
+  for(int s=0; s<ls; s++)
+    QDP_D_eq_D_minus_D(out[s], in[s], tdv[s], QDP_all);
+}
+
+void
+QOPPC(dw_schur2_qdp)( QOP_info_t *info,
+              QOP_FermionLinksDW *fldw,
+                        QLA_Real M5,
+                        QLA_Real mq,
+                QDP_DiracFermion *out[],
+                QDP_DiracFermion *in[],
+                             int ls,
+                   QOP_evenodd_t eo)
+{
+  check_setup(ls);
+  QOPPC(dw_schur_qdp)(info, fldw, M5, mq,  1, tdv2,   in, ls, eo);
+  QOPPC(dw_schur_qdp)(info, fldw, M5, mq, -1,  out, tdv2, ls, eo);
 }
