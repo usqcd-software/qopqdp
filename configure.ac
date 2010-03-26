@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.16.2, [detar at physics.utah.edu])
+AC_INIT(qopqdp, 0.16.3, [detar at physics.utah.edu])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 
