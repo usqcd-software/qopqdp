@@ -381,12 +381,19 @@ QOPPC(dw_EO_reconstruct)( QOP_FermionLinksDW *fldw,
   QLA_Real M0 = 5-M5;
   QDP_Subset  eosub = (eo==QOP_EVEN?QDP_even:QDP_odd),
              oppsub = (eo==QOP_EVEN?QDP_odd:QDP_even);
+  QOPPC(Qxxinv)(fldw, out, out, M0, mq, ls, 1, eosub);
+  QOPPC(Qxy)   (fldw, tdv, out, M0, mq, ls, 1, oppsub, eosub);
+  for(int s=0; s<ls; s++) QDP_D_eq_D_minus_D(tdv[s], in[s], tdv[s], oppsub);
+  QOPPC(Qxxinv)(fldw, out, tdv, M0, mq, ls, 1, oppsub);
+
+#if 0
   for (int s=0; s<ls; s++) QDP_D_eq_D(tdv[s], in[s], oppsub);
   QOPPC(Qxxinv)(fldw, tdv,  in, M0, mq, ls, 1, eosub);
   QOPPC(Qxy)   (fldw, out, tdv, M0, mq, ls, 1, oppsub, eosub);
   for (int s=0; s<ls; s++) QDP_D_eq_D_minus_D(tdv2[s], tdv[s], out[s], oppsub);
   QOPPC(Qxxinv)(fldw, out, tdv2, M0, mq, ls, 1, oppsub);
   for (int s=0; s<ls; s++) QDP_D_eq_D(out[s], tdv[s], eosub);
+#endif
 }
 
 

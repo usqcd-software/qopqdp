@@ -1,8 +1,8 @@
 #include <math.h>
 #include <qop_internal.h>
 
-//#define printf0 QOP_printf0
-#define printf0(...)
+#define printf0 QOP_printf0
+//#define printf0(...)
 
 #define LU 1
 #define SDC_DEBUG 0
@@ -124,37 +124,59 @@ QOPPC(dw_invert)( QOP_info_t *info,
   QOPPC(dw_schur_qdp)(info, fldw, M5, mq, -1, qdpin, tin, ls,
                       QDP_to_QOP(subset));
   // The opposite subset goes through trivially; we'll set it now
-  for (s=0; s<ls; s++) QDP_D_eq_D(qdpout[s], tin[s], osubset);
+  //for (s=0; s<ls; s++) QDP_D_eq_D(qdpout[s], tin[s], osubset);
 #else
   QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, qdpin, qdptmp, ls,
                        QDP_to_QOP(osubset), QDP_to_QOP(subset));
 #endif
 
 // Invoke the CG inverter on the normal equation
-  printf0("begin cgv\n");
+  //printf0("begin cgv\n");
   dtime = -QOP_time();
 #ifdef LU
 #if SDC_DEBUG
-printf("Using EO decomposition...\n");
-QOP_common.verbosity = QOP_VERB_DEBUG;
+  printf("Using EO decomposition...\n");
+  QOP_common.verbosity = QOP_VERB_DEBUG;
 #endif
-  printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
+  //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOPPC(invert_cg_vD)(QOPPC(dw_schur2_wrap), inv_arg, res_arg,
                       qdpout, qdpin, tcg, subset, ls);
 #else
-  res_arg->rsqmin /= (5-M5)*(5-M5)*(5-M5)*(5-M5);
-  printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
+  //res_arg->rsqmin /= (5-M5)*(5-M5)*(5-M5)*(5-M5);
+  //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOPPC(invert_cg_vD)(QOPPC(dw_dslash2_wrap), inv_arg, res_arg,
                       qdpout, qdpin, tcg, subset, ls);
-  res_arg->rsqmin *= (5-M5)*(5-M5)*(5-M5)*(5-M5);
+  //res_arg->rsqmin *= (5-M5)*(5-M5)*(5-M5)*(5-M5);
 #endif
   dtime += QOP_time();
-  printf0("end cgv\n");
+  //printf0("end cgv\n");
 
 // Reconstruct the EO solution
 #ifdef LU
-  QOPPC(dw_EO_reconstruct)(fldw, qdpout, qdpout, M5, mq, ls,
+  QOPPC(dw_EO_reconstruct)(fldw, qdpout, qdptmp, M5, mq, ls,
                            QDP_to_QOP(subset));
+#endif
+
+#if 0
+  // calculate final residual
+  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, 1, tcg, qdpout, ls,
+		       QOP_EVENODD, QOP_EVENODD);
+  //#ifdef LU
+  //#else
+  //QOPPC(dw_dslash2_qdp)(info, fldw, M5, mq, tcg, qdpout, ls,
+  //		QOP_EVENODD, QOP_EVENODD);
+  //#endif
+  QLA_Real rsq=0, rsqin=0;
+  for (s=0; s<ls; s++) {
+    QLA_Real t;
+    QDP_D_eq_D_minus_D(tcg[s], qdptmp[s], tcg[s], QDP_all);
+    QDP_r_eq_norm2_D(&t, tcg[s], QDP_all);
+    rsq += t;
+    QDP_r_eq_norm2_D(&t, qdptmp[s], QDP_all);
+    rsqin += t;
+  }
+  res_arg->final_rsq = rsq/rsqin;
+  printf0("final rsq = %g/%g = %g  (%g)\n", rsq, rsqin, res_arg->final_rsq, res_arg->rsqmin);
 #endif
 
   for (s=0; s<ls; s++) {

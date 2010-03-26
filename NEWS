@@ -1,6 +1,9 @@
 ===========================================================================
 2010-03-26      version 0.16.3
 ===========================================================================
+2010-03-26:	James Osborn
+	Fix even/odd reconstruction.
+
 2010-03-26:	Saul Cohen
 	Fixed even/odd preconditioning for DW inverter.
 
