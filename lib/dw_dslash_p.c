@@ -361,6 +361,7 @@ QOPPC(dw_EO_project)( QOP_FermionLinksDW *fldw,
   QOPPC(Qxxinv)(fldw,  tdv,  in, M0, mq, ls, 1, oppsub);
   QOPPC(Qxy)   (fldw, tdv2, tdv, M0, mq, ls, 1, eosub, oppsub);
   for (int s=0; s<ls; s++) QDP_D_eq_D_minus_D(out[s], in[s], tdv2[s], eosub);
+  for (int s=0; s<ls; s++) QDP_D_eq_D(out[s], in[s], oppsub);
 }
 
 /* For the standard case, where eo = e, reconstruct =
@@ -539,7 +540,7 @@ QOPPC(dw_schur_qdp)( QOP_info_t *info,
     QOPPC(Qxxinv)(fldw, tdv, out, M0, mq, ls, sign, eosub);
   }
   for(int s=0; s<ls; s++)
-    QDP_D_eq_D_minus_D(out[s], in[s], tdv[s], QDP_all);
+    QDP_D_eq_D_minus_D(out[s], in[s], tdv[s], eosub);
 }
 
 void

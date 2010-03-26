@@ -123,6 +123,8 @@ QOPPC(dw_invert)( QOP_info_t *info,
 #ifdef LU
   QOPPC(dw_schur_qdp)(info, fldw, M5, mq, -1, qdpin, tin, ls,
                       QDP_to_QOP(subset));
+  // The opposite subset goes through trivially; we'll set it now
+  for (s=0; s<ls; s++) QDP_D_eq_D(qdpout[s], tin[s], osubset);
 #else
   QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, qdpin, qdptmp, ls,
                        QDP_to_QOP(osubset), QDP_to_QOP(subset));
@@ -131,11 +133,14 @@ QOPPC(dw_invert)( QOP_info_t *info,
 // Invoke the CG inverter on the normal equation
   printf0("begin cgv\n");
   dtime = -QOP_time();
-
 #ifdef LU
+#if SDC_DEBUG
+printf("Using EO decomposition...\n");
+QOP_common.verbosity = QOP_VERB_DEBUG;
+#endif
   printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOPPC(invert_cg_vD)(QOPPC(dw_schur2_wrap), inv_arg, res_arg,
-                      qdpout, qdpin, tcg, subset, ls);  
+                      qdpout, qdpin, tcg, subset, ls);
 #else
   res_arg->rsqmin /= (5-M5)*(5-M5)*(5-M5)*(5-M5);
   printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
