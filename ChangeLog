@@ -1,3 +1,23 @@
+2010-03-26 19:21  tag qopqdp0-16-3
+
+2010-03-26 19:21  osborn
+
+	* NEWS, lib/dw_dslash_p.c, lib/dw_invert_p.c: Fix even/odd
+	  reconstruction.
+
+2010-03-26 18:58  sdcohen
+
+	* lib/: dw_dslash_p.c, dw_invert_p.c: [no log message]
+
+2010-03-26 17:53  osborn
+
+	* NEWS, configure, configure.ac: prepare for 0.16.3
+
+2010-03-26 17:06  sdcohen
+
+	* lib/: dw_dslash_p.c, dw_invert_p.c: Fixed initialization error in
+	  EO_reconstruct.
+
 2010-03-26 16:16  sdcohen
 
 	* lib/: dw_dslash_p.c, dw_invert_p.c: Re-added even-odd inverter
