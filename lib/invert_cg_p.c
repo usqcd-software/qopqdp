@@ -9,10 +9,10 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 		  QDP_Subset subset
 		  vIndexDef)
 {
-  QLA_Real a, b;
-  QLA_Real rsq, oldrsq, pkp, relnorm2;
-  QLA_Real insq;
-  QLA_Real rsqstop;
+  QLA_D_Real a, b;
+  QLA_D_Real rsq, oldrsq, pkp, relnorm2;
+  QLA_D_Real insq;
+  QLA_D_Real rsqstop;
   Vector *r, *Mp;
   int iteration=0, total_iterations=0, nrestart=-1;
   int restart_iterations=inv_arg->restart;
@@ -100,7 +100,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
     total_iterations++;
 
     r_eq_re_V_dot_V(&pkp, p, Mp, subset);
-
+    if(pkp<=0) break;  // loss of precision in calculating pkp
     a = rsq / pkp;
 
     V_peq_r_times_V(out, &a, p, subset);
@@ -141,11 +141,11 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 		    QDP_Subset subset
 		    vIndexDef)
 {
-  QLA_Real a[nshifts], b[nshifts];
-  QLA_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
-  QLA_Real rsq, oldrsq, pkp, relnorm2;
-  QLA_Real insq;
-  QLA_Real rsqstop;
+  QLA_D_Real a[nshifts], b[nshifts];
+  QLA_D_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
+  QLA_D_Real rsq, oldrsq, pkp, relnorm2;
+  QLA_D_Real insq;
+  QLA_D_Real rsqstop;
   int iteration=0, i, imin, imax;
   Vector *r, *Mp, *pm[nshifts];
 
@@ -202,7 +202,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
     iteration++;
 
     r_eq_re_V_dot_V(&pkp, p, Mp, subset);
-
+    if(pkp<=0) break;  // loss of precision in calculating pkp
     b[imin] = rsq / pkp;
     zn[imin] = 1;
     for(i=0; i<nshifts; i++) {

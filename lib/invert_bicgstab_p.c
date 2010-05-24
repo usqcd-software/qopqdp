@@ -1,3 +1,5 @@
+#define printf0 QOP_printf0
+
 QOP_status_t
 QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 			QOP_invert_arg_t *inv_arg,
@@ -9,13 +11,13 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 			QDP_Subset subset
 			vIndexDef)
 {
-  QLA_Complex rho0, rho1;
-  QLA_Complex alpha, beta, omega;
-  QLA_Complex ctmp1, ctmp2;
-  QLA_Real t2;
-  QLA_Real rsq, relnorm2;
-  QLA_Real insq;
-  QLA_Real rsqstop;
+  QLA_D_Complex rho0, rho1;
+  QLA_D_Complex alpha, beta, omega;
+  QLA_D_Complex ctmp1, ctmp2;
+  QLA_D_Real t2;
+  QLA_D_Real rsq, relnorm2;
+  QLA_D_Real insq;
+  QLA_D_Real rsqstop;
   Vector *r0, *t, *v;
   int iteration=0, total_iterations=0, nrestart=-1;
   int restart_iterations=inv_arg->restart;
@@ -101,6 +103,8 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
       QLA_c_eq_c_times_c(ctmp1,rho1,alpha);
       QLA_c_eq_c_times_c(ctmp2,rho0,omega);
       QLA_c_eq_c_div_c(beta,ctmp1,ctmp2);
+#define C2(x) QLA_real(x), QLA_imag(x)
+      //printf0("beta = %g %g  ctmp1 = %g %g  ctmp2 = %g %g\n", C2(beta), C2(ctmp1), C2(ctmp2));
 
       QLA_c_eqm_c(omega, omega);
       //V_eq_c_times_V_plus_V(t, &omega, v, p, subset);
@@ -108,8 +112,8 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
       {
  	QLA_Complex tc[2];
 	Vector *tr[2], *ta[2], *tb[2];
-	tr[0] = t; tc[0] = omega; ta[0] = v; tb[0] = p;
-	tr[1] = p; tc[1] = beta;  ta[1] = t; tb[1] = r;
+	tr[0] = t; QLA_c_eq_c(tc[0], omega); ta[0] = v; tb[0] = p;
+	tr[1] = p; QLA_c_eq_c(tc[1], beta);  ta[1] = t; tb[1] = r;
 	V_veq_c_times_V_plus_V(tr, tc, ta, tb, subset, 2);
       }
     }
@@ -121,13 +125,15 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
     c_eq_V_dot_V(&ctmp1,r0,v,subset);
     if(QLA_norm2_c(ctmp1)==0.) break;
     QLA_c_eq_c_div_c(alpha, rho1, ctmp1);
-    V_meq_c_times_V(r,&alpha,v,subset);
+    //printf0("alpha = %g %g  rho1 = %g %g  ctmp1 = %g %g\n", C2(alpha), C2(rho1), C2(ctmp1));
+    V_meq_c_times_V(r, &alpha, v, subset);
 
     linop(t, r, subset);
 
     c_eq_V_dot_V(&omega, t, r, subset);
     r_eq_norm2_V(&t2, t, subset);
     QLA_c_eq_c_div_r(omega, omega, t2);
+    //printf0("omega = %g %g  t2 = %g\n", C2(beta), t2);
 
     /* update the solution and residuals */
 #if 0

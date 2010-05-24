@@ -9,7 +9,7 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=4;
-static QLA_Real kappa=0.15;
+static QLA_Real kappa=0.136;
 static double rsqmin=1e-8;
 static int style=-1;
 static int cgtype=-1;

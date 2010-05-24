@@ -12,10 +12,10 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
 		       QLA_Complex *in,
 		       int n)
 {
-  QLA_Real a;
-  QLA_Real rsq, oldrsq, pkp, relnorm2;
-  QLA_Real insq;
-  QLA_Real rsqstop;
+  QLA_D_Real a;
+  QLA_D_Real rsq, oldrsq, pkp, relnorm2;
+  QLA_D_Real insq;
+  QLA_D_Real rsqstop;
   QLA_Complex *r, *p, *Mp;
   int iteration=0, total_iterations=0, nrestart=-1;
   int restart_iterations=inv_arg->restart;
@@ -88,7 +88,7 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
 	  (total_iterations>=max_iterations) ) break;
 
       //v_eq_v(p, r, n);
-      QLA_Real s = 1.0 / rsq;
+      QLA_D_Real s = 1.0 / rsq;
       v_eq_r_times_v(p, s, r, n);
 
     } else {
@@ -100,7 +100,7 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
       //v_eq_r_times_v_plus_v(p, b, p, r, n);
       //v_teq_r(p, b, n);
       //v_peq_v(p, r, n);
-      QLA_Real s = 1.0 / rsq;
+      QLA_D_Real s = 1.0 / rsq;
       v_peq_r_times_v(p, s, r, n);
 
     }
@@ -110,6 +110,7 @@ QOPPCV(invert_cg_blas)(linop_blas_t linop,
     total_iterations++;
 
     pkp = re_v_dot_v(p, Mp, n);
+    if(pkp<=0) break;  // loss of precision in calculating pkp
 
     //a = rsq / pkp;
     //v_peq_r_times_v(out, a, p, n);
@@ -162,7 +163,7 @@ QOPPCV(invert_cgms_blas)(linop_blas_t linop,
   double rsq, oldrsq, pkp, relnorm2;
   double insq;
   double rsqstop;
-  QLA_Real t;
+  QLA_D_Real t;
   int iteration=0, i, imin, imax;
   QLA_Complex *r, *Mp, *pm[nshifts];
 
@@ -203,6 +204,7 @@ QOPPCV(invert_cgms_blas)(linop_blas_t linop,
     iteration++;
 
     pkp = s[imin]*s[imin] * re_v_dot_v(pm[imin], Mp, n);
+    if(pkp<=0) break;  // loss of precision in calculating pkp
 
     b[imin] = rsq / pkp;
     zn[imin] = 1;
