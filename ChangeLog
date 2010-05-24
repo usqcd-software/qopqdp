@@ -1,3 +1,10 @@
+2010-05-24 16:07  osborn
+
+	* examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/generic_V.h, include/generic_vD.h,
+	  lib/invert_bicgstab_p.c, lib/invert_cg_blas_p.c,
+	  lib/invert_cg_p.c: made solver scalars double precision
+
 2010-03-26 19:21  tag qopqdp0-16-3
 
 2010-03-26 19:21  osborn
