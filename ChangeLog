@@ -1,0 +1,861 @@
+2010-05-24 16:07  osborn
+
+	* examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/generic_V.h, include/generic_vD.h,
+	  lib/invert_bicgstab_p.c, lib/invert_cg_blas_p.c,
+	  lib/invert_cg_p.c: made solver scalars double precision
+
+2010-03-26 19:21  tag qopqdp0-16-3
+
+2010-03-26 19:21  osborn
+
+	* NEWS, lib/dw_dslash_p.c, lib/dw_invert_p.c: Fix even/odd
+	  reconstruction.
+
+2010-03-26 18:58  sdcohen
+
+	* lib/: dw_dslash_p.c, dw_invert_p.c: [no log message]
+
+2010-03-26 17:53  osborn
+
+	* NEWS, configure, configure.ac: prepare for 0.16.3
+
+2010-03-26 17:06  sdcohen
+
+	* lib/: dw_dslash_p.c, dw_invert_p.c: Fixed initialization error in
+	  EO_reconstruct.
+
+2010-03-26 16:16  sdcohen
+
+	* lib/: dw_dslash_p.c, dw_invert_p.c: Re-added even-odd inverter
+	  for domain-wall.
+
+2010-03-22 20:32  sdcohen
+
+	* include/qop_internal_p.h, include/qop_qdp.h, lib/dw_dslash.c,
+	  lib/dw_dslash_p.c, lib/dw_invert.c, lib/dw_invert_p.c:
+	  Domain-wall operator now properly initializes Wilson operator
+
+2010-03-19 14:14  tag qopqdp0-16-2
+
+2010-03-19 14:14  osborn
+
+	* lib/dw_invert_p.c: removed debug printf
+
+2010-03-19 14:09  osborn
+
+	* NEWS, examples/asqtad_eigcg.c, examples/asqtad_invert_bench.c,
+	  examples/asqtad_test.c, examples/dw_invert_bench.c,
+	  examples/hisq_invert_bench.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, include/generic_vD.h,
+	  include/qop_internal_p.h, lib/asqtad_invert_p.c,
+	  lib/dw_invert_p.c, lib/invert_eigcg_p.c: Benchmarks now average
+	  performance over all nodes.
+
+2010-03-19 12:26  sdcohen
+
+	* aclocal.m4, configure, configure.ac, include/qop_qdp.h,
+	  lib/dw_dslash_p.c, lib/dw_invert_p.c: Corrected dw_dslash and
+	  dw_invert.
+
+2010-02-21 22:51  tag qopqdp0-16-1
+
+2010-02-21 22:51  osborn
+
+	* NEWS, lib/invert_bicgstab_p.c: Added checks for breakdown in
+	  BiCGStab inverter.
+
+2010-02-18 16:53  osborn
+
+	* NEWS, aclocal.m4, configure, examples/asqtad_invert_bench.c,
+	  examples/asqtad_test.c, examples/dw_invert_bench.c,
+	  examples/hisq_invert_bench.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, include/qop.h, lib/dw_dslash_p.c,
+	  lib/hisq_invert_p.c: Fixed bugs in DW inverter.  Added default
+	  initializers for invert and resid args.
+
+2010-02-17 17:40  sdcohen
+
+	* aclocal.m4, configure, configure.ac, lib/Makefile.am,
+	  lib/dw_invert_p.c: Patch some missing precision macros in
+	  dw_invert; fix Makefile.am whitespace
+
+2010-02-17 17:07  sdcohen
+
+	* lib/: Makefile.am, dw_dslash.c, dw_dslash_d.c, dw_dslash_f.c,
+	  dw_dslash_p.c, dw_invert.c, dw_invert_p.c: Restructured
+	  domain-wall functions to eliminate some problems with
+	  uninitialized temporaries.
+
+2010-01-24 15:41  tag qopqdp0-16-0
+
+2010-01-24 15:41  detar
+
+	* NEWS: Entry for 0.16.0
+
+2010-01-24 15:38  detar
+
+	* aclocal.m4, configure, configure.ac, include/generic_D.h,
+	  include/generic_V.h, include/generic_vD.h, include/qop.h,
+	  include/qop_config.h.in, include/qop_internal_p.h,
+	  lib/Makefile.am, lib/asqtad_dslash_p.c, lib/asqtad_invert_p.c,
+	  lib/invert_bicgstab_p.c, lib/invert_cg_blas_p.c,
+	  lib/invert_cg_p.c, lib/invert_eigcg_p.c,
+	  lib/invert_utilities_D_d.c, lib/invert_utilities_D_f.c,
+	  lib/invert_utilities_V_d.c, lib/invert_utilities_V_f.c,
+	  lib/invert_utilities_p.c, lib/invert_utilities_vD_d.c,
+	  lib/invert_utilities_vD_f.c, lib/linalg.h, lib/wilson_invert_p.c:
+	  Support Fermilab relative norm criterion for the cg stopping
+	  condition.  Adds two new members to QOP_resid_arg_t.
+
+2009-09-11 17:43  tag qopqdp0-15-0
+
+2009-09-11 17:43  osborn
+
+	* NEWS, configure.ac, examples/dw_invert_bench.c, include/qop.h,
+	  include/qop_qdp.h, lib/dw_invert_p.c, lib/hisq_invert_p.c,
+	  lib/wilson_dslash_p.c: Added interface for DW dslash.
+
+2009-08-23 17:28  tag qopqdp0-14-0
+
+2009-08-23 17:28  detar
+
+	* lib/wilson_dslash.c: Add
+
+2009-08-23 17:22  detar
+
+	* include/hisq_action.h: Add
+
+2009-07-17 14:12  detar
+
+	* NEWS, aclocal.m4, configure, configure.ac: Uptick to version
+	  0.14.0
+
+2009-07-17 14:11  detar
+
+	* include/Makefile.am, include/qop.h, lib/Makefile.am: Add HISQ
+	  Alan Gray's force routines from EPCC
+
+2009-07-17 14:05  detar
+
+	* lib/: hisq_force_d.c, hisq_force_f.c, hisq_force_fnmat_d.c,
+	  hisq_force_fnmat_f.c, hisq_force_fnmat_p.c, hisq_force_p.c,
+	  hisq_invert_p.c, hisq_reunit_d.c, hisq_reunit_f.c,
+	  hisq_reunit_p.c: Add EPCC HISQ modules from Alan Gray
+
+2009-07-17 14:04  detar
+
+	* lib/wilson_dslash_p.c: Add precision conversion capability for
+	  Wilson fermion link type
+
+2009-07-17 14:03  detar
+
+	* lib/asqtad_dslash_p.c: CD: Fix a couple pointer bugs.
+
+2009-06-04 20:48  osborn
+
+	* lib/asqtad_dslash_p.c: fixed performance of plain staggered
+	  dslash when communicating
+
+2009-06-04 19:36  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_invert_bench.c, include/qop_internal_p.h,
+	  lib/asqtad_dslash_p.c: Optimized asqtad dslash for case when
+	  naik=0.
+
+2009-04-15 15:32  tag qopqdp0-13-0
+
+2009-04-15 15:32  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_test.c, include/qop.h, lib/common_p.c: Added
+	  missing rephase functions.  Added raw set/get accessor macros.
+
+2009-02-07 17:33  osborn
+
+	* NEWS, lib/wilson_dslash_p.c: merged fixes to clover term
+	  generation.  small changes to clover term application to improve
+	  performance.
+
+2009-02-06 02:35  osborn
+
+	* lib/wilson_dslash_p.c: attempt to fix clover term
+
+2009-01-24 14:14  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/wilson_invert_bench.c, include/qop.h,
+	  lib/wilson_dslash_p.c: Added Bugra's clover term generation code.
+	  Changed QOP_wilson_coeffs_t to allow anisotropic clover term.
+
+2009-01-13 22:46  osborn
+
+	* lib/invert_cg_blas_p.c: Really fixed name conflict in
+	  invert_cg_blas_p.c.
+
+2009-01-11 12:53  osborn
+
+	* NEWS, lib/invert_cg_blas_p.c: Fixed name conflict in
+	  invert_cg_blas_p.c.
+
+2009-01-04 22:43  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  include/qop_internal.h, include/qop_internal_p.h,
+	  lib/asqtad_invert_p.c, lib/invert_bicgstab_p.c,
+	  lib/invert_cg_blas_p.c, lib/invert_cg_p.c, lib/invert_eigcg_p.c:
+	  Bug fix in asqtad inverter for QOP_EVENODD source.
+
+2008-07-18 00:31  osborn
+
+	* aclocal.m4, configure, examples/asqtad_eigcg.c,
+	  lib/invert_eigcg_p.c: changes to eigCG
+
+2008-06-23 14:09  tag qopqdp0-11-5
+
+2008-06-23 14:09  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_eigcg.c, lib/invert_bicgstab_p.c,
+	  lib/wilson_invert_p.c: prepare for 0.11.5
+
+2008-06-23 12:07  osborn
+
+	* NEWS, aclocal.m4, configure, examples/asqtad_eigcg.c,
+	  examples/test_common.c, examples/test_common.h,
+	  lib/asqtad_invert_p.c, lib/invert_eigcg_p.c: Improve inner rsq
+	  request in asqtad inverter.  More changes to eigCG.
+
+2008-06-20 19:04  osborn
+
+	* lib/invert_eigcg_p.c: more changes to eigCG
+
+2008-06-20 16:29  osborn
+
+	* aclocal.m4, configure, lib/invert_eigcg_p.c: changes to eigCG
+
+2008-06-11 22:00  osborn
+
+	* aclocal.m4, configure, configure.ac, examples/asqtad_eigcg.c,
+	  lib/invert_eigcg_p.c: small changes
+
+2008-06-11 00:17  osborn
+
+	* examples/asqtad_eigcg.c, lib/invert_eigcg_p.c: made verbose
+	  output only come from node 0
+
+2008-06-06 16:49  osborn
+
+	* NEWS, lib/Makefile.am, lib/invert_eigcg_p.c: Added linalg.h to
+	  Makefile.am.
+
+2008-06-03 17:14  tag qopqdp0-11-4
+
+2008-06-03 17:14  osborn
+
+	* NEWS, lib/hisq_invert_p.c: Correct for factor of 1/2 in creation
+	  of HISQ links.
+
+2008-06-03 16:43  osborn
+
+	* configure, configure.ac, include/generic_D.h,
+	  include/generic_V.h, include/qop_config.h.in,
+	  lib/invert_cg_blas_p.c, lib/invert_eigcg_p.c, lib/linalg.h: added
+	  --enable-underscores option for linking with blas/lapack
+
+2008-06-02 19:30  osborn
+
+	* lib/: invert_cg_blas_p.c, invert_eigcg_p.c: fixed header file
+	  name
+
+2008-06-02 18:35  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/asqtad_eigcg.c, examples/test_common.c,
+	  examples/test_common.h, examples/wilson_invert_bench.c,
+	  include/qop_config.h.in, include/qop_internal.h, lib/Makefile.am,
+	  lib/asqtad_force_fnmat_p.c, lib/hisq_invert_p.c,
+	  lib/invert_cg_D_d.c, lib/invert_cg_D_f.c, lib/invert_cg_V_d.c,
+	  lib/invert_cg_V_f.c, lib/invert_cg_blas_p.c,
+	  lib/invert_eigcg_p.c, lib/linalg.h: Added --enable-blas and
+	  --enable-lapack configure options which enable  blas based CG and
+	  eigCG codes.	Fixed memory leak in HISQ code.
+
+2008-06-02 11:21  tag qopqdp0-11-3
+
+2008-06-02 11:21  detar
+
+	* lib/hisq_invert_p.c: Config update; Eliminate harmless gcc
+	  compilation warnings.
+
+2008-06-02 11:14  detar
+
+	* NEWS, aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/hisq_invert_bench.c, include/qop.h, lib/Makefile.am,
+	  lib/hisq_invert_d.c, lib/hisq_invert_f.c, lib/hisq_invert_p.c:
+	  Add HISQ inverter by Alan Gray.
+
+2008-04-14 15:57  tag qopqdp0-11-2
+
+2008-04-14 15:57  osborn
+
+	* NEWS, configure, configure.ac: prepare for 0.11.2 release
+
+2008-04-14 13:56  osborn
+
+	* NEWS, include/qop_internal.h, lib/asqtad_dslash_p.c,
+	  lib/asqtad_force.c, lib/asqtad_force_fnmat_p.c,
+	  lib/asqtad_force_p.c, lib/asqtad_invert.c, lib/asqtad_invert_p.c,
+	  lib/dw_invert.c, lib/dw_invert_p.c, lib/wilson_dslash_p.c,
+	  lib/wilson_invert.c, lib/wilson_invert_p.c: Now make sure QOP is
+	  initialized before using.
+
+2008-04-13 21:35  osborn
+
+	* lib/wilson_invert_p.c: restored wilson inverter inner residual
+	  settings
+
+2008-04-13 20:58  osborn
+
+	* examples/wilson_invert_bench.c, lib/invert_bicgstab_p.c,
+	  lib/wilson_dslash_p.c, lib/wilson_invert_p.c: more fixes to
+	  clover term
+
+2008-04-12 18:51  osborn
+
+	* NEWS, lib/wilson_invert_p.c: Fix to clover term.
+
+2008-04-12 14:26  tag qopqdp0-11-1
+
+2008-04-12 14:26  osborn
+
+	* NEWS, README, configure, configure.ac,
+	  examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/generic_V.h, include/generic_vD.h,
+	  include/qop_internal_p.h, lib/Makefile.am, lib/invert_cg_D_d.c,
+	  lib/invert_cg_D_f.c, lib/invert_cg_V_d.c, lib/invert_cg_V_f.c,
+	  lib/invert_cg_blas_p.c, lib/invert_cg_vD_d.c,
+	  lib/invert_cg_vD_f.c, lib/wilson_dslash_p.c: fixed up clover
+	  term, now should be usable.
+
+2008-04-09 18:55  osborn
+
+	* NEWS, lib/invert_cg_blas_p.c: small tweaks to blas CG
+
+2008-04-09 05:57  osborn
+
+	* lib/invert_cg_blas_p.c: fixed v_eq_zero helper
+
+2008-04-09 05:22  osborn
+
+	* lib/invert_cg_blas_p.c: changed blas norm2 to use dot
+
+2008-04-09 04:45  osborn
+
+	* lib/invert_cg_blas_p.c: bug fix in blas routines
+
+2008-04-09 03:30  osborn
+
+	* lib/invert_cg_blas_p.c: workaround underscores in blas
+
+2008-04-09 02:00  osborn
+
+	* examples/asqtad_invert_bench.c, examples/asqtad_test.c,
+	  lib/asqtad_invert.c, lib/asqtad_invert_p.c,
+	  lib/invert_cg_blas_p.c: Now initializes asqtad inverter when
+	  options are set.
+
+2008-04-08 18:32  osborn
+
+	* lib/: Makefile.am, invert_cg_V_d.c, invert_cg_blas_p.c: added V_d
+	  version of blas CG
+
+2008-04-08 18:19  osborn
+
+	* lib/: Makefile.am, invert_cg_blas_p.c: added missing file
+
+2008-04-08 18:16  osborn
+
+	* NEWS, configure, configure.ac, include/generic_V.h,
+	  lib/invert_cg_V_f.c: Initial version of blas based CG.
+
+2008-04-07 14:30  tag qopqdp0-11-0
+
+2008-04-07 14:30  osborn
+
+	* NEWS, configure, configure.ac, examples/dw_invert_bench.c,
+	  include/qop_internal.h, include/qop_qdp.h, lib/invert_eigcg_p.c,
+	  lib/wilson_dslash_p.c: Udated to work with QDP 1.8.0.  Requires
+	  QDP version >= 1.8.0.
+
+2008-01-15 18:26  osborn
+
+	* lib/invert_eigcg_p.c: updates to eigcg
+
+2007-12-17 16:33  osborn
+
+	* examples/asqtad_invert_bench.c, include/generic_V.h,
+	  include/qop_internal.h, include/qop_internal_p.h,
+	  lib/invert_eigcg_V_d.c, lib/invert_eigcg_V_f.c, lib/linalg.h:
+	  added eigcg to asqtad
+
+2007-12-17 16:24  osborn
+
+	* lib/: Makefile.am, asqtad_dslash_p.c, asqtad_invert.c,
+	  asqtad_invert_p.c, invert_eigcg_p.c: improvements to eigcg
+
+2007-12-07 00:49  osborn
+
+	* NEWS, examples/asqtad_invert_bench.c, examples/dw_invert_bench.c,
+	  examples/test_common.c, examples/test_common.h,
+	  examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/qop_internal_p.h, lib/Makefile.am,
+	  lib/invert_eigcg_D_d.c, lib/invert_eigcg_D_f.c,
+	  lib/invert_eigcg_p.c, lib/wilson_dslash_p.c, lib/wilson_invert.c,
+	  lib/wilson_invert_p.c: Added eigCG routine.
+
+2007-11-17 20:05  tag qopqdp0-10-1
+
+2007-11-17 20:05  osborn
+
+	* INSTALL, NEWS, configure, configure.ac, config/compile,
+	  config/depcomp, config/install-sh, config/missing,
+	  examples/asqtad_invert_bench.c, lib/asqtad_invert_p.c: Bug fixes
+	  for asqtad inverter.
+
+2007-10-30 22:51  tag qopqdp0-10-0
+
+2007-10-30 22:51  osborn
+
+	* examples/asqtad_invert_bench.c, examples/test_common.c,
+	  lib/asqtad_invert_p.c, lib/invert_cg_p.c: fixed asqtad inverter
+
+2007-10-30 22:23  osborn
+
+	* NEWS, README, aclocal.m4, configure, configure.ac,
+	  examples/test_common.c, include/qop.h, include/qop_config.h.in,
+	  include/qop_internal.h, lib/asqtad_invert_p.c, lib/invert_cg_p.c,
+	  lib/wilson_invert_p.c: Fixed asqtad multimass inverter to use
+	  updated conventions.	Added final_restart value to resid_arg_t
+	  struct.  Made returned residual be divided by the norm of the
+	  input vector.  Added named verbosity levels.	Added some inverter
+	  output when verbosity is set.  Fixed some alignment problems in
+	  test programs.
+
+2007-09-19 22:29  tag qopqdp0-9-0
+
+2007-09-19 22:29  osborn
+
+	* NEWS, README, configure, configure.ac: prepare for version 0.9.0.
+	  *** NOTE: the convention for the Asqtad inverter has changed and
+	  is not  compatible with previous versions.  See README for
+	  details. ***
+
+2007-08-15 18:17  osborn
+
+	* NEWS, examples/test_common.c: Some alignment fixes in
+	  test_common.c
+
+2007-07-16 15:58  tag qopqdp0-9-alpha0
+
+2007-07-16 15:58  osborn
+
+	* NEWS, README, configure, configure.ac, include/qop.h,
+	  include/qop_internal.h, include/qop_internal_p.h,
+	  include/qop_qdp.h, lib/Makefile.am, lib/asqtad_dslash_d.c,
+	  lib/asqtad_dslash_f.c, lib/asqtad_dslash_p.c,
+	  lib/asqtad_invert.c, lib/asqtad_invert_p.c,
+	  lib/wilson_dslash_p.c: Exposed asqtad Dslash and changed
+	  convensions for asqtad inverter.
+
+2007-05-24 19:43  tag qopqdp0-8-1
+
+2007-05-24 19:43  osborn
+
+	* NEWS, configure, configure.ac: prepare for QOPQDP 0.8.1
+
+2007-05-24 19:42  osborn
+
+	* lib/: asqtad_force_fnmat_p.c, asqtad_force_p.c,
+	  invert_bicgstab_p.c: Fixed bicgstab to update nrestarts.  Avoid
+	  int overflow in asqtad_force_fnmat flop calculation.	Made all
+	  non-external functions in asqtad_force_p.c static.
+
+2007-04-06 16:07  tag qopqdp0-8-0
+
+2007-04-06 16:07  osborn
+
+	* lib/: wilson_dslash_p.c, wilson_invert_p.c: small performance
+	  fixes to Wilson inverter
+
+2007-04-05 11:19  osborn
+
+	* lib/: wilson_dslash_d.c, wilson_dslash_f.c, wilson_dslash_p.c:
+	  added missing files
+
+2007-04-05 11:18  osborn
+
+	* NEWS, configure, configure.ac, examples/wilson_invert_bench.c,
+	  include/qop.h, include/qop_internal.h, include/qop_internal_p.h,
+	  include/qop_qdp.h, lib/Makefile.am, lib/wilson_invert.c,
+	  lib/wilson_invert_p.c: Added Wilson dslash routines.
+
+2007-02-03 23:10  tag qopqdp0-7-8
+
+2007-02-03 23:10  osborn
+
+	* lib/: invert_bicgstab_D_d.c, invert_bicgstab_D_f.c,
+	  invert_bicgstab_p.c: Added bicgstab code.
+
+2007-02-03 23:08  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_invert_bench.c,
+	  examples/dw_invert_bench.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, include/generic_D.h, include/qop.h,
+	  include/qop_internal_p.h, include/qop_qdp.h, lib/Makefile.am,
+	  lib/asqtad_invert_p.c, lib/dw_invert_p.c, lib/invert_cg_p.c,
+	  lib/wilson_invert.c, lib/wilson_invert_p.c: Added max_restarts
+	  field to QOP_invert_arg_t struct and updated comments to reflect
+	  true meaning.  Fixed asqtad 2 src inverter.
+
+2006-12-15 17:00  tag qopqdp0-7-7
+
+2006-12-15 17:00  osborn
+
+	* lib/Makefile.am: Remove asqtad_action.h from lib/Makefile.am.
+
+2006-12-15 16:59  osborn
+
+	* aclocal.m4, configure, include/Makefile.am: Added asqtad_action.h
+	  to Makefile.am.
+
+2006-12-15 16:55  osborn
+
+	* AUTHORS, NEWS, examples/asqtad_force_bench.c, lib/asqtad_force.c,
+	  lib/asqtad_force_p.c, lib/dw_invert_p.c,
+	  lib/symanzik_1loop_gauge_force_p.c: Cleanup and fixes for next
+	  release.
+
+2006-12-15 15:52  detar
+
+	* configure, include/asqtad_action.h, include/qop_internal.h,
+	  lib/asqtad_force.c, lib/asqtad_force_fnmat_p.c,
+	  lib/asqtad_force_p.c: Change option setting to use threshold for
+	  changeover from ASVEC to FNMAT Add block vector length for ASVEC
+
+2006-12-15 15:51  detar
+
+	* lib/symanzik_1loop_gauge_force_p.c: Add Ludmila's improvements.
+
+2006-12-15 11:44  detar
+
+	* lib/asqtad_force.c: Set default to FNMAT style.
+
+2006-12-15 11:37  detar
+
+	* aclocal.m4: Reautomake
+
+2006-12-15 11:37  detar
+
+	* include/asqtad_action.h: Move asqtad_action.h from lib
+
+2006-12-15 11:36  detar
+
+	* lib/asqtad_action.h: Move to "include"
+
+2006-12-15 11:10  detar
+
+	* lib/: asqtad_action.h, asqtad_force_fnmat_d.c,
+	  asqtad_force_fnmat_f.c, asqtad_force_fnmat_p.c, asqtad_force.c:
+	  Add Ludmila's port of Doug's FNMAT algorithm to the Asqtad force
+
+2006-12-14 22:45  detar
+
+	* configure.ac, include/qop_internal.h, lib/Makefile.am,
+	  lib/asqtad_force_p.c, lib/dw_invert_p.c: Add FNMAT algorithm for
+	  asqtad_force with option selection
+
+2006-12-14 16:01  osborn
+
+	* NEWS, examples/dw_invert_bench.c, lib/dw_invert_p.c: Fixed
+	  restarting shifts in dw inverter.
+
+2006-12-14 00:45  tag qopqdp0-7-6
+
+2006-12-14 00:45  osborn
+
+	* NEWS, configure, configure.ac, examples/dw_invert_bench.c,
+	  lib/asqtad_invert_p.c, lib/dw_invert_p.c: Changed stopping
+	  condition in asqtad 2 source to agree with MILC.  Added
+	  preconditioner to DW inverter.
+
+2006-11-21 19:53  osborn
+
+	* lib/asqtad_invert_p.c: Workaround for XLC bug in multimass
+	  inverter.
+
+2006-11-21 18:54  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_invert_bench.c,
+	  include/generic_D.h, include/generic_V.h, include/generic_vD.h,
+	  lib/asqtad_invert_p.c, lib/invert_cg_p.c: Fixed multimass
+	  inverter.  Improved asqtad link loading.
+
+2006-11-17 16:32  tag qopqdp0-7-4
+
+2006-11-17 16:32  osborn
+
+	* include/Makefile.am: Added generic_vD.h to Makefile.am.
+
+2006-11-17 16:26  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_test.c,
+	  include/generic_D.h, include/generic_V.h, include/generic_vD.h,
+	  include/qop_internal_p.h, lib/Makefile.am, lib/asqtad_invert_p.c,
+	  lib/dw_invert_p.c, lib/invert_cg_p.c, lib/invert_cg_vD_d.c,
+	  lib/invert_cg_vD_f.c: Added true multimass and 2 source inverter
+	  for asqtad.
+
+2006-11-15 12:52  osborn
+
+	* NEWS, configure, configure.ac, examples/asqtad_test.c,
+	  examples/test_common.c, examples/wilson_invert_bench.c,
+	  examples/wilson_test.c, lib/asqtad_invert_p.c,
+	  lib/wilson_invert_p.c: Fixed memory leak in asqtad inverter.
+
+2006-10-30 18:02  tag qopqdp0-7-2
+
+2006-10-30 18:02  osborn
+
+	* NEWS, configure, configure.ac, include/qop.h, include/qop_qdp.h,
+	  lib/asqtad_invert_p.c, lib/symanzik_1loop_gauge_force_p.c:
+	  Changed meaning of eps parameter to gauge force.  Added gauge
+	  loading functions.
+
+2006-09-26 19:23  tag qopqdp0-7-1
+
+2006-09-26 19:23  osborn
+
+	* lib/Makefile.am: Fix Makefile.am.
+
+2006-09-26 19:16  osborn
+
+	* examples/imp_gauge_force_bench.c: Changed FF to GF in output.
+
+2006-09-26 19:12  osborn
+
+	* examples/imp_gauge_force_bench.c,
+	  lib/symanzik_1loop_gauge_force_d.c,
+	  lib/symanzik_1loop_gauge_force_f.c,
+	  lib/symanzik_1loop_gauge_force_p.c: Really add files.
+
+2006-09-26 19:09  osborn
+
+	* AUTHORS, NEWS, configure, configure.ac, examples/Makefile.am,
+	  include/qop.h, lib/Makefile.am, lib/asqtad_force_p.c: Fixed int
+	  overflow in asqtad force flops calculation.  Added gauge force
+	  code.
+
+2006-06-25 09:32  tag qopqdp0-7-0
+
+2006-06-25 09:32  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac,
+	  examples/asqtad_force_bench.c, examples/asqtad_invert_bench.c,
+	  examples/asqtad_test.c, examples/dw_invert_bench.c,
+	  examples/wilson_invert_bench.c, examples/wilson_test.c,
+	  include/qop.h, include/qop_internal.h, include/qop_qdp.h,
+	  lib/asqtad_force_p.c, lib/asqtad_invert_p.c, lib/common.c,
+	  lib/dw_invert_p.c, lib/wilson_invert_p.c: Updated API to new
+	  standard.  Changed gamma sign conventions to work with QLA-1.6.0.
+	  Must use QLA >= 1.6.0 now in order to agree with Chroma.
+
+2006-05-04 16:12  tag qopqdp0-6-5
+
+2006-05-04 16:12  osborn
+
+	* examples/test_common.h: Include qmp.h in examples.
+
+2006-05-04 16:09  osborn
+
+	* configure, configure.ac, examples/asqtad_invert_bench.c,
+	  examples/dw_invert_bench.c, examples/wilson_invert_bench.c,
+	  lib/wilson_invert_p.c: Fixed wrong result in Wilson inverter.
+
+2006-04-15 23:01  osborn
+
+	* configure, configure.ac, include/qop_internal_p.h,
+	  lib/asqtad_invert_p.c, lib/invert_cg_p.c, lib/wilson_invert_p.c:
+	  Made asqtad and wilson inverters reuse shifts better.
+
+2006-04-14 16:21  osborn
+
+	* configure, configure.ac, lib/dw_invert_p.c,
+	  lib/wilson_invert_p.c: Fixed memory leak in Wilson inverter.
+
+2006-04-04 01:44  osborn
+
+	* examples/asqtad_invert_bench.c, lib/wilson_invert_p.c: Minor
+	  fixes.
+
+2006-03-14 14:32  osborn
+
+	* configure, configure.ac: Added CC, ect. to
+	  DISTCHECK_CONFIGURE_FLAGS.
+
+2006-03-14 13:51  osborn
+
+	* include/Makefile.am: Added generic headers to Makefile.am.
+
+2006-03-14 13:48  osborn
+
+	* configure, configure.ac, examples/asqtad_invert_bench.c,
+	  examples/dw_invert_bench.c, examples/wilson_invert_bench.c: Allow
+	  selection of style in benchmarks.  Update version.
+
+2006-03-13 19:54  osborn
+
+	* AUTHORS, configure, configure.ac, examples/Makefile.am,
+	  examples/asqtad_invert_bench.c, examples/dw_invert_bench.c,
+	  examples/wilson_invert_bench.c, include/generic_D.h,
+	  include/generic_V.h, include/qop.h, include/qop_internal_p.h,
+	  include/qop_qdp.h, lib/Makefile.am, lib/asqtad_invert.c,
+	  lib/asqtad_invert_p.c, lib/common.c, lib/common_p.c,
+	  lib/dw_invert.c, lib/dw_invert_d.c, lib/dw_invert_f.c,
+	  lib/dw_invert_p.c, lib/invert_cg_D_d.c, lib/invert_cg_D_f.c,
+	  lib/invert_cg_V_d.c, lib/invert_cg_V_f.c, lib/invert_cg_p.c,
+	  lib/wilson_invert.c, lib/wilson_invert_p.c: Added domain wall
+	  inverter.
+
+2006-02-09 16:05  osborn
+
+	* lib/: common_p.c, wilson_invert_p.c: Fixed wilson inverter.
+
+2006-02-03 13:23  osborn
+
+	* lib/: wilson_invert_d.c, wilson_invert_f.c: Added missing files.
+
+2006-02-03 13:21  osborn
+
+	* configure, configure.ac, examples/Makefile.am,
+	  examples/asqtad_invert_bench.c, examples/asqtad_test.c,
+	  examples/wilson_invert_bench.c, examples/wilson_test.c,
+	  include/qop.h, include/qop_internal_p.h, lib/Makefile.am,
+	  lib/asqtad_invert_p.c, lib/wilson_invert.c,
+	  lib/wilson_invert_p.c: Updated Wilson code.
+
+2006-01-13 17:12  tag qopqdp0-5-0
+
+2006-01-13 17:12  osborn
+
+	* lib/Makefile.am: Fixed lib Makefile.am.
+
+2006-01-13 16:55  osborn
+
+	* examples/asqtad_force_bench.c, examples/asqtad_invert_bench.c,
+	  include/qop_internal_p.h, lib/asqtad.c, lib/asqtad_force_d.c,
+	  lib/asqtad_force_f.c, lib/asqtad_force_p.c, lib/asqtad_invert.c,
+	  lib/asqtad_invert_d.c, lib/asqtad_invert_f.c,
+	  lib/asqtad_invert_p.c, lib/asqtadp.c, lib/common_d.c,
+	  lib/common_f.c, lib/common_p.c, lib/wilson.c,
+	  lib/wilson_invert.c, lib/wilson_invert_p.c, lib/wilsonp.c: Moved
+	  many files around.
+
+2006-01-13 16:50  osborn
+
+	* configure, configure.ac, examples/Makefile.am,
+	  examples/asqtad_test.c, examples/wilson_test.c,
+	  include/Makefile.am, include/qop.h, include/qop_internal.h,
+	  include/qop_qdp.h, lib/Makefile.am, lib/common.c: Fixed asqtad
+	  API and force and added link generation.
+
+2005-09-29 19:17  osborn
+
+	* configure, configure.ac, examples/asqtad_test.c,
+	  examples/test_common.h, examples/wilson_test.c,
+	  include/Makefile.am, include/qop.h, include/qop_internal.h,
+	  include/qop_qdp.h, lib/Makefile.am, lib/asqtad.c, lib/asqtadp.c,
+	  lib/common.c, lib/wilson.c, lib/wilsonp.c: Changed headers for
+	  new SciDAC standard.
+
+2005-09-16 01:47  osborn
+
+	* lib/wilsonp.c: Return correct time even if wilson inverter fails
+	  to converge.
+
+2005-09-15 15:23  osborn
+
+	* configure.ac, examples/wilson_test.c, include/qop_internal.h,
+	  lib/asqtad.c, lib/wilson.c, lib/wilsonp.c: Implemented Wilson
+	  dslash optimized variants.
+
+2005-09-12 02:16  osborn
+
+	* examples/wilson_test.c, lib/wilsonp.c: Changed Wilson inverter
+	  code.
+
+2005-09-12 01:41  osborn
+
+	* examples/Makefile.am, examples/asqtad_test.c,
+	  examples/test_common.c, examples/test_common.h,
+	  examples/wilson_test.c, include/Makefile.am, include/qop.h,
+	  include/qop_internal.h, lib/Makefile.am, lib/asqtad.c,
+	  lib/asqtadp.c, lib/common.c, lib/wilson.c, lib/wilsonp.c: Split
+	  out common parts into separate files.
+
+2005-09-07 21:03  osborn
+
+	* examples/Makefile.am, examples/asqtad_test.c,
+	  examples/wilson_test.c, include/qop.h, lib/Makefile.am,
+	  lib/asqtadp.c, lib/wilsonp.c: Added preliminary Wilson fermion
+	  inverter.
+
+2005-08-31 22:02  osborn
+
+	* configure, examples/asqtad_test.c: Small change in test, reran
+	  aotoreconf.
+
+2005-08-31 21:51  osborn
+
+	* configure.ac, examples/asqtad_test.c, lib/asqtad.c,
+	  lib/asqtadp.c: Now resets temp fields if parameters have changed.
+
+2005-08-29 19:26  osborn
+
+	* examples/asqtad_test.c, include/qop.h: Fixed flop bug.
+
+2005-08-29 18:58  osborn
+
+	* examples/asqtad_test.c: Small change to test program output.
+
+2005-08-29 18:52  osborn
+
+	* examples/asqtad_test.c, include/qop.h, lib/asqtad.c,
+	  lib/asqtadp.c: Added new style of dslash and optimization
+	  options.
+
+2005-08-29 15:24  osborn
+
+	* examples/asqtad_test.c, lib/asqtadp.c: More changes to test
+	  program.
+
+2005-08-29 14:34  osborn
+
+	* examples/asqtad_test.c: Changes in test program.
+
+2005-08-29 13:36  osborn
+
+	* AUTHORS, examples/Makefile.am, examples/asqtad_test.c: Fixed
+	  example and chenged name to asqtad_test.
+
+2005-08-26 23:26  osborn
+
+	* AUTHORS, COPYING, INSTALL, Makefile.am, NEWS, README, aclocal.m4,
+	  configure, configure.ac, config/compile, config/config.guess,
+	  config/config.sub, config/depcomp, config/install-sh,
+	  config/ltmain.sh, config/missing, examples/Makefile.am,
+	  examples/asqtad_test.c, include/Makefile.am, include/qop.h,
+	  include/qop_config.h.in, lib/Makefile.am, lib/asqtad.c,
+	  lib/asqtadp.c: Initial checkin.
+
