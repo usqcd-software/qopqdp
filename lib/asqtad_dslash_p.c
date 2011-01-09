@@ -156,6 +156,7 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
   QOP_malloc(fla, QOPPC(FermionLinksAsqtad), 1);
   QOP_malloc(fla->fatlinks, QDPPC(ColorMatrix) *, 4);
   if(longlinks) { QOP_malloc(fla->longlinks, QDPPC(ColorMatrix) *, 4); }
+  else fla->longlinks = NULL;
   QOP_malloc(fla->fwdlinks, QDPPC(ColorMatrix) *, nl2);
   QOP_malloc(fla->bcklinks, QDPPC(ColorMatrix) *, nl2);
   QOP_malloc(fla->dbllinks, QDPPC(ColorMatrix) *, nl);

@@ -162,6 +162,18 @@ QOP_wilson_invert(QOP_info_t *info,
 		  QOP_DiracFermion *out,
 		  QOP_DiracFermion *in)
 {
+  QOP_wilson_invert_qdp(info, flw, inv_arg, res_arg, kappa, out->df, in->df);
+}
+
+void
+QOP_wilson_invert_qdp(QOP_info_t *info,
+		      QOP_FermionLinksWilson *flw,
+		      QOP_invert_arg_t *inv_arg,
+		      QOP_resid_arg_t *res_arg,
+		      REAL kappa,
+		      QDP_DiracFermion *out,
+		      QDP_DiracFermion *in)
+{
   double dtime=0;
   double nflop;
   double rsqminold;
@@ -233,13 +245,13 @@ QOP_wilson_invert(QOP_info_t *info,
 #ifdef LU
   gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
   if(ineo==cgeo) {
-    QDP_D_eq_D(qdpin, in->df, insub);
+    QDP_D_eq_D(qdpin, in, insub);
   } else {
     QDP_D_eq_zero(cgp, QDP_all);
-    QDP_D_eq_D(cgp, in->df, insub);
+    QDP_D_eq_D(cgp, in, insub);
     project(flw, kappa, 1, qdpin, cgp, cgeo);
   }
-  if(QOP_wilson_cgtype==1) {
+  if(QOP_wilson_cgtype==1 || QOP_wilson_cgtype==3) {
     QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
     QDP_D_eq_D(qdpin, cgp, cgsub);
   } else {
@@ -249,16 +261,16 @@ QOP_wilson_invert(QOP_info_t *info,
 #else
   gl_tmp2 = cgr;
   if(QOP_wilson_cgtype==1) {
-    QDP_D_eq_D(qdpin, in->df, insub);
+    QDP_D_eq_D(qdpin, in, insub);
   } else {
-    QOP_wilson_dslash_qdp(NULL, flw, kappa, -1, qdpin, in->df, cgeo, ineo);
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, -1, qdpin, in, cgeo, ineo);
   }
 #endif
   if(ineo!=QOP_EVENODD && ineo!=cgeo) {
     QDP_D_eq_zero(qdpout, cgsub);
-    reconstruct(flw, kappa, qdpout, out->df, qdpout, oppsub(ineo));
+    reconstruct(flw, kappa, qdpout, out, qdpout, oppsub(ineo));
   }
-  QDP_D_eq_D(qdpout, out->df, insub);
+  QDP_D_eq_D(qdpout, out, insub);
 
 #if 0
   {
@@ -273,7 +285,7 @@ QOP_wilson_invert(QOP_info_t *info,
   }
 #endif
 
-  QDP_r_eq_norm2_D(&insq, in->df, insub);
+  QDP_r_eq_norm2_D(&insq, in, insub);
   rsqstop = insq * res_arg->rsqmin;
   VERB(LOW, "WILSON_INVERT: rsqstop = %g\n", rsqstop);
   rsq = 0;
@@ -287,7 +299,10 @@ QOP_wilson_invert(QOP_info_t *info,
     dtime -= QOP_time();
 
 #ifdef LU
-    if(QOP_wilson_cgtype==2) {
+    if(QOP_wilson_cgtype==3) {
+      QOPPC(invert_gmres2_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
+			     qdpout, qdpin, cgp, cgsub);
+    } else if(QOP_wilson_cgtype==2) {
       QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
 			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
     } else if(QOP_wilson_cgtype==1) {
@@ -317,7 +332,7 @@ QOP_wilson_invert(QOP_info_t *info,
     //printf("nrm = %g\n", rsq);
 #ifdef LU
     if(ineo==QOP_EVENODD) {
-      reconstruct(flw, kappa, qdpout, qdpout, in->df, oppsub(cgeo));
+      reconstruct(flw, kappa, qdpout, qdpout, in, oppsub(cgeo));
       //reconstruct(flw, kappa, qdpout, qdpout, qdpin, oppsub(cgeo));
     } else {
       reconstruct(flw, kappa, qdpout, qdpout, qdpin, oppsub(cgeo));
@@ -327,7 +342,7 @@ QOP_wilson_invert(QOP_info_t *info,
     //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
     //printf("nrm = %g\n", rsq);
     QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, cgr, qdpout, ineo, QOP_EVENODD);
-    QDP_D_meq_D(cgr, in->df, insub);
+    QDP_D_meq_D(cgr, in, insub);
     QDP_r_eq_norm2_D(&rsq, cgr, insub);
     if(res_arg->relmin > 0)
       relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
@@ -341,7 +356,7 @@ QOP_wilson_invert(QOP_info_t *info,
 	  (res_arg->relmin > 0 && relnorm2 > res_arg->relmin) &&
 	  (nrestart++ < max_restarts));
   
-  QDP_D_eq_D(out->df, qdpout, insub);
+  QDP_D_eq_D(out, qdpout, insub);
 
   QDP_destroy_D(qdpin);
   QDP_destroy_D(qdpout);
@@ -373,6 +388,32 @@ QOP_wilson_invert_multi(QOP_info_t *info,
 			QOP_DiracFermion **out_pt[],
 			QOP_DiracFermion *in_pt[],
 			int nsrc)
+{
+  QDP_DiracFermion *in[nsrc], **out[nsrc];
+  for(int i=0; i<nsrc; i++) {
+    in[i] = in_pt[i]->df;
+    out[i] = (QDP_DiracFermion **)malloc(nkappa[i]*sizeof(QDP_DiracFermion *));
+    for(int j=0; j<nkappa[i]; j++) {
+      out[i][j] = out_pt[i][j]->df;
+    }
+  }
+  QOP_wilson_invert_multi_qdp(info, links, inv_arg, res_arg, kappas, nkappa,
+			      out, in, nsrc);
+  for(int i=0; i<nsrc; i++) {
+    free(out[i]);
+  }
+}
+
+void
+QOP_wilson_invert_multi_qdp(QOP_info_t *info,
+			    QOP_FermionLinksWilson *links,
+			    QOP_invert_arg_t *inv_arg,
+			    QOP_resid_arg_t **res_arg[],
+			    REAL *kappas[],
+			    int nkappa[],
+			    QDP_DiracFermion **out_pt[],
+			    QDP_DiracFermion *in_pt[],
+			    int nsrc)
 {
   WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_invert_multi unimplemented");

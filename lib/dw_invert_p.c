@@ -65,19 +65,38 @@ QOPPC(dw_schur2_wrap)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 
 
 void
-QOPPC(dw_invert)( QOP_info_t *info,
-          QOP_FermionLinksDW *fldw,
-            QOP_invert_arg_t *inv_arg,
-             QOP_resid_arg_t *res_arg,
-                        REAL M5,
-                        REAL mq,
-            QOP_DiracFermion *out[],
-            QOP_DiracFermion *in[],
-                         int ls)
+QOPPC(dw_invert)(QOP_info_t *info,
+		 QOP_FermionLinksDW *fldw,
+		 QOP_invert_arg_t *inv_arg,
+		 QOP_resid_arg_t *res_arg,
+		 REAL M5,
+		 REAL mq,
+		 QOP_DiracFermion *out_pt[],
+		 QOP_DiracFermion *in_pt[],
+		 int ls)
+{
+  QDP_DiracFermion *out[ls], *in[ls];
+  for(int i=0; i<ls; i++) {
+    out[i] = out_pt[i]->df;
+    in[i] = in_pt[i]->df;
+  }
+  QOPPC(dw_invert_qdp)(info, fldw, inv_arg, res_arg, M5, mq, out, in, ls);
+}
+
+void
+QOPPC(dw_invert_qdp)(QOP_info_t *info,
+		     QOP_FermionLinksDW *fldw,
+		     QOP_invert_arg_t *inv_arg,
+		     QOP_resid_arg_t *res_arg,
+		     REAL M5,
+		     REAL mq,
+		     QDP_DiracFermion *out[],
+		     QDP_DiracFermion *in[],
+		     int ls)
 {
   double dtime;
   double nflop;
-  QDP_DiracFermion *qdptmp[ls], *qdpin[ls], *qdpout[ls], *tin[ls], *tcg[ls];
+  QDP_DiracFermion *qdpin[ls], *tin[ls], *tcg[ls];
   QDP_Subset subset, osubset;
   int s;
 
@@ -109,13 +128,11 @@ QOPPC(dw_invert)( QOP_info_t *info,
     tin[s]  = QDP_create_D();
     tcg[s]  = QDP_create_D();
     qdpin[s] = QDP_create_D();
-    qdptmp[s] = in[s]->df;
-    qdpout[s] = out[s]->df;
   }
 
 // Even-odd precondition the input
 #ifdef LU
-  QOPPC(dw_EO_project)(fldw, tin, qdptmp, M5, mq, ls, QDP_to_QOP(subset));
+  QOPPC(dw_EO_project)(fldw, tin, in, M5, mq, ls, QDP_to_QOP(subset));
 #endif
 
 // Prepare the source for inversion using the normal equations
@@ -124,9 +141,9 @@ QOPPC(dw_invert)( QOP_info_t *info,
   QOPPC(dw_schur_qdp)(info, fldw, M5, mq, -1, qdpin, tin, ls,
                       QDP_to_QOP(subset));
   // The opposite subset goes through trivially; we'll set it now
-  //for (s=0; s<ls; s++) QDP_D_eq_D(qdpout[s], tin[s], osubset);
+  //for (s=0; s<ls; s++) QDP_D_eq_D(out[s], tin[s], osubset);
 #else
-  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, qdpin, qdptmp, ls,
+  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, qdpin, in, ls,
                        QDP_to_QOP(osubset), QDP_to_QOP(subset));
 #endif
 
@@ -140,12 +157,12 @@ QOPPC(dw_invert)( QOP_info_t *info,
 #endif
   //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOPPC(invert_cg_vD)(QOPPC(dw_schur2_wrap), inv_arg, res_arg,
-                      qdpout, qdpin, tcg, subset, ls);
+                      out, qdpin, tcg, subset, ls);
 #else
   //res_arg->rsqmin /= (5-M5)*(5-M5)*(5-M5)*(5-M5);
   //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOPPC(invert_cg_vD)(QOPPC(dw_dslash2_wrap), inv_arg, res_arg,
-                      qdpout, qdpin, tcg, subset, ls);
+                      out, qdpin, tcg, subset, ls);
   //res_arg->rsqmin *= (5-M5)*(5-M5)*(5-M5)*(5-M5);
 #endif
   dtime += QOP_time();
@@ -153,26 +170,26 @@ QOPPC(dw_invert)( QOP_info_t *info,
 
 // Reconstruct the EO solution
 #ifdef LU
-  QOPPC(dw_EO_reconstruct)(fldw, qdpout, qdptmp, M5, mq, ls,
+  QOPPC(dw_EO_reconstruct)(fldw, out, in, M5, mq, ls,
                            QDP_to_QOP(subset));
 #endif
 
 #if 0
   // calculate final residual
-  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, 1, tcg, qdpout, ls,
+  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, 1, tcg, out, ls,
 		       QOP_EVENODD, QOP_EVENODD);
   //#ifdef LU
   //#else
-  //QOPPC(dw_dslash2_qdp)(info, fldw, M5, mq, tcg, qdpout, ls,
+  //QOPPC(dw_dslash2_qdp)(info, fldw, M5, mq, tcg, out, ls,
   //		QOP_EVENODD, QOP_EVENODD);
   //#endif
   QLA_Real rsq=0, rsqin=0;
   for (s=0; s<ls; s++) {
     QLA_Real t;
-    QDP_D_eq_D_minus_D(tcg[s], qdptmp[s], tcg[s], QDP_all);
+    QDP_D_eq_D_minus_D(tcg[s], in[s], tcg[s], QDP_all);
     QDP_r_eq_norm2_D(&t, tcg[s], QDP_all);
     rsq += t;
-    QDP_r_eq_norm2_D(&t, qdptmp[s], QDP_all);
+    QDP_r_eq_norm2_D(&t, in[s], QDP_all);
     rsqin += t;
   }
   res_arg->final_rsq = rsq/rsqin;
@@ -194,18 +211,36 @@ QOPPC(dw_invert)( QOP_info_t *info,
 
 void
 QOP_dw_invert_multi(QOP_info_t *info,
-            QOP_FermionLinksDW *links,
-              QOP_invert_arg_t *inv_arg,
-               QOP_resid_arg_t **res_arg[],
-                          REAL *m0[],
-                          REAL *M[],
-                           int nmass[],
-              QOP_DiracFermion ***out_pt[],
-              QOP_DiracFermion **in_pt[],
-                           int ls,
-                           int nsrc)
+		    QOP_FermionLinksDW *links,
+		    QOP_invert_arg_t *inv_arg,
+		    QOP_resid_arg_t **res_arg[],
+		    REAL *m0[],
+		    REAL *M[],
+		    int nmass[],
+		    QOP_DiracFermion ***out_pt[],
+		    QOP_DiracFermion **in_pt[],
+		    int nsrc,
+		    int ls)
 {
   DW_INVERT_BEGIN;
   QOP_error("QOP_dw_invert_multi unimplemented");
+  DW_INVERT_END;
+}
+
+void
+QOP_dw_invert_multi_qdp(QOP_info_t *info,
+			QOP_FermionLinksDW *links,
+			QOP_invert_arg_t *inv_arg,
+			QOP_resid_arg_t **res_arg[],
+			REAL *m0[],
+			REAL *M[],
+			int nmass[],
+			QDP_DiracFermion ***out_pt[],
+			QDP_DiracFermion **in_pt[],
+			int nsrc,
+			int ls)
+{
+  DW_INVERT_BEGIN;
+  QOP_error("QOP_dw_invert_multi_qdp unimplemented");
   DW_INVERT_END;
 }

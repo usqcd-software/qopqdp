@@ -38,6 +38,7 @@
 #define c_eq_V_dot_V(r,a,b,s)  { QLA_Complex _r; QDP_c_eq_D_dot_D(&_r,a,b,s); QLA_c_eq_c(*(r),_r); }
 
 #define V_eq_r_times_V(r,a,b,s)	  { QLA_Real _a = *(a); QDP_D_eq_r_times_D(r,&_a,b,s); }
+#define V_eq_c_times_V(r,a,b,s)   { QLA_Complex _a; QLA_c_eq_c(_a,*(a)); QDP_D_eq_c_times_D(r,&_a,b,s); }
 #define V_peq_r_times_V(r,a,b,s)  { QLA_Real _a = *(a); QDP_D_peq_r_times_D(r,&_a,b,s); }
 #define V_meq_r_times_V(r,a,b,s)  { QLA_Real _a = *(a); QDP_D_meq_r_times_D(r,&_a,b,s); }
 #define V_peq_c_times_V(r,a,b,s)  { QLA_Complex _a; QLA_c_eq_c(_a,*(a)); QDP_D_peq_c_times_D(r,&_a,b,s); }
@@ -48,6 +49,7 @@
 
 #define r_veq_norm2_V     QDP_r_veq_norm2_D
 #define r_veq_re_V_dot_V  QDP_r_veq_re_D_dot_D
+#define c_veq_V_dot_V     QDP_c_veq_D_dot_D
 
 #define V_vpeq_r_times_V  QDP_D_vpeq_r_times_D
 #define V_vmeq_r_times_V  QDP_D_vmeq_r_times_D

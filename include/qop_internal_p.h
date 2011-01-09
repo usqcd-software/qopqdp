@@ -213,6 +213,24 @@ QOPPC(invert_eigcg_D)(QOPPC(linop_t_D) *linop,
 		      QDP_Subset subset,
 		      QOPPC(eigcg_t_D) *eigcg);
 
+QOP_status_t
+QOPPC(invert_gcr2_D)(QOPPC(linop_t_D) *linop,
+		     QOP_invert_arg_t *inv_arg,
+		     QOP_resid_arg_t *res_arg,
+		     QDP_DiracFermion *out,
+		     QDP_DiracFermion *in,
+		     QDP_DiracFermion *r,
+		     QDP_Subset subset);
+
+QOP_status_t
+QOPPC(invert_gmres2_D)(QOPPC(linop_t_D) *linop,
+		       QOP_invert_arg_t *inv_arg,
+		       QOP_resid_arg_t *res_arg,
+		       QDP_DiracFermion *out,
+		       QDP_DiracFermion *in,
+		       QDP_DiracFermion *r,
+		       QDP_Subset subset);
+
 QLA_Real
 QOPPC(relnorm2_V)(QDP_ColorVector **rsd, 
 		  QDP_ColorVector **out, 

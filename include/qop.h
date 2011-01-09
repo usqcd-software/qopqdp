@@ -558,6 +558,8 @@ QOP_D3_FermionLinksHisq *
 
   /* inverter routines */
 
+QOP_status_t QOP_hisq_invert_set_opts(QOP_opt_t opts[], int nopts);
+
 void QOP_F3_hisq_invert(QOP_info_t *info,
 			  QOP_F3_FermionLinksHisq *hisq,
 			  QOP_invert_arg_t *inv_arg,
@@ -597,6 +599,8 @@ void QOP_D3_hisq_invert_multi(QOP_info_t *info,
 
   /* fermion force routines */
 
+QOP_status_t QOP_hisq_force_set_opts(QOP_opt_t opts[], int nopts);
+
 void QOP_F3_hisq_force_multi(QOP_info_t *info,
 			     QOP_F3_GaugeField *Ugauge,
 			     QOP_F3_GaugeField *Vgauge,
@@ -625,6 +629,7 @@ void QOP_D3_hisq_force_multi(QOP_info_t *info,
 			     int n_order_naik_total,
 			     int *n_orders_naik,
 			     double *eps_naik);
+
 
   /*********************/
   /*  Wilson routines  */
@@ -947,8 +952,8 @@ void QOP_F3_dw_invert_multi(QOP_info_t *info,
 			    int nmass[],
 			    QOP_F3_DiracFermion ***out_pt[],
 			    QOP_F3_DiracFermion **in_pt[],
-			    int Ls,
-			    int nsrc);
+			    int nsrc,
+			    int Ls);
 
 void QOP_D3_dw_dslash(QOP_info_t *info,
 		      QOP_D3_FermionLinksDW *links,
@@ -980,8 +985,8 @@ void QOP_D3_dw_invert_multi(QOP_info_t *info,
 			    int nmass[],
 			    QOP_D3_DiracFermion ***out_pt[],
 			    QOP_D3_DiracFermion **in_pt[],
-			    int Ls,
-			    int nsrc);
+			    int nsrc,
+			    int Ls);
 
  /* fermion force routines */
 

@@ -48,7 +48,7 @@ QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
 	return QOP_FAIL;
       }
     } else if(!strcmp(tag,"cg")) {
-      if((value==0)||(value==1)||(value==2)) {
+      if((value==0)||(value==1)||(value==2)||(value==3)) {
 	QOP_wilson_cgtype = (int) value;
       } else {
 	return QOP_FAIL;
