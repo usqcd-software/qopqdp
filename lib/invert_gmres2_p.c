@@ -29,26 +29,32 @@ fini(void)
 }
 
 static void
+combine(int n, QDP_Subset subset)
+{
+  QLA_D_Complex c;
+  QLA_c_eq_c_div_c(c, alpha[n-1], alpha[n]);
+  V_peq_c_times_V(Avec[n], &c, Avec[n-1], subset);
+  { Vector *tv = Avec[n]; Avec[n] = Avec[n-1]; Avec[n-1] = tv; }
+  Avn[n-1] = Avn[n] + QLA_norm2_c(c) * Avn[n-1];
+  QLA_c_peq_c(c, beta[n][n-1]);
+  V_peq_c_times_V(vec[n], &c, vec[n-1], subset);
+  { Vector *tv = vec[n]; vec[n] = vec[n-1]; vec[n-1] = tv; }
+  QLA_c_eq_c(alpha[n-1], alpha[n]);
+  for(int i=0; i<n-1; i++) {
+    QLA_c_peq_c_times_c(beta[n][i], c, beta[n-1][i]);
+    QLA_c_eq_c(beta[n-1][i], beta[n][i]);
+  }
+}
+
+static void
 addvec(QDP_Subset subset)
 {
   if(nv>1) {
     int n = nv-1;
-    while(n>0 && level[n-1]==level[n]) {
-      QLA_D_Complex c;
-      QLA_c_eq_c_div_c(c, alpha[n-1], alpha[n]);
-      V_peq_c_times_V(Avec[n], &c, Avec[n-1], subset);
-      { Vector *tv = Avec[n]; Avec[n] = Avec[n-1]; Avec[n-1] = tv; }
-      Avn[n-1] = Avn[n] + QLA_norm2_c(c) * Avn[n-1];
-      QLA_c_peq_c(c, beta[n][n-1]);
-      V_peq_c_times_V(vec[n], &c, vec[n-1], subset);
-      { Vector *tv = vec[n]; vec[n] = vec[n-1]; vec[n-1] = tv; }
-      QLA_c_eq_c(alpha[n-1], alpha[n]);
-      for(int i=0; i<n-1; i++) {
-	QLA_c_peq_c_times_c(beta[n][i], c, beta[n-1][i]);
-	QLA_c_eq_c(beta[n-1][i], beta[n][i]);
-      }
-      level[n-1]++;
+    while(n>0 && level[n-1]<=level[n]+2) {
+      combine(n, subset);
       n--;
+      level[n]++;
     }
     nv = n + 1;
   }
@@ -115,8 +121,8 @@ QOPPCV(invert_gmres2)(QOPPCV(linop_t) *linop,
 		      vIndexDef)
 {
   QLA_D_Real rsq, insq, rsqstop, relnorm2=0;
-  int iteration=0, total_iterations=0, nrestart=-1;
-  int restart_iterations=inv_arg->restart;
+  int iteration=0, total_iterations=0;//, nrestart=-1;
+  //int restart_iterations=inv_arg->restart;
   int max_iterations=inv_arg->max_iter;
   int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
