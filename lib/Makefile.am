@@ -23,7 +23,6 @@ libqopqdp_a_SOURCES = \
   invert_bicgstab_D_f.c invert_bicgstab_D_d.c \
   invert_eigcg_V_f.c invert_eigcg_V_d.c \
   invert_eigcg_D_f.c invert_eigcg_D_d.c \
-  invert_gcr2_D_f.c invert_gcr2_D_d.c \
   invert_gmres2_D_f.c invert_gmres2_D_d.c \
   invert_utilities_V_d.c invert_utilities_V_f.c \
   invert_utilities_D_d.c invert_utilities_D_f.c \
@@ -69,8 +68,6 @@ invert_eigcg_V_f.o: invert_eigcg_p.c
 invert_eigcg_V_d.o: invert_eigcg_p.c
 invert_eigcg_D_f.o: invert_eigcg_p.c
 invert_eigcg_D_d.o: invert_eigcg_p.c
-invert_gcr2_D_f.o: invert_gcr2_p.c
-invert_gcr2_D_d.o: invert_gcr2_p.c
 invert_gmres2_D_f.o: invert_gmres2_p.c
 invert_gmres2_D_d.o: invert_gmres2_p.c
 invert_utilities_V_f.o: invert_utilities_p.c
@@ -99,5 +96,6 @@ EXTRA_DIST = \
   invert_cg_blas_p.c \
   invert_bicgstab_p.c \
   invert_eigcg_p.c \
+  invert_gmres2_p.c \
   invert_utilities_p.c \
   linalg.h
