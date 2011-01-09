@@ -1,3 +1,9 @@
+2011-01-09 02:26  tag qopqdp0-16-4
+
+2011-01-09 02:26  osborn
+
+	* lib/invert_gmres2_p.c: small changes
+
 2011-01-08 21:44  osborn
 
 	* lib/: Makefile.am, invert_gmres2_D_d.c, invert_gmres2_D_f.c,
