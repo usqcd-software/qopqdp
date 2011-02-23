@@ -12,6 +12,7 @@ static int seed;
 static int nit=5;
 static QLA_Real mass=-1;
 static int style=-1;
+static int verb=0;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -21,8 +22,9 @@ static const int nsn = sizeof(nsa)/sizeof(int);
 static const int nma[] = {2, 4, 8, 16};
 //static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
-static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
-static const int bsn = sizeof(bsa)/sizeof(int);
+//static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+//static const int bsn = sizeof(bsa)/sizeof(int);
+static int bsmin=32, bsmax=8192, *bsa, bsn;
 QOP_FermionLinksHisq *flq;
 
 double
@@ -120,7 +122,7 @@ start(void)
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
-  //QOP_verbose(QOP_VERB_LOW);
+  QOP_verbose(verb);
   if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }
   gf = QOP_convert_G_from_qdp(u);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
@@ -202,9 +204,13 @@ usage(char *s)
 {
   printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
   printf("\n");
+  printf("b\tmin QDP blocksize\n");
+  printf("B\tmax QDP blocksize\n");
+  printf("m\tmass\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
+  printf("v\tverbosity\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
   printf("\n");
   exit(1);
@@ -222,10 +228,13 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'b' : bsmin=atoi(&argv[i][1]); break;
+    case 'B' : bsmax=atoi(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
+    case 'v' : verb=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     default : usage(argv[0]);
     }
@@ -252,29 +261,12 @@ main(int argc, char *argv[])
     mass = 0.2 * pow(QDP_volume(),0.1);
   }
 
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsn = i+1;
+  bsa = (int *) malloc(bsn*sizeof(*bsa));
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsa[i] = j;
+
   if(QDP_this_node==0) {
-    printf("nodes = %i\n", QMP_get_number_of_nodes());
-    printf("size = %i", lattice_size[0]);
-    for(i=1; i<ndim; i++) {
-      printf(" %i", lattice_size[i]);
-    }
-    printf("\n");
-    if(QMP_logical_topology_is_declared()) {
-      int nd;
-      const int *ld;
-      nd = QMP_get_logical_number_of_dimensions();
-      ld = QMP_get_logical_dimensions();
-      printf("machine size = %i", ld[0]);
-      for(i=1; i<nd; i++) {
-        printf(" %i", ld[i]);
-      }
-      printf("\n");
-      printf("sublattice = %i", lattice_size[0]/ld[0]);
-      for(i=1; i<nd; i++) {
-        printf(" %i", lattice_size[i]/ld[i]);
-      }
-      printf("\n");
-    }
+    print_layout();
     printf("mass = %g\n", mass);
     printf("seed = %i\n", seed);
   }

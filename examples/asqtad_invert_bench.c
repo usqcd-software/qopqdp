@@ -21,8 +21,9 @@ static const int nsn = sizeof(nsa)/sizeof(int);
 static const int nma[] = {2, 4, 8, 16};
 //static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
-static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
-static const int bsn = sizeof(bsa)/sizeof(int);
+//static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+//static const int bsn = sizeof(bsa)/sizeof(int);
+static int bsmin=32, bsmax=8192, *bsa, bsn;
 QOP_FermionLinksAsqtad *fla;
 
 double
@@ -204,13 +205,16 @@ usage(char *s)
 {
   printf("%s [c#] [n#] [s#] [S#] [x# [# ...]] [v#]\n",s);
   printf("\n");
+  printf("b\tmin QDP blocksize\n");
+  printf("B\tmax QDP blocksize\n");
   printf("c\tcgtype\n");
   printf("k\tnaik term\n");
+  printf("m\tmass\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
+  printf("v\tverbosity\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
-  printf("v\tverbose\n");
   printf("\n");
   exit(1);
 }
@@ -227,14 +231,16 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'b' : bsmin=atoi(&argv[i][1]); break;
+    case 'B' : bsmax=atoi(&argv[i][1]); break;
     case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'k' : naik=atof(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
-    case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     case 'v' : verb=atoi(&argv[i][1]); break;
+    case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
     default : usage(argv[0]);
     }
   }
@@ -259,6 +265,10 @@ main(int argc, char *argv[])
   if(mass<0) {
     mass = 0.2 * pow(QDP_volume(),0.1);
   }
+
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsn = i+1;
+  bsa = (int *) malloc(bsn*sizeof(*bsa));
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsa[i] = j;
 
   if(QDP_this_node==0) {
     print_layout();

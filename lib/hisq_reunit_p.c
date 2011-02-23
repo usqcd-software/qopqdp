@@ -11,6 +11,41 @@
 
 
 #include <qop_internal.h>
+#include <qla_d3.h>
+#include <qla_df3.h>
+
+static void
+u3reunit_site_d(QLA_D3_ColorMatrix *Ur, QLA_D3_ColorMatrix *U)
+{
+  QLA_D3_ColorMatrix M1, M2;
+  QLA_D3_M_eq_Ma_times_M(&M1, U, U);
+  QLA_D3_M_eq_sqrt_M(&M2, &M1);
+  QLA_D3_M_eq_inverse_M(&M1, &M2);
+  QLA_D3_M_eq_M_times_M(Ur, U, &M1);
+}
+
+static void
+u3reunit_site(QLA_ColorMatrix *Ur, int i, void *args)
+{
+  QLA_ColorMatrix *U = &((QLA_ColorMatrix *)args)[i];
+#if (QLA_Precision=='F')
+    QLA_D3_ColorMatrix Ud, Urd;
+    QLA_DF3_M_eq_M(&Ud, U);
+    u3reunit_site_d(&Urd, &Ud);
+    QLA_FD3_M_eq_M(Ur, &Urd);
+#else
+    u3reunit_site_d(Ur, U);
+#endif
+}
+
+// requires QLA >= 1.7.0 and QDP >= 1.9.0
+void
+QOPPC(u3reunit)(QDP_ColorMatrix *U, QDP_ColorMatrix *Ur)
+{
+  QLA_ColorMatrix *Uq = QDP_expose_M(U);
+  QDP_M_eq_funcia(Ur, u3reunit_site, (void *)Uq, QDP_all);
+  QDP_reset_M(U);
+}
 
 
 //utilities

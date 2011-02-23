@@ -7,11 +7,12 @@ static int ndim=4;
 static int *lattice_size;
 static int seed;
 static int nit=2;
-static QLA_Real m0=2;
-static QLA_Real M=0.1;
+static QLA_Real M5=2;
+static QLA_Real m=0.1;
 static int Ls=8;
 static double rsqmin=1e-4;
 static int style=-1;
+static int verb=0;
 
 static const int sta[] = {0, 1, 2, 3};
 static const int stn = sizeof(sta)/sizeof(int);
@@ -20,8 +21,9 @@ static const int nsn = sizeof(nsa)/sizeof(int);
 static const int nma[] = {1, 2, 4, 8};
 //static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
-static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
-static const int bsn = sizeof(bsa)/sizeof(int);
+//static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+//static const int bsn = sizeof(bsa)/sizeof(int);
+static int bsmin=32, bsmax=8192, *bsa, bsn;
 QOP_FermionLinksDW *flw;
 
 double
@@ -44,7 +46,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       qopin[k] = QOP_create_D_from_qdp(in[k]);
     }
     QMP_barrier();
-    QOP_dw_invert(info, flw, inv_arg, res_arg, m0, M, qopout, qopin, Ls);
+    QOP_dw_invert(info, flw, inv_arg, res_arg, M5, m, qopout, qopin, Ls);
     QMP_barrier();
     if(i>0) {
       iter += res_arg->final_iter;
@@ -121,6 +123,7 @@ start(void)
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
+  QOP_verbose(verb);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   flw = QOP_dw_create_L_from_qdp(u);
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
@@ -196,13 +199,16 @@ usage(char *s)
 {
   printf("%s [n#] [s#] [S#] [k#] [m#] [x# [# ...]] [l#]\n",s);
   printf("\n");
+  printf("b\tmin QDP blocksize\n");
+  printf("B\tmax QDP blocksize\n");
+  printf("l\tLs\n");
+  printf("m\tmass\n");
+  printf("M\tM5\n");
   printf("n\tnumber of iterations\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
-  printf("k\tm0\n");
-  printf("m\tM\n");
+  printf("v\tverbosity\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
-  printf("l\tLs\n");
   printf("\n");
   exit(1);
 }
@@ -219,13 +225,16 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
-    case 'k' : m0=atof(&argv[i][1]); break;
-    case 'm' : M=atof(&argv[i][1]); break;
+    case 'b' : bsmin=atoi(&argv[i][1]); break;
+    case 'B' : bsmax=atoi(&argv[i][1]); break;
+    case 'l' : Ls=atoi(&argv[i][1]); break;
+    case 'm' : m=atof(&argv[i][1]); break;
+    case 'M' : M5=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
+    case 'v' : verb=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;
-    case 'l' : Ls=atoi(&argv[i][1]); break;
     default : usage(argv[0]);
     }
   }
@@ -248,10 +257,14 @@ main(int argc, char *argv[])
   QDP_set_latsize(ndim, lattice_size);
   QDP_create_layout();
 
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsn = i+1;
+  bsa = (int *) malloc(bsn*sizeof(*bsa));
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsa[i] = j;
+
   if(QDP_this_node==0) {
     print_layout();
-    printf("m0 = %g\n", m0);
-    printf("M = %g\n", M);
+    printf("M5 = %g\n", M5);
+    printf("m = %g\n", m);
     printf("Ls = %i\n", Ls);
     printf("seed = %i\n", seed);
   }

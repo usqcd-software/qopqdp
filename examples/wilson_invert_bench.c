@@ -24,8 +24,9 @@ static const int nsn = sizeof(nsa)/sizeof(int);
 static const int nma[] = {1, 2, 4, 8};
 //static const int nma[] = {0};
 static const int nmn = sizeof(nma)/sizeof(int);
-static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
-static const int bsn = sizeof(bsa)/sizeof(int);
+//static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+//static const int bsn = sizeof(bsa)/sizeof(int);
+static int bsmin=32, bsmax=8192, *bsa, bsn;
 QOP_FermionLinksWilson *flw;
 
 double
@@ -215,11 +216,14 @@ usage(char *s)
 {
   printf("%s [n#] [s#] [S#] [x# [# ...]]\n",s);
   printf("\n");
+  printf("b\tmin QDP blocksize\n");
+  printf("B\tmax QDP blocksize\n");
+  printf("c\tcgtype (0=CGNE, 1=BiCGStab)\n");
+  printf("k\tkappa\n");
   printf("n\tnumber of iterations\n");
   printf("r\ttest restart\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
-  printf("c\tcgtype (0=CGNE, 1=BiCGStab)\n");
   printf("v\tverbosity\n");
   printf("w\tclover term (0=off, 1=on)\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
@@ -239,6 +243,8 @@ main(int argc, char *argv[])
   j = 0;
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
+    case 'b' : bsmin=atoi(&argv[i][1]); break;
+    case 'B' : bsmax=atoi(&argv[i][1]); break;
     case 'c' : cgtype=atoi(&argv[i][1]); break;
     case 'k' : kappa=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
@@ -266,9 +272,12 @@ main(int argc, char *argv[])
       }
     }
   }
-
   QDP_set_latsize(ndim, lattice_size);
   QDP_create_layout();
+
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsn = i+1;
+  bsa = (int *) malloc(bsn*sizeof(*bsa));
+  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsa[i] = j;
 
   if(QDP_this_node==0) {
     print_layout();
