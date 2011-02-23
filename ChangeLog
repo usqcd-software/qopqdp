@@ -1,3 +1,10 @@
+2011-02-23 15:32  osborn
+
+	* NEWS, examples/asqtad_invert_bench.c, examples/dw_invert_bench.c,
+	  examples/hisq_invert_bench.c, examples/wilson_invert_bench.c,
+	  lib/hisq_invert_p.c, lib/hisq_reunit_p.c: Changed HISQ reunit to
+	  U3 since phases aren't known.
+
 2011-01-09 02:26  tag qopqdp0-16-4
 
 2011-01-09 02:26  osborn
