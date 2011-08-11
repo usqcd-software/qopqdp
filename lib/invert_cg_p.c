@@ -25,6 +25,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
+  VERB(LOW, "CG: rsqmin = %g relmin = %g\n", res_arg->rsqmin, res_arg->relmin);
   VERB(LOW, "CG: rsqstop = %g\n", rsqstop);
   rsq = 0;
   relnorm2 = 1.;
@@ -189,6 +190,8 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
   }
 
   rsqstop = res_arg[imin]->rsqmin * insq;
+  VERB(LOW, "CGMS: rsqmin = %g relmin = %g\n", res_arg[imin]->rsqmin,
+       res_arg[imin]->relmin);
   VERB(LOW, "CGMS: rsqstop = %g\n", rsqstop);
   rsq = insq;
   relnorm2 = 0;

@@ -16,7 +16,8 @@ check_PROGRAMS = \
   hisq_invert_bench_f3 hisq_invert_bench_d3 \
   wilson_test_f3 wilson_test_d3 \
   wilson_invert_bench_f3 wilson_invert_bench_d3 \
-  dw_invert_bench_f3 dw_invert_bench_d3
+  dw_invert_bench_f3 dw_invert_bench_d3 \
+  test_reunit_utils_f3 test_reunit_utils_d3
 
 imp_gauge_force_bench_f3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_f3_CFLAGS = $(F3_CFLAGS)
@@ -92,3 +93,12 @@ dw_invert_bench_f3_LDADD = $(F3_LDADD)
 dw_invert_bench_d3_SOURCES = test_common.h test_common.c dw_invert_bench.c
 dw_invert_bench_d3_CFLAGS = $(D3_CFLAGS)
 dw_invert_bench_d3_LDADD = $(D3_LDADD)
+
+test_reunit_utils_f3_SOURCES = test_common.h test_common.c test_reunit_utils.c
+test_reunit_utils_f3_CFLAGS = $(F3_CFLAGS)
+test_reunit_utils_f3_LDADD = $(F3_LDADD)
+
+test_reunit_utils_d3_SOURCES = test_common.h test_common.c test_reunit_utils.c
+test_reunit_utils_d3_CFLAGS = $(D3_CFLAGS)
+test_reunit_utils_d3_LDADD = $(D3_LDADD)
+

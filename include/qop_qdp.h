@@ -92,6 +92,14 @@ void QOP_F3_asqtad_dslash_qdp(QOP_info_t *info,
 			      QOP_evenodd_t eo_out,
 			      QOP_evenodd_t eo_in);
 
+void QOP_F3_asqtad_dslash_dir_qdp(QOP_info_t *info,
+				  QOP_F3_FermionLinksAsqtad *asqtad,
+				  int dir, int fb,
+				  double wtfat, double wtlong,
+				  QDP_F3_ColorVector *out,
+				  QDP_F3_ColorVector *in,
+				  QOP_evenodd_t eo_out);
+
 void QOP_F3_asqtad_diaginv_qdp(QOP_info_t *info,
 			       QOP_F3_FermionLinksAsqtad *asqtad,
 			       float mass,
@@ -151,6 +159,14 @@ void QOP_D3_asqtad_dslash_qdp(QOP_info_t *info,
 			      QOP_evenodd_t eo_out,
 			      QOP_evenodd_t eo_in);
 
+void QOP_D3_asqtad_dslash_dir_qdp(QOP_info_t *info,
+				  QOP_D3_FermionLinksAsqtad *asqtad,
+				  int dir, int fb,
+				  double wtfat, double wtlong,
+				  QDP_D3_ColorVector *out,
+				  QDP_D3_ColorVector *in,
+				  QOP_evenodd_t eo_out);
+  
 void QOP_D3_asqtad_diaginv_qdp(QOP_info_t *info,
 			       QOP_D3_FermionLinksAsqtad *asqtad,
 			       double mass,
@@ -551,6 +567,8 @@ void QOP_D3_dw_invert_multi_qdp(QOP_info_t *info,
 #define QOP_asqtad_convert_L_to_qdp   QOP_F3_asqtad_convert_L_to_qdp
 #define QOP_asqtad_load_L_from_qdp    QOP_F3_asqtad_load_L_from_qdp
 #define QOP_asqtad_dslash_qdp         QOP_F3_asqtad_dslash_qdp
+#define QOP_asqtad_dslash_dir_qdp     QOP_F3_asqtad_dslash_dir_qdp
+#define QOP_asqtad_dslash_dir_qdp     QOP_F3_asqtad_dslash_dir_qdp
 #define QOP_asqtad_diaginv_qdp        QOP_F3_asqtad_diaginv_qdp
 #define QOP_asqtad_invert_qdp         QOP_F3_asqtad_invert_qdp
 #define QOP_asqtad_invert_multi_qdp   QOP_F3_asqtad_invert_multi_qdp
@@ -610,6 +628,7 @@ void QOP_D3_dw_invert_multi_qdp(QOP_info_t *info,
 #define QOP_asqtad_convert_L_to_qdp   QOP_D3_asqtad_convert_L_to_qdp
 #define QOP_asqtad_load_L_from_qdp    QOP_D3_asqtad_load_L_from_qdp
 #define QOP_asqtad_dslash_qdp         QOP_D3_asqtad_dslash_qdp
+#define QOP_asqtad_dslash_dir_qdp     QOP_D3_asqtad_dslash_dir_qdp
 #define QOP_asqtad_diaginv_qdp        QOP_D3_asqtad_diaginv_qdp
 #define QOP_asqtad_invert_qdp         QOP_D3_asqtad_invert_qdp
 #define QOP_asqtad_invert_multi_qdp   QOP_D3_asqtad_invert_multi_qdp

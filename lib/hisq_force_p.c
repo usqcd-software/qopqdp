@@ -3,44 +3,42 @@
 
 #include <qop_internal.h>
 
-void 
-QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,  
-				      QOP_GaugeField *UGauge,
-				      QOP_GaugeField *VGauge,
-				      QOP_GaugeField *WGauge,
-				      QOP_Force *Force, 
-				      QOP_hisq_coeffs_t *hisq_coeff,
-				      REAL *epsv,
-				      QOP_ColorVector *in_pt[], 
-				      int nterms,
-				      int n_naiks,
-				      int n_order_naik_total,
-				      int *n_orders_naik,
-				      REAL *eps_naik);
+/*
+
+  Multi-term HISQ force.  
+
+  The coef parameter includes a specification of the number of Naik
+  terms and their unique Naik epsilon corrections.  The zeroth Naik
+  epsilon is required to be zero.
+
+  The input random color vector fields are arranged as a flat array
+  with logical groupings specified by n_orders_naik.  The indexing of
+  the groups corresponds to the indexing of the Naik epsilon.  The
+  zeroth group thus corresponds to epsilon = 0, the group with index
+  1, to the first nonzero epsilon, etc.  The integer n_orders_naik[k]
+  specifies the number of terms in the in_pt array belonging to the
+  kth Naik epsilon.  The terms in in_pt must be arranged in sequence
+  according to the indexing k.  The total number of fields in the
+  in_pt array must equal the sum of n_orders_naik[k] over all unique
+  Naik epsilons.
+
+ */
 
 void
 QOPPC(hisq_force_multi)(QOP_info_t *info, 
-			QOP_GaugeField *Ugauge, 
-			QOP_GaugeField *Vgauge,
-			QOP_GaugeField *Wgauge,
+			QOP_FermionLinksHisq *flh,
 			QOP_Force *force, 
 			QOP_hisq_coeffs_t *coef,
 			REAL epsv[], 
 			QOP_ColorVector *in_pt[], 
-			int nsrc,
-			int n_naiks,
-			int n_order_naik_total,
-			int *n_orders_naik,
-			REAL *eps_naik)
+			int *n_orders_naik)
 {
 
-  //HISQ_FORCE_BEGIN;
+  HISQ_FORCE_BEGIN;
 
-  QOPPC(hisq_force_multi_wrapper_fnmat)(info, Ugauge, Vgauge, Wgauge, force, 
-					coef, epsv, in_pt, nsrc,
-					n_naiks, n_order_naik_total,
-					n_orders_naik, eps_naik);
+  QOPPC(hisq_force_multi_wrapper_fnmat)(info, flh, force, 
+	coef, epsv, in_pt, n_orders_naik);
 
-  //HISQ_FORCE_END;
+  HISQ_FORCE_END;
 }
 

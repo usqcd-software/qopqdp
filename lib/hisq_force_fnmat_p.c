@@ -1,6 +1,8 @@
 /**************** hisq_force_fnmat_p.c ******************************/
 /*
+ * Alan Gray (EPCC) HISQ force routines based on MILC code
  * AG: HISQ force routines converted from MILC code 27 Feb 2009
+ * CD: Support simplified HISQ links structure 23 Apr 2011
  */
 
 #include <qop_internal.h>
@@ -11,6 +13,56 @@
 /**********************************************************************/
 /*   Utilities                                                        */
 /**********************************************************************/
+
+
+#if 0
+static void 
+PrintMsite(QDP_ColorMatrix * field, int *x){
+  QLA_ColorMatrix *mom0;
+  int ind = QDP_index(x);
+
+  mom0 = QDP_expose_M(field);
+  printf("Field: %e %e %e\n", mom0[ind].e[0][0].real,
+	 mom0[ind].e[0][1].real, mom0[ind].e[0][2].real);
+  printf("       %e %e %e\n", mom0[ind].e[1][0].real,
+	 mom0[ind].e[1][1].real, mom0[ind].e[1][2].real);
+  printf("       %e %e %e\n\n", mom0[ind].e[2][0].real,
+	 mom0[ind].e[2][1].real, mom0[ind].e[2][2].real);
+
+  QDP_reset_M(field);
+}
+
+static void 
+PrintVsite(QDP_ColorVector * field, int *x){
+  QLA_ColorVector *mom0;
+  int ind = QDP_index(x);
+
+  mom0 = QDP_expose_V(field);
+  printf("Field: %e %e\n", mom0[ind].c[0].real, mom0[ind].c[0].imag);
+  printf("       %e %e\n", mom0[ind].c[1].real, mom0[ind].c[1].imag);
+  printf("       %e %e\n", mom0[ind].c[2].real, mom0[ind].c[2].imag);
+
+  QDP_reset_V(field);
+}
+
+static void 
+PrintMone(QLA_ColorMatrix m){
+  printf("Field: %e %e %e\n", m.e[0][0].real,
+	 m.e[0][1].real, m.e[0][2].real);
+  printf("       %e %e %e\n", m.e[1][0].real,
+	 m.e[1][1].real, m.e[1][2].real);
+  printf("       %e %e %e\n\n", m.e[2][0].real,
+	 m.e[2][1].real, m.e[2][2].real);
+}
+
+static void 
+PrintVone(QLA_ColorVector V){
+  printf("Field: %e %e\n", V.c[0].real,	V.c[0].imag);
+  printf("       %e %e\n", V.c[1].real,	V.c[1].imag);
+  printf("       %e %e\n", V.c[2].real,	V.c[2].imag);
+}
+
+#endif
 
 #ifdef DEBUG_FNMAT
 
@@ -23,6 +75,10 @@ PrintM(QDP_ColorMatrix * field){
   mom0 = QDP_expose_M(field);
   printf("Field: %e %e %e\n\n", mom0[ind].e[0][0].real,
 	 mom0[ind].e[0][1].real, mom0[ind].e[0][2].real);
+  printf("       %e %e %e\n\n", mom0[ind].e[1][0].real,
+	 mom0[ind].e[1][1].real, mom0[ind].e[1][2].real);
+  printf("       %e %e %e\n\n", mom0[ind].e[2][0].real,
+	 mom0[ind].e[2][1].real, mom0[ind].e[2][2].real);
 
   QDP_reset_M(field);
 }
@@ -96,7 +152,8 @@ make_path_table_hisq( char *action_desc, int npaths, int max_paths,
 /********************************************************************/
 //originally make_path_table in quark_stuff_hisq.c
 static void 
-QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef) {
+QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef, 
+			     QOP_hisq_unitarize_method_t umethod) {
 
 
   int index_naik = -1, index_onelink = -1;
@@ -122,8 +179,6 @@ QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef) {
   }
 
 
-
-
   REAL path_coeff_1[NUM_BASIC_PATHS_1] = {coef->fat7_one_link, 
 					  coef->fat7_three_staple, 
 					  coef->fat7_five_staple,
@@ -140,13 +195,6 @@ QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef) {
 					  coef->difference_naik};
 
 
-
-  //Divide coeffs by 2 to move into MILC convention
-  for(i=0;i<NUM_BASIC_PATHS_1;i++) path_coeff_1[i]=path_coeff_1[i]/2.;
-  for(i=0;i<NUM_BASIC_PATHS_2;i++) path_coeff_2[i]=path_coeff_2[i]/2.;
-  for(i=0;i<NUM_BASIC_PATHS_3;i++) path_coeff_3[i]=path_coeff_3[i]/2.;
-
-
   QOP_printf0("QOP MAKING PATH TABLES\n");
 
 
@@ -158,13 +206,13 @@ QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef) {
 			  act_path_coeff_1, q_paths_1, 0.0, -1, -1 );
     
 
-  if ( UNITARIZATION_METHOD==UNITARIZE_NONE )
+  if ( umethod==QOP_UNITARIZE_NONE )
     {
-      QOP_printf0("QOP Unitarization method = UNITARIZE_NONE\n");
+      QOP_printf0("QOP Unitarization method = QOP_UNITARIZE_NONE\n");
     }
-  else if ( UNITARIZATION_METHOD==UNITARIZE_RATIONAL )
+  else if ( umethod==QOP_UNITARIZE_RATIONAL )
     {
-      QOP_printf0("QOP Unitarization method = UNITARIZE_RATIONAL\n");
+      QOP_printf0("QOP Unitarization method = QOP_UNITARIZE_RATIONAL\n");
     }
   else
     {
@@ -492,7 +540,7 @@ sort_quark_paths_hisq( Q_path *src_table, Q_path *dest_table,
 
 /* Smearing level 0 Forward Declaration */
 
-void 
+static void 
 QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,  
 					REAL *residues,
 					QDP_ColorVector *x[], 
@@ -502,7 +550,7 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
 
 
 /* Smearing level i Forward Declaration */
-void 
+static void 
 QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info, 
 				       QDP_ColorMatrix * gf[4],
 				       REAL *residues,
@@ -517,35 +565,27 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 				       int *internal_netbackdir_table
 				       );
 
-void
-QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
-				     QDP_ColorMatrix *gf[4],
-				     QDP_ColorMatrix *force_accum[4],
-				     QDP_ColorMatrix *force_accum_old[4]);
-
 /* HISQ Force: main wrapper*/
 
 void 
 QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,  
-				      QOP_GaugeField *UGauge,
-				      QOP_GaugeField *VGauge,
-				      QOP_GaugeField *WGauge,
+				      QOPPC(FermionLinksHisq) *flh,
 				      QOP_Force *Force, 
 				      QOP_hisq_coeffs_t *hisq_coeff,
 				      REAL *residues,
 				      QOP_ColorVector *in_pt[], 
-				      int nterms, 
-				      int n_naiks,
-				      int n_order_naik_total,
-				      int *n_orders_naik,
-				      REAL *eps_naik)
+				      int *n_orders_naik)
   
 {
 
   int i, ipath, dir;
   REAL coeff_mult;
 
-// Quark paths sorted by net displacement and last directions
+  double *eps_naik = hisq_coeff->eps_naik;
+  int n_naiks = hisq_coeff->n_naiks;
+  QOP_hisq_unitarize_method_t umethod = hisq_coeff->umethod;
+
+  // Quark paths sorted by net displacement and last directions
   static Q_path *q_paths_sorted_1 = NULL;
   static Q_path *q_paths_sorted_2 = NULL;
   static Q_path *q_paths_sorted_3 = NULL;
@@ -557,7 +597,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   static int first_force = 1;
 
   if(first_force == 1) 
-    QOP_make_paths_and_dirs_hisq(hisq_coeff);
+    QOP_make_paths_and_dirs_hisq(hisq_coeff, umethod);
 
   int num_q_paths_1 = qop_get_num_q_paths_1();
   int num_q_paths_2 = qop_get_num_q_paths_2();
@@ -573,7 +613,6 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   int inaik;
   int n_naik_shift;
 
-
   QDP_ColorMatrix * force[4] =  {Force->force[0], Force->force[1], 
 				 Force->force[2], Force->force[3]};
 
@@ -585,18 +624,22 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   QDP_ColorMatrix *force_accum_1[4];
   QDP_ColorMatrix *force_accum_1u[4];
   QDP_ColorMatrix *force_accum_2[4];
-  QDP_ColorMatrix*force_final[4];
+  QDP_ColorMatrix *force_final[4];
 
 
+  QDP_ColorMatrix *Ugf[4], *Vgf[4], *Wgf[4];
 
-  QDP_ColorMatrix * Ugf[4] = {UGauge->links[0], UGauge->links[1], 
-			     UGauge->links[2], UGauge->links[3]};
+  int nterms = 0, n_order_naik_total;
 
-  QDP_ColorMatrix * Vgf[4] = {VGauge->links[0], VGauge->links[1], 
-			     VGauge->links[2], VGauge->links[3]};
+  for(inaik = 0; inaik < n_naiks; inaik++)
+    nterms += n_orders_naik[inaik];
+  n_order_naik_total = nterms;
 
-  QDP_ColorMatrix * Wgf[4] = {WGauge->links[0], WGauge->links[1], 
-			     WGauge->links[2], WGauge->links[3]};
+  for(i=0;i<4;i++) {
+    Ugf[i] = flh->U_links[i];
+    Vgf[i] = flh->V_links[i];
+    Wgf[i] = flh->W_unitlinks[i];
+  }
 
 
 
@@ -623,12 +666,9 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
       q_paths_sorted_3 = (Q_path *)malloc( num_q_paths_3*sizeof(Q_path) );
     if(netbackdir_table_3==NULL ) 
       netbackdir_table_3 = (int *)malloc( num_q_paths_3*sizeof(int) );
-
- 
-    
-   else{QOP_printf0("WARNING: remaking sorted path tables\n"); exit(0); }
+    else{QOP_printf0("WARNING: remaking sorted path tables\n"); exit(0); }
     // make sorted tables
-   sort_quark_paths_hisq( q_paths_1, q_paths_sorted_1, num_q_paths_1, 8 );
+    sort_quark_paths_hisq( q_paths_1, q_paths_sorted_1, num_q_paths_1, 8 );
 
     for( ipath=0; ipath<num_q_paths_1; ipath++ )
       netbackdir_table_1[ipath] = 
@@ -728,7 +768,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
  
 
-  if ( UNITARIZATION_METHOD==UNITARIZE_NONE ){
+  if ( umethod==QOP_UNITARIZE_NONE ){
 
     // smearing level 1
 
@@ -741,7 +781,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    netbackdir_table_1 );
     
   }
-  else if ( UNITARIZATION_METHOD==UNITARIZE_RATIONAL ){
+  else if ( umethod==QOP_UNITARIZE_RATIONAL ){
 
     
     // reunitarization
@@ -875,7 +915,7 @@ link_gather_connection_qdp( QDP_ColorMatrix *dest,
 } /* link_gather_connection_qdp */
 
 /* Smearing level 0 */
-void 
+static void 
 QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,  
 					REAL *residues,
 					QDP_ColorVector *x[], 
@@ -1012,7 +1052,7 @@ QDP_destroy_M( tmat );
 } //hisq_force_multi_smearing0_fnmat
 
 /* Smearing level i*/
-void 
+static void 
 QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info, 
 				       QDP_ColorMatrix * gf[4],
 				       REAL *residues,
@@ -1098,13 +1138,6 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 				 tmat, 
 				 netbackdir );
     }
-
-
-
-
-
-
-
     else { // Naik path
       if( NULL==force_accum_naik_old ) {
         QOP_printf0( "hisq_force_multi_smearing_fnmat:  mismatch:\n" );
@@ -1153,10 +1186,6 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 	    QDP_discard_M(tmat);
 
           }
-
-
-
-
           else{
 
 	    QDP_M_eq_M(mats_along_path[1], gf[OPP_DIR(dir)], QDP_all);

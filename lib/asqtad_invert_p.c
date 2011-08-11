@@ -91,7 +91,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
   double dtime = 0;
   double nflop = 0.5 * 2364;
-  double rsqminold;
+  double rsqminold,relminold;
   QLA_Real rsq, rsqstop, relnorm2, insq;
   QDP_ColorVector *qdpin, *qdpout;
   QDP_ColorVector *cgp, *cgr;
@@ -147,6 +147,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   //QDP_V_eq_zero(qdpout, cgsub);
   //reconstruct(fla, mass, qdpout, out->cv, qdpout, oppsub(ineo));
   //}
+  QDP_V_eq_zero(qdpout, QDP_all);
   QDP_V_eq_V(qdpout, out, cgsub);
 
   QDP_r_eq_norm2_V(&insq, in, insub);
@@ -156,11 +157,14 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   relnorm2 = 1.;
   rsqminold = res_arg->rsqmin;
   res_arg->rsqmin *= 0.9;
+  relminold = res_arg->relmin;
+  res_arg->relmin *= 0.5;
   inv_arg->max_restarts = 0;
   do {
     inv_arg->max_iter = max_iter_old - iter;
 
     dtime -= QOP_time();
+
 
     if(QOP_asqtad.cgtype==1) {
       QOPPC(invert_eigcg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
@@ -169,6 +173,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
       QOPPC(invert_cg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
 			 qdpout, qdpin, cgp, cgsub);
     }
+
     //printf("resid = %g\n", res_arg->final_rsq);
 
     dtime += QOP_time();
@@ -195,9 +200,13 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
     iter += res_arg->final_iter;
     VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq,
 	 relnorm2);
-  } while((rsqstop > 0 && rsq > rsqstop) &&
-	  (res_arg->relmin > 0 && relnorm2 > res_arg->relmin) &&
-	  (nrestart++ < max_restarts));
+    /* Keep going if the residue exceeds tolerance and we haven't
+       exhausted restarts.  If rsqstop is zero, ignore this test.  If
+       relmin is zero, ignore this test. */
+  } while((++nrestart < max_restarts) &&
+	  ((rsqstop > 0 && rsq > rsqstop) ||
+	   (res_arg->relmin > 0 && relnorm2 > res_arg->relmin)));
+	  
 
   QDP_V_eq_V(out, qdpout, insub);
 
@@ -207,6 +216,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   inv_arg->max_iter = max_iter_old;
   inv_arg->max_restarts = max_restarts_old;
   res_arg->rsqmin = rsqminold;
+  res_arg->relmin = relminold;
   res_arg->final_iter = iter;
   res_arg->final_rsq = rsq/insq;
   res_arg->final_rel = relnorm2;

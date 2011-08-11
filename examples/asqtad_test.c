@@ -84,6 +84,7 @@ start(void)
   QDP_ColorMatrix **u;
   int i, st, ns, nm, bs, sti, nsi, nmi, bsi,
     best_st, best_ns, best_nm, best_bs;
+  int r0[4] = {0,0,0,0};
 
   u = (QDP_ColorMatrix **) malloc(ndim*sizeof(QDP_ColorMatrix *));
   for(i=0; i<ndim; i++) u[i] = QDP_create_M();
@@ -146,7 +147,7 @@ start(void)
   QOP_staggered_sign_t ss;
   bc.phase = phase;
   ss.signmask = signmask;
-  QOP_rephase_G(gf, &bc, &ss);
+  QOP_rephase_G(gf, r0, &bc, &ss);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
   QDP_profcontrol(1);

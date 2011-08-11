@@ -90,7 +90,6 @@ static int net_back_dirs[16] = { XDOWN, YDOWN, ZDOWN, TDOWN,
 //#define ASQ_OPTIMIZED_FATTENING_1
 //#define ASQ_OPTIMIZED_FORCE_1
 #define QUARK_ACTION_DESCRIPTION_1 "\"Fat 7 (level 1)\""
-#ifndef IMP_QUARK_ACTION_INFO_ONLY
     static int path_ind_1[NUM_BASIC_PATHS_1][MAX_LENGTH] = {
     { XUP, NODIR, NODIR, NODIR, NODIR, NODIR, NODIR },  /* One Link */
     { YUP, XUP, YDOWN, NODIR, NODIR, NODIR, NODIR },    /* Staple */
@@ -101,19 +100,18 @@ static int net_back_dirs[16] = { XDOWN, YDOWN, ZDOWN, TDOWN,
     static int path_length_in_1[NUM_BASIC_PATHS_1] = {1,3,5,7};
 /* We don't include the explicit path coefficients, since they are
    being passed into QOP by the caller */
-#endif
 
 // Unitarization algorithm
 // Choices are:
 //   UNITARIZE_NONE
 
-#define UNITARIZE_NONE 0
-#define UNITARIZE_RATIONAL 1
+// This option is set with QOP_hisq_coeffs_t
+//#define UNITARIZE_NONE 0
+//#define UNITARIZE_RATIONAL 1
 
-
-
+// This option is set with QOP_hisq_links_set_opts.
 //#define UNITARIZATION_METHOD UNITARIZE_NONE
-#define UNITARIZATION_METHOD UNITARIZE_RATIONAL
+//#define UNITARIZATION_METHOD UNITARIZE_RATIONAL
 
 // Smearing for second level
 #define NUM_BASIC_PATHS_2 6
@@ -121,7 +119,6 @@ static int net_back_dirs[16] = { XDOWN, YDOWN, ZDOWN, TDOWN,
 //#define ASQ_OPTIMIZED_FATTENING_2
 //#define ASQ_OPTIMIZED_FORCE_2
 #define QUARK_ACTION_DESCRIPTION_2 "\"Fat7 + 2xLepage\""
-#ifndef IMP_QUARK_ACTION_INFO_ONLY
     static int path_ind_2[NUM_BASIC_PATHS_2][MAX_LENGTH] = {
     { XUP, NODIR, NODIR, NODIR, NODIR, NODIR, NODIR },  /* One Link */
     { XUP, XUP, XUP, NODIR, NODIR, NODIR, NODIR },      /* Naik */
@@ -136,14 +133,12 @@ static int net_back_dirs[16] = { XDOWN, YDOWN, ZDOWN, TDOWN,
    being passed into QOP by the caller */
 #define INDEX_ONELINK 0
 #define INDEX_NAIK 1
-#endif
 
 
 // Smearing for second level -- only difference in 1-link and Naik
 #define NUM_BASIC_PATHS_3 2
 #define MAX_NUM_3 16
 #define QUARK_ACTION_DESCRIPTION_3 "\"1-link + Naik\""
-#ifndef IMP_QUARK_ACTION_INFO_ONLY
     static int path_ind_3[NUM_BASIC_PATHS_3][MAX_LENGTH] = {
     { XUP, NODIR, NODIR, NODIR, NODIR, NODIR, NODIR },  /* One Link */
     { XUP, XUP, XUP, NODIR, NODIR, NODIR, NODIR },      /* Naik */
@@ -153,5 +148,5 @@ static int net_back_dirs[16] = { XDOWN, YDOWN, ZDOWN, TDOWN,
 
 /* We don't include the explicit path coefficients, since they are
    being passed into QOP by the caller */
-#endif /* IMP_QUARK_ACTION_INFO_ONLY */
+
 

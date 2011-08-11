@@ -27,6 +27,8 @@ static const int nmn = sizeof(nma)/sizeof(int);
 static int bsmin=32, bsmax=8192, *bsa, bsn;
 QOP_FermionLinksHisq *flq;
 
+#ifdef AB_SO_FAR_THIS_TEST_DOES_NOT_WORK
+
 double
 bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
 	  QOP_resid_arg_t *res_arg, QDP_ColorVector *out, QDP_ColorVector *in)
@@ -216,6 +218,9 @@ usage(char *s)
   exit(1);
 }
 
+#endif
+
+
 int
 main(int argc, char *argv[])
 {
@@ -223,6 +228,8 @@ main(int argc, char *argv[])
 
   QDP_initialize(&argc, &argv);
   QDP_profcontrol(0);
+
+#ifdef AB_SO_FAR_THIS_TEST_DOES_NOT_WORK
 
   seed = time(NULL);
   j = 0;
@@ -275,6 +282,11 @@ main(int argc, char *argv[])
   seed_rand(rs, seed);
 
   start();
+
+#endif
+
+  printf("THIS TEST DOES NOT WORK YET.\n");
+
 
   QDP_finalize();
   return 0;

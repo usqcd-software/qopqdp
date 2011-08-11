@@ -188,6 +188,9 @@ QOPPC(asqtad_convert_L_from_qdp)(QDP_ColorMatrix *fatlinks[],
     QDP_M_eq_r_times_M(fla->fwdlinks[i], &f, fla->fwdlinks[i], QDP_all);
   }
 
+  //AB Need to set to NULL explicitly if unused
+  if(!longlinks) fla->longlinks=NULL;
+
   fla->nlinks = nl;
   TRACE;
   check_setup(fla);
@@ -510,6 +513,82 @@ QOPPC(asqtad_create_L_from_G)(QOP_info_t *info,
   return fla;
 }
 
+QOPPC(FermionLinksAsqtad) *
+QOPPC(asqtad_create_L_from_r_times_L)(QLA_Real *s,
+			      QOPPC(FermionLinksAsqtad) *fla_src)
+{
+  QOPPC(FermionLinksAsqtad) *fla;
+  QDP_ColorMatrix **fl_src = fla_src->fatlinks;
+  QDP_ColorMatrix **ll_src = fla_src->longlinks;
+  QDP_ColorMatrix *fl_dst[4], *ll_dst[4];
+  int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
+  /* Copy and multiply.  Correct for the 1/2 in source */
+
+  for(i=0; i<4; i++) {
+    QLA_Real two_s = 2.0 * (*s);
+    fl_dst[i] = QDP_create_M();
+    QDP_M_eq_r_times_M(fl_dst[i], &two_s, fl_src[i], QDP_all);
+    if(ll_src) {
+      ll_dst[i] = QDP_create_M();
+      QDP_M_eq_r_times_M(ll_dst[i], &two_s, ll_src[i], QDP_all);
+    }
+  }
+
+  /* Hand over the QDP fields to the links structure */
+
+  if(ll_src)
+    fla = QOPPC(asqtad_convert_L_from_qdp)(fl_dst, ll_dst);
+  else
+    fla = QOPPC(asqtad_convert_L_from_qdp)(fl_dst, NULL);
+
+
+  ASQTAD_DSLASH_END;
+  return fla;
+}
+
+/* Copy constructor */
+
+QOPPC(FermionLinksAsqtad) *
+QOPPC(asqtad_create_L_from_L)(QOPPC(FermionLinksAsqtad) *fla_src)
+{
+  QOPPC(FermionLinksAsqtad) *fla;
+  QLA_Real one = 1.0;
+
+  ASQTAD_DSLASH_BEGIN;
+
+  /* Copy the source links */
+  fla = QOPPC(asqtad_create_L_from_r_times_L)(&one, fla_src);
+
+  ASQTAD_DSLASH_END;
+  return fla;
+}
+
+void
+QOPPC(asqtad_L_peq_L)(QOPPC(FermionLinksAsqtad) *fla,
+		      QOPPC(FermionLinksAsqtad) *fla1)
+{
+  int i;
+
+  ASQTAD_DSLASH_BEGIN;
+
+  TRACE;
+  for(i = 0; i < 4; i++){
+    QDP_M_peq_M(fla->fatlinks[i], fla1->fatlinks[i], QDP_all);
+    if(fla->longlinks && fla1->longlinks)
+      QDP_M_peq_M(fla->longlinks[i], fla1->longlinks[i], QDP_all);
+  }
+
+  TRACE;
+
+  double_store(fla);
+
+  ASQTAD_DSLASH_END;
+
+}
+
 void
 QOPPC(asqtad_load_L_from_G)(QOP_info_t *info,
 			    QOPPC(FermionLinksAsqtad) *fla,
@@ -589,6 +668,8 @@ QOPPC(asqtad_destroy_L)(QOPPC(FermionLinksAsqtad) *fla)
 
   ASQTAD_DSLASH_BEGIN;
 
+  if(fla == NULL)return;
+
   nl = fla->nlinks;
   for(i=0; i<nl/2; i++) {
     QDP_destroy_M(fla->fwdlinks[i]);
@@ -629,6 +710,18 @@ static void
 asqtad_dslash1(QOP_FermionLinksAsqtad *fla,
 	       QDP_ColorVector *dest, QDP_ColorVector *src,
 	       QOP_evenodd_t eo, int n);
+
+static void
+asqtad_dslash0_dir(QOP_FermionLinksAsqtad *fla,
+		   QDP_ColorVector *dest, QDP_ColorVector *src,
+		   int dir, int fb, double wtfat, double wtlong,
+		   QOP_evenodd_t eo, int n);
+
+static void
+asqtad_dslash1_dir(QOP_FermionLinksAsqtad *fla,
+		   QDP_ColorVector *dest, QDP_ColorVector *src,
+		   int dir, int fb, double wtfat, double wtlong,
+		   QOP_evenodd_t eo, int n);
 
 #define asqtad_hop(fla, dest, src, eo) \
 { \
@@ -737,6 +830,60 @@ QOPPC(asqtad_diaginv_qdp)(QOP_info_t *info,
   QDP_V_eq_r_times_V(out, &f, in, qdpsub(eo));
 }
 
+/* shift (parallel transport a la dslash)
+
+   (Used to construct vector interpolating operators.  Same as dslash,
+   except always acts on all sites and works in only one direction.)
+*/
+
+#define asqtad_hop_dir(fla, dest, src, dir, fb, wtfat, wtlong, eo)	\
+{ \
+  QDP_ColorVector *tsrc = src; \
+  int _n = 1; \
+  while(1) { \
+    if(src==tmpsub(eo,_n)) break; \
+    if(_n==NTMPSUB) { \
+      _n = (fla->nlinks==16) ? 1 : 3;		\
+      tsrc = tmpsub(eo,_n); \
+      QDP_V_eq_V(tsrc, src, qdpsub(oppsub(eo))); \
+      break; \
+    } \
+    _n++; \
+  } \
+  /*printf("%i %i\n", eo, _n);*/ \
+  if(dblstore_style(QOP_asqtad.style)) { \
+    asqtad_dslash1_dir(fla, dest, tsrc, dir, fb, wtfat, wtlong, eo, _n);	\
+  } else { \
+    asqtad_dslash0_dir(fla, dest, tsrc, dir, fb, wtfat, wtlong, eo, _n);	\
+  } \
+}
+
+void
+QOPPC(asqtad_dslash_dir_qdp)(QOP_info_t *info,
+			     QOP_FermionLinksAsqtad *fla,
+			     int dir, int fb,
+			     double wtfat, double wtlong,
+			     QDP_ColorVector *out,
+			     QDP_ColorVector *in,
+			     QOP_evenodd_t eo_out)
+{
+  check_setup(fla);
+
+  asqtad_hop_dir(fla, out, in, dir, fb, wtfat, wtlong, eo_out);
+}
+
+
+void
+QOPPC(asqtad_dslash_dir)(QOP_info_t *info,
+			 QOP_FermionLinksAsqtad *fla,
+			 int dir, int fb,
+			 double wtfat, double wtlong,
+			 QOP_ColorVector *out,
+			 QOP_ColorVector *in,
+			 QOP_evenodd_t eo_out)
+{
+  QOP_asqtad_dslash_dir_qdp(info,fla,dir,fb,wtfat,wtlong,out->cv,in->cv,eo_out);
+}
 
 /* internal functions */
 
@@ -827,27 +974,131 @@ asqtad_dslash1(QOP_FermionLinksAsqtad *fla,
   for(i=0; i<nl; ++i) QDP_discard_V(temp[i]);
 }
 
+static void
+asqtad_dslash0_dir(QOP_FermionLinksAsqtad *fla,
+		   QDP_ColorVector *dest, QDP_ColorVector *src,
+		   int dir, int fb, double wtfat, double wtlong,
+		   QOP_evenodd_t eo, int n)
+{
+  int i, ntmp, nsv, nv, nl2=fla->nlinks/2;
+  QDP_ColorVector *vsrc[nl2], *vdest[nl2], **temp;
+  QDP_Subset dsubset, ssubset;
+  QLA_Real r[2];
+
+  r[0] = wtfat;
+  r[1] = wtlong;
+  dsubset = qdpsub(eo);
+  ssubset = qdpsub(oppsub(eo));
+  ntmp = tmpnum(eo,n);
+  temp = vtemp[ntmp];
+
+  for(i=0; i<nl2; i++) {
+    vsrc[i] = src;
+    vdest[i] = dest;
+  }
+
+  nsv = nv = 2;
+  i = 2*dir;
+
+  if(fb > 0){
+
+    /* Shift from forward direction */
+
+    /* Gather from positive directions and apply weights */
+    QDP_V_veq_sV(temp+i, vsrc+i, fla->shifts+i, QOP_common.shiftfwd+i,
+		 dsubset, nsv);
+
+    QDP_V_veq_r_times_V(temp+i, r, temp+i, dsubset, nsv);
+
+    /* Multiply by matrix for positive directions and accumulate */
+    QDP_V_vpeq_M_times_V(vdest+i, fla->fwdlinks+i, temp+i, dsubset, nv);
+    
+  } else {
+
+    /* Shift from backward direction */
+
+    /* Multiply by adjoint matrix at other sites */
+    /* Gather from negative directions, apply weights and accumulate */
+  
+    QDP_V_veq_Ma_times_V(temp+16+i, fla->fwdlinks+i, vsrc+i, ssubset,
+			 nsv);
+    QDP_V_veq_sV(temp+8+i, temp+16+i, fla->shifts+i,
+		 QOP_common.shiftbck+i, dsubset, nsv);
+
+    QDP_V_veq_r_times_V(temp+8+i, r, temp+8+i, dsubset, nsv);
+
+    QDP_V_vpeq_V(vdest+i, temp+8+i, dsubset, nv);
+
+  }
+
+  for(i=0; i<nl2; i++){
+    QDP_discard_V(temp[i]);
+    QDP_discard_V(temp[i+nl2]);
+  }
+}
+
+static void
+asqtad_dslash1_dir(QOP_FermionLinksAsqtad *fla,
+		   QDP_ColorVector *dest, QDP_ColorVector *src,
+		   int dir, int fb, double wtfat, double wtlong,
+		   QOP_evenodd_t eo, int n)
+{
+  int i, ntmp, nsv, nv, nl=fla->nlinks;
+  QDP_ColorVector *vsrc[nl], *vdest[nl], **temp;
+  QDP_Subset dsubset, ssubset;
+  QLA_Real r[2];
+
+  r[0] = wtfat;
+  r[1] = wtlong;
+  dsubset = qdpsub(eo);
+  ssubset = qdpsub(oppsub(eo));
+  ntmp = tmpnum(eo,n);
+  temp = vtemp[ntmp];
+
+  for(i=0; i<nl; i++) {
+    vsrc[i] = src;
+    vdest[i] = dest;
+  }
+
+  nsv = nv = 2;
+
+  if(fb > 0)
+    i = 4*dir;
+  else
+    i = 4*dir + 2;
+
+  /* Start gathers */
+  QDP_V_veq_sV(temp+i, vsrc+i, fla->shifts_dbl+i,
+	       fla->shiftdirs_dbl+i, dsubset, nsv);
+  
+  /* Wait gathers from all directions, apply weights, multiply by
+     matrix and accumulate */
+  QDP_V_veq_r_times_V(temp+i, r, temp+i, dsubset, nsv);
+
+  QDP_V_vpeq_M_times_V(vdest+i, fla->dbllinks+i, temp+i, dsubset, nv);
+
+  for(i=0; i<nl; ++i) QDP_discard_V(temp[i]);
+
+}
+
 /* rephase */
 
 static int nd;
 static int bc_dir;
 static int bc_coord;
+static int *bc_r0;
 static QLA_Complex bc_phase;
 static int staggered_sign_bits;
 
 static void
-rephase_fat_func(QLA_ColorMatrix *m, int coords[])
-{
-  if(bc_dir>=0) {
-    if(coords[bc_dir]==bc_coord) {
-      QLA_ColorMatrix t;
-      QLA_M_eq_c_times_M(&t, &bc_phase, m);
-      QLA_M_eq_M(m, &t);
-    }
-  }
+set_staggered_phases(QLA_ColorMatrix *m, int coords[]){
   if(staggered_sign_bits) {
     int s=0;
-    for(int i=0; i<nd; i++) s += ((staggered_sign_bits>>i)&1) * coords[i];
+    for(int i=0; i<nd; i++){
+      int n = QDP_coord_size(i);
+      int rshift = (coords[i] + n - bc_r0[i]) % n;
+      s += ((staggered_sign_bits>>i)&1) * rshift;
+    }
     if(s&1) {
       QLA_M_eqm_M(m, m);
     }
@@ -855,43 +1106,69 @@ rephase_fat_func(QLA_ColorMatrix *m, int coords[])
 }
 
 static void
-rephase_long_func(QLA_ColorMatrix *m, int coords[])
+rephase_fat_bdry_func(QLA_ColorMatrix *m, int coords[])
 {
   if(bc_dir>=0) {
-    /* Here we apply the phase to three long links from nd-3 to nd-1 */
-    if(coords[bc_dir]>=bc_coord-2) {
+    int rshift = (coords[bc_dir] + bc_coord - bc_r0[bc_dir]) % bc_coord;
+    if(rshift == bc_coord-1) {
       QLA_ColorMatrix t;
       QLA_M_eq_c_times_M(&t, &bc_phase, m);
       QLA_M_eq_M(m, &t);
     }
   }
-  if(staggered_sign_bits) {
-    int s=0;
-    for(int i=0; i<nd; i++) s += ((staggered_sign_bits>>i)&1) * coords[i];
-    if(s&1) {
-      QLA_M_eqm_M(m, m);
+
+  set_staggered_phases(m, coords);
+}
+
+static void
+rephase_long_bdry_func(QLA_ColorMatrix *m, int coords[])
+{
+  if(bc_dir>=0) {
+    /* Apply the phase to three long links from nd-3 to nd-1 */
+    int rshift = (coords[bc_dir] + bc_coord - bc_r0[bc_dir]) % bc_coord;
+    if(rshift >= bc_coord-3) {
+      QLA_ColorMatrix t;
+      QLA_M_eq_c_times_M(&t, &bc_phase, m);
+      QLA_M_eq_M(m, &t);
     }
   }
+
+  set_staggered_phases(m, coords);
 }
 
 void
 QOPPC(asqtad_rephase_L)(QOPPC(FermionLinksAsqtad) *fla,
+	      int *r0,
 	      QOP_bc_t *bc,
 	      QOP_staggered_sign_t *sign)
 {
+  int nl2 = fla->nlinks/2;
+  bc_r0 = r0;
   nd = QDP_ndim();
   for(int i=0; i<nd; i++) {
     bc_dir = -1;
     staggered_sign_bits = 0;
     if(bc && (bc->phase[i].re!=1. || bc->phase[i].im!=0.)) {
       bc_dir = i;
-      bc_coord = QDP_coord_size(i) - 1;
+      bc_coord = QDP_coord_size(i);
       QLA_c_eq_r_plus_ir(bc_phase, bc->phase[i].re, bc->phase[i].im);
     }
     if(sign) {
       staggered_sign_bits = sign->signmask[i];
     }
-    QDP_M_eq_func(fla->fatlinks[i], rephase_fat_func, QDP_all);
-    QDP_M_eq_func(fla->longlinks[i], rephase_long_func, QDP_all);
+    if(sign || bc_dir >= 0){
+      if(nl2 == 8) {
+	/* Forward fat links */
+	QDP_M_eq_func(fla->fwdlinks[2*i], rephase_fat_bdry_func, QDP_all);
+	/* Forward long links */
+	QDP_M_eq_func(fla->fwdlinks[2*i+1], rephase_long_bdry_func, QDP_all);
+      } else {
+	/* Forward fat links only in this case */
+	QDP_M_eq_func(fla->fwdlinks[i], rephase_fat_bdry_func, QDP_all);
+      }
+    }
   }
+
+  /* Refresh double links if we are using them */
+  double_store(fla);
 }

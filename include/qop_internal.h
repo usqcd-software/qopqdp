@@ -4,6 +4,9 @@
 #include <qop.h>
 #include <qop_qdp.h>
 #include <qop_config.h>
+//AB 4-tensor definition, should be moved to QLA
+typedef struct { QLA_F_Complex t4[3][3][3][3]; } QLA_F3_ColorTensor4;
+typedef struct { QLA_D_Complex t4[3][3][3][3]; } QLA_D3_ColorTensor4;
 #include <qop_internal_p.h>
 #include <qmp.h>
 
@@ -27,6 +30,11 @@
 #define ASQTAD_FORCE_END
 #define ASQTAD_INVERT_BEGIN CHECK_INIT
 #define ASQTAD_INVERT_END
+
+#define HISQ_LINKS_BEGIN CHECK_INIT
+#define HISQ_LINKS_END
+#define HISQ_FORCE_BEGIN CHECK_INIT
+#define HISQ_FORCE_END
 
 #define WILSON_DSLASH_BEGIN CHECK_INIT
 #define WILSON_DSLASH_END
@@ -91,12 +99,48 @@ typedef struct {
 } QOP_asqtad_force_t;
 extern QOP_asqtad_force_t QOP_asqtad_ff;
 
+/* Currently unused */
+typedef struct {
+  int inited;
+  int fnmat_src_min;
+  int veclength;
+} QOP_hisq_force_t;
+extern QOP_hisq_force_t QOP_hisq_ff;
+
+typedef struct {
+  int inited;
+  int want_deps;
+  int want_aux;
+  QOP_hisq_unitarize_method_t umethod;
+} QOP_hisq_links_t;
+extern QOP_hisq_links_t QOP_hisq_links;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 double QOP_time(void);
 QOP_status_t QOP_asqtad_invert_init(void);
+
+void
+QOP_F3_su3_un_analytic( QLA_F3_ColorMatrix *V, QLA_F3_ColorMatrix *W );
+
+void 
+QOP_F3_su3_un_der_analytic( QLA_F3_ColorMatrix *V, QLA_F3_ColorTensor4 *dwdv, 
+			    QLA_F3_ColorTensor4 *dwdagdv );
+QLA_F_Complex 
+QOP_F3_su3_mat_det( QLA_F3_ColorMatrix *U) ;
+
+void
+QOP_D3_su3_un_analytic( QLA_D3_ColorMatrix *V, QLA_D3_ColorMatrix *W );
+
+void 
+QOP_D3_su3_un_der_analytic( QLA_D3_ColorMatrix *V, QLA_D3_ColorTensor4 *dwdv, 
+			    QLA_D3_ColorTensor4 *dwdagdv );
+QLA_D_Complex 
+QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U) ;
+
+
 
 #ifdef __cplusplus
 }

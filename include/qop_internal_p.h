@@ -15,6 +15,14 @@
 #define REAL double
 #endif
 
+//AB HISQ derivatives, rank-4 tensor
+#if QOP_Precision == 1
+#define QLA_ColorTensor4 QLA_F3_ColorTensor4
+#else
+#define QLA_ColorTensor4 QLA_D3_ColorTensor4
+#endif
+
+
 #define QLATYPE_V QLA_ColorVector
 #define QLATYPE_D QLA_DiracFermion
 #define QLATYPE_M QLA_ColorMatrix
@@ -85,6 +93,27 @@ struct QOPPC(FermionLinksAsqtad_struct) {
   QDP_ShiftDir shiftdirs_dbl[16];
 };
 
+  /* HISQ datatypes */
+
+struct QOPPC(FermionLinksHisq_struct) {
+  //  int dblstored, nlinks;
+  int n_naiks, WeqY;
+  //AB intermediate links
+  QDPPC(ColorMatrix) **U_links; // gauge links
+  QDPPC(ColorMatrix) **V_links; // Fat7 smeared
+  QDPPC(ColorMatrix) **Y_unitlinks; // projected to U(3),
+  QDPPC(ColorMatrix) **W_unitlinks; // projected to SU(3)
+  // normally we project only to U(3) and W_unitlink is a pointer to Y_unitlink
+  //AB actual array where extra index distinguishes
+  //   different epsilon corrections to 1-link and Naik terms
+  QOPPC(FermionLinksAsqtad) **fn;
+  QOPPC(FermionLinksAsqtad) *fn_deps;
+//  QOPPC(eigcg_t_V) eigcg;
+//  QDP_Shift shifts[8];
+//  QDP_Shift shifts_dbl[16];
+//  QDP_ShiftDir shiftdirs_dbl[16];
+};
+
   /* Wilson datatypes */
 
 struct QOPPC(FermionLinksWilson_struct) {
@@ -108,6 +137,15 @@ struct QOPPC(FermionLinksDW_struct) {
 };
 
 /* internal routines */
+
+QOPPC(FermionLinksAsqtad) *
+  QOPPC(asqtad_create_L_from_L)(QOPPC(FermionLinksAsqtad) *fla_src);
+
+QOPPC(FermionLinksAsqtad) *QOPPC(asqtad_create_L_from_r_times_L)(QLA_Real *s,
+	      QOPPC(FermionLinksAsqtad) *fla_src);
+
+void QOPPC(asqtad_L_peq_L)(QOPPC(FermionLinksAsqtad) *fla,
+			   QOPPC(FermionLinksAsqtad) *fla1);
 
 void QOPPC(qdpM_eq_raw)(QDP_ColorMatrix *cm, REAL *lnk);
 
@@ -213,6 +251,30 @@ QOPPC(invert_eigcg_D)(QOPPC(linop_t_D) *linop,
 		      QDP_Subset subset,
 		      QOPPC(eigcg_t_D) *eigcg);
 
+//AB internal operations for HISQ
+
+void
+QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
+				     QDP_ColorMatrix *gf[4],
+				     QDP_ColorMatrix *force_accum[4],
+				     QDP_ColorMatrix *force_accum_old[4]);
+
+
+void 
+QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,  
+				      QOP_FermionLinksHisq *flh,
+				      QOP_Force *Force, 
+				      QOP_hisq_coeffs_t *hisq_coeff,
+				      REAL *epsv,
+				      QOP_ColorVector *in_pt[], 
+				      int *n_orders_naik);
+
+void
+QOPPC(u3reunit)(QDP_ColorMatrix *U, QDP_ColorMatrix *V);
+
+void
+QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
+
 QOP_status_t
 QOPPC(invert_gcr2_D)(QOPPC(linop_t_D) *linop,
 		     QOP_invert_arg_t *inv_arg,
@@ -240,7 +302,6 @@ QLA_Real
 QOPPC(relnorm2_D)(QDP_DiracFermion **rsd, 
 		  QDP_DiracFermion **out, 
 		  QDP_Subset subset, int nv);
-
 
 
 #endif /* _QOP_INTERNALP_H */

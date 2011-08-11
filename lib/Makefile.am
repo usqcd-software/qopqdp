@@ -9,9 +9,10 @@ libqopqdp_a_SOURCES = \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
   asqtad_force.c asqtad_force_f.c asqtad_force_d.c \
   asqtad_force_fnmat_f.c asqtad_force_fnmat_d.c \
-  hisq_invert_f.c hisq_invert_d.c \
+  hisq_links.c hisq_links_f.c hisq_links_d.c \
   hisq_reunit_f.c hisq_reunit_d.c \
-  hisq_force_f.c hisq_force_d.c \
+  hisq_reunit_utilities_f.c hisq_reunit_utilities_d.c\
+  hisq_force_f.c hisq_force_d.c hisq_force.c \
   hisq_force_fnmat_f.c hisq_force_fnmat_d.c \
   wilson_dslash.c wilson_dslash_f.c wilson_dslash_d.c \
   wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
@@ -40,10 +41,12 @@ asqtad_force_f.o: asqtad_force_p.c
 asqtad_force_d.o: asqtad_force_p.c
 asqtad_force_fnmat_f.o: asqtad_force_fnmat_p.c
 asqtad_force_fnmat_d.o: asqtad_force_fnmat_p.c
-hisq_invert_f.o: hisq_invert_p.c
-hisq_invert_d.o: hisq_invert_p.c
+hisq_links_f.o: hisq_links_p.c
+hisq_links_d.o: hisq_links_p.c
 hisq_reunit_f.o: hisq_reunit_p.c
 hisq_reunit_d.o: hisq_reunit_p.c
+hisq_reunit_utilities_f.o: hisq_reunit_utilities_p.c
+hisq_reunit_utilities_d.o: hisq_reunit_utilities_p.c
 hisq_force_f.o: hisq_force_p.c
 hisq_force_d.o: hisq_force_p.c
 hisq_force_fnmat_f.o: hisq_force_fnmat_p.c
@@ -86,8 +89,9 @@ EXTRA_DIST = \
   asqtad_force_fnmat_p.c \
   hisq_force_fnmat_p.c \
   hisq_force_p.c \
-  hisq_invert_p.c \
+  hisq_links_p.c \
   hisq_reunit_p.c \
+  hisq_reunit_utilities_p.c \
   wilson_dslash_p.c \
   wilson_invert_p.c \
   dw_dslash_p.c \

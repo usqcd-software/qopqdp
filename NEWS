@@ -1,3 +1,14 @@
+===========================================================================
+2011-08-11      version 0.17.0
+===========================================================================
+2011-08-11:	Carleton DeTar
+	Reorganized the HISQ interface
+        Modified the internal storage of HISQ links.
+	Added HISQ fermion force from Alan Gray and Alexei Bazavov
+        Removed separate HISQ inverter. Link creation moved to hisq_links*.c.
+        HISQ unitarization always done in double precision now.
+	Added some fermion link linear algebra utilities
+===========================================================================
 2011-02-23:	James Osborn
 	Changed HISQ reunit to U3 since phases aren't known.
 
@@ -43,6 +54,11 @@
         Restructured domain-wall functions to eliminate some problems with
         uninitialized temporaries.
 
+===========================================================================
+2011-04-20     version 0.17.0 Carleton DeTar
+        Revised interface for HISQ (Bazavov/Gray/DeTar)
+        Change boundary twist from surface to volume twist for asqtad.
+        Bug fix: relative norm stopping for asqtad inversion
 ===========================================================================
 2010-01-24      version 0.16.0
 ===========================================================================

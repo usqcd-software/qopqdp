@@ -12,6 +12,10 @@ extern "C" {
 #define QOP_VERB_HI     3
 #define QOP_VERB_DEBUG  4
 
+/* Maximum number of Naik terms */
+/* Must match MAX_NAIK in MILC code */
+#define QOP_MAX_NAIK 4
+
 typedef enum {
   QOP_SUCCESS = 0,
   QOP_FAIL = 1,
@@ -25,6 +29,22 @@ typedef enum {
   QOP_ODD = 1,
   QOP_EVENODD = 2
 } QOP_evenodd_t;
+
+typedef enum {
+  QOP_UNITARIZE_U3 = 0,
+  QOP_UNITARIZE_SU3 = 1
+} QOP_hisq_unitarize_group_t;
+
+/* So far, only rational and none are supported */
+typedef enum {
+  QOP_UNITARIZE_NONE = 0,
+  //  QOP_UNITARIZE_APE = 1,
+  //  QOP_UNITARIZE_ROOT = 2,
+  QOP_UNITARIZE_RATIONAL = 3,
+  //  QOP_UNITARIZE_HISQ = 4,
+  QOP_UNITARIZE_ANALYTIC = 5,
+  //  QOP_UNITARIZE_STOUT = 6
+} QOP_hisq_unitarize_method_t;
 
 typedef struct {
   int (*node_number)(const int coords[]); /* node no for given latt coord */
@@ -122,6 +142,10 @@ typedef struct QOP_D3_FermionLinksAsqtad_struct QOP_D3_FermionLinksAsqtad;
 
   /* HISQ datatypes*/
 typedef struct {
+  int n_naiks;
+  double eps_naik[QOP_MAX_NAIK];
+  QOP_hisq_unitarize_group_t ugroup;
+  QOP_hisq_unitarize_method_t umethod;
   double fat7_one_link;
   double fat7_three_staple;
   double fat7_five_staple;
@@ -321,10 +345,12 @@ double **QOP_D3_convert_F_to_raw(QOP_D3_Force *src,
   /* see the corresponding structure definitions for conventions */
 
 void QOP_F3_rephase_G(QOP_F3_GaugeField *links,
+		      int *r0,
 		      QOP_bc_t *bc,
 		      QOP_staggered_sign_t *sign);
 
 void QOP_D3_rephase_G(QOP_D3_GaugeField *links,
+		      int *r0,
 		      QOP_bc_t *bc,
 		      QOP_staggered_sign_t *sign);
 
@@ -388,6 +414,7 @@ void QOP_F3_asqtad_load_L_from_G(QOP_info_t *info,
 				 QOP_F3_GaugeField *gauge);
 
 void QOP_F3_asqtad_rephase_L(QOP_F3_FermionLinksAsqtad *fla,
+			     int *r0,
 			     QOP_bc_t *bc,
 			     QOP_staggered_sign_t *sign);
 
@@ -427,6 +454,7 @@ void QOP_D3_asqtad_load_L_from_G(QOP_info_t *info,
 				 QOP_D3_GaugeField *gauge);
 
 void QOP_D3_asqtad_rephase_L(QOP_D3_FermionLinksAsqtad *fla,
+			     int *r0,
 			     QOP_bc_t *bc,
 			     QOP_staggered_sign_t *sign);
 
@@ -441,6 +469,14 @@ void QOP_F3_asqtad_dslash(QOP_info_t *info,
 			  QOP_F3_ColorVector *in,
 			  QOP_evenodd_t eo_out,
 			  QOP_evenodd_t eo_in);
+
+void QOP_F3_asqtad_dslash_dir(QOP_info_t *info,
+			      QOP_F3_FermionLinksAsqtad *asqtad,
+			      int dir, int fb,
+			      double wtfat, double wtlong,
+			      QOP_F3_ColorVector *out,
+			      QOP_F3_ColorVector *in,
+			      QOP_evenodd_t eo_out);
 
 void QOP_F3_asqtad_diaginv(QOP_info_t *info,
 			   QOP_F3_FermionLinksAsqtad *asqtad,
@@ -474,6 +510,14 @@ void QOP_D3_asqtad_dslash(QOP_info_t *info,
 			  QOP_D3_ColorVector *in,
 			  QOP_evenodd_t eo_out,
 			  QOP_evenodd_t eo_in);
+
+void QOP_D3_asqtad_dslash_dir(QOP_info_t *info,
+			      QOP_D3_FermionLinksAsqtad *asqtad,
+			      int dir, int fb,
+			      double wtfat, double wtlong,
+			      QOP_D3_ColorVector *out,
+			      QOP_D3_ColorVector *in,
+			      QOP_evenodd_t eo_out);
 
 void QOP_D3_asqtad_diaginv(QOP_info_t *info,
 			   QOP_D3_FermionLinksAsqtad *asqtad,
@@ -541,94 +585,60 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
 
   /* fermion matrix link routines */
 
+QOP_status_t QOP_hisq_links_set_opts(QOP_opt_t opts[], int nopts);
+
   /* single precision */
 
 QOP_F3_FermionLinksHisq *
   QOP_F3_hisq_create_L_from_G(QOP_info_t *info,
-				QOP_hisq_coeffs_t *coeffs,
-				QOP_F3_GaugeField *gauge);
+			      QOP_hisq_coeffs_t *coeffs,
+			      QOP_F3_GaugeField *gauge);
+
+void QOP_F3_hisq_destroy_L(QOP_F3_FermionLinksHisq *field);
+
+QOP_F3_FermionLinksAsqtad **
+  QOP_F3_get_asqtad_links_from_hisq(QOP_F3_FermionLinksHisq *hl);
+  
+QOP_F3_FermionLinksAsqtad *
+  QOP_F3_get_asqtad_deps_links_from_hisq(QOP_F3_FermionLinksHisq *hl);
 
   /* double precision */
 
 QOP_D3_FermionLinksHisq *
   QOP_D3_hisq_create_L_from_G(QOP_info_t *info,
-				QOP_hisq_coeffs_t *coeffs,
-				QOP_D3_GaugeField *gauge);
+			      QOP_hisq_coeffs_t *coeffs,
+			      QOP_D3_GaugeField *gauge);
+
+void QOP_D3_hisq_destroy_L(QOP_D3_FermionLinksHisq *field);
 
 
-  /* inverter routines */
-
-QOP_status_t QOP_hisq_invert_set_opts(QOP_opt_t opts[], int nopts);
-
-void QOP_F3_hisq_invert(QOP_info_t *info,
-			  QOP_F3_FermionLinksHisq *hisq,
-			  QOP_invert_arg_t *inv_arg,
-			  QOP_resid_arg_t *res_arg,
-			  float mass,
-			  QOP_F3_ColorVector *out_pt,
-			  QOP_F3_ColorVector *in_pt);
-
-void QOP_F3_hisq_invert_multi(QOP_info_t *info,
-				QOP_F3_FermionLinksHisq *hisq,
-				QOP_invert_arg_t *inv_arg,
-				QOP_resid_arg_t **res_arg[],
-				float *masses[],
-				int nmass[],
-				QOP_F3_ColorVector **out_pt[],
-				QOP_F3_ColorVector *in_pt[],
-				int nsrc);
-
-void QOP_D3_hisq_invert(QOP_info_t *info,
-			  QOP_D3_FermionLinksHisq *hisq,
-			  QOP_invert_arg_t *inv_arg,
-			  QOP_resid_arg_t *res_arg,
-			  double mass,
-			  QOP_D3_ColorVector *out_pt,
-			  QOP_D3_ColorVector *in_pt);
-
-void QOP_D3_hisq_invert_multi(QOP_info_t *info,
-				QOP_D3_FermionLinksHisq *hisq,
-				QOP_invert_arg_t *inv_arg,
-				QOP_resid_arg_t **res_arg[],
-				double *masses[],
-				int nmass[],
-				QOP_D3_ColorVector **out_pt[],
-				QOP_D3_ColorVector *in_pt[],
-				int nsrc);
+QOP_D3_FermionLinksAsqtad **
+  QOP_D3_get_asqtad_links_from_hisq(QOP_D3_FermionLinksHisq *hl);
+  
+QOP_D3_FermionLinksAsqtad *
+  QOP_D3_get_asqtad_deps_links_from_hisq(QOP_D3_FermionLinksHisq *hl);
 
 
   /* fermion force routines */
 
 QOP_status_t QOP_hisq_force_set_opts(QOP_opt_t opts[], int nopts);
 
+
 void QOP_F3_hisq_force_multi(QOP_info_t *info,
-			     QOP_F3_GaugeField *Ugauge,
-			     QOP_F3_GaugeField *Vgauge,
-			     QOP_F3_GaugeField *Wgauge,
+			     QOP_F3_FermionLinksHisq *flh,
 			     QOP_F3_Force *force,
 			     QOP_hisq_coeffs_t *coef,
 			     float eps[],
 			     QOP_F3_ColorVector *in_pt[],
-			     int nsrc,
-			     int n_naiks,
-			     int n_order_naik_total,
-			     int *n_orders_naik,
-			     float *eps_naik);
+			     int *n_orders_naik);
   
-
 void QOP_D3_hisq_force_multi(QOP_info_t *info,
-			     QOP_D3_GaugeField *Ugauge,
-			     QOP_D3_GaugeField *Vgauge,
-			     QOP_D3_GaugeField *Wgauge,
+			     QOP_D3_FermionLinksHisq *flh,
 			     QOP_D3_Force *force,
 			     QOP_hisq_coeffs_t *coef,
 			     double eps[],
 			     QOP_D3_ColorVector *in_pt[],
-			     int nsrc,
-			     int n_naiks,
-			     int n_order_naik_total,
-			     int *n_orders_naik,
-			     double *eps_naik);
+			     int *n_orders_naik);
 
 
   /*********************/
@@ -1079,6 +1089,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_rephase_L          QOP_F3_asqtad_rephase_L
 
 #define QOP_asqtad_dslash       QOP_F3_asqtad_dslash
+#define QOP_asqtad_dslash_dir   QOP_F3_asqtad_dslash_dir
 #define QOP_asqtad_diaginv      QOP_F3_asqtad_diaginv
 #define QOP_asqtad_invert       QOP_F3_asqtad_invert
 #define QOP_asqtad_invert_multi QOP_F3_asqtad_invert_multi
@@ -1088,10 +1099,14 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 
 #define QOP_FermionLinksHisq        QOP_F3_FermionLinksHisq
 #define QOP_hisq_create_L_from_G    QOP_F3_hisq_create_L_from_G
+#define QOP_hisq_destroy_L          QOP_F3_hisq_destroy_L
+#define QOP_get_asqtad_links_from_hisq QOP_F3_get_asqtad_links_from_hisq
+#define QOP_get_asqtad_deps_links_from_hisq QOP_F3_get_asqtad_deps_links_from_hisq
 
 #define QOP_hisq_invert       QOP_F3_hisq_invert
 #define QOP_hisq_invert_multi QOP_F3_hisq_invert_multi
 
+#define QOP_hisq_force        QOP_F3_hisq_force
 #define QOP_hisq_force_multi  QOP_F3_hisq_force_multi
 
 #define QOP_FermionLinksWilson        QOP_F3_FermionLinksWilson
@@ -1107,7 +1122,6 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_wilson_load_L_from_G      QOP_F3_wilson_load_L_from_G
 
 #define QOP_wilson_dslash       QOP_F3_wilson_dslash
-#define QOP_wilson_diaginv      QOP_F3_wilson_diaginv
 #define QOP_wilson_invert       QOP_F3_wilson_invert
 #define QOP_wilson_invert_multi QOP_F3_wilson_invert_multi
 #define QOP_wilson_force        QOP_F3_wilson_force
@@ -1179,6 +1193,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_asqtad_rephase_L          QOP_D3_asqtad_rephase_L
 
 #define QOP_asqtad_dslash       QOP_D3_asqtad_dslash
+#define QOP_asqtad_dslash_dir   QOP_D3_asqtad_dslash_dir
 #define QOP_asqtad_diaginv      QOP_D3_asqtad_diaginv
 #define QOP_asqtad_invert       QOP_D3_asqtad_invert
 #define QOP_asqtad_invert_multi QOP_D3_asqtad_invert_multi
@@ -1187,10 +1202,14 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 
 #define QOP_FermionLinksHisq       QOP_D3_FermionLinksHisq
 #define QOP_hisq_create_L_from_G   QOP_D3_hisq_create_L_from_G
+#define QOP_hisq_destroy_L         QOP_D3_hisq_destroy_L
+#define QOP_get_asqtad_links_from_hisq QOP_D3_get_asqtad_links_from_hisq
+#define QOP_get_asqtad_deps_links_from_hisq QOP_D3_get_asqtad_deps_links_from_hisq
 
 #define QOP_hisq_invert       QOP_D3_hisq_invert
 #define QOP_hisq_invert_multi QOP_D3_hisq_invert_multi
 
+#define QOP_hisq_force        QOP_D3_hisq_force
 #define QOP_hisq_force_multi  QOP_D3_hisq_force_multi
 
 #define QOP_FermionLinksWilson        QOP_D3_FermionLinksWilson

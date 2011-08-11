@@ -1,18 +1,23 @@
-
 /**************** hisq_reunit_p.c ******************************/
 /*
- * AG: HISQ reuniterisation routines. Originally in serial 
+ * AG: HISQ reunitarization routines. Originally in serial 
  * Fortran code developed by Kit Wong, see
  * A Practical Guide to Lattice Simulations Involving Reunitarized Links
  * K. Y. Wong and R. M. Woloshyn
  * (HPQCD Collaboration)
  * April 2007
+ * A.Bazavov 02/2010 Added analytic reunitarization similar to MILC,
+ *                   split U(3) and SU(3) projection
+ *                   (SU(3) is not supposed to be used so far)
  */
 
 
 #include <qop_internal.h>
 #include <qla_d3.h>
 #include <qla_df3.h>
+
+// This alternate version requires some thought before adoption.
+#if 0
 
 static void
 u3reunit_site_d(QLA_D3_ColorMatrix *Ur, QLA_D3_ColorMatrix *U)
@@ -46,12 +51,92 @@ QOPPC(u3reunit)(QDP_ColorMatrix *U, QDP_ColorMatrix *Ur)
   QDP_M_eq_funcia(Ur, u3reunit_site, (void *)Uq, QDP_all);
   QDP_reset_M(U);
 }
-
+#endif
 
 //utilities
 static void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det);
 static void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv);
-static void QOPPC(su3adjoint)(QDP_ColorMatrix *mat,QDP_ColorMatrix *adj);
+//static void QOPPC(su3adjoint)(QDP_ColorMatrix *mat,QDP_ColorMatrix *adj);
+
+
+
+//AB output for debugging
+// static void PrintT4( QLA_ColorTensor4 dwdv ) {
+//   int i,j,k,l;
+//   i=j=k=l=0;
+// 
+//   for(i=0;i<3;i++) {
+//     for(j=0;j<3;j++) {
+//       for(k=0;k<3;k++) {
+//         for(l=0;l<3;l++) {
+//           printf("T4[%d][%d][%d][%d].real=%lf  T4[%d][%d][%d][%d].imag=%lf\n", 
+//             i,j,k,l,dwdv.t4[i][j][k][l].real,
+//             i,j,k,l,dwdv.t4[i][j][k][l].imag );
+//         }
+//       }
+//     }
+//   }
+// }
+// 
+// static void 
+// PrintMone(QLA_ColorMatrix m){
+//   printf("Field: %e %e %e\n", m.e[0][0].real,
+// 	 m.e[0][1].real, m.e[0][2].real);
+//   printf("       %e %e %e\n", m.e[1][0].real,
+// 	 m.e[1][1].real, m.e[1][2].real);
+//   printf("       %e %e %e\n\n", m.e[2][0].real,
+// 	 m.e[2][1].real, m.e[2][2].real);
+// }
+
+
+
+
+//#define QOPQDP_REUNIT_FOLLOW_PRECISION
+
+//AB Define precision for reunitarization
+#ifdef QOPQDP_REUNIT_FOLLOW_PRECISION
+
+#define custom_QLA_ColorMatrix QLA_ColorMatrix
+#define custom_QLA_Real QLA_Real
+
+#else
+
+#define custom_QLA_ColorMatrix QLA_D3_ColorMatrix
+#define custom_QLA_Real QLA_D_Real
+
+#endif
+
+//AB Reunitarization to U(3), similar to the MILC code,
+//   this is single link operation, it can be done outside
+//   QDP, it is not field based operation.
+//   Depending on QOPQDP_REUNIT_FOLLOW_PRECISION
+//   reunitarization can be done either in dominant precision
+//   or always in double precision
+void QOPPC(u3reunit)(QDP_ColorMatrix *V, QDP_ColorMatrix *W)
+{
+  QLA_ColorMatrix *Vlinks;
+  QLA_ColorMatrix *Wlinks;
+  
+  //custom_QLA_ColorMatrix A;
+  
+  int i;
+  
+//  printf("sizeof(custom_QLA_ColorMatrix)=%d\n",sizeof(custom_QLA_ColorMatrix));
+
+  // stop QDP operations and expose QDP links
+  Vlinks = QDP_expose_M(V);
+  Wlinks = QDP_expose_M(W);
+
+  
+  for( i=0; i<QDP_sites_on_node; i++ ) {
+    QOPPC(su3_un_analytic)( &(Vlinks[i]), &(Wlinks[i]) );
+  }
+  
+  // resume QDP operations on links
+  QDP_reset_M( V );
+  QDP_reset_M( W );
+}
+
 
 //Reuniterise links to SU3 (see eq. 53, 54 in the practical guide) 
 void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
@@ -71,6 +156,7 @@ void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
   const int npolyterm=14;
   QLA_Real poly_c[npolyterm+1], poly_d[npolyterm+1];
   int j,idiag,ic,jc;
+
 
 // Definition for the fraction:
   poly_c[0] = 0.085091;
@@ -187,6 +273,13 @@ void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
   //extract re and im parts of det
   QDP_R_eq_re_C(re_det,det,QDP_all);
   QDP_R_eq_im_C(im_det,det,QDP_all);
+
+
+//AB QUICK FIX TO REMOVE PROJECTION TO SU(3)
+  qla_const=1.;
+  QDP_R_eq_r(re_det,&qla_const,QDP_all);
+  qla_const=0.;
+  QDP_R_eq_r(im_det,&qla_const,QDP_all);
   
   //normalise det
   qla_const=0.166666667;
@@ -284,6 +377,82 @@ void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
  
 }
 
+
+
+
+void
+QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
+			       QDP_ColorMatrix *V[4],
+			       QDP_ColorMatrix *Force[4],
+			       QDP_ColorMatrix *Force_old[4])
+{
+  int i, j, k, l, m, n, nd;
+  QLA_ColorMatrix *Vlinks;
+  QLA_ColorMatrix *ff_new, *ff_old, ff_old_adj;
+  QLA_Complex ftmp;
+  QLA_ColorTensor4 dwdv, dwdagdv;
+
+  nd = QDP_ndim();
+
+  for( i=0; i<nd; i++ ) {
+    // stop QDP operations and expose QDP links
+    Vlinks = QDP_expose_M( V[i] );
+    ff_new = QDP_expose_M( Force[i] );
+    ff_old = QDP_expose_M( Force_old[i] );
+
+    //AB NO NEED TO REPHASE V LINKS???
+  
+  
+    for( j=0; j<QDP_sites_on_node; j++ ) {
+      // derivative with respect to V and V^+
+      QOPPC(su3_un_der_analytic)( &( Vlinks[j] ),
+            &dwdv, &dwdagdv );
+    
+//      if( j==0 ) {
+//        printf("FORCE REUNIT V link at site 0\n");
+//        PrintMone( Vlinks[j] );
+//        printf("FORCE REUNIT derivative at site 0\n");
+//        PrintT4(dwdv);
+//        PrintT4(dwdagdv);
+//      }
+
+      // adjoint piece of force from the previous level
+      QLA_M_eq_Ma( &ff_old_adj, &( ff_old[j] ) );
+
+      // see LONG COMMENT in fermion_force_fn_multi_hisq
+      QLA_M_eq_zero( &( ff_new[j] ) );
+      for( m=0; m<3; m++) {
+        for( n=0; n<3; n++) {
+          for( k=0; k<3; k++) {
+            for( l=0; l<3; l++) {
+              // direct part
+              QLA_c_eq_c_times_c( ftmp, dwdv.t4[k][m][n][l], ff_old[j].e[l][k] );
+              QLA_c_peq_c( ff_new[j].e[n][m], ftmp );
+              // adjoint part
+              QLA_c_eq_c_times_c( ftmp, dwdagdv.t4[k][m][n][l], ff_old_adj.e[l][k] );
+              QLA_c_peq_c( ff_new[j].e[n][m], ftmp );
+            }
+          }
+        }
+      }
+//      if( j==0 ) {
+//        printf("FORCE REUNIT old force\n");
+//        PrintMone( ff_old[j] );
+//        printf("FORCE REUNIT new force\n");
+//        PrintMone( ff_new[j] );
+//      }
+    }
+
+
+    // resume QDP operations on links
+    QDP_reset_M( V[i] );
+    QDP_reset_M( Force[i] );
+    QDP_reset_M( Force_old[i] );
+  }
+}
+
+
+#ifdef ALAN_GRAY_REUNIT_FORCE
 //compute derivatives (see eq. 55, 56 in the practical guide) 
 void
 QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
@@ -1162,13 +1331,13 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
 
 
 }
-
+#endif /* ALAN_GRAY_REUNIT_FORCE */
 
 
 
 //utilities
 //find inverse of SU3 matrix
-void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv)
+static void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv)
 {
 
   int i,j,i1=0,j1=0,i2=0,j2=0;
@@ -1364,7 +1533,7 @@ void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv)
 
 
 //find determinant of SU3 matrix
-void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det)
+static void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det)
 {
 
   int i,j;
@@ -1474,9 +1643,9 @@ void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det)
 }
 
 
-
+#if 0
 //find adjoint of SU3 matrix
-void QOPPC(su3adjoint)(QDP_ColorMatrix *mat,QDP_ColorMatrix *adj)
+static void QOPPC(su3adjoint)(QDP_ColorMatrix *mat,QDP_ColorMatrix *adj)
 {
 
   int i,j,i1=0,j1=0,i2=0,j2=0;
@@ -1649,3 +1818,4 @@ void QOPPC(su3adjoint)(QDP_ColorMatrix *mat,QDP_ColorMatrix *adj)
 
 }
 
+#endif
