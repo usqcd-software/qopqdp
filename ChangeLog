@@ -1,3 +1,27 @@
+2011-08-11 16:30  tag qopqdp0-17-0
+
+2011-08-11 16:30  detar
+
+	* NEWS, aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/asqtad_test.c, examples/hisq_invert_bench.c,
+	  examples/test_reunit_utils.c, include/hisq_action.h,
+	  include/qop.h, include/qop_internal.h, include/qop_internal_p.h,
+	  include/qop_qdp.h, lib/Makefile.am, lib/asqtad_dslash_p.c,
+	  lib/asqtad_invert_p.c, lib/common_p.c, lib/hisq_force.c,
+	  lib/hisq_force_fnmat_p.c, lib/hisq_force_p.c, lib/hisq_links.c,
+	  lib/hisq_links_d.c, lib/hisq_links_f.c, lib/hisq_links_p.c,
+	  lib/hisq_reunit_p.c, lib/hisq_reunit_utilities_d.c,
+	  lib/hisq_reunit_utilities_f.c, lib/hisq_reunit_utilities_p.c,
+	  lib/invert_cg_p.c, lib/wilson_invert_p.c:	 Reorganized the
+	  HISQ interface
+		  Modified the internal storage of HISQ links.
+		  Added HISQ fermion force from Alan Gray and Alexei
+	  Bazavov
+		  Removed separate HISQ inverter. Link creation moved to
+	  hisq_links*.c.
+		  HISQ unitarization always done in double precision now.
+		  Added some fermion link linear algebra utilities
+
 2011-02-23 15:32  osborn
 
 	* NEWS, examples/asqtad_invert_bench.c, examples/dw_invert_bench.c,
