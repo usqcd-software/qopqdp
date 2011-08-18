@@ -1,3 +1,15 @@
+2011-08-18 01:42  osborn
+
+	* NEWS, configure, examples/hisq_invert_bench.c,
+	  examples/test_reunit_utils.c, examples/wilson_invert_bench.c,
+	  lib/asqtad_dslash_p.c, lib/asqtad_invert_p.c,
+	  lib/hisq_reunit_p.c, lib/hisq_reunit_utilities_f.c,
+	  lib/hisq_reunit_utilities_p.c, lib/invert_bicgstab_p.c,
+	  lib/invert_cg_p.c, lib/wilson_invert_p.c: Fixed HISQ routines to
+	  use QLA macros throughout.  Changed inverter stopping criterion
+	  to rsqmin _or_ relmin.  Made asqtad link fattening ignore staples
+	  with coefficient of 0.
+
 2011-08-11 16:30  tag qopqdp0-17-0
 
 2011-08-11 16:30  detar
