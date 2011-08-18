@@ -73,34 +73,45 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
 static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U, QLA_ColorMatrix *V);
 
 
+#define Uelem(a,b) QLA_elem_M(*U,a,b)
 
+#if 1
 // Determinant of 3x3 complex matrix
 QLA_Complex QOPPC(su3_mat_det)( QLA_ColorMatrix *U) {
   QLA_Complex a, b, m0, m1, m2, cdet;
 
   // brute-force calculation
-  QLA_c_eq_c_times_c( a, U->e[1][1], U->e[2][2] );
-  QLA_c_eq_c_times_c( b, U->e[1][2], U->e[2][1] );
+  QLA_c_eq_c_times_c( a, Uelem(1,1), Uelem(2,2) );
+  QLA_c_eq_c_times_c( b, Uelem(1,2), Uelem(2,1) );
   QLA_c_eq_c_minus_c( m0, a, b );
   
-  QLA_c_eq_c_times_c( a, U->e[1][0], U->e[2][2] );
-  QLA_c_eq_c_times_c( b, U->e[1][2], U->e[2][0] );
+  QLA_c_eq_c_times_c( a, Uelem(1,0), Uelem(2,2) );
+  QLA_c_eq_c_times_c( b, Uelem(1,2), Uelem(2,0) );
   QLA_c_eq_c_minus_c( m1, a, b );
   
-  QLA_c_eq_c_times_c( a, U->e[1][0], U->e[2][1] );
-  QLA_c_eq_c_times_c( b, U->e[1][1], U->e[2][0] );
+  QLA_c_eq_c_times_c( a, Uelem(1,0), Uelem(2,1) );
+  QLA_c_eq_c_times_c( b, Uelem(1,1), Uelem(2,0) );
   QLA_c_eq_c_minus_c( m2, a, b );
 
-  QLA_c_eq_c_times_c( a, U->e[0][0], m0 );
-  QLA_c_eq_c_times_c( b, U->e[0][1], m1 );
+  QLA_c_eq_c_times_c( a, Uelem(0,0), m0 );
+  QLA_c_eq_c_times_c( b, Uelem(0,1), m1 );
   QLA_c_eq_c_minus_c( cdet, a, b );
-  QLA_c_eq_c_times_c( a, U->e[0][2], m2 );
+  QLA_c_eq_c_times_c( a, Uelem(0,2), m2 );
   QLA_c_eq_c_plus_c( cdet, cdet, a );
   
   
   return cdet;
 }
-
+#else
+// Determinant of 3x3 complex matrix
+QLA_Complex
+QOPPC(su3_mat_det)( QLA_ColorMatrix *U)
+{
+  QLA_Complex d;
+  QLA_C_eq_det_M(&d, U);
+  return d;
+}
+#endif
 
 // Analytic reunitarization
 void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
@@ -136,9 +147,14 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   QLA_M_eq_M_times_M( &Q3, &Q2, &Q );
 
   /* (real) traces */
-  c0 = Q.e[0][0].real + Q.e[1][1].real + Q.e[2][2].real;
-  c1 = ( Q2.e[0][0].real + Q2.e[1][1].real + Q2.e[2][2].real ) / 2;
-  c2 = ( Q3.e[0][0].real + Q3.e[1][1].real + Q3.e[2][2].real ) / 3;
+  //c0 = Q.e[0][0].real + Q.e[1][1].real + Q.e[2][2].real;
+  //c1 = ( Q2.e[0][0].real + Q2.e[1][1].real + Q2.e[2][2].real ) / 2;
+  //c2 = ( Q3.e[0][0].real + Q3.e[1][1].real + Q3.e[2][2].real ) / 3;
+  QLA_R_eq_re_trace_M(&c0, &Q);
+  QLA_R_eq_re_trace_M(&c1, &Q2);
+  c1 /= 2;
+  QLA_R_eq_re_trace_M(&c2, &Q3);
+  c2 /= 3;
 
   S = c1/3 - c0 * (c0/18);
   if( fabs(S)<QOP_SU3_UNIT_ANALYTIC_EPS ) {
@@ -171,7 +187,8 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
         printf("Matrix V (row-wise):\n");
         for( i=0; i<3; i++ ) {
           for( j=0; j<3; j++ ) {
-            printf( "%24.18g %24.18g\n", V->e[i][j].real, V->e[i][j].imag );
+            printf( "%24.18g %24.18g\n", QLA_real(QLA_elem_M(*V,i,j)),
+		    QLA_imag(QLA_elem_M(*V,i,j)) );
           }
         }
         QDP_abort(0);
@@ -268,9 +285,12 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
   QLA_M_eq_r_times_M_plus_M( &S2, &f1, &Q, &S1 );
   //AB CHANGE DIRECT ACCESS TO ACCESS THROUGH QLA ROUTINES!
-  S2.e[0][0].real += f0;
-  S2.e[1][1].real += f0;
-  S2.e[2][2].real += f0;
+  //S2.e[0][0].real += f0;
+  //S2.e[1][1].real += f0;
+  //S2.e[2][2].real += f0;
+  QLA_c_peq_r(QLA_elem_M(S2,0,0), f0);
+  QLA_c_peq_r(QLA_elem_M(S2,1,1), f0);
+  QLA_c_peq_r(QLA_elem_M(S2,2,2), f0);
 
   /* W = V*S2 */
   QLA_M_eq_M_times_M( W, V, &S2 );
@@ -330,9 +350,14 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   QLA_M_eq_M_times_M( &Q3, &Q2, &Q );
 
   /* (real) traces */
-  c0 = Q.e[0][0].real + Q.e[1][1].real + Q.e[2][2].real;
-  c1 = ( Q2.e[0][0].real + Q2.e[1][1].real + Q2.e[2][2].real ) / 2;
-  c2 = ( Q3.e[0][0].real + Q3.e[1][1].real + Q3.e[2][2].real ) / 3;
+  //c0 = Q.e[0][0].real + Q.e[1][1].real + Q.e[2][2].real;
+  //c1 = ( Q2.e[0][0].real + Q2.e[1][1].real + Q2.e[2][2].real ) / 2;
+  //c2 = ( Q3.e[0][0].real + Q3.e[1][1].real + Q3.e[2][2].real ) / 3;
+  QLA_R_eq_re_trace_M(&c0, &Q);
+  QLA_R_eq_re_trace_M(&c1, &Q2);
+  c1 /= 2;
+  QLA_R_eq_re_trace_M(&c2, &Q3);
+  c2 /= 3;
 
   S = c1/3 - c0 * (c0/18);
   if( fabs(S)<QOP_SU3_UNIT_ANALYTIC_EPS ) {
@@ -365,7 +390,7 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
         printf("Matrix V (row-wise):\n");
         for( i=0; i<3; i++ ) {
           for( j=0; j<3; j++ ) {
-            printf( "%24.18g %24.18g\n", V->e[i][j].real, V->e[i][j].imag );
+            printf( "%24.18g %24.18g\n", QLA_real(QLA_elem_M(*V,i,j)), QLA_imag(QLA_elem_M(*V,i,j)) );
           }
         }
         QDP_abort(0);
@@ -488,9 +513,12 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
   QLA_M_eq_r_times_M_plus_M( &Q12, &f1, &Q, &S1 );
   //AB CHANGE DIRECT ACCESS TO ACCESS THROUGH QLA ROUTINES!
-  Q12.e[0][0].real += f0;
-  Q12.e[1][1].real += f0;
-  Q12.e[2][2].real += f0;
+  //Q12.e[0][0].real += f0;
+  //Q12.e[1][1].real += f0;
+  //Q12.e[2][2].real += f0;
+  QLA_c_peq_r(QLA_elem_M(Q12,0,0), f0);
+  QLA_c_peq_r(QLA_elem_M(Q12,1,1), f0);
+  QLA_c_peq_r(QLA_elem_M(Q12,2,2), f0);
 
   /* W = V*S2 */
   QLA_M_eq_M_times_M( &W, V, &Q12 );
@@ -581,43 +609,48 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
     for( j=0; j<3; j++) {
       for( m=0; m<3; m++) {
         for( n=0; n<3; n++) {
-          der.real = 0.0;
-          der.imag = 0.0;
+	  QLA_c_eq_r(der, 0);
           /* dW/dV */
           if( i==m ) {
-            der.real += Q12.e[n][j].real;
-            der.imag += Q12.e[n][j].imag;
+            //der.real += Q12.e[n][j].real;
+            //der.imag += Q12.e[n][j].imag;
+	    QLA_c_peq_c(der, QLA_elem_M(Q12, n, j));
           }
           if( j==n ) {
-            der.real += f1 * VVd.e[i][m].real + f2 * VQVd.e[i][m].real;
-            der.imag += f1 * VVd.e[i][m].imag + f2 * VQVd.e[i][m].imag;
+            //der.real += f1 * VVd.e[i][m].real + f2 * VQVd.e[i][m].real;
+            //der.imag += f1 * VVd.e[i][m].imag + f2 * VQVd.e[i][m].imag;
+	    QLA_c_peq_r_times_c(der, f1, QLA_elem_M(VVd,i,m));
+	    QLA_c_peq_r_times_c(der, f2, QLA_elem_M(VQVd,i,m));
           }
-          QLA_c_eq_c_times_c( ctmp, V->e[i][j], PVd.e[n][m] );
+          QLA_c_eq_c_times_c( ctmp, QLA_elem_M(*V,i,j), QLA_elem_M(PVd,n,m) );
           QLA_c_peq_c( der, ctmp );
-          QLA_c_eq_c_times_c( ctmp, VQ.e[i][j], RVd.e[n][m] );
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(VQ,i,j),QLA_elem_M(RVd,n,m) );
           QLA_c_peq_c( der, ctmp );
-          QLA_c_eq_c_times_c( ctmp, VQQ.e[i][j], SVd.e[n][m] );
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(VQQ,i,j),QLA_elem_M(SVd,n,m) );
           QLA_c_peq_c( der, ctmp );
-          QLA_c_eq_c_times_c( ctmp, VVd.e[i][m], Q.e[n][j] );
-          der.real += f2 * ctmp.real;
-          der.imag += f2 * ctmp.imag;
-          dwdv->t4[i][m][n][j].real = der.real;
-          dwdv->t4[i][m][n][j].imag = der.imag;
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(VVd,i,m),QLA_elem_M(Q,n,j) );
+          //der.real += f2 * ctmp.real;
+          //der.imag += f2 * ctmp.imag;
+	  QLA_c_peq_r_times_c(der, f2, ctmp);
+          dwdv->t4[i][m][n][j].real = QLA_real(der);
+          dwdv->t4[i][m][n][j].imag = QLA_imag(der);
           /* dW^+/dV */
-          QLA_c_eq_c_times_c( der, Vd.e[i][j], PVd.e[n][m] );
-          QLA_c_eq_c_times_c( ctmp, QVd.e[i][j], RVd.e[n][m] );
+          QLA_c_eq_c_times_c( der,QLA_elem_M(Vd,i,j),QLA_elem_M(PVd,n,m) );
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(QVd,i,j),QLA_elem_M(RVd,n,m) );
           QLA_c_peq_c( der, ctmp );
-          QLA_c_eq_c_times_c( ctmp, Vd.e[i][m], Vd.e[n][j] );
-          der.real += f1 * ctmp.real;
-          der.imag += f1 * ctmp.imag;
-          QLA_c_eq_c_times_c( ctmp, QQVd.e[i][j], SVd.e[n][m] );
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(Vd,i,m),QLA_elem_M(Vd,n,j) );
+          //der.real += f1 * ctmp.real;
+          //der.imag += f1 * ctmp.imag;
+	  QLA_c_peq_r_times_c(der, f1, ctmp);
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(QQVd,i,j),QLA_elem_M(SVd,n,m) );
           QLA_c_peq_c( der, ctmp );
-          QLA_c_eq_c_times_c( ctmp, Vd.e[i][m], QVd.e[n][j] );
-          QLA_c_eq_c_times_c( ctmp2, Vd.e[n][j], QVd.e[i][m] );
-          der.real += f2 * ( ctmp.real + ctmp2.real );
-          der.imag += f2 * ( ctmp.imag + ctmp2.imag );
-          dwdagdv->t4[i][m][n][j].real = der.real;
-          dwdagdv->t4[i][m][n][j].imag = der.imag;
+          QLA_c_eq_c_times_c( ctmp,QLA_elem_M(Vd,i,m),QLA_elem_M(QVd,n,j) );
+          QLA_c_eq_c_times_c( ctmp2,QLA_elem_M(Vd,n,j),QLA_elem_M(QVd,i,m) );
+          //der.real += f2 * ( ctmp.real + ctmp2.real );
+          //der.imag += f2 * ( ctmp.imag + ctmp2.imag );
+	  QLA_c_peq_r_times_c(der, f2, ctmp);
+          dwdagdv->t4[i][m][n][j].real = QLA_real(der);
+          dwdagdv->t4[i][m][n][j].imag = QLA_imag(der);
         }
       }
     }
@@ -680,60 +713,6 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
 #endif
 
 /* defines that allow to remap input arrays easily */
-#define A00re A->e[0][0].real
-#define A00im A->e[0][0].imag
-#define A01re A->e[0][1].real
-#define A01im A->e[0][1].imag
-#define A02re A->e[0][2].real
-#define A02im A->e[0][2].imag
-#define A10re A->e[1][0].real
-#define A10im A->e[1][0].imag
-#define A11re A->e[1][1].real
-#define A11im A->e[1][1].imag
-#define A12re A->e[1][2].real
-#define A12im A->e[1][2].imag
-#define A20re A->e[2][0].real
-#define A20im A->e[2][0].imag
-#define A21re A->e[2][1].real
-#define A21im A->e[2][1].imag
-#define A22re A->e[2][2].real
-#define A22im A->e[2][2].imag
-#define U00re U->e[0][0].real
-#define U00im U->e[0][0].imag
-#define U01re U->e[0][1].real
-#define U01im U->e[0][1].imag
-#define U02re U->e[0][2].real
-#define U02im U->e[0][2].imag
-#define U10re U->e[1][0].real
-#define U10im U->e[1][0].imag
-#define U11re U->e[1][1].real
-#define U11im U->e[1][1].imag
-#define U12re U->e[1][2].real
-#define U12im U->e[1][2].imag
-#define U20re U->e[2][0].real
-#define U20im U->e[2][0].imag
-#define U21re U->e[2][1].real
-#define U21im U->e[2][1].imag
-#define U22re U->e[2][2].real
-#define U22im U->e[2][2].imag
-#define V00re V->e[0][0].real
-#define V00im V->e[0][0].imag
-#define V01re V->e[0][1].real
-#define V01im V->e[0][1].imag
-#define V02re V->e[0][2].real
-#define V02im V->e[0][2].imag
-#define V10re V->e[1][0].real
-#define V10im V->e[1][0].imag
-#define V11re V->e[1][1].real
-#define V11im V->e[1][1].imag
-#define V12re V->e[1][2].real
-#define V12im V->e[1][2].imag
-#define V20re V->e[2][0].real
-#define V20im V->e[2][0].imag
-#define V21re V->e[2][1].real
-#define V21im V->e[2][1].imag
-#define V22re V->e[2][2].real
-#define V22im V->e[2][2].imag
 #define b00 P[0][0][0]
 #define b01 P[0][1][0]
 #define b02 P[0][2][0]
@@ -765,6 +744,7 @@ static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U
 
   /* original matrix can be in single precision,
      so copy it into double */
+#if 0
   Ad[0][0][0]=A00re; Ad[0][0][1]=A00im;
   Ad[0][1][0]=A01re; Ad[0][1][1]=A01im;
   Ad[0][2][0]=A02re; Ad[0][2][1]=A02im;
@@ -774,6 +754,13 @@ static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U
   Ad[2][0][0]=A20re; Ad[2][0][1]=A20im;
   Ad[2][1][0]=A21re; Ad[2][1][1]=A21im;
   Ad[2][2][0]=A22re; Ad[2][2][1]=A22im;
+#endif
+  for(i=0; i<3; i++) {
+    for(j=0; j<3; j++) {
+      Ad[i][j][0] = QLA_real(QLA_elem_M(*A,i,j));
+      Ad[i][j][1] = QLA_imag(QLA_elem_M(*A,i,j));
+    }
+  }
 
 
   i=0; j=0;
@@ -2068,6 +2055,7 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
 
   /* final U=Q*UO3
      (unitary times orthogonal that accumulated Givens rotations) */
+#if 0
   U00re=Q[0][0][0]*UO3[0][0]+Q[0][1][0]*UO3[1][0]+Q[0][2][0]*UO3[2][0];
   U00im=Q[0][0][1]*UO3[0][0]+Q[0][1][1]*UO3[1][0]+Q[0][2][1]*UO3[2][0];
   U01re=Q[0][0][0]*UO3[0][1]+Q[0][1][0]*UO3[1][1]+Q[0][2][0]*UO3[2][1];
@@ -2086,6 +2074,15 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
   U21im=Q[2][0][1]*UO3[0][1]+Q[2][1][1]*UO3[1][1]+Q[2][2][1]*UO3[2][1];
   U22re=Q[2][0][0]*UO3[0][2]+Q[2][1][0]*UO3[1][2]+Q[2][2][0]*UO3[2][2];
   U22im=Q[2][0][1]*UO3[0][2]+Q[2][1][1]*UO3[1][2]+Q[2][2][1]*UO3[2][2];
+#endif
+  for(i=0; i<3; i++) {
+    for(j=0; j<3; j++) {
+      QLA_Real tr,ti;
+      tr = Q[i][0][0]*UO3[0][j]+Q[i][1][0]*UO3[1][j]+Q[i][2][0]*UO3[2][j];
+      ti = Q[i][0][1]*UO3[0][j]+Q[i][1][1]*UO3[1][j]+Q[i][2][1]*UO3[2][j];
+      QLA_c_eq_r_plus_ir(QLA_elem_M(*V,i,j), tr, ti);
+    }
+  }
 
   /* Q=V1*V2 (V1 is block diagonal with V2_11=1,
               V2 is block diagonal with V2_11=1, V2_22=1) */
@@ -2103,6 +2100,7 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
 
   /* final V=Q*VO3
      (unitary times orthogonal that accumulated Givens rotations) */
+#if 0
   V00re=Q[0][0][0]*VO3[0][0]+Q[0][1][0]*VO3[1][0]+Q[0][2][0]*VO3[2][0];
   V00im=Q[0][0][1]*VO3[0][0]+Q[0][1][1]*VO3[1][0]+Q[0][2][1]*VO3[2][0];
   V01re=Q[0][0][0]*VO3[0][1]+Q[0][1][0]*VO3[1][1]+Q[0][2][0]*VO3[2][1];
@@ -2121,6 +2119,15 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
   V21im=Q[2][0][1]*VO3[0][1]+Q[2][1][1]*VO3[1][1]+Q[2][2][1]*VO3[2][1];
   V22re=Q[2][0][0]*VO3[0][2]+Q[2][1][0]*VO3[1][2]+Q[2][2][0]*VO3[2][2];
   V22im=Q[2][0][1]*VO3[0][2]+Q[2][1][1]*VO3[1][2]+Q[2][2][1]*VO3[2][2];
+#endif
+  for(i=0; i<3; i++) {
+    for(j=0; j<3; j++) {
+      QLA_Real tr,ti;
+      tr = Q[i][0][0]*VO3[0][j]+Q[i][1][0]*VO3[1][j]+Q[i][2][0]*VO3[2][j];
+      ti = Q[i][0][1]*VO3[0][j]+Q[i][1][1]*VO3[1][j]+Q[i][2][1]*VO3[2][j];
+      QLA_c_eq_r_plus_ir(QLA_elem_M(*V,i,j), tr, ti);
+    }
+  }
 
   /* singular values */
   sigma[0]=b00; sigma[1]=b11; sigma[2]=b22;

@@ -57,8 +57,8 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
     if( (total_iterations==0) ||
 	(iteration>=restart_iterations) ||
 	(total_iterations>=max_iterations) ||
-	((rsqstop <= 0 || rsq<rsqstop) &&
-	 (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ){
+	(rsqstop>0 && rsq<rsqstop) ||
+	(res_arg->relmin>0 && relnorm2<res_arg->relmin) ) {
       /* only way out */
 
       /* stop when we exhaust iterations */
@@ -77,13 +77,16 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
       V_eq_V_minus_V(r, in, r, subset);
       V_eq_V(r0,r,subset);
       r_eq_norm2_V(&rsq, r, subset);
+      /* compute FNAL norm if requested */
+      if(res_arg->relmin > 0)
+	relnorm2 = relnorm2_V(r, out, subset);
       VERB(LOW, "BICG: (re)start: iter %i rsq = %g rel = %g\n", 
 	   total_iterations, rsq, relnorm2);
 
       /* stop here if converged */
-      if( ((rsqstop <= 0 || rsq<rsqstop) &&
-	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
-	  (total_iterations>=max_iterations) ) break;
+      if( rsq<rsqstop ||
+	  relnorm2<res_arg->relmin ||
+	  total_iterations>=max_iterations ) break;
 
       V_eq_zero(v, subset);
       V_eq_zero(p, subset);

@@ -1,3 +1,10 @@
+2011-08-17:	James Osborn
+	Fixed HISQ routines to use QLA macros throughout.
+	Changed inverter stopping criterion to rsqmin _or_ relmin.
+
+2011-05-12:	James Osborn
+	Made asqtad link fattening ignore staples with coefficient of 0.
+
 ===========================================================================
 2011-08-11      version 0.17.0
 ===========================================================================
@@ -8,7 +15,7 @@
         Removed separate HISQ inverter. Link creation moved to hisq_links*.c.
         HISQ unitarization always done in double precision now.
 	Added some fermion link linear algebra utilities
-===========================================================================
+
 2011-02-23:	James Osborn
 	Changed HISQ reunit to U3 since phases aren't known.
 
@@ -54,11 +61,6 @@
         Restructured domain-wall functions to eliminate some problems with
         uninitialized temporaries.
 
-===========================================================================
-2011-04-20     version 0.17.0 Carleton DeTar
-        Revised interface for HISQ (Bazavov/Gray/DeTar)
-        Change boundary twist from surface to volume twist for asqtad.
-        Bug fix: relative norm stopping for asqtad inversion
 ===========================================================================
 2010-01-24      version 0.16.0
 ===========================================================================

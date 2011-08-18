@@ -426,11 +426,11 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
           for( k=0; k<3; k++) {
             for( l=0; l<3; l++) {
               // direct part
-              QLA_c_eq_c_times_c( ftmp, dwdv.t4[k][m][n][l], ff_old[j].e[l][k] );
-              QLA_c_peq_c( ff_new[j].e[n][m], ftmp );
+              QLA_c_eq_c_times_c( ftmp, dwdv.t4[k][m][n][l], QLA_elem_M(ff_old[j],l,k) );
+              QLA_c_peq_c( QLA_elem_M(ff_new[j],n,m), ftmp );
               // adjoint part
-              QLA_c_eq_c_times_c( ftmp, dwdagdv.t4[k][m][n][l], ff_old_adj.e[l][k] );
-              QLA_c_peq_c( ff_new[j].e[n][m], ftmp );
+              QLA_c_eq_c_times_c( ftmp, dwdagdv.t4[k][m][n][l], QLA_elem_M(ff_old_adj,l,k) );
+              QLA_c_peq_c( QLA_elem_M(ff_new[j],n,m), ftmp );
             }
           }
         }

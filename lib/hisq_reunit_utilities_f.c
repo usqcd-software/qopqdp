@@ -51,24 +51,25 @@ void QOP_F3_su3_un_der_analytic( QLA_F3_ColorMatrix *V,
 // Determinant of 3x3 complex matrix
 QLA_F_Complex QOP_F3_su3_mat_det( QLA_F3_ColorMatrix *U) {
   QLA_F_Complex a, b, m0, m1, m2, cdet;
+#define Uelem(a,b) QLA_elem_M(*U,a,b)
 
   // brute-force calculation
-  QLA_c_eq_c_times_c( a, U->e[1][1], U->e[2][2] );
-  QLA_c_eq_c_times_c( b, U->e[1][2], U->e[2][1] );
+  QLA_c_eq_c_times_c( a, Uelem(1,1), Uelem(2,2) );
+  QLA_c_eq_c_times_c( b, Uelem(1,2), Uelem(2,1) );
   QLA_c_eq_c_minus_c( m0, a, b );
   
-  QLA_c_eq_c_times_c( a, U->e[1][0], U->e[2][2] );
-  QLA_c_eq_c_times_c( b, U->e[1][2], U->e[2][0] );
+  QLA_c_eq_c_times_c( a, Uelem(1,0), Uelem(2,2) );
+  QLA_c_eq_c_times_c( b, Uelem(1,2), Uelem(2,0) );
   QLA_c_eq_c_minus_c( m1, a, b );
   
-  QLA_c_eq_c_times_c( a, U->e[1][0], U->e[2][1] );
-  QLA_c_eq_c_times_c( b, U->e[1][1], U->e[2][0] );
+  QLA_c_eq_c_times_c( a, Uelem(1,0), Uelem(2,1) );
+  QLA_c_eq_c_times_c( b, Uelem(1,1), Uelem(2,0) );
   QLA_c_eq_c_minus_c( m2, a, b );
 
-  QLA_c_eq_c_times_c( a, U->e[0][0], m0 );
-  QLA_c_eq_c_times_c( b, U->e[0][1], m1 );
+  QLA_c_eq_c_times_c( a, Uelem(0,0), m0 );
+  QLA_c_eq_c_times_c( b, Uelem(0,1), m1 );
   QLA_c_eq_c_minus_c( cdet, a, b );
-  QLA_c_eq_c_times_c( a, U->e[0][2], m2 );
+  QLA_c_eq_c_times_c( a, Uelem(0,2), m2 );
   QLA_c_eq_c_plus_c( cdet, cdet, a );
   
   

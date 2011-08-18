@@ -52,8 +52,8 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
     if( (total_iterations==0) ||
 	(iteration>=restart_iterations) ||
 	(total_iterations>=max_iterations) ||
-	((rsqstop <= 0 || rsq<rsqstop) &&
-	 (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ){
+	(rsq<rsqstop) ||
+	(relnorm2<res_arg->relmin) ) {
       /* only way out */
 
       /* stop when we exhaust iterations */
@@ -80,8 +80,8 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 	   total_iterations, rsq, relnorm2);
 
       /* stop here if converged */
-      if( ((rsqstop <= 0 || rsq<rsqstop) &&
-	   (res_arg->relmin <= 0 || relnorm2<res_arg->relmin)) ||
+      if( (rsq<rsqstop) ||
+	  (relnorm2<res_arg->relmin) ||
 	  (total_iterations>=max_iterations) ) break;
 
       V_eq_V(p, r, subset);
@@ -231,7 +231,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
     /* compute FNAL norm if requested */
     /* here we look at the largest shift, since the FNAL norm is
        most stringent for that case */
-    if(res_arg[imax]->relmin > 0){
+    if(res_arg[imax]->relmin > 0) {
       V_meq_r_times_V(r, b+imax, Mp, subset);
       relnorm2 = relnorm2_V(r, out[imax], subset);
     }
@@ -241,8 +241,8 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
-	((rsqstop <= 0 || rsq<rsqstop) &&
-	 (res_arg[imax]->relmin <= 0 || relnorm2<res_arg[imax]->relmin)) ) {
+	(rsq<rsqstop) ||
+	(relnorm2<res_arg[imax]->relmin) ) {
       /* only way out */
       break;
     }

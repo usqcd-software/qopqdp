@@ -123,6 +123,7 @@ start(void)
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
   QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
   res_arg.rsqmin = rsqmin;
+  //res_arg.relmin = rsqmin;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.max_restarts = 5;

@@ -18,7 +18,7 @@ static void print_mat( QLA_ColorMatrix *A ) {
   int i,j;
   for( i=0; i<3; i++) {
     for( j=0; j<3; j++) {
-      printf("(%+.4e,%+.4e)", A->e[i][j].real, A->e[i][j].imag);
+      printf("(%+.4e,%+.4e)", QLA_real(QLA_elem_M(*A,i,j)), QLA_imag(QLA_elem_M(*A,i,j)));
       if( j!=2 ) printf("  ");
     }
     printf("\n");
@@ -56,10 +56,15 @@ main(int argc, char *argv[]) {
     /* randomize matrix */
     for( i=0; i<3; i++) {
       for( j=0; j<3; j++) {
-        A.e[i][j].real
+#if 0
+	A.e[i][j].real
             = MAX_AMPLITUDE*( 2 * QLA_random(s) - 1 );
         A.e[i][j].imag 
             = MAX_AMPLITUDE*( 2 * QLA_random(s) - 1 );
+#endif
+	QLA_c_eq_r_plus_ir(QLA_elem_M(A,i,j),
+			   MAX_AMPLITUDE*( 2 * QLA_random(s) - 1 ),
+			   MAX_AMPLITUDE*( 2 * QLA_random(s) - 1 ));
       }
     }
     printf( "*** Iteration %d\n", irpt );

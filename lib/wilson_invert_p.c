@@ -352,10 +352,10 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
     iter += res_arg->final_iter;
     VERB(LOW, "WILSON_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq, 
 	 relnorm2);
-  } while(((rsqstop > 0 && rsq > rsqstop) ||
-	   (res_arg->relmin > 0 && relnorm2 > res_arg->relmin)) &&
-	  (nrestart++ < max_restarts));
-  
+  } while( rsq > rsqstop &&
+	   relnorm2 > res_arg->relmin &&
+	   nrestart++ < max_restarts );
+
   QDP_D_eq_D(out, qdpout, insub);
 
   QDP_destroy_D(qdpin);

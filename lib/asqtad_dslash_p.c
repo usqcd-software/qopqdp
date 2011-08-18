@@ -401,26 +401,26 @@ static void
 make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
 	       QOP_asqtad_coeffs_t *coeffs, QDP_ColorMatrix *gf[])
 {
-  QLA_Real one_link;
-  QDP_ColorMatrix *staple, *tempmat1, *t1, *t2, *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
-  int dir;
-  int nu,rho,sig ;
-  double nflop = 61632;
+  QDP_ColorMatrix *staple=NULL, *tempmat1=NULL, *t1=NULL, *t2=NULL, *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
+  double nflop = 0;
   double dtime;
 
-  staple = QDP_create_M();
-  tempmat1 = QDP_create_M();
-  t1 = QDP_create_M();
-  t2 = QDP_create_M();
-  for(dir=0; dir<4; dir++) {
-    tsl[dir] = QDP_create_M();
-    ts1[dir] = QDP_create_M();
-    ts2[dir] = QDP_create_M();
-    for(nu=0; nu<4; nu++) {
-      tsg[dir][nu] = NULL;
-      if(dir!=nu) {
-	tsg[dir][nu] = QDP_create_M();
-	QDP_M_eq_sM(tsg[dir][nu], gf[dir], QDP_neighbor[nu], QDP_forward, QDP_all);
+  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple) {
+    nflop = 61632;
+    staple = QDP_create_M();
+    tempmat1 = QDP_create_M();
+    t1 = QDP_create_M();
+    t2 = QDP_create_M();
+    for(int dir=0; dir<4; dir++) {
+      tsl[dir] = QDP_create_M();
+      ts1[dir] = QDP_create_M();
+      ts2[dir] = QDP_create_M();
+      for(int nu=0; nu<4; nu++) {
+	tsg[dir][nu] = NULL;
+	if(dir!=nu) {
+	  tsg[dir][nu] = QDP_create_M();
+	  QDP_M_eq_sM(tsg[dir][nu], gf[dir], QDP_neighbor[nu], QDP_forward, QDP_all);
+	}
       }
     }
   }
@@ -428,32 +428,42 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   dtime = -QOP_time();
 
   /* to fix up the Lepage term, included by a trick below */
-  one_link = coeffs->one_link - 6.0*coeffs->lepage;
+  QLA_Real one_link = coeffs->one_link - 6.0*coeffs->lepage;
 
-  for(dir=0; dir<4; dir++) {
+  for(int dir=0; dir<4; dir++) {
     QDP_M_eq_r_times_M(fl[dir], &one_link, gf[dir], QDP_all);
-    for(nu=0; nu<4; nu++) if(nu!=dir) {
-      compute_gen_staple(staple, dir, nu, gf[dir], coeffs->three_staple,
-			 gf, fl, tsg[dir][nu], tsg[nu][dir], t1, t2, ts2[nu]);
-      compute_gen_staple(NULL, dir, nu, staple, coeffs->lepage, gf, fl,
-			 tsl[nu], tsg[nu][dir], t1, t2, ts2[nu]);
-      for(rho=0; rho<4; rho++) if((rho!=dir)&&(rho!=nu)) {
-	compute_gen_staple(tempmat1, dir, rho, staple, coeffs->five_staple,
-			   gf, fl, tsl[rho], tsg[rho][dir], t1, t2, ts2[rho]);
-	for(sig=0; sig<4; sig++) {
-	  if((sig!=dir)&&(sig!=nu)&&(sig!=rho)) {
-	    compute_gen_staple(NULL, dir, sig, tempmat1, coeffs->seven_staple,
-			       gf, fl, ts1[sig], tsg[sig][dir],t1,t2,ts2[sig]);
+    if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple) {
+      for(int nu=0; nu<4; nu++) if(nu!=dir) {
+	  if(coeffs->three_staple) {
+	    compute_gen_staple(staple, dir, nu, gf[dir], coeffs->three_staple,
+			       gf, fl, tsg[dir][nu], tsg[nu][dir], t1, t2, ts2[nu]);
 	  }
-	} /* sig */
-      } /* rho */
-    } /* nu */
+	  if(coeffs->lepage) {
+	    compute_gen_staple(NULL, dir, nu, staple, coeffs->lepage, gf, fl,
+			       tsl[nu], tsg[nu][dir], t1, t2, ts2[nu]);
+	  }
+	  if(coeffs->five_staple || coeffs->seven_staple) {
+	    for(int rho=0; rho<4; rho++) if((rho!=dir)&&(rho!=nu)) {
+		compute_gen_staple(tempmat1, dir, rho, staple, coeffs->five_staple,
+				   gf, fl, tsl[rho], tsg[rho][dir], t1, t2, ts2[rho]);
+		if(coeffs->seven_staple) {
+		  for(int sig=0; sig<4; sig++) {
+		    if((sig!=dir)&&(sig!=nu)&&(sig!=rho)) {
+		      compute_gen_staple(NULL, dir, sig, tempmat1, coeffs->seven_staple,
+					 gf, fl, ts1[sig], tsg[sig][dir],t1,t2,ts2[sig]);
+		    }
+		  } /* sig */
+		}
+	      } /* rho */
+	  }
+	} /* nu */
+    }
   } /* dir */
 
   /* long links */
   if(ll) {
-    for(dir=0; dir<4; dir++) {
-      QLA_Real naik = coeffs->naik;
+    QLA_Real naik = coeffs->naik;
+    for(int dir=0; dir<4; dir++) {
       QDP_M_eq_sM(staple, gf[dir], QDP_neighbor[dir], QDP_forward, QDP_all);
       QDP_M_eq_M_times_M(tempmat1, gf[dir], staple, QDP_all);
       QDP_M_eq_sM(ts1[dir], tempmat1, QDP_neighbor[dir], QDP_forward, QDP_all);
@@ -462,17 +472,19 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
     }
   }
 
-  QDP_destroy_M(staple);
-  QDP_destroy_M(tempmat1);
-  QDP_destroy_M(t1);
-  QDP_destroy_M(t2);
-  for(dir=0; dir<4; dir++) {
-    QDP_destroy_M(tsl[dir]);
-    QDP_destroy_M(ts1[dir]);
-    QDP_destroy_M(ts2[dir]);
-    for(nu=0; nu<4; nu++) {
-      //if(dir!=nu) QDP_destroy_M(tsg[dir][nu]);
-      if(tsg[dir][nu]!=NULL) QDP_destroy_M(tsg[dir][nu]);
+  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple) {
+    QDP_destroy_M(staple);
+    QDP_destroy_M(tempmat1);
+    QDP_destroy_M(t1);
+    QDP_destroy_M(t2);
+    for(int dir=0; dir<4; dir++) {
+      QDP_destroy_M(tsl[dir]);
+      QDP_destroy_M(ts1[dir]);
+      QDP_destroy_M(ts2[dir]);
+      for(int nu=0; nu<4; nu++) {
+	//if(dir!=nu) QDP_destroy_M(tsg[dir][nu]);
+	if(tsg[dir][nu]!=NULL) QDP_destroy_M(tsg[dir][nu]);
+      }
     }
   }
 

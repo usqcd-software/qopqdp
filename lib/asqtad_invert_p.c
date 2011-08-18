@@ -203,10 +203,9 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
     /* Keep going if the residue exceeds tolerance and we haven't
        exhausted restarts.  If rsqstop is zero, ignore this test.  If
        relmin is zero, ignore this test. */
-  } while((++nrestart < max_restarts) &&
-	  ((rsqstop > 0 && rsq > rsqstop) ||
-	   (res_arg->relmin > 0 && relnorm2 > res_arg->relmin)));
-	  
+  } while( (++nrestart < max_restarts) &&
+	   (rsq > rsqstop) &&
+	   (relnorm2 > res_arg->relmin) );
 
   QDP_V_eq_V(out, qdpout, insub);
 

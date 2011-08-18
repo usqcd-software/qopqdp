@@ -25,9 +25,8 @@ static const int nmn = sizeof(nma)/sizeof(int);
 //static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 //static const int bsn = sizeof(bsa)/sizeof(int);
 static int bsmin=32, bsmax=8192, *bsa, bsn;
-QOP_FermionLinksHisq *flq;
-
-#ifdef AB_SO_FAR_THIS_TEST_DOES_NOT_WORK
+QOP_FermionLinksHisq *flh;
+QOP_FermionLinksAsqtad *fla;
 
 double
 bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
@@ -42,7 +41,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
     QMP_barrier();
-    QOP_hisq_invert(info, flq, inv_arg, res_arg, mass, qopout, qopin);
+    QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
     QMP_barrier();
     if(i>0) {
       iter += res_arg->final_iter;
@@ -102,6 +101,12 @@ start(void)
 
   QOP_GaugeField *gf;
   QOP_hisq_coeffs_t coeffs;
+  coeffs.n_naiks = 1;
+  coeffs.eps_naik[0] = 0;
+  coeffs.ugroup = QOP_UNITARIZE_U3;
+  //coeffs.ugroup = QOP_UNITARIZE_SU3;
+  //coeffs.umethod = QOP_UNITARIZE_RATIONAL;
+  coeffs.umethod = QOP_UNITARIZE_ANALYTIC;
   coeffs.fat7_one_link = 1;
   coeffs.fat7_three_staple = 0.1;
   coeffs.fat7_five_staple = 0.1;
@@ -112,6 +117,8 @@ start(void)
   coeffs.asqtad_seven_staple = 0.1;
   coeffs.asqtad_lepage = 0.1;
   coeffs.asqtad_naik = 0.1;
+  coeffs.difference_one_link = 0;
+  coeffs.difference_naik = 0;
 
   QOP_info_t info;
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
@@ -130,7 +137,8 @@ start(void)
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
   QDP_profcontrol(1);
-  flq = QOP_hisq_create_L_from_G(&info, &coeffs, gf);
+  flh = QOP_hisq_create_L_from_G(&info, &coeffs, gf);
+  fla = QOP_get_asqtad_links_from_hisq(flh)[0];
   QDP_profcontrol(0);
   if(QDP_this_node==0) { printf("load links: secs = %g\t mflops = %g\n", info.final_sec, info.final_flop/(1e6*info.final_sec)); }
   if(QDP_this_node==0) { printf("begin invert\n"); fflush(stdout); }
@@ -218,9 +226,6 @@ usage(char *s)
   exit(1);
 }
 
-#endif
-
-
 int
 main(int argc, char *argv[])
 {
@@ -228,8 +233,6 @@ main(int argc, char *argv[])
 
   QDP_initialize(&argc, &argv);
   QDP_profcontrol(0);
-
-#ifdef AB_SO_FAR_THIS_TEST_DOES_NOT_WORK
 
   seed = time(NULL);
   j = 0;
@@ -282,11 +285,6 @@ main(int argc, char *argv[])
   seed_rand(rs, seed);
 
   start();
-
-#endif
-
-  printf("THIS TEST DOES NOT WORK YET.\n");
-
 
   QDP_finalize();
   return 0;
