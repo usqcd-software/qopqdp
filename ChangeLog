@@ -1,3 +1,9 @@
+2011-08-26 14:21  tag qopqdp0-17-1
+
+2011-08-26 14:21  osborn
+
+	* NEWS, configure, configure.ac: prepare for QOPQDP 0.17.1
+
 2011-08-26 12:38  osborn
 
 	* NEWS, aclocal.m4, configure, examples/Makefile.am,
