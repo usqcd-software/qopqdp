@@ -40,9 +40,10 @@ PrintMone(QLA_ColorMatrix m){
 #endif
 
 //AB some constants that need to transfered to headers or makefiles
+#define QOP_HISQ_FORCE_FILTER 0.000050
 
 // Perform singular value decomposition if small eigenvalues are encountered
-#define QOP_HISQ_REUNIT_ALLOW_SVD
+//#define QOP_HISQ_REUNIT_ALLOW_SVD
 // Do reunitarization through SVD only (for testing purposes only, slow)
 //#define QOP_HISQ_REUNIT_SVD_ONLY
 
@@ -470,7 +471,8 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
 
     // modify also Q and Q2 matrices
     for(i=0;i<3;i++) {
-      Q.e[i][i].real+=g_epsilon;
+      //Q.e[i][i].real+=g_epsilon;
+      QLA_c_peq_r(QLA_elem_M(Q,i,i), g_epsilon);
     }
     QLA_M_eq_M_times_M( &Q2, &Q, &Q );
   }
@@ -649,6 +651,7 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
           //der.real += f2 * ( ctmp.real + ctmp2.real );
           //der.imag += f2 * ( ctmp.imag + ctmp2.imag );
 	  QLA_c_peq_r_times_c(der, f2, ctmp);
+	  QLA_c_peq_r_times_c(der, f2, ctmp2);
           dwdagdv->t4[i][m][n][j].real = QLA_real(der);
           dwdagdv->t4[i][m][n][j].imag = QLA_imag(der);
         }

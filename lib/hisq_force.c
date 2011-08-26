@@ -3,7 +3,7 @@
 
 QOP_hisq_force_t QOP_hisq_ff = {
   .inited = 0,
-  .fnmat_src_min = 4,
+  .fnmat_src_min = 1,
   .veclength=4
 };
 
@@ -26,24 +26,19 @@ QOP_hisq_force_t QOP_hisq_ff = {
 QOP_status_t
 QOP_hisq_force_set_opts(QOP_opt_t opts[], int nopts)
 {
-  ;
-//AB THIS ROUTINE IS NOT DOING ANYTHING AT THE MOMENT
-#ifdef ABA
+  HISQ_FORCE_BEGIN;
   int fsm, vl;
 
-  HISQ_FORCE_BEGIN;
-
-  fsm = QOP_asqtad_ff.fnmat_src_min;
+  fsm = QOP_hisq_ff.fnmat_src_min;
   setvar(fsm, int, "fnmat_src_min", opts, nopts);
   if(!valid_fnmat_src_min(fsm)) return QOP_FAIL;
-  QOP_asqtad_ff.fnmat_src_min = fsm;
+  QOP_hisq_ff.fnmat_src_min = fsm;
 
-  vl = QOP_asqtad_ff.veclength;
+  vl = QOP_hisq_ff.veclength;
   setvar(vl, int, "veclength", opts, nopts);
   if(!valid_veclength(vl)) return QOP_FAIL;
-  QOP_asqtad_ff.veclength = vl;
+  QOP_hisq_ff.veclength = vl;
 
   HISQ_FORCE_END;
-#endif
   return QOP_SUCCESS;
 }

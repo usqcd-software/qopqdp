@@ -14,6 +14,7 @@ check_PROGRAMS = \
   asqtad_force_bench_f3 asqtad_force_bench_d3 \
   asqtad_eigcg_f3 asqtad_eigcg_d3 \
   hisq_invert_bench_f3 hisq_invert_bench_d3 \
+  hisq_force_bench_f3 hisq_force_bench_d3 \
   wilson_test_f3 wilson_test_d3 \
   wilson_invert_bench_f3 wilson_invert_bench_d3 \
   dw_invert_bench_f3 dw_invert_bench_d3 \
@@ -26,6 +27,7 @@ imp_gauge_force_bench_f3_LDADD = $(F3_LDADD)
 imp_gauge_force_bench_d3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_d3_CFLAGS = $(D3_CFLAGS)
 imp_gauge_force_bench_d3_LDADD = $(D3_LDADD)
+
 
 asqtad_test_f3_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f3_CFLAGS = $(F3_CFLAGS)
@@ -64,9 +66,17 @@ hisq_invert_bench_f3_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_f3_CFLAGS = $(F3_CFLAGS)
 hisq_invert_bench_f3_LDADD = $(F3_LDADD)
 
+hisq_force_bench_f3_SOURCES = test_common.h test_common.c hisq_force_bench.c
+hisq_force_bench_f3_CFLAGS = $(F3_CFLAGS)
+hisq_force_bench_f3_LDADD = $(F3_LDADD)
+
 hisq_invert_bench_d3_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_d3_CFLAGS = $(D3_CFLAGS)
 hisq_invert_bench_d3_LDADD = $(D3_LDADD)
+
+hisq_force_bench_d3_SOURCES = test_common.h test_common.c hisq_force_bench.c
+hisq_force_bench_d3_CFLAGS = $(D3_CFLAGS)
+hisq_force_bench_d3_LDADD = $(D3_LDADD)
 
 
 wilson_test_f3_SOURCES = test_common.h test_common.c wilson_test.c
@@ -93,6 +103,7 @@ dw_invert_bench_f3_LDADD = $(F3_LDADD)
 dw_invert_bench_d3_SOURCES = test_common.h test_common.c dw_invert_bench.c
 dw_invert_bench_d3_CFLAGS = $(D3_CFLAGS)
 dw_invert_bench_d3_LDADD = $(D3_LDADD)
+
 
 test_reunit_utils_f3_SOURCES = test_common.h test_common.c test_reunit_utils.c
 test_reunit_utils_f3_CFLAGS = $(F3_CFLAGS)

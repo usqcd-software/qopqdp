@@ -577,7 +577,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 				      int *n_orders_naik)
   
 {
-
+  double dtime = QDP_time();
   int i, ipath, dir;
   REAL coeff_mult;
 
@@ -738,7 +738,6 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
       netbackdir_table_current = netbackdir_table_3;
     }
     
-
     QOPPC(hisq_force_multi_smearing_fnmat)( info,Wgf,residues+n_naik_shift, 
 					    x+n_naik_shift, 
 					    n_orders_naik_current, 
@@ -747,7 +746,6 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    num_q_paths_current, 
 					    q_paths_sorted_current, 
 					    netbackdir_table_current );
-    
 
     if( 0==inaik ) {
       coeff_mult = 1.0;
@@ -771,7 +769,6 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   if ( umethod==QOP_UNITARIZE_NONE ){
 
     // smearing level 1
-
     QOPPC(hisq_force_multi_smearing_fnmat)( info,Ugf,residues, 
 					    x, 
 					    nterms, force_accum_1, 
@@ -795,7 +792,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    force_accum_1u, NULL, 
 					    num_q_paths_1, 
 					    q_paths_sorted_1, 
-					    netbackdir_table_1 );    
+					    netbackdir_table_1 );
 
   }
   else
@@ -839,6 +836,8 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
     QDP_M_eq_antiherm_M(mat_tmp0, force_final[dir], QDP_all);
     QDP_M_peq_M(force[dir], mat_tmp0, QDP_all);
+    //QDP_M_peq_M(force_final[dir], force[dir], QDP_all);
+    //QDP_M_eq_antiherm_M(force[dir], force_final[dir], QDP_all);
 
   }
 
@@ -853,9 +852,12 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
      QDP_destroy_M( force_final[i] );
   }
 
-     QDP_destroy_M( tmat );
-     QDP_destroy_M( mat_tmp0 );
+  QDP_destroy_M( tmat );
+  QDP_destroy_M( mat_tmp0 );
 
+  info->final_sec = QDP_time() - dtime;
+  info->final_flop = 0*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
 } //hisq_force_multi_wrapper_fnmat
 
 
@@ -923,72 +925,60 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
 					QDP_ColorMatrix *force_accum[4],
 					QDP_ColorMatrix *force_accum_naik[4])
 {
-
-
   int term;
   int i,k;
   int dir;
   REAL coeff;
 
-
   QDP_ColorMatrix *tmat;
   QDP_ColorMatrix *oprod_along_path[MAX_PATH_LENGTH+1];
   QDP_ColorMatrix *mat_tmp0;
-  QDP_ColorVector *vec_tmp[2];
+  QDP_ColorVector *tsrc[2], *vec_tmp[2];
 
+  if( nterms==0 )return;
 
-if( nterms==0 )return;
+  mat_tmp0   = QDP_create_M();
+  tmat       = QDP_create_M();
+  tsrc[0] = QDP_create_V();
+  tsrc[1] = QDP_create_V();
+  vec_tmp[0] = QDP_create_V();
+  vec_tmp[1] = QDP_create_V();
 
-mat_tmp0   = QDP_create_M();
-tmat       = QDP_create_M();
-vec_tmp[0] = QDP_create_V();
-vec_tmp[1] = QDP_create_V();
-
-for(i=0;i<=MAX_PATH_LENGTH;i++){
-  oprod_along_path[i] = QDP_create_M();
-}
-
+  for(i=0;i<=MAX_PATH_LENGTH;i++){
+    oprod_along_path[i] = QDP_create_M();
+  }
 
   // clear force accumulators
   
   for(dir=XUP;dir<=TUP;dir++)
     QDP_M_eq_zero(force_accum[dir], QDP_all);
 
-
-      for(dir=XUP;dir<=TUP;dir++){ //AB loop on directions, path table is not needed
-
-	k=0; // which vec_tmp we are using (0 or 1)
-   QDP_V_eq_sV(vec_tmp[k], x[0], 
-     fnshift(OPP_DIR(dir)), fndir(OPP_DIR(dir)), QDP_all);
-   QDP_M_eq_zero(oprod_along_path[0], QDP_all);
-
+  for(dir=XUP;dir<=TUP;dir++){ //AB loop on directions, path table is not needed
+    k=0; // which vec_tmp we are using (0 or 1)
+    QDP_V_eq_V(tsrc[k], x[0], QDP_all);
+    QDP_V_eq_sV(vec_tmp[k], tsrc[k], 
+		fnshift(OPP_DIR(dir)), fndir(OPP_DIR(dir)), QDP_all);
+    QDP_M_eq_zero(oprod_along_path[0], QDP_all);
 
     for(term=0;term<nterms;term++){
-      if(term<nterms-1)
-	QDP_V_eq_sV(vec_tmp[1-k], x[term+1], 
+      if(term<nterms-1) {
+	QDP_V_eq_V(tsrc[1-k], x[term+1], QDP_all);
+	QDP_V_eq_sV(vec_tmp[1-k], tsrc[1-k], 
 		    fnshift(OPP_DIR(dir)), fndir(OPP_DIR(dir)), QDP_all);
-
-      QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
+      }
+      //QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
+      QDP_M_eq_V_times_Va(tmat, tsrc[k], vec_tmp[k], QDP_all);
       QDP_discard_V(vec_tmp[k]);
       QDP_M_peq_r_times_M(oprod_along_path[0], &residues[term], tmat, 
 			  QDP_all);
       
       k=1-k; // swap 0 and 1
-
-      
     } // end loop over terms in rational function expansion 
-    
 
- 
     link_gather_connection_qdp(oprod_along_path[1], oprod_along_path[0], tmat,
 			       dir );
-
-
     coeff = 1.;
-
-
     QDP_M_peq_r_times_M(force_accum[dir],&coeff,oprod_along_path[1],QDP_all);
-
 
   } // end of loop on directions //
 
@@ -1001,46 +991,36 @@ for(i=0;i<=MAX_PATH_LENGTH;i++){
 
 
   for(dir=XUP;dir<=TUP;dir++){ //AB loop on directions, path table is not needed
-
-
-
     k=0; // which vec_tmp we are using (0 or 1)
+    QDP_V_eq_V(tsrc[k], x[0], QDP_all);
+    QDP_V_eq_sV(vec_tmp[k], tsrc[k], fnshift(OPP_3_DIR( DIR3(dir) )), 
+		fndir(OPP_3_DIR( DIR3(dir) )), QDP_all);
 
-    QDP_V_eq_sV(vec_tmp[k], x[0], fnshift(OPP_3_DIR( DIR3(dir) )), 
-    	fndir(OPP_3_DIR( DIR3(dir) )), QDP_all);
-
- 
     QDP_M_eq_zero(oprod_along_path[0], QDP_all);
 
     for(term=0;term<nterms;term++){
-      if(term<nterms-1)
-
-      QDP_V_eq_sV(vec_tmp[1-k], x[term+1], fnshift(OPP_3_DIR( DIR3(dir) )), 
-		  fndir(OPP_3_DIR( DIR3(dir) )), QDP_all);
-
-      QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
+      if(term<nterms-1) {
+	QDP_V_eq_V(tsrc[1-k], x[term+1], QDP_all);
+	QDP_V_eq_sV(vec_tmp[1-k], tsrc[1-k], fnshift(OPP_3_DIR( DIR3(dir) )), 
+		    fndir(OPP_3_DIR( DIR3(dir) )), QDP_all);
+      }
+      //QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
+      QDP_M_eq_V_times_Va(tmat, tsrc[k], vec_tmp[k], QDP_all);
       QDP_discard_V(vec_tmp[k]);
       QDP_M_peq_r_times_M(oprod_along_path[0], &residues[term], tmat, QDP_all);
 
       k=1-k; // swap 0 and 1
     } // end loop over terms in rational function expansion 
 
-
- 
-
     link_gather_connection_qdp(oprod_along_path[1], oprod_along_path[0], tmat, 
 			       DIR3(dir) );
-
     coeff = 1; // fermion_eps is outside this routine in "wrapper" routine
-
-
     QDP_M_peq_r_times_M(force_accum_naik[dir],&coeff,
 			oprod_along_path[1],QDP_all);
-
-
   } // end of loop on directions 
 
-
+QDP_destroy_V( tsrc[0] );
+QDP_destroy_V( tsrc[1] );
 QDP_destroy_V( vec_tmp[0] );
 QDP_destroy_V( vec_tmp[1] );
 QDP_destroy_M( mat_tmp0 );

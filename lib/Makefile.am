@@ -39,8 +39,8 @@ asqtad_invert_f.o: asqtad_invert_p.c
 asqtad_invert_d.o: asqtad_invert_p.c
 asqtad_force_f.o: asqtad_force_p.c
 asqtad_force_d.o: asqtad_force_p.c
-asqtad_force_fnmat_f.o: asqtad_force_fnmat_p.c
-asqtad_force_fnmat_d.o: asqtad_force_fnmat_p.c
+asqtad_force_fnmat_f.o: asqtad_force_fnmat3_p.c
+asqtad_force_fnmat_d.o: asqtad_force_fnmat3_p.c
 hisq_links_f.o: hisq_links_p.c
 hisq_links_d.o: hisq_links_p.c
 hisq_reunit_f.o: hisq_reunit_p.c
@@ -49,8 +49,8 @@ hisq_reunit_utilities_f.o: hisq_reunit_utilities_p.c
 hisq_reunit_utilities_d.o: hisq_reunit_utilities_p.c
 hisq_force_f.o: hisq_force_p.c
 hisq_force_d.o: hisq_force_p.c
-hisq_force_fnmat_f.o: hisq_force_fnmat_p.c
-hisq_force_fnmat_d.o: hisq_force_fnmat_p.c
+hisq_force_fnmat_f.o: hisq_force_fnmat_p.c hisq_force_fnmat2_p.c
+hisq_force_fnmat_d.o: hisq_force_fnmat_p.c hisq_force_fnmat2_p.c
 wilson_dslash_f.o: wilson_dslash_p.c
 wilson_dslash_d.o: wilson_dslash_p.c
 wilson_invert_f.o: wilson_invert_p.c
@@ -87,7 +87,10 @@ EXTRA_DIST = \
   asqtad_invert_p.c \
   asqtad_force_p.c \
   asqtad_force_fnmat_p.c \
+  asqtad_force_fnmat2_p.c \
+  asqtad_force_fnmat3_p.c \
   hisq_force_fnmat_p.c \
+  hisq_force_fnmat2_p.c \
   hisq_force_p.c \
   hisq_links_p.c \
   hisq_reunit_p.c \

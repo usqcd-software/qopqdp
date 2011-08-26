@@ -21,7 +21,7 @@ static QOP_GaugeField *gauge;
 static double flops, secs;
 
 double
-bench_force(QOP_asqtad_coeffs_t *asqcoef,
+bench_force(QOP_FermionLinksHisq *flh, QOP_hisq_coeffs_t *coeffs,
 	    QDP_ColorMatrix *cm[], QDP_ColorVector *in, int nsrc)
 {
   double sec=0, flop=0, mf=0;
@@ -42,7 +42,7 @@ bench_force(QOP_asqtad_coeffs_t *asqcoef,
   }
 
   for(int i=0; i<=nit; i++) {
-    QOP_asqtad_force_multi(&info, gauge, force, asqcoef, eps, qopin, nsrc);
+    QOP_hisq_force_multi(&info, flh, force, coeffs, eps, qopin, &nsrc);
     if(i>0) {
       sec += info.final_sec;
       flop += info.final_flop;
@@ -114,24 +114,50 @@ start(void)
     QDP_M_eq_zero(cm[i], QDP_all);
   }
 
-  QOP_asqtad_coeffs_t asqcoef;
-  asqcoef.one_link = 1;
-  asqcoef.three_staple = 0.3;
-  asqcoef.five_staple = 0.1;
-  asqcoef.seven_staple = 0.03;
-  asqcoef.lepage = 0.1;
-  asqcoef.naik = 0.1;
+  QOP_hisq_coeffs_t coeffs;
+  coeffs.n_naiks = 1;
+  coeffs.eps_naik[0] = 0;
+  //coeffs.eps_naik[1] = 0.1;
+  coeffs.ugroup = QOP_UNITARIZE_U3;
+  //coeffs.ugroup = QOP_UNITARIZE_SU3;
+  coeffs.umethod = QOP_UNITARIZE_RATIONAL;
+  //coeffs.umethod = QOP_UNITARIZE_ANALYTIC;
+  coeffs.fat7_one_link = 1;
+  coeffs.fat7_three_staple = 0.1;
+  coeffs.fat7_five_staple = 0.1;
+  coeffs.fat7_seven_staple = 0.1;
+  coeffs.asqtad_one_link = 1;
+  coeffs.asqtad_three_staple = 0.1;
+  coeffs.asqtad_five_staple = 0.1;
+  coeffs.asqtad_seven_staple = 0.1;
+  coeffs.asqtad_lepage = 0.1;
+  coeffs.asqtad_naik = 0.1;
+  coeffs.difference_one_link = 1;
+  coeffs.difference_naik = 1;
 #if 0
-  //asqcoef.three_staple = 0;
-  //asqcoef.five_staple = 0;
-  //asqcoef.seven_staple = 0;
-  //asqcoef.lepage = 0;
-  asqcoef.naik = 0;
+  //coeffs.asqtad_one_link = 0;
+  //coeffs.asqtad_three_staple = 0;
+  //coeffs.asqtad_five_staple = 0;
+  //coeffs.asqtad_seven_staple = 0;
+  coeffs.asqtad_lepage = 0;
+  //coeffs.asqtad_naik = 0;
 #endif
 
+  QOP_info_t info;
+  QOP_FermionLinksHisq *flh;
+  //QOP_verbose(verb);
+  //if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }
+  //gf = QOP_convert_G_from_qdp(u);
+  if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
+  //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
+  QDP_profcontrol(1);
+  flh = QOP_hisq_create_L_from_G(&info, &coeffs, gauge);
+  //fla = QOP_get_asqtad_links_from_hisq(flh)[0];
+  QDP_profcontrol(0);
+  if(QDP_this_node==0) { printf("load links: secs = %g\t mflops = %g\n", info.final_sec, info.final_flop/(1e6*info.final_sec)); }
   if(QDP_this_node==0) { printf("begin force\n"); fflush(stdout); }
 
-  best_mf = 0;
+  best_mf = -1;
   best_fsm = fsma[0];
   best_nsrc = 0;
   best_bs = bsa[0];
@@ -140,12 +166,12 @@ start(void)
   for(fsmi=0; fsmi<fsmn; fsmi++) {
     fsm = fsma[fsmi];
     optfsm.value = fsm;
-    if(QOP_asqtad_force_set_opts(&optfsm, 1)==QOP_FAIL) continue;
+    if(QOP_hisq_force_set_opts(&optfsm, 1)==QOP_FAIL) continue;
     for(nsrc=nsrcmin; nsrc<=nsrcmax; nsrc++) {
       for(bsi=0; bsi<bsn; bsi++) {
 	bs = bsa[bsi];
 	QDP_set_block_size(bs);
-	mf = bench_force(&asqcoef, cm, in, nsrc);
+	mf = bench_force(flh, &coeffs, cm, in, nsrc);
 	printf0("FF: fsm%3i nsrc%3i bs%5i sec%7.4f mflops = %g\n", fsm, nsrc, bs, secs, mf);
 	if(mf>best_mf) {
 	  best_mf = mf;
@@ -158,16 +184,16 @@ start(void)
   }
 
   optfsm.value = best_fsm;
-  QOP_asqtad_force_set_opts(&optfsm, 1);
+  QOP_hisq_force_set_opts(&optfsm, 1);
   QDP_set_block_size(best_bs);
   QDP_profcontrol(1);
-  mf = bench_force(&asqcoef, cm, in, best_nsrc);
+  mf = bench_force(flh, &coeffs, cm, in, best_nsrc);
   QDP_profcontrol(0);
   printf0("prof: FF: fsm%3i nsrc%3i bs%5i sec%7.4f mflops = %g\n", best_fsm, best_nsrc, best_bs, secs, mf);
   printf0("best: FF: fsm%3i nsrc%3i bs%5i mflops = %g\n", best_fsm, best_nsrc, best_bs, best_mf);
 
   if(QDP_this_node==0) { printf("begin unload links\n"); fflush(stdout); }
-  //QOP_asqtad_invert_unload_links();
+  //QOP_hisq_invert_unload_links();
   if(QDP_this_node==0) { printf("begin finalize\n"); fflush(stdout); }
   QOP_finalize();
 }

@@ -1,3 +1,6 @@
+2011-08-26:	James Osborn
+        Added new fat-force routine used in asqtad and HISQ force.
+
 2011-08-17:	James Osborn
 	Fixed HISQ routines to use QLA macros throughout.
 	Changed inverter stopping criterion to rsqmin _or_ relmin.

@@ -101,17 +101,14 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
 			  QOP_Force *force, QOP_asqtad_coeffs_t *coef,
 			  REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
 {
-  int j;
-  int vl = QOP_asqtad_ff.veclength;
-  int fsm = QOP_asqtad_ff.fnmat_src_min;
-  QOP_info_t tinfo;
-
   ASQTAD_FORCE_BEGIN;
 
-  if( nsrc < fsm ) {
+  if( nsrc < QOP_asqtad_ff.fnmat_src_min ) {
+    int vl = QOP_asqtad_ff.veclength;
+    QOP_info_t tinfo;
     info->final_sec = 0;
     info->final_flop = 0;
-    for(j=0; j<nsrc; j+=vl) {
+    for(int j=0; j<nsrc; j+=vl) {
       int ns = nsrc-j;
       if(ns>vl) ns = vl;
       QOPPC(asqtad_force_multi_asvec)(&tinfo, gauge, force, coef, eps+j, 
@@ -163,6 +160,7 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
   double nflop2 = 433968;
   double nflop = nflop1 + (nflop2-nflop1)*(nsrc-1);
   double dtime;
+  dtime = -QOP_time();
 
   ASQTAD_FORCE_BEGIN;
 
@@ -183,7 +181,6 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
     QDP_M_eq_sM(tmpmat, fblink[i], QDP_neighbor[i], QDP_backward, QDP_all);
     QDP_M_eq_Ma(fblink[OPP_DIR(i)], tmpmat, QDP_all);
   }
-  QDP_destroy_M(tmpmat);
 
   tv = ttv;
   for(i=0; i<nsrc; i++) {
@@ -259,8 +256,6 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 
   /* *************************************** */
 
-  dtime = -QOP_time();
-
   QOP_trace("start force loop\n");
   for(mu=0; mu<8; mu++) {
     //u_shift_hw_fermion(temp_x_qdp, Pmu, OPP_DIR(mu), temp_hw[OPP_DIR(mu)]);
@@ -284,6 +279,7 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
       //Pnumu = hw_qdp[OPP_DIR(nu)];
       //u_shift_hw_fermion(Pmu, Pnumu, OPP_DIR(nu), temp_hw[OPP_DIR(nu)]);
       u_shift_color_vecs(Pmu, Pnumu, OPP_DIR(nu), nsrc, Pmutmp[OPP_DIR(nu)]);
+      //QDP_V_veq_V(Pnumu, P3[OPP_DIR(nu)], QDP_all, nsrc);
       for(sig=0; sig<8; sig++) if( (sig!=mu)&&(sig!=OPP_DIR(mu)) &&
 				   (sig!=nu)&&(sig!=OPP_DIR(nu)) ) {
 #if 1
@@ -310,10 +306,9 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 	//Prhonumu = hw_qdp[OPP_DIR(rho)];
 	//u_shift_hw_fermion(Pnumu, Prhonumu, OPP_DIR(rho), 
 	//		 temp_hw[OPP_DIR(rho)] );
-	QOP_trace("test 41\n");
-	u_shift_color_vecs(Pnumu, Prhonumu, OPP_DIR(rho), nsrc,
-			   Pnumutmp[OPP_DIR(rho)]);
-	QOP_trace("test 42\n");
+	  u_shift_color_vecs(Pnumu, Prhonumu, OPP_DIR(rho), nsrc,
+			     Pnumutmp[OPP_DIR(rho)]);
+	  //QDP_V_veq_V(Prhonumu, P5[OPP_DIR(rho)], QDP_all, nsrc);
 	for(sig=0; sig<8; sig++) if( (sig!=mu )&&(sig!=OPP_DIR(mu )) &&
 				     (sig!=nu )&&(sig!=OPP_DIR(nu )) &&
 				     (sig!=rho)&&(sig!=OPP_DIR(rho)) ) {
@@ -460,11 +455,12 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
   QOP_trace("test 6\n");
   QOP_trace("test 7\n");
 
-  dtime += QOP_time();
-
   for(mu=0; mu<4; mu++) {
-    QDP_M_eqm_M(tempmom_qdp[mu], tempmom_qdp[mu], QDP_odd);
+    QDP_M_eq_M(tmpmat, tempmom_qdp[mu], QDP_even);
+    QDP_M_eqm_M(tmpmat, tempmom_qdp[mu], QDP_odd);
+    QDP_M_eq_antiherm_M(tempmom_qdp[mu], tmpmat, QDP_all);
   }
+  QDP_destroy_M(tmpmat);
 
   //printf("%p\n", P5tmp[0][4][0]); fflush(stdout);
   //if(QDP_this_node==0) { printf("line %i\n",__LINE__); fflush(stdout); }
@@ -519,6 +515,7 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
     QDP_destroy_M(fblink[i]);
   }
 
+  dtime += QOP_time();
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
@@ -614,7 +611,8 @@ side_link_forces(int mu, int nu, REAL coeff[], QDP_ColorVector **Path,
       if(GOES_FORWARDS(nu))
 	add_forces_to_mom(Path_numu, Path, mu, coeff, nsrc);
       else
-	add_forces_to_mom(Path,Path_numu,OPP_DIR(mu),m_coeff, nsrc);
+	//add_forces_to_mom(Path,Path_numu,OPP_DIR(mu),m_coeff, nsrc);
+	add_forces_to_mom(Path_numu,Path,mu,m_coeff, nsrc);
     }
   else /*GOES_BACKWARDS(mu)*/
     {

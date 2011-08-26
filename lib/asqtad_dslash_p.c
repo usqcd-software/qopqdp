@@ -405,7 +405,7 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   double nflop = 0;
   double dtime;
 
-  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple) {
+  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple || coeffs->naik) {
     nflop = 61632;
     staple = QDP_create_M();
     tempmat1 = QDP_create_M();
@@ -472,7 +472,7 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
     }
   }
 
-  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple) {
+  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple || coeffs->naik) {
     QDP_destroy_M(staple);
     QDP_destroy_M(tempmat1);
     QDP_destroy_M(t1);
