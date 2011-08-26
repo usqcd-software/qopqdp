@@ -1,17 +1,3 @@
-2011-08-26 12:38  osborn
-
-	* NEWS, aclocal.m4, configure, examples/Makefile.am,
-	  examples/asqtad_force_bench.c, examples/hisq_force_bench.c,
-	  include/qop_internal_p.h, lib/Makefile.am, lib/asqtad_dslash_p.c,
-	  lib/asqtad_force.c, lib/asqtad_force_fnmat2_p.c,
-	  lib/asqtad_force_fnmat3_p.c, lib/asqtad_force_fnmat_d.c,
-	  lib/asqtad_force_fnmat_f.c, lib/asqtad_force_p.c,
-	  lib/hisq_force.c, lib/hisq_force_fnmat2_p.c,
-	  lib/hisq_force_fnmat_d.c, lib/hisq_force_fnmat_f.c,
-	  lib/hisq_force_fnmat_p.c, lib/hisq_force_p.c,
-	  lib/hisq_reunit_utilities_p.c: Added new fat-force routine used
-	  in asqtad and HISQ force.
-
 2011-08-18 01:42  osborn
 
 	* NEWS, configure, examples/hisq_invert_bench.c,
