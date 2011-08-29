@@ -1,3 +1,16 @@
+2011-08-29 01:15  osborn
+
+	* NEWS, aclocal.m4, configure, examples/imp_gauge_force_bench.c,
+	  include/qop.h, lib/Makefile.am,
+	  lib/symanzik_1loop_gauge_action_d.c,
+	  lib/symanzik_1loop_gauge_action_f.c,
+	  lib/symanzik_1loop_gauge_action_p.c,
+	  lib/symanzik_1loop_gauge_force2_p.c,
+	  lib/symanzik_1loop_gauge_force_d.c,
+	  lib/symanzik_1loop_gauge_force_f.c,
+	  lib/symanzik_1loop_gauge_force_p.c: Added gauge action, new
+	  version of gauge force.
+
 2011-08-26 14:21  tag qopqdp0-17-1
 
 2011-08-26 14:21  osborn
