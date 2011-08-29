@@ -4,6 +4,7 @@ lib_LIBRARIES = libqopqdp.a
 
 libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
+  symanzik_1loop_gauge_action_f.c symanzik_1loop_gauge_action_d.c \
   symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
   asqtad_dslash_f.c asqtad_dslash_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
@@ -31,8 +32,10 @@ libqopqdp_a_SOURCES = \
 
 common_f.o: common_p.c
 common_d.o: common_p.c
-symanzik_1loop_gauge_force_f.o: symanzik_1loop_gauge_force_p.c
-symanzik_1loop_gauge_force_d.o: symanzik_1loop_gauge_force_p.c
+symanzik_1loop_gauge_action_f.o: symanzik_1loop_gauge_action_p.c
+symanzik_1loop_gauge_action_d.o: symanzik_1loop_gauge_action_p.c
+symanzik_1loop_gauge_force_f.o: symanzik_1loop_gauge_force2_p.c
+symanzik_1loop_gauge_force_d.o: symanzik_1loop_gauge_force2_p.c
 asqtad_dslash_f.o: asqtad_dslash_p.c
 asqtad_dslash_d.o: asqtad_dslash_p.c
 asqtad_invert_f.o: asqtad_invert_p.c
@@ -82,7 +85,9 @@ invert_utilities_vD_d.o: invert_utilities_p.c
 
 EXTRA_DIST = \
   common_p.c \
+  symanzik_1loop_gauge_action_p.c \
   symanzik_1loop_gauge_force_p.c \
+  symanzik_1loop_gauge_force2_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \

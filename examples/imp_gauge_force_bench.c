@@ -23,16 +23,51 @@ static double flops, secs;
 const double beta = 6.0;
 
 double
-bench_force(QOP_gauge_coeffs_t *coeffs,
-	    QOP_Force *out)
+bench_action(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
 {
   double sec=0, flop=0, mf=0;
-  int i;
+  QLA_Real acts, actt;
+  QOP_info_t info;
+
+  for(int i=0; i<=nit; i++) {
+    QOP_symanzik_1loop_gauge_action(&info, gauge, &acts, &actt, coeffs);
+
+    if(i>0) {
+      sec += info.final_sec;
+      flop += info.final_flop;
+      mf += info.final_flop/(1e6*info.final_sec);
+    }
+  }
+
+#if 1
+  printf0("action s: %g  t: %g  tot: %g\n", acts, actt, acts+actt);
+
+  coeffs->plaquette /= 4;
+  coeffs->rectangle /= 6;
+  coeffs->parallelogram /= 6;
+  QLA_Real eps=1;
+  QOP_verbose(QOP_VERB_DEBUG);
+  QOP_symanzik_1loop_gauge_force(&info, gauge, out, coeffs, eps);
+  QOP_verbose(QOP_VERB_OFF);
+  coeffs->plaquette *= 4;
+  coeffs->rectangle *= 6;
+  coeffs->parallelogram *= 6;
+#endif
+
+  secs = sec/nit;
+  flops = flop/nit;
+  return mf/nit;
+}
+
+double
+bench_force(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
+{
+  double sec=0, flop=0, mf=0;
 
   QLA_Real eps=0.1;
   QOP_info_t info;
 
-  for(i=0; i<=nit; i++) {
+  for(int i=0; i<=nit; i++) {
     QOP_symanzik_1loop_gauge_force(&info, gauge, out, coeffs, eps);
 
     if(i>0) {
@@ -81,12 +116,19 @@ start(void)
     cm[i] = QDP_create_M();
     QDP_M_eq_zero(cm[i], QDP_all);
   }
-  force = QOP_create_F_from_qdp(cm);
 
   QOP_gauge_coeffs_t gcoeffs;
   gcoeffs.plaquette  = 0.2;
   gcoeffs.rectangle  = 0.2;
   gcoeffs.parallelogram   = 0.2;
+  //gcoeffs.plaquette  = 0.;
+  //gcoeffs.rectangle  = 0.;
+  //gcoeffs.parallelogram   = 0.;
+
+  force = QOP_create_F_from_qdp(cm);
+  mf = bench_action(&gcoeffs, force);
+  QOP_destroy_F(force);
+  printf0("action: sec%7.4f mflops = %g\n", secs, mf);
 
   if(QDP_this_node==0) { printf("begin force\n"); fflush(stdout); }
   
@@ -95,7 +137,9 @@ start(void)
   for(bsi=0; bsi<bsn; bsi++) {
     bs = bsa[bsi];
     QDP_set_block_size(bs);
+    force = QOP_create_F_from_qdp(cm);
     mf = bench_force(&gcoeffs, force);
+    QOP_destroy_F(force);
     printf0("GF: bs%5i sec%7.4f mflops = %g\n", bs, secs, mf);
     if(mf>best_mf) {
       best_mf = mf;
@@ -105,6 +149,7 @@ start(void)
 
   QDP_set_block_size(best_bs);
   QDP_profcontrol(1);
+  force = QOP_create_F_from_qdp(cm);
   mf = bench_force(&gcoeffs, force);
   QDP_profcontrol(0);
   printf0("prof: GF: bs%5i sec%7.4f mflops = %g\n", best_bs, secs, mf);

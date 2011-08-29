@@ -359,6 +359,16 @@ void QOP_D3_rephase_G(QOP_D3_GaugeField *links,
   /*  Gauge routines  */
   /********************/
 
+void QOP_F3_symanzik_1loop_gauge_action(QOP_info_t *info,
+					QOP_F3_GaugeField *gauge,
+					float *acts, float *actt,
+					QOP_gauge_coeffs_t *coeffs);
+
+void QOP_D3_symanzik_1loop_gauge_action(QOP_info_t *info,
+					QOP_D3_GaugeField *gauge,
+					double *acts, double *actt,
+					QOP_gauge_coeffs_t *coeffs);
+
 void QOP_F3_symanzik_1loop_gauge_force(QOP_info_t *info, 
 				       QOP_F3_GaugeField *gauge, 
 				       QOP_F3_Force *force,
@@ -1075,6 +1085,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 
 #define QOP_rephase_G QOP_F3_rephase_G
 
+#define QOP_symanzik_1loop_gauge_action  QOP_F3_symanzik_1loop_gauge_action
 #define QOP_symanzik_1loop_gauge_force  QOP_F3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksAsqtad        QOP_F3_FermionLinksAsqtad
@@ -1179,6 +1190,7 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 
 #define QOP_rephase_G QOP_D3_rephase_G
 
+#define QOP_symanzik_1loop_gauge_action  QOP_D3_symanzik_1loop_gauge_action
 #define QOP_symanzik_1loop_gauge_force  QOP_D3_symanzik_1loop_gauge_force
 
 #define QOP_FermionLinksAsqtad       QOP_D3_FermionLinksAsqtad

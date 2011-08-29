@@ -1,10 +1,11 @@
-/****** symanzik_1loop__force_p.c   ************/
+/****** symanzik_1loop_gauge_force_p.c   ************/
 /* Gauge action Symanzik improved 1x1 + 1x2 + 1x1x1 */
 /* 9/2006 started by L.L. */
 
 #include <qop_internal.h>
 #define OPP_DIR(i) (7-i)
 
+#define CHKSUM
 
 static QDP_ColorMatrix *fblink[8];
 
@@ -22,7 +23,7 @@ void Print(QDP_ColorMatrix * field){
 #endif
 
 void 
-QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge, 
+QOPPC(symanzik_1loop_gauge_force1) (QOP_info_t *info, QOP_GaugeField *gauge, 
 		   QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
 {
   REAL Plaq, Rect, Pgm ;
@@ -233,12 +234,24 @@ QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge,
     
   }// closes the mu loop
 
+#ifdef CHKSUM
+  QLA_ColorMatrix qcm;
+  QLA_Complex det, chk;
+  QLA_c_eq_r(chk, 0);
+#endif
   for(mu=0; mu<4; mu++){
     QDP_M_eq_M_times_Ma(tmpmat, fblink[mu], tempmom_qdp[mu], QDP_all); // HERE?
     QDP_M_eq_r_times_M_plus_M( tempmom_qdp[mu], &eb3, tmpmat, force->force[mu], QDP_all);// HERE?
     QDP_M_eq_antiherm_M(force->force[mu], tempmom_qdp[mu], QDP_all);// HERE
-   }
-
+#ifdef CHKSUM
+    QDP_m_eq_sum_M(&qcm, force->force[mu], QDP_all);
+    QLA_C_eq_det_M(&det, &qcm);
+    QLA_c_peq_c(chk, det);
+#endif
+  }
+#ifdef CHKSUM
+  QOP_printf0("chksum: %g %g\n", QLA_real(chk), QLA_imag(chk));
+#endif
 
   //DESTROY various fields
 
@@ -268,3 +281,26 @@ QOPPC(symanzik_1loop_gauge_force) (QOP_info_t *info, QOP_GaugeField *gauge,
   info->status = QOP_SUCCESS;
   //QOP_printf0("Time in slow g_force: %e\n", info->final_sec);
 } 
+
+#define QOP_F3_symanzik_1loop_gauge_force QOP_F3_symanzik_1loop_gauge_force2
+#define QOP_D3_symanzik_1loop_gauge_force QOP_D3_symanzik_1loop_gauge_force2
+#include "symanzik_1loop_gauge_force2_p.c"
+#undef QOP_F3_symanzik_1loop_gauge_force
+#undef QOP_D3_symanzik_1loop_gauge_force
+
+void 
+QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge, 
+				  QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+{
+  static int n=0;
+  if(QOP_common.verbosity==QOP_VERB_DEBUG) {
+    QOPPC(symanzik_1loop_gauge_force2)(info, gauge, force, coeffs, eps);
+  } else {
+    if(((n/6)&1)==0) {
+      QOPPC(symanzik_1loop_gauge_force1)(info, gauge, force, coeffs, eps);
+    } else {
+      QOPPC(symanzik_1loop_gauge_force2)(info, gauge, force, coeffs, eps);
+    }
+    n++;
+  }
+}
