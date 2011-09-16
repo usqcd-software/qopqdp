@@ -5,7 +5,7 @@
 
 extern void 
 QOPPC(get_mid)(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
-	       REAL eps[], QOP_ColorVector *x[], int nterms);
+	       REAL eps[], QDP_ColorVector *x[], int nterms);
 
 extern void
 QOPPC(asqtad_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
@@ -18,7 +18,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
 				       QOP_Force *Force, 
 				       QOP_hisq_coeffs_t *hisq_coeff,
 				       REAL *residues,
-				       QOP_ColorVector *x[], 
+				       QDP_ColorVector *x[], 
 				       int *n_orders_naik)
 {
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();

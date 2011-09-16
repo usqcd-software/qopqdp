@@ -405,6 +405,19 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   double nflop = 0;
   double dtime;
 
+#if 0
+  {
+#define p(s) QOP_printf0("%20s %g\n", #s, coeffs->s)
+    p(one_link);
+    p(three_staple);
+    p(five_staple);
+    p(seven_staple);
+    p(lepage);
+    p(naik);
+#undef p
+  }
+#endif
+
   if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple || coeffs->naik) {
     nflop = 61632;
     staple = QDP_create_M();

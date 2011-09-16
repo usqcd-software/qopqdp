@@ -573,7 +573,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 				      QOP_Force *Force, 
 				      QOP_hisq_coeffs_t *hisq_coeff,
 				      REAL *residues,
-				      QOP_ColorVector *in_pt[], 
+				      QDP_ColorVector *x[], 
 				      int *n_orders_naik)
   
 {
@@ -640,12 +640,6 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
     Vgf[i] = flh->V_links[i];
     Wgf[i] = flh->W_unitlinks[i];
   }
-
-
-
-  QDP_ColorVector * x[(const int) nterms] ;
-  for(i=0; i<nterms; i++) x[i] = in_pt[i] -> cv;
-
 
   QDP_ColorMatrix *tmat;
   QDP_ColorMatrix *mat_tmp0;

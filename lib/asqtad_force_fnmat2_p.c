@@ -44,7 +44,7 @@ QOPPC(asqtad_force_multi_fnmat2)(QOP_info_t *info, QOP_GaugeField *gauge,
 void 
 QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info, QOP_GaugeField *Gauge,
 				QOP_Force *Force, QOP_asqtad_coeffs_t *asq_coeff,
-				REAL eps[], QOP_ColorVector *x[], int nterms)
+				REAL eps[], QDP_ColorVector *x[], int nterms)
 {
   ASQTAD_FORCE_BEGIN;
 
@@ -67,10 +67,10 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info, QOP_GaugeField *Gauge,
     QDP_M_eq_zero(mid_fat[mu], QDP_all);
     for(int i=0; i<=nterms; i++) {
       if(i<nterms) {
-	QDP_V_eq_sV(vec_tmp[i%2], x[i]->cv, QDP_neighbor[mu], QDP_forward, QDP_all);
+	QDP_V_eq_sV(vec_tmp[i%2], x[i], QDP_neighbor[mu], QDP_forward, QDP_all);
       }
       if(i>0) {
-	QDP_M_eq_V_times_Va(tmat, x[i-1]->cv, vec_tmp[(i-1)%2], QDP_all);
+	QDP_M_eq_V_times_Va(tmat, x[i-1], vec_tmp[(i-1)%2], QDP_all);
 	QDP_discard_V(vec_tmp[(i-1)%2]);
 	QDP_M_peq_r_times_M(mid_fat[mu], &eps[i-1], tmat, QDP_all);
       }
@@ -82,10 +82,10 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info, QOP_GaugeField *Gauge,
     QDP_M_eq_zero(mid_naik[mu], QDP_all);
     for(int i=0; i<=nterms; i++) {
       if(i<nterms) {
-	QDP_V_eq_sV(vec_tmp[i%2], x[i]->cv, QOP_common.neighbor3[mu], QDP_forward, QDP_all);
+	QDP_V_eq_sV(vec_tmp[i%2], x[i], QOP_common.neighbor3[mu], QDP_forward, QDP_all);
       }
       if(i>0) {
-	QDP_M_eq_V_times_Va(tmat, x[i-1]->cv, vec_tmp[(i-1)%2], QDP_all);
+	QDP_M_eq_V_times_Va(tmat, x[i-1], vec_tmp[(i-1)%2], QDP_all);
 	QDP_discard_V(vec_tmp[(i-1)%2]);
 	QDP_M_peq_r_times_M(mid_naik[mu], &eps[i-1], tmat, QDP_all);
       }

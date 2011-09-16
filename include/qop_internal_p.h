@@ -266,7 +266,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 				      QOP_Force *Force, 
 				      QOP_hisq_coeffs_t *hisq_coeff,
 				      REAL *epsv,
-				      QOP_ColorVector *in_pt[], 
+				      QDP_ColorVector *in_pt[], 
 				      int *n_orders_naik);
 
 void 
@@ -275,7 +275,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
 				       QOP_Force *Force, 
 				       QOP_hisq_coeffs_t *hisq_coeff,
 				       REAL *epsv,
-				       QOP_ColorVector *in_pt[], 
+				       QDP_ColorVector *in_pt[], 
 				       int *n_orders_naik);
 
 void

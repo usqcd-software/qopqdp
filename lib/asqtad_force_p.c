@@ -64,12 +64,12 @@ static void side_link_forces(int mu, int nu, REAL coeff[],
 void 
 QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *gauge,
 			       QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-			       REAL eps[], QOP_ColorVector *in_pt[], int nsrc);
+			       REAL eps[], QDP_ColorVector *in_pt[], int nsrc);
 
 void
 QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 				QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-				REAL eps[], QOP_ColorVector *in_pt[], int nsrc);
+				REAL eps[], QDP_ColorVector *in_pt[], int nsrc);
 
 
 //static su3_matrix *backwardlink[4];
@@ -92,7 +92,7 @@ QOPPC(asqtad_force)(QOP_info_t *info, QOP_GaugeField *gauge, QOP_Force *force,
 		    QOP_ColorVector *in_pt)
 {
   ASQTAD_FORCE_BEGIN;
-  QOPPC(asqtad_force_multi_asvec)(info, gauge, force, coeffs, &eps, &in_pt, 1);
+  QOPPC(asqtad_force_multi)(info, gauge, force, coeffs, &eps, &in_pt, 1);
   ASQTAD_FORCE_END;
 }
 
@@ -100,6 +100,20 @@ void
 QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
 			  QOP_Force *force, QOP_asqtad_coeffs_t *coef,
 			  REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
+{
+  ASQTAD_FORCE_BEGIN;
+
+  QDP_ColorVector *x[nsrc];
+  for(int i=0; i<nsrc; i++) x[i] = in_pt[i]->cv;
+  QOPPC(asqtad_force_multi_qdp)(info, gauge, force, coef, eps, x, nsrc);
+
+  ASQTAD_FORCE_END;
+}
+
+void
+QOPPC(asqtad_force_multi_qdp)(QOP_info_t *info, QOP_GaugeField *gauge,
+			      QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+			      REAL eps[], QDP_ColorVector *in_pt[], int nsrc)
 {
   ASQTAD_FORCE_BEGIN;
 
@@ -126,7 +140,7 @@ QOPPC(asqtad_force_multi)(QOP_info_t *info, QOP_GaugeField *gauge,
 void
 QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
 				QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-				REAL eps[], QOP_ColorVector *in_pt[], int nsrc)
+				REAL eps[], QDP_ColorVector *xin[], int nsrc)
 {
   REAL coeff[nsrc];
   REAL OneLink[nsrc], Lepage[nsrc], Naik[nsrc], FiveSt[nsrc], ThreeSt[nsrc], SevenSt[nsrc];
@@ -150,7 +164,6 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_ColorVector *P7[nsrc];
   QDP_ColorVector *P7tmp[8][nsrc];
   QDP_ColorVector *P7rho[nsrc];
-  QDP_ColorVector *xin[nsrc];
   QDP_ColorVector *ttv[nsrc];
 
   int i, dir;
@@ -163,10 +176,6 @@ QOPPC(asqtad_force_multi_asvec)(QOP_info_t *info, QOP_GaugeField *gauge,
   dtime = -QOP_time();
 
   ASQTAD_FORCE_BEGIN;
-
-  for(i=0; i<nsrc; i++) {
-    xin[i] = in_pt[i]->cv;
-  }
 
   QOP_trace("test 1\n");
   /* setup parallel transport */

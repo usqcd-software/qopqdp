@@ -327,8 +327,8 @@ sort_quark_paths( Q_path *src_table, Q_path *dest_table, int npaths ){
 
 void 
 QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
-			QOP_Force *Force, QOP_asqtad_coeffs_t *asq_coeff,
-			REAL eps[], QOP_ColorVector *in_pt[], int nterms)
+				QOP_Force *Force, QOP_asqtad_coeffs_t *asq_coeff,
+				REAL eps[], QDP_ColorVector *x[], int nterms)
 {
 #ifdef DEBUG_FNMAT
   printf("coeff: %e %e %e\n %e %e %e\n\n", asq_coeff->one_link, asq_coeff->naik,
@@ -356,8 +356,6 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
   PrintM(gf[0]);
 #endif
 
-  QDP_ColorVector * x[(const int) nterms] ;
-  for(i=0; i<nterms; i++) x[i] = in_pt[i] -> cv;
 #ifdef DEBUG_FNMAT
   PrintV(x[0]);  
 #endif

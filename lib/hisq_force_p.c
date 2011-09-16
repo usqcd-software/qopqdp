@@ -25,6 +25,28 @@
  */
 
 void
+QOPPC(hisq_force_multi_qdp)(QOP_info_t *info, 
+			    QOP_FermionLinksHisq *flh,
+			    QOP_Force *force, 
+			    QOP_hisq_coeffs_t *coef,
+			    REAL epsv[], 
+			    QDP_ColorVector *in_pt[], 
+			    int *n_orders_naik)
+{
+  HISQ_FORCE_BEGIN;
+
+  if(n_orders_naik[0]<QOP_hisq_ff.fnmat_src_min) {
+    QOPPC(hisq_force_multi_wrapper_fnmat)(info, flh, force, 
+					  coef, epsv, in_pt, n_orders_naik);
+  } else {
+    QOPPC(hisq_force_multi_wrapper_fnmat2)(info, flh, force, 
+					   coef, epsv, in_pt, n_orders_naik);
+  }
+
+  HISQ_FORCE_END;
+}
+
+void
 QOPPC(hisq_force_multi)(QOP_info_t *info, 
 			QOP_FermionLinksHisq *flh,
 			QOP_Force *force, 
@@ -33,17 +55,17 @@ QOPPC(hisq_force_multi)(QOP_info_t *info,
 			QOP_ColorVector *in_pt[], 
 			int *n_orders_naik)
 {
-
   HISQ_FORCE_BEGIN;
 
-  if(n_orders_naik[0]<QOP_hisq_ff.fnmat_src_min) {
-    QOPPC(hisq_force_multi_wrapper_fnmat)(info, flh, force, 
-					  coef, epsv, in_pt, n_orders_naik);
-  } else {
-    QOPPC(hisq_force_multi_wrapper_fnmat2)(info, flh, force, 
-					  coef, epsv, in_pt, n_orders_naik);
-  }
+  int n_naiks = coef->n_naiks;
+  int nterms = 0;
+  for(int inaik = 0; inaik < n_naiks; inaik++)
+    nterms += n_orders_naik[inaik];
+
+  QDP_ColorVector *x[nterms];
+  for(int i=0; i<nterms; i++) x[i] = in_pt[i]->cv;
+
+  QOPPC(hisq_force_multi_qdp)(info, flh, force, coef, epsv, x, n_orders_naik);
 
   HISQ_FORCE_END;
 }
-

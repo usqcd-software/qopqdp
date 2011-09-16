@@ -31,6 +31,27 @@ static REAL gl_mass;
 static QOP_evenodd_t gl_eo;
 static QDP_ColorVector *gl_tmp, *gl_tmp2;
 
+static void
+dumpvec(QDP_ColorVector *in, QDP_Subset sub)
+{
+  QLA_Real nrm2;
+  QDP_r_eq_norm2_V(&nrm2, in, sub);
+  QOP_printf0("norm2 = %g\n", nrm2);
+  int i;
+  QDP_loop_sites(i, sub, {
+      int c[4];
+      QDP_get_coords(c, 0, i);
+      printf(" %i %i %i %i", c[0], c[1], c[2], c[3]);
+      for(int j=0; j<QLA_Nc; j++) {
+	QLA_ColorVector *v = QDP_site_ptr_readonly_V(in, i);
+	printf(" %10g", QLA_real(QLA_elem_V(*v, j)));
+	printf(" %10g", QLA_imag(QLA_elem_V(*v, j)));
+      }
+      printf("\n");
+    });
+  exit(0);
+}
+
 /* calculates out = mass*in - D*in on subset eo */
 static void
 project(QOP_FermionLinksAsqtad *fla, QLA_Real mass, QDP_ColorVector *out,
@@ -114,6 +135,11 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
 
+  //QOP_printf0("mass = %g\n", mass);
+  //dumpvec(in, insub);
+  //QOP_asqtad_dslash_qdp(NULL, fla, mass, out, in, QOP_EVENODD, ineo);
+  //dumpvec(out, QDP_all);
+
   qdpin = QDP_create_V();
   qdpout = QDP_create_V();
 
@@ -164,8 +190,6 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
     inv_arg->max_iter = max_iter_old - iter;
 
     dtime -= QOP_time();
-
-
     if(QOP_asqtad.cgtype==1) {
       QOPPC(invert_eigcg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
 			    qdpout, qdpin, cgp, cgsub, &fla->eigcg);
@@ -173,9 +197,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
       QOPPC(invert_cg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
 			 qdpout, qdpin, cgp, cgsub);
     }
-
     //printf("resid = %g\n", res_arg->final_rsq);
-
     dtime += QOP_time();
 
     reconstruct(fla, mass, qdpout, qdpout, qdpin, oppsub(cgeo));
@@ -224,6 +246,8 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   info->final_sec = dtime;
   info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+
+  //dumpvec(out, insub);
 
   ASQTAD_INVERT_END;
 }
@@ -277,6 +301,11 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
 
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
+
+  //QOP_printf0("masses[0][0] = %g\n", masses[0][0]);
+  //dumpvec(in_pt[0], insub);
+  //QOP_asqtad_dslash_qdp(NULL,fla,masses[0][0],out_pt[0][0],in_pt[0],QOP_EVENODD,ineo);
+  //dumpvec(out_pt[0][0], QDP_all);
 
   gl_fla = fla;
 
@@ -397,6 +426,8 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
 
   info->final_sec = dtime;
   info->status = QOP_SUCCESS;
+
+  //dumpvec(out_pt[0][0], insub);
 
   ASQTAD_INVERT_END;
 }

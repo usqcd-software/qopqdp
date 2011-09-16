@@ -129,6 +129,14 @@ void QOP_F3_asqtad_get_eigcg(QOP_F3_FermionLinksAsqtad *asqtad,
 			     QDP_F3_ColorVector **evecs,
 			     QLA_F_Real *evals, int *nv);
 
+void QOP_F3_asqtad_force_multi_qdp(QOP_info_t *info,
+				   QOP_F3_GaugeField *gauge,
+				   QOP_F3_Force *force,
+				   QOP_asqtad_coeffs_t *coef,
+				   float eps[],
+				   QDP_F3_ColorVector *in_pt[],
+				   int nsrc);
+
   /* double precision */
 
 QOP_D3_FermionLinksAsqtad *
@@ -196,6 +204,14 @@ void QOP_D3_asqtad_get_eigcg(QOP_D3_FermionLinksAsqtad *asqtad,
 			     QDP_D3_ColorVector **evecs,
 			     QLA_D_Real *evals, int *nv);
 
+void QOP_D3_asqtad_force_multi_qdp(QOP_info_t *info,
+				   QOP_D3_GaugeField *gauge,
+				   QOP_D3_Force *force,
+				   QOP_asqtad_coeffs_t *coef,
+				   double eps[],
+				   QDP_D3_ColorVector *in_pt[],
+				   int nsrc);
+
 
   /*******************/
   /*  HISQ routines  */
@@ -236,6 +252,14 @@ void QOP_F3_hisq_invert_multi_qdp(QOP_info_t *info,
 				  QDP_F3_ColorVector *in[],
 				  int nsrc);
 
+void QOP_F3_hisq_force_multi_qdp(QOP_info_t *info,
+				 QOP_F3_FermionLinksHisq *flh,
+				 QOP_F3_Force *force,
+				 QOP_hisq_coeffs_t *coef,
+				 float eps[],
+				 QDP_F3_ColorVector *in_pt[],
+				 int *n_orders_naik);
+
   /* double precision */
 
 void QOP_D3_hisq_dslash_qdp(QOP_info_t *info,
@@ -270,6 +294,14 @@ void QOP_D3_hisq_invert_multi_qdp(QOP_info_t *info,
 				  QDP_D3_ColorVector **out[],
 				  QDP_D3_ColorVector *in[],
 				  int nsrc);
+
+void QOP_D3_hisq_force_multi_qdp(QOP_info_t *info,
+				 QOP_D3_FermionLinksHisq *flh,
+				 QOP_D3_Force *force,
+				 QOP_hisq_coeffs_t *coef,
+				 double eps[],
+				 QDP_D3_ColorVector *in_pt[],
+				 int *n_orders_naik);
 
 
   /*********************/
@@ -573,11 +605,13 @@ void QOP_D3_dw_invert_multi_qdp(QOP_info_t *info,
 #define QOP_asqtad_invert_qdp         QOP_F3_asqtad_invert_qdp
 #define QOP_asqtad_invert_multi_qdp   QOP_F3_asqtad_invert_multi_qdp
 #define QOP_asqtad_get_eigcg          QOP_F3_asqtad_get_eigcg
+#define QOP_asqtad_force_multi_qdp    QOP_F3_asqtad_force_multi_qdp
 
 #define QOP_hisq_dslash_qdp         QOP_F3_hisq_dslash_qdp
 #define QOP_hisq_diaginv_qdp        QOP_F3_hisq_diaginv_qdp
 #define QOP_hisq_invert_qdp         QOP_F3_hisq_invert_qdp
 #define QOP_hisq_invert_multi_qdp   QOP_F3_hisq_invert_multi_qdp
+#define QOP_hisq_force_multi_qdp    QOP_F3_hisq_force_multi_qdp
 
 #define QOP_wilson_create_L_from_qdp  QOP_F3_wilson_create_L_from_qdp
 #define QOP_wilson_extract_L_to_qdp   QOP_F3_wilson_extract_L_to_qdp
@@ -633,11 +667,13 @@ void QOP_D3_dw_invert_multi_qdp(QOP_info_t *info,
 #define QOP_asqtad_invert_qdp         QOP_D3_asqtad_invert_qdp
 #define QOP_asqtad_invert_multi_qdp   QOP_D3_asqtad_invert_multi_qdp
 #define QOP_asqtad_get_eigcg          QOP_D3_asqtad_get_eigcg
+#define QOP_asqtad_force_multi_qdp    QOP_D3_asqtad_force_multi_qdp
 
 #define QOP_hisq_dslash_qdp         QOP_D3_hisq_dslash_qdp
 #define QOP_hisq_diaginv_qdp        QOP_D3_hisq_diaginv_qdp
 #define QOP_hisq_invert_qdp         QOP_D3_hisq_invert_qdp
 #define QOP_hisq_invert_multi_qdp   QOP_D3_hisq_invert_multi_qdp
+#define QOP_hisq_force_multi_qdp    QOP_D3_hisq_force_multi_qdp
 
 #define QOP_wilson_create_L_from_qdp  QOP_D3_wilson_create_L_from_qdp
 #define QOP_wilson_extract_L_to_qdp   QOP_D3_wilson_extract_L_to_qdp
