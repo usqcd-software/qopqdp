@@ -4,7 +4,12 @@
 QOP_hisq_links_t QOP_hisq_links = {
   .inited = 0,
   .want_deps = 0,
-  .want_aux=1
+  .want_aux=1,
+  .reunit_allow_svd = 1,
+  .reunit_svd_only = 0,
+  .reunit_svd_rel_error = 1e-8,
+  .reunit_svd_abs_error = 1e-8,
+  .svd_values_info = 1
 };
 
 #define setvar(_var, _type, _tag, _opts, _nopts)			\
@@ -27,6 +32,9 @@ QOP_hisq_links_set_opts(QOP_opt_t opts[], int nopts)
 {
   ;
   int want_deps, want_aux;
+  int reunit_allow_svd, reunit_svd_only;
+  double reunit_svd_rel_error, reunit_svd_abs_error;
+  int svd_values_info;
 
   HISQ_LINKS_BEGIN;
 
@@ -37,6 +45,26 @@ QOP_hisq_links_set_opts(QOP_opt_t opts[], int nopts)
   want_aux = QOP_hisq_links.want_aux;
   setvar(want_aux, int, "want_aux", opts, nopts);
   QOP_hisq_links.want_aux = want_aux;
+
+  reunit_allow_svd = QOP_hisq_links.reunit_allow_svd;
+  setvar(reunit_allow_svd, int, "reunit_allow_svd", opts, nopts);
+  QOP_hisq_links.reunit_allow_svd = reunit_allow_svd;
+
+  reunit_svd_only = QOP_hisq_links.reunit_svd_only;
+  setvar(reunit_svd_only, int, "reunit_svd_only", opts, nopts);
+  QOP_hisq_links.reunit_svd_only = reunit_svd_only;
+
+  reunit_svd_rel_error = QOP_hisq_links.reunit_svd_rel_error;
+  setvar(reunit_svd_rel_error, double, "reunit_svd_rel_error", opts, nopts);
+  QOP_hisq_links.reunit_svd_rel_error = reunit_svd_rel_error;
+
+  reunit_svd_abs_error = QOP_hisq_links.reunit_svd_abs_error;
+  setvar(reunit_svd_abs_error, double, "reunit_svd_abs_error", opts, nopts);
+  QOP_hisq_links.reunit_svd_abs_error = reunit_svd_abs_error;
+
+  svd_values_info = QOP_hisq_links.svd_values_info;
+  setvar(svd_values_info, int, "svd_values_info", opts, nopts);
+  QOP_hisq_links.svd_values_info = svd_values_info;
 
   HISQ_LINKS_END;
 

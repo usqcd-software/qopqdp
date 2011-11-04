@@ -4,7 +4,8 @@
 QOP_hisq_force_t QOP_hisq_ff = {
   .inited = 0,
   .fnmat_src_min = 1,
-  .veclength=4
+  .veclength = 4,
+  .force_filter = 5e-5
 };
 
 #define setvar(_var, _type, _tag, _opts, _nopts)			\
@@ -22,12 +23,14 @@ QOP_hisq_force_t QOP_hisq_ff = {
 
 #define valid_fnmat_src_min(fsm) ( (fsm>=0) )
 #define valid_veclength(vl) ( (vl>0) )
+#define valid_force_filter(ff) ( (ff>=0) )
 
 QOP_status_t
 QOP_hisq_force_set_opts(QOP_opt_t opts[], int nopts)
 {
   HISQ_FORCE_BEGIN;
   int fsm, vl;
+  double ff;
 
   fsm = QOP_hisq_ff.fnmat_src_min;
   setvar(fsm, int, "fnmat_src_min", opts, nopts);
@@ -38,6 +41,11 @@ QOP_hisq_force_set_opts(QOP_opt_t opts[], int nopts)
   setvar(vl, int, "veclength", opts, nopts);
   if(!valid_veclength(vl)) return QOP_FAIL;
   QOP_hisq_ff.veclength = vl;
+
+  ff = QOP_hisq_ff.force_filter;
+  setvar(ff, double, "force_filter", opts, nopts);
+  if(!valid_force_filter(ff)) return QOP_FAIL;
+  QOP_hisq_ff.force_filter = ff;
 
   HISQ_FORCE_END;
   return QOP_SUCCESS;

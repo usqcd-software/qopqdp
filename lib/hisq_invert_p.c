@@ -1,3 +1,4 @@
+OBSOLETE
 /******* hisq_invert_p.c ****************/
 //#define DO_TRACE
 
@@ -5,8 +6,10 @@
 
 extern void QOPPC(su3det)(QDP_ColorMatrix *mat,QDP_Complex *det);
 extern void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv);
-extern void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
-extern void QOPPC(u3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
+extern void QOPPC(su3reunit)(QOP_info_t *info,
+			     QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
+extern void QOPPC(u3reunit)(QOP_info_t *info,
+			    QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
 
 
 //create HISQ links from QOPPC(GaugeField)
@@ -58,7 +61,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   // JCO - just use U3 for now
   for(int i=0; i<4; i++) {
     //QOPPC(su3reunit)(Vgauge[i], Wgauge[i]);
-    QOPPC(u3reunit)(Vgauge[i], Wgauge[i]);
+    QOPPC(u3reunit)(info, Vgauge[i], Wgauge[i]);
   }
 
   TRACE;

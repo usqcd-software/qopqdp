@@ -45,7 +45,7 @@ u3reunit_site(QLA_ColorMatrix *Ur, int i, void *args)
 
 // requires QLA >= 1.7.0 and QDP >= 1.9.0
 void
-QOPPC(u3reunit)(QDP_ColorMatrix *U, QDP_ColorMatrix *Ur)
+QOPPC(u3reunit)(QOP_into_t *info, QDP_ColorMatrix *U, QDP_ColorMatrix *Ur)
 {
   QLA_ColorMatrix *Uq = QDP_expose_M(U);
   QDP_M_eq_funcia(Ur, u3reunit_site, (void *)Uq, QDP_all);
@@ -112,10 +112,11 @@ static void QOPPC(su3inverse)(QDP_ColorMatrix *mat,QDP_ColorMatrix *inv);
 //   Depending on QOPQDP_REUNIT_FOLLOW_PRECISION
 //   reunitarization can be done either in dominant precision
 //   or always in double precision
-void QOPPC(u3reunit)(QDP_ColorMatrix *V, QDP_ColorMatrix *W)
+void QOPPC(u3reunit)(QOP_info_t *info, QDP_ColorMatrix *V, QDP_ColorMatrix *W)
 {
   QLA_ColorMatrix *Vlinks;
   QLA_ColorMatrix *Wlinks;
+  int svd_calls;
   
   //custom_QLA_ColorMatrix A;
   
@@ -129,8 +130,12 @@ void QOPPC(u3reunit)(QDP_ColorMatrix *V, QDP_ColorMatrix *W)
 
   
   for( i=0; i<QDP_sites_on_node; i++ ) {
-    QOPPC(su3_un_analytic)( &(Vlinks[i]), &(Wlinks[i]) );
+    svd_calls += QOPPC(u3_un_analytic)( info, &(Vlinks[i]), &(Wlinks[i]) );
   }
+
+  // Tally across all nodes and update global counter
+  QMP_sum_int(&svd_calls);
+  QOP_info_hisq_svd_counter(info) += svd_calls;
   
   // resume QDP operations on links
   QDP_reset_M( V );
@@ -139,7 +144,7 @@ void QOPPC(u3reunit)(QDP_ColorMatrix *V, QDP_ColorMatrix *W)
 
 
 //Reuniterise links to SU3 (see eq. 53, 54 in the practical guide) 
-void QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
+void QOPPC(su3reunit)(QOP_info_t *info, QDP_ColorMatrix *U,QDP_ColorMatrix *Ur)
 {
 
   QDP_ColorMatrix *msquare,*mpolytot,*mtemp1,*mtemp2, *Ur_temp;
@@ -391,6 +396,7 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
   QLA_ColorMatrix *ff_new, *ff_old, ff_old_adj;
   QLA_Complex ftmp;
   QLA_ColorTensor4 dwdv, dwdagdv;
+  int svd_calls = 0;
 
   nd = QDP_ndim();
 
@@ -405,8 +411,8 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
   
     for( j=0; j<QDP_sites_on_node; j++ ) {
       // derivative with respect to V and V^+
-      QOPPC(su3_un_der_analytic)( &( Vlinks[j] ),
-            &dwdv, &dwdagdv );
+      svd_calls += QOPPC(u3_un_der_analytic)( info, &( Vlinks[j] ),
+					      &dwdv, &dwdagdv );
     
 //      if( j==0 ) {
 //        printf("FORCE REUNIT V link at site 0\n");
@@ -443,6 +449,9 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
 //      }
     }
 
+    // Tally across all nodes and update global counter
+    QMP_sum_int(&svd_calls);
+    QOP_info_hisq_svd_counter(info) += svd_calls;
 
     // resume QDP operations on links
     QDP_reset_M( V[i] );

@@ -203,7 +203,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
 
   if(ugroup == QOP_UNITARIZE_U3)
     for (i=0;i<4;i++)
-      QOPPC(u3reunit)(flh->V_links[i],flh->Y_unitlinks[i]);
+      QOPPC(u3reunit)(info, flh->V_links[i],flh->Y_unitlinks[i]);
 
   if(!want_aux){
     destroy_4M(flh->V_links);
@@ -223,7 +223,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
 QOP_printf0("QOP_hisq_create_L_from_G: SU(3) projection not supported for now\n");
 exit(1);
     for (i=0;i<4;i++)
-      QOPPC(su3reunit)(flh->Y_unitlinks[i],flh->W_unitlinks[i]);
+      QOPPC(su3reunit)(info, flh->Y_unitlinks[i],flh->W_unitlinks[i]);
   }
 
   if(!want_aux && !flh->WeqY){

@@ -39,35 +39,14 @@ PrintMone(QLA_ColorMatrix m){
 
 #endif
 
-//AB some constants that need to transfered to headers or makefiles
-#define QOP_HISQ_FORCE_FILTER 0.000050
-
-// Perform singular value decomposition if small eigenvalues are encountered
-//#define QOP_HISQ_REUNIT_ALLOW_SVD
-// Do reunitarization through SVD only (for testing purposes only, slow)
-//#define QOP_HISQ_REUNIT_SVD_ONLY
-
 #if (QOP_Precision==1)
-#define QOP_SU3_UNIT_ANALYTIC_EPS 1.0e-6
+#define QOP_U3_UNIT_ANALYTIC_EPS 1.0e-6
 //#define SU3_ROOT_INV_NORM_EPS 1.0e-6
 #else
-#define QOP_SU3_UNIT_ANALYTIC_EPS 1.0e-14
+#define QOP_U3_UNIT_ANALYTIC_EPS 1.0e-14
 //#define SU3_ROOT_INV_NORM_EPS 1.0e-9
 #endif
 #define QOP_PI 3.14159265358979323846
-
-// Relative error in (det-g0*g1*g2)/det quantity,
-// used as criterium for SVD
-#define QOP_HISQ_REUNIT_SVD_REL_ERROR 1e-8
-// Absolute value of the determinant,
-// used as criterium for SVD
-#define QOP_HISQ_REUNIT_SVD_ABS_VALUE 1e-8
-
-// Report eigenvalues from cubic equation and from SVD.
-// May give too much output on coarse lattices, one can turn it off
-#define QOP_HISQ_REUNIT_REPORT_SVD_EIGENVALUES
-
-
 
 // Forward declaration for SVD functions
 static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_Real U2[2][2], QLA_Real V2[2][2]);
@@ -115,27 +94,29 @@ QOPPC(su3_mat_det)( QLA_ColorMatrix *U)
 #endif
 
 // Analytic reunitarization
-void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
+int QOPPC(u3_un_analytic)( QOP_info_t *info, 
+			   QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   QLA_Real c0, c1, c2, S, S3, R, R2, CQ3, RoS, theta, theta3, pi23, denom;
   QLA_Real g0, g1, g2, g0sq, g1sq, g2sq, f0, f1, f2, us, vs, ws, det_check;
   QLA_Real sigma[3];
   QLA_Complex det;
   QLA_ColorMatrix Q, Q2, Q3, Uleft, Vright, S1, S2;
   int i, j, perform_svd;
+  int svd_calls = 0;
 
   // No SVD initially
   perform_svd=0;
 
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-//  printf("Enter QOPPC(su3_un_analytic) in hisq_reunit_utilities_p.c\n");
+//  printf("Enter QOPPC(u3_un_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
-#ifdef QOP_HISQ_REUNIT_ALLOW_SVD
-  // get determinant for future comparison
-  det = QOPPC(su3_mat_det)( V );
-  // det_check = |det|^2
-  det_check = det.real*det.real + det.imag*det.imag;
-#endif /* QOP_HISQ_REUNIT_ALLOW_SVD */
+  if(QOP_hisq_links.reunit_allow_svd){
+    // get determinant for future comparison
+    det = QOPPC(su3_mat_det)( V );
+    // det_check = |det|^2
+    det_check = det.real*det.real + det.imag*det.imag;
+  }
 
 
   /* Hermitian matrix: Q=V^+ V */
@@ -148,9 +129,6 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   QLA_M_eq_M_times_M( &Q3, &Q2, &Q );
 
   /* (real) traces */
-  //c0 = Q.e[0][0].real + Q.e[1][1].real + Q.e[2][2].real;
-  //c1 = ( Q2.e[0][0].real + Q2.e[1][1].real + Q2.e[2][2].real ) / 2;
-  //c2 = ( Q3.e[0][0].real + Q3.e[1][1].real + Q3.e[2][2].real ) / 3;
   QLA_R_eq_re_trace_M(&c0, &Q);
   QLA_R_eq_re_trace_M(&c1, &Q2);
   c1 /= 2;
@@ -158,7 +136,7 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   c2 /= 3;
 
   S = c1/3 - c0 * (c0/18);
-  if( fabs(S)<QOP_SU3_UNIT_ANALYTIC_EPS ) {
+  if( fabs(S)<QOP_U3_UNIT_ANALYTIC_EPS ) {
     /* eigenvalues of Q */
     g0 = c0/3;
     g1 = c0/3;
@@ -183,7 +161,7 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
     else {
       theta = acos( RoS );
       if(isnan(theta)){
-        printf("Hit NaN in QOPPC(su3_un_analytic)\n");
+        printf("Hit NaN in QOPPC(u3_un_analytic)\n");
         printf("RoS=%24.18g\n",RoS);
         printf("Matrix V (row-wise):\n");
         for( i=0; i<3; i++ ) {
@@ -205,114 +183,107 @@ void QOPPC(su3_un_analytic)( QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   }
 
 
-#ifdef QOP_HISQ_REUNIT_ALLOW_SVD
-
-
-#ifndef QOP_HISQ_REUNIT_SVD_ONLY
-  /* conditions to call SVD */
-  if(det_check!=0) {
-    if( fabs(det_check-g0*g1*g2)/fabs(det_check)>QOP_HISQ_REUNIT_SVD_REL_ERROR ) {
+  if(QOP_hisq_links.reunit_allow_svd){
+    
+    if(!QOP_hisq_links.reunit_svd_only){
+      /* conditions to call SVD */
+      if(det_check!=0) {
+	if( fabs(det_check-g0*g1*g2)/fabs(det_check)
+	    > QOP_hisq_links.reunit_svd_rel_error) {
+	  perform_svd=1;
+	}
+      }
+      if( det_check<QOP_hisq_links.reunit_svd_abs_error ) {
+	perform_svd=1;
+      }
+    } else {
+      /* exclusively use SVD for finding eigenvalues and reunitarization,
+	 this is slow since Q, Q^2 and Q^3 are calculated anyway;
+	 this option is for testing: under normal circumstances SVD is
+	 rarely used, which makes it harder to test, therefore one can
+	 SVD with this switch */
       perform_svd=1;
     }
-  }
-  if( det_check<QOP_HISQ_REUNIT_SVD_ABS_VALUE ) {
-    perform_svd=1;
-  }
-#else /* HISQ_REUNIT_SVD_ONLY */
-  /* exclusively use SVD for finding eigenvalues and reunitarization,
-     this is slow since Q, Q^2 and Q^3 are calculated anyway;
-     this option is for testing: under normal circumstances SVD is
-     rarely used, which makes it harder to test, therefore one can
-     SVD with this switch */
-  perform_svd=1;
-#endif /* QOP_HISQ_REUNIT_SVD_ONLY */
-
+  } /* reunit_allow_svd */
 
   if( 0!=perform_svd ) {
-
+    
     /* call SVD */
     QOPPC(svd3x3)( V, sigma, &Uleft, &Vright);
-
-#ifndef QOP_HISQ_REUNIT_SVD_ONLY
-#ifdef QOP_HISQ_REUNIT_REPORT_SVD_EIGENVALUES
-    printf("*** QOPQDP reunitarization while calculating fat links ***\n");
-    printf("*** Resort to using SVD ***\n");
-    printf("*** printing from node %d ***\n",QDP_this_node);
-    printf("Eigenvalues from cubic equation:\n");
-    printf( "  g0 = %28.18f\n", g0 );
-    printf( "  g1 = %28.18f\n", g1 );
-    printf( "  g2 = %28.18f\n", g2 );
-    printf("Eigenvalues from singular value decomposition:\n");
-    printf( "  g0 = %28.18f\n", sigma[0]*sigma[0] );
-    printf( "  g1 = %28.18f\n", sigma[1]*sigma[1] );
-    printf( "  g2 = %28.18f\n", sigma[2]*sigma[2] );
-#endif
-#endif
-
+    
+    svd_calls++;
+    
+    if(!QOP_hisq_links.reunit_svd_only && QOP_hisq_links.svd_values_info){
+      printf("*** QOPQDP reunitarization while calculating fat links ***\n");
+      printf("*** Resort to using SVD ***\n");
+      printf("*** printing from node %d ***\n",QDP_this_node);
+      printf("Eigenvalues from cubic equation:\n");
+      printf( "  g0 = %28.18f\n", g0 );
+      printf( "  g1 = %28.18f\n", g1 );
+      printf( "  g2 = %28.18f\n", g2 );
+      printf("Eigenvalues from singular value decomposition:\n");
+      printf( "  g0 = %28.18f\n", sigma[0]*sigma[0] );
+      printf( "  g1 = %28.18f\n", sigma[1]*sigma[1] );
+      printf( "  g2 = %28.18f\n", sigma[2]*sigma[2] );
+    }
+    
     // W = Uleft * Vright^+
     QLA_M_eq_M_times_Ma( W, &Uleft, &Vright );
-
-  }
-  else { // SVD is not needed, just use eigenvalues from cubic equation
-#endif /* QOP_HISQ_REUNIT_ALLOW_SVD */
-
-  /* roots of eigenvalues */
-  g0sq = sqrt( g0 );
-  g1sq = sqrt( g1 );
-  g2sq = sqrt( g2 );
-
-  /* symmetric combinations */
-  us = g1sq + g2sq;
-  ws = g1sq * g2sq;
-  vs = g0sq * us + ws;
-  us += g0sq;
-  ws *= g0sq;
-
-  if( ws < QOP_SU3_UNIT_ANALYTIC_EPS ) {
-    printf( "QOPQCD WARNING: QOPPC(su3_un_analytic): ws is too small!\n" );
-    printf( "  g0 = %28.18f\n", g0 );
-    printf( "  g1 = %28.18f\n", g1 );
-    printf( "  g2 = %28.18f\n", g2 );
-  }
-
-  denom = ws * ( us*vs - ws );
-
-  /* constants in inverse root expression */
-  f0 = ( us*vs*vs - ws*(us*us+vs) ) / denom;
-  f1 = ( 2*us*vs - ws - us*us*us ) / denom;
-  f2 = us / denom;
-
-  /* assemble inverse root: Q^-1/2 = f0 + f1*Q + f2*Q^2 */
-  QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
-  QLA_M_eq_r_times_M_plus_M( &S2, &f1, &Q, &S1 );
-  //AB CHANGE DIRECT ACCESS TO ACCESS THROUGH QLA ROUTINES!
-  //S2.e[0][0].real += f0;
-  //S2.e[1][1].real += f0;
-  //S2.e[2][2].real += f0;
-  QLA_c_peq_r(QLA_elem_M(S2,0,0), f0);
-  QLA_c_peq_r(QLA_elem_M(S2,1,1), f0);
-  QLA_c_peq_r(QLA_elem_M(S2,2,2), f0);
-
-  /* W = V*S2 */
-  QLA_M_eq_M_times_M( W, V, &S2 );
-
-#ifdef QOP_HISQ_REUNIT_ALLOW_SVD
+    
+  }  else { 
+    // SVD is not performed, just use eigenvalues from cubic equation
+    
+    /* roots of eigenvalues */
+    g0sq = sqrt( g0 );
+    g1sq = sqrt( g1 );
+    g2sq = sqrt( g2 );
+    
+    /* symmetric combinations */
+    us = g1sq + g2sq;
+    ws = g1sq * g2sq;
+    vs = g0sq * us + ws;
+    us += g0sq;
+    ws *= g0sq;
+    
+    if( ws < QOP_U3_UNIT_ANALYTIC_EPS ) {
+      printf( "QOPQCD WARNING: QOPPC(u3_un_analytic): ws is too small!\n" );
+      printf( "  g0 = %28.18f\n", g0 );
+      printf( "  g1 = %28.18f\n", g1 );
+      printf( "  g2 = %28.18f\n", g2 );
+    }
+    
+    denom = ws * ( us*vs - ws );
+    
+    /* constants in inverse root expression */
+    f0 = ( us*vs*vs - ws*(us*us+vs) ) / denom;
+    f1 = ( 2*us*vs - ws - us*us*us ) / denom;
+    f2 = us / denom;
+    
+    /* assemble inverse root: Q^-1/2 = f0 + f1*Q + f2*Q^2 */
+    QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
+    QLA_M_eq_r_times_M_plus_M( &S2, &f1, &Q, &S1 );
+    QLA_c_peq_r(QLA_elem_M(S2,0,0), f0);
+    QLA_c_peq_r(QLA_elem_M(S2,1,1), f0);
+    QLA_c_peq_r(QLA_elem_M(S2,2,2), f0);
+    
+    /* W = V*S2 */
+    QLA_M_eq_M_times_M( W, V, &S2 );
+    
   } // end of SVD related if
-#endif /* HISQ_REUNIT_ALLOW_SVD */
-
 
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-//  printf("Exit  QOPPC(su3_un_analytic) in hisq_reunit_utilities_p.c\n");
+//  printf("Exit  QOPPC(u3_un_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
+  return svd_calls;
 }
 
 
 
 // Analytic derivative of the unitarized matrix with respect to the original:
 //   dW/dV and d(W^+)/dV, where W=V(V^+V)^-1/2 */
-void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V, 
-           QLA_ColorTensor4 *dwdv, QLA_ColorTensor4 *dwdagdv ) {
+int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V, 
+			       QLA_ColorTensor4 *dwdv, QLA_ColorTensor4 *dwdagdv ) {
   int i, j, m, n, perform_svd;
   QLA_Complex det, der, ctmp, ctmp2;
   QLA_Real det_check, c0, c1, c2, S, g0, g1, g2, R, R2, CQ3, S3, RoS, theta, theta3, pi23;
@@ -322,21 +293,21 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   QLA_ColorMatrix Q12, Q, Q2, Q3, Uleft, Vright, W, S1, S2;
   QLA_ColorMatrix VVd, VQ, QVd, QQVd, VQQ, VQVd, PVd, RVd, SVd, Vd;
   QLA_Real sigma[3];
+  int svd_calls = 0;
 
   // No SVD initially
   perform_svd=0;
 
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-//  printf("Enter QOPPC(su3_un_der_analytic) in hisq_reunit_utilities_p.c\n");
+//  printf("Enter QOPPC(u3_un_der_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
-#ifdef QOP_HISQ_REUNIT_ALLOW_SVD
-  // get determinant for future comparison
-  det = QOPPC(su3_mat_det)( V );
-  // det_check = |det|^2
-  det_check = det.real*det.real + det.imag*det.imag;
-#endif /* QOP_HISQ_REUNIT_ALLOW_SVD */
-
+  if(QOP_hisq_links.reunit_allow_svd){
+    // get determinant for future comparison
+    det = QOPPC(su3_mat_det)( V );
+    // det_check = |det|^2
+    det_check = det.real*det.real + det.imag*det.imag;
+  }
 
   /* adjoint */
   QLA_M_eq_Ma( &Vd, V );
@@ -351,9 +322,6 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   QLA_M_eq_M_times_M( &Q3, &Q2, &Q );
 
   /* (real) traces */
-  //c0 = Q.e[0][0].real + Q.e[1][1].real + Q.e[2][2].real;
-  //c1 = ( Q2.e[0][0].real + Q2.e[1][1].real + Q2.e[2][2].real ) / 2;
-  //c2 = ( Q3.e[0][0].real + Q3.e[1][1].real + Q3.e[2][2].real ) / 3;
   QLA_R_eq_re_trace_M(&c0, &Q);
   QLA_R_eq_re_trace_M(&c1, &Q2);
   c1 /= 2;
@@ -361,7 +329,7 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   c2 /= 3;
 
   S = c1/3 - c0 * (c0/18);
-  if( fabs(S)<QOP_SU3_UNIT_ANALYTIC_EPS ) {
+  if( fabs(S)<QOP_U3_UNIT_ANALYTIC_EPS ) {
     /* eigenvalues of Q */
     g0 = c0/3;
     g1 = c0/3;
@@ -386,7 +354,7 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
     else {
       theta = acos( RoS );
       if(isnan(theta)){
-        printf("Hit NaN in QOPPC(su3_un_der_analytic)\n");
+        printf("Hit NaN in QOPPC(u3_un_der_analytic)\n");
         printf("RoS=%24.18g\n",RoS);
         printf("Matrix V (row-wise):\n");
         for( i=0; i<3; i++ ) {
@@ -406,89 +374,85 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
     g2 = c0/3 + 2 * S * cos( theta3 + 2*pi23 );
   }
 
-#ifdef QOP_HISQ_REUNIT_ALLOW_SVD
+  if(QOP_hisq_links.reunit_allow_svd){
 
+    if(!QOP_hisq_links.reunit_svd_only){
 
-#ifndef QOP_HISQ_REUNIT_SVD_ONLY
-  /* conditions to call SVD */
-  if(det_check!=0) {
-    if( fabs(det_check-g0*g1*g2)/fabs(det_check)>QOP_HISQ_REUNIT_SVD_REL_ERROR ) {
+      /* conditions to call SVD */
+      if(det_check!=0) {
+	if( fabs(det_check-g0*g1*g2)/fabs(det_check) > 
+	    QOP_hisq_links.reunit_svd_rel_error ) {
+	  perform_svd=1;
+	}
+      }
+      if( det_check < QOP_hisq_links.reunit_svd_abs_error ) {
+	perform_svd=1;
+      }
+    } else {
+
+      /* exclusively use SVD for finding eigenvalues and reunitarization,
+	 this is slow since Q, Q^2 and Q^3 are calculated anyway;
+	 this option is for testing: under normal circumstances SVD is
+	 rarely used, which makes it harder to test, therefore one can
+	 SVD with this switch */
       perform_svd=1;
     }
-  }
-  if( det_check<QOP_HISQ_REUNIT_SVD_ABS_VALUE ) {
-    perform_svd=1;
-  }
-#else /* HISQ_REUNIT_SVD_ONLY */
-  /* exclusively use SVD for finding eigenvalues and reunitarization,
-     this is slow since Q, Q^2 and Q^3 are calculated anyway;
-     this option is for testing: under normal circumstances SVD is
-     rarely used, which makes it harder to test, therefore one can
-     SVD with this switch */
-  perform_svd=1;
-#endif /* QOP_HISQ_REUNIT_SVD_ONLY */
-
+  } /* reunit_allow_svd */
 
   if( 0!=perform_svd ) {
-
+    
     /* call SVD */
     QOPPC(svd3x3)( V, sigma, &Uleft, &Vright);
-
-#ifndef QOP_HISQ_REUNIT_SVD_ONLY
-#ifdef QOP_HISQ_REUNIT_REPORT_SVD_EIGENVALUES
-    printf("*** QOPQDP reunitarization while calculating fat links ***\n");
-    printf("*** Resort to using svd (force) ***\n");
-    printf("*** printing from node %d ***\n",QDP_this_node);
-    printf("Eigenvalues from cubic equation:\n");
-    printf( "  g0 = %28.18f\n", g0 );
-    printf( "  g1 = %28.18f\n", g1 );
-    printf( "  g2 = %28.18f\n", g2 );
-    printf("Eigenvalues from singular value decomposition:\n");
-    printf( "  g0 = %28.18f\n", sigma[0]*sigma[0] );
-    printf( "  g1 = %28.18f\n", sigma[1]*sigma[1] );
-    printf( "  g2 = %28.18f\n", sigma[2]*sigma[2] );
-#endif
-#endif
-
+    
+    svd_calls++;
+    
+    if(!QOP_hisq_links.reunit_svd_only && QOP_hisq_links.svd_values_info){
+      printf("*** QOPQDP reunitarization while calculating fat links ***\n");
+      printf("*** Resort to using svd (force) ***\n");
+      printf("*** printing from node %d ***\n",QDP_this_node);
+      printf("Eigenvalues from cubic equation:\n");
+      printf( "  g0 = %28.18f\n", g0 );
+      printf( "  g1 = %28.18f\n", g1 );
+      printf( "  g2 = %28.18f\n", g2 );
+      printf("Eigenvalues from singular value decomposition:\n");
+      printf( "  g0 = %28.18f\n", sigma[0]*sigma[0] );
+      printf( "  g1 = %28.18f\n", sigma[1]*sigma[1] );
+      printf( "  g2 = %28.18f\n", sigma[2]*sigma[2] );
+    }
+    
     g0=sigma[0]*sigma[0];
     g1=sigma[1]*sigma[1];
     g2=sigma[2]*sigma[2];
-
+    
   }
-#endif /* QOP_HISQ_REUNIT_ALLOW_SVD */
 
-#ifdef QOP_HISQ_FORCE_FILTER
-  QLA_Real gmin,g_epsilon;
-  gmin=g0;
-  if(g1<gmin) gmin=g1;
-  if(g2<gmin) gmin=g2;
-  if(gmin<QOP_HISQ_FORCE_FILTER) {
-    g_epsilon=QOP_HISQ_FORCE_FILTER;
-    g0 += g_epsilon;
-    g1 += g_epsilon;
-    g2 += g_epsilon;
-    // +3 flops
-
-    // modify also Q and Q2 matrices
-    for(i=0;i<3;i++) {
-      //Q.e[i][i].real+=g_epsilon;
-      QLA_c_peq_r(QLA_elem_M(Q,i,i), g_epsilon);
+  if(QOP_hisq_ff.force_filter > 0){
+    QLA_Real gmin,g_epsilon;
+    gmin=g0;
+    if(g1<gmin) gmin=g1;
+    if(g2<gmin) gmin=g2;
+    g_epsilon = QOP_hisq_ff.force_filter;
+    if(gmin<g_epsilon) {
+      g0 += g_epsilon;
+      g1 += g_epsilon;
+      g2 += g_epsilon;
+      // +3 flops
+      
+      // modify also Q and Q2 matrices
+      for(i=0;i<3;i++) {
+	//Q.e[i][i].real+=g_epsilon;
+	QLA_c_peq_r(QLA_elem_M(Q,i,i), g_epsilon);
+      }
+      QLA_M_eq_M_times_M( &Q2, &Q, &Q );
+      QOP_info_hisq_force_filter_counter(info)++;
     }
-    QLA_M_eq_M_times_M( &Q2, &Q, &Q );
   }
-#endif /* QOP_HISQ_FORCE_FILTER */
 
   /* roots of eigenvalues */
   g0sq = sqrt( g0 );
   g1sq = sqrt( g1 );
   g2sq = sqrt( g2 );
   // +3 flops (sqrt counted as 1 flop)
-
-//printf("WRAPPER FORCE su3_un_der_analytic roots:\n");
-//printf("g0sq = %lf\n", g0sq);
-//printf("g1sq = %lf\n", g1sq);
-//printf("g2sq = %lf\n", g2sq);
-
 
   /* symmetric combinations */
   us = g1sq + g2sq;
@@ -498,8 +462,8 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   ws *= g0sq;
   // +6 flops
 
-  if( ws < QOP_SU3_UNIT_ANALYTIC_EPS ) {
-    printf( "WARNING: QOPPC(su3_un_der_analytic): ws is too small!\n" );
+  if( ws < QOP_U3_UNIT_ANALYTIC_EPS ) {
+    printf( "WARNING: QOPPC(u3_un_der_analytic): ws is too small!\n" );
   }
 
   denom = ws * ( us*vs - ws );
@@ -514,10 +478,6 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   /* assemble inverse root: Q^-1/2 = f0 + f1*Q + f2*Q^2 */
   QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
   QLA_M_eq_r_times_M_plus_M( &Q12, &f1, &Q, &S1 );
-  //AB CHANGE DIRECT ACCESS TO ACCESS THROUGH QLA ROUTINES!
-  //Q12.e[0][0].real += f0;
-  //Q12.e[1][1].real += f0;
-  //Q12.e[2][2].real += f0;
   QLA_c_peq_r(QLA_elem_M(Q12,0,0), f0);
   QLA_c_peq_r(QLA_elem_M(Q12,1,1), f0);
   QLA_c_peq_r(QLA_elem_M(Q12,2,2), f0);
@@ -563,10 +523,6 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   b12 /= denom3; // +22 flops
   b22 = -ws*u4 -v2*u3 +3*vs*ws*u2 -3*w2*us;
   b22 /= denom3; // +12 flops
-//printf("WRAPPER FORCE B coefficients:\n");
-//printf("b00=%lf  b01=%lf  b02=%lf\n",b00,b01,b02);
-//printf("         b11=%lf  b12=%lf\n",b11,b12);
-//printf("                  b22=%lf\n",b22);
 
   /* ** create several building blocks for derivative ** */
   QLA_M_eq_M_times_M( &VQ, V, &Q );
@@ -584,28 +540,7 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   QLA_M_eq_r_times_M( &S1, &b12, &QVd );
   QLA_M_eq_r_times_M_plus_M( &S2, &b22, &QQVd, &S1 );
   QLA_M_eq_r_times_M_plus_M( &SVd, &b02, &Vd, &S2 );
-//printf("WRAPPER FORCE V:\n");
-//PrintMone( *V );
-//printf("WRAPPER FORCE Vd:\n");
-//PrintMone( Vd );
-//printf("WRAPPER FORCE VQ:\n");
-//PrintMone( VQ );
-//printf("WRAPPER FORCE QVd:\n");
-//PrintMone( QVd );
-//printf("WRAPPER FORCE VVd:\n");
-//PrintMone( VVd );
-//printf("WRAPPER FORCE VQQ:\n");
-//PrintMone( VQQ );
-//printf("WRAPPER FORCE QQVd:\n");
-//PrintMone( QQVd );
-//printf("WRAPPER FORCE VQVd:\n");
-//PrintMone( VQVd );
-//printf("WRAPPER FORCE PVd:\n");
-//PrintMone( PVd );
-//printf("WRAPPER FORCE RVd:\n");
-//PrintMone( RVd );
-//printf("WRAPPER FORCE SVd:\n");
-//PrintMone( SVd );
+
   /* assemble the derivative rank 4 tensor */
   for( i=0; i<3; i++) {
     for( j=0; j<3; j++) {
@@ -614,13 +549,9 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
 	  QLA_c_eq_r(der, 0);
           /* dW/dV */
           if( i==m ) {
-            //der.real += Q12.e[n][j].real;
-            //der.imag += Q12.e[n][j].imag;
 	    QLA_c_peq_c(der, QLA_elem_M(Q12, n, j));
           }
           if( j==n ) {
-            //der.real += f1 * VVd.e[i][m].real + f2 * VQVd.e[i][m].real;
-            //der.imag += f1 * VVd.e[i][m].imag + f2 * VQVd.e[i][m].imag;
 	    QLA_c_peq_r_times_c(der, f1, QLA_elem_M(VVd,i,m));
 	    QLA_c_peq_r_times_c(der, f2, QLA_elem_M(VQVd,i,m));
           }
@@ -631,8 +562,6 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
           QLA_c_eq_c_times_c( ctmp,QLA_elem_M(VQQ,i,j),QLA_elem_M(SVd,n,m) );
           QLA_c_peq_c( der, ctmp );
           QLA_c_eq_c_times_c( ctmp,QLA_elem_M(VVd,i,m),QLA_elem_M(Q,n,j) );
-          //der.real += f2 * ctmp.real;
-          //der.imag += f2 * ctmp.imag;
 	  QLA_c_peq_r_times_c(der, f2, ctmp);
           dwdv->t4[i][m][n][j].real = QLA_real(der);
           dwdv->t4[i][m][n][j].imag = QLA_imag(der);
@@ -641,15 +570,11 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
           QLA_c_eq_c_times_c( ctmp,QLA_elem_M(QVd,i,j),QLA_elem_M(RVd,n,m) );
           QLA_c_peq_c( der, ctmp );
           QLA_c_eq_c_times_c( ctmp,QLA_elem_M(Vd,i,m),QLA_elem_M(Vd,n,j) );
-          //der.real += f1 * ctmp.real;
-          //der.imag += f1 * ctmp.imag;
 	  QLA_c_peq_r_times_c(der, f1, ctmp);
           QLA_c_eq_c_times_c( ctmp,QLA_elem_M(QQVd,i,j),QLA_elem_M(SVd,n,m) );
           QLA_c_peq_c( der, ctmp );
           QLA_c_eq_c_times_c( ctmp,QLA_elem_M(Vd,i,m),QLA_elem_M(QVd,n,j) );
           QLA_c_eq_c_times_c( ctmp2,QLA_elem_M(Vd,n,j),QLA_elem_M(QVd,i,m) );
-          //der.real += f2 * ( ctmp.real + ctmp2.real );
-          //der.imag += f2 * ( ctmp.imag + ctmp2.imag );
 	  QLA_c_peq_r_times_c(der, f2, ctmp);
 	  QLA_c_peq_r_times_c(der, f2, ctmp2);
           dwdagdv->t4[i][m][n][j].real = QLA_real(der);
@@ -660,9 +585,10 @@ void QOPPC(su3_un_der_analytic)( QLA_ColorMatrix *V,
   }
 
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-//  printf("Exit  QOPPC(su3_un_der_analytic) in hisq_reunit_utilities_p.c\n");
+//  printf("Exit  QOPPC(u3_un_der_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
+  return svd_calls;
 }
 
 
@@ -2083,7 +2009,7 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
       QLA_Real tr,ti;
       tr = Q[i][0][0]*UO3[0][j]+Q[i][1][0]*UO3[1][j]+Q[i][2][0]*UO3[2][j];
       ti = Q[i][0][1]*UO3[0][j]+Q[i][1][1]*UO3[1][j]+Q[i][2][1]*UO3[2][j];
-      QLA_c_eq_r_plus_ir(QLA_elem_M(*V,i,j), tr, ti);
+      QLA_c_eq_r_plus_ir(QLA_elem_M(*U,i,j), tr, ti);
     }
   }
 

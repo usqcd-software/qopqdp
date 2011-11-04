@@ -14,7 +14,7 @@ extern "C" {
 
 /* Maximum number of Naik terms */
 /* Must match MAX_NAIK in MILC code */
-#define QOP_MAX_NAIK 4
+#define QOP_MAX_NAIK 10
 
 typedef enum {
   QOP_SUCCESS = 0,
@@ -86,6 +86,7 @@ typedef struct {
   double final_sec;        /* (out) total number of seconds used */
   double final_flop;       /* (out) total number of flops performed */
   QOP_status_t status;     /* (out) error status */
+  int count1, count2;      /* (out) generic counters */
 } QOP_info_t;
 
   /* these are quantities that apply to all masses in the multi inverter */
@@ -592,6 +593,11 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
   /*********************/
   /*  HISQ routines  */
   /*********************/
+
+  /* QOP_info_t counters as they are used in HISQ routines */
+  /* The user must initialize them and reset them */
+#define QOP_info_hisq_svd_counter(info) ((info)->count1)
+#define QOP_info_hisq_force_filter_counter(info) ((info)->count2) 
 
   /* fermion matrix link routines */
 

@@ -104,6 +104,7 @@ typedef struct {
   int inited;
   int fnmat_src_min;
   int veclength;
+  double force_filter;
 } QOP_hisq_force_t;
 extern QOP_hisq_force_t QOP_hisq_ff;
 
@@ -112,6 +113,11 @@ typedef struct {
   int want_deps;
   int want_aux;
   QOP_hisq_unitarize_method_t umethod;
+  int reunit_allow_svd;
+  int reunit_svd_only;
+  double reunit_svd_rel_error;
+  double reunit_svd_abs_error;
+  int svd_values_info;
 } QOP_hisq_links_t;
 extern QOP_hisq_links_t QOP_hisq_links;
 
@@ -122,20 +128,24 @@ extern "C" {
 double QOP_time(void);
 QOP_status_t QOP_asqtad_invert_init(void);
 
-void
-QOP_F3_su3_un_analytic( QLA_F3_ColorMatrix *V, QLA_F3_ColorMatrix *W );
-
-void 
-QOP_F3_su3_un_der_analytic( QLA_F3_ColorMatrix *V, QLA_F3_ColorTensor4 *dwdv, 
-			    QLA_F3_ColorTensor4 *dwdagdv );
+int
+QOP_F3_u3_un_analytic( QOP_info_t *info,
+		       QLA_F3_ColorMatrix *V, QLA_F3_ColorMatrix *W );
+  
+int
+QOP_F3_u3_un_der_analytic( QOP_info_t *info, 
+			   QLA_F3_ColorMatrix *V, QLA_F3_ColorTensor4 *dwdv, 
+			   QLA_F3_ColorTensor4 *dwdagdv );
 QLA_F_Complex 
 QOP_F3_su3_mat_det( QLA_F3_ColorMatrix *U) ;
 
-void
-QOP_D3_su3_un_analytic( QLA_D3_ColorMatrix *V, QLA_D3_ColorMatrix *W );
+int
+QOP_D3_u3_un_analytic( QOP_info_t *info,
+		       QLA_D3_ColorMatrix *V, QLA_D3_ColorMatrix *W );
 
-void 
-QOP_D3_su3_un_der_analytic( QLA_D3_ColorMatrix *V, QLA_D3_ColorTensor4 *dwdv, 
+int
+QOP_D3_u3_un_der_analytic( QOP_info_t *info,
+			    QLA_D3_ColorMatrix *V, QLA_D3_ColorTensor4 *dwdv, 
 			    QLA_D3_ColorTensor4 *dwdagdv );
 QLA_D_Complex 
 QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U) ;

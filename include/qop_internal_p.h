@@ -279,10 +279,10 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
 				       int *n_orders_naik);
 
 void
-QOPPC(u3reunit)(QDP_ColorMatrix *U, QDP_ColorMatrix *V);
+QOPPC(u3reunit)(QOP_info_t *info, QDP_ColorMatrix *U, QDP_ColorMatrix *V);
 
 void
-QOPPC(su3reunit)(QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
+QOPPC(su3reunit)(QOP_info_t *info, QDP_ColorMatrix *U,QDP_ColorMatrix *Ur);
 
 QOP_status_t
 QOPPC(invert_gcr2_D)(QOPPC(linop_t_D) *linop,
