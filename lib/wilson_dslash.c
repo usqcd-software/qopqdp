@@ -84,6 +84,29 @@ extern QOP_common_t QOP_common;
 
 #define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
 
+/* NOTE: Same routine is defined in wilson_dslash_p.c */
+static QOP_F3_FermionLinksWilson *
+wilson_initialize_gauge_L()
+{
+  QOP_FermionLinksWilson *flw;
+
+  QOP_malloc(flw          ,QOP_F3_FermionLinksWilson,1);
+  QOP_malloc(flw->links   ,QDP_F3_ColorMatrix *     ,4);
+  QOP_malloc(flw->bcklinks,QDP_F3_ColorMatrix *     ,4);
+  QOP_malloc(flw->dbllinks,QDP_F3_ColorMatrix *,     8);
+
+  flw->dblstored = 0;
+  flw->clov      = NULL;
+  flw->rawclov   = NULL;
+  flw->clovinv   = NULL;
+  flw->rawlinks  = NULL;
+  flw->qopgf     = NULL;
+  flw->qdpclov   = NULL;
+  flw->eigcg.u   = NULL;
+
+  return flw;
+}
+
 /* Create a single-precision copy of a double-precision gauge field */
 
 QOP_F3_GaugeField *
@@ -118,32 +141,30 @@ QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
 
 QOP_F3_FermionLinksWilson *
 QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
+
   QOP_F3_FermionLinksWilson *flw_single;
   int i;
 
   /* Create the parent struct */
-  QOP_malloc(flw_single, QOP_F3_FermionLinksWilson, 1);
+  flw_single = wilson_initialize_gauge_L();
 
   /* Copy scalar values */
   flw_single->dblstored = flw_double->dblstored;
   flw_single->clovinvkappa = flw_double->clovinvkappa;
 
-  /* Create and copy the gauge field. */
-  /* Here we keep two copies of the pointers to the QDP color matrix
-     fields, one in the QOP gauge field member and one in the links
-     member. */
-  if(flw_double->qopgf != NULL){
-    flw_single->links = NULL;
-    flw_single->qopgf = QOP_FD3_create_G_from_G(flw_double->qopgf);
+  /* Create and copy the modified gauge links */
+
+  if(flw_double->links != NULL){
     QOP_malloc(flw_single->links, QDP_F3_ColorMatrix *, 4);
     for(i=0; i<4; i++){
-      flw_single->links[i] = flw_single->qopgf->links[i];
+      flw_single->links[i] = QDP_F3_create_M();
+      QDP_FD3_M_eq_M(flw_single->links[i], flw_double->links[i], QDP_all);
     }
   } else {
-    QOP_printf0("QOP_FD3_wilson_create_L_from_L: Error: missing the gauge field\n");
+    QOP_printf0("QOP_FD3_wilson_create_L_from_L: Error: missing gauge links\n");
   }
 
-  /* Create and copy backward links */
+  /* Create and copy the modified backward gauge links */
   QOP_malloc(flw_single->bcklinks, QDP_F3_ColorMatrix *, 4);
   for(i=0; i<4; i++){
     if(flw_double->dblstored != 0 && flw_double->bcklinks[i] != NULL){
@@ -155,7 +176,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
     }
   }
   
-  /* Create and copy double links */
+  /* Create and copy the double links */
   QOP_malloc(flw_single->dbllinks, QDP_F3_ColorMatrix *, 8);
   for(i=0; i<4; i++) {
     if(flw_double->dblstored != 0){
@@ -167,7 +188,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
     }
   }
 
-  /* Create and copy clover term */
+  /* Create and copy the clover term */
   if(flw_double->clov != NULL){
     int size = QDP_sites_on_node*CLOV_REALS;
     int k;

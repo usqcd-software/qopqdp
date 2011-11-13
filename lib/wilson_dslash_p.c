@@ -652,10 +652,8 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
   } else {
     flw->clov = NULL;
   }
-  flw->clovinv = NULL;
-  flw->rawlinks = NULL;
-  flw->rawclov = NULL;
-  flw->qdpclov = NULL;
+
+  /* Keep pointer to allocated space so it can be freed */
   flw->qopgf = gf;
 
   WILSON_INVERT_END;
@@ -678,6 +676,7 @@ wilson_initialize_gauge_L()
 
   flw->dblstored = 0;
   flw->clov      = NULL;
+  flw->rawclov   = NULL;
   flw->clovinv   = NULL;
   flw->rawlinks  = NULL;
   flw->qopgf     = NULL;
@@ -843,7 +842,6 @@ QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[],
   }
 
   flw = QOP_wilson_convert_L_from_qdp(newlinks, clov);
-  flw->qdpclov = NULL;
 
   WILSON_INVERT_END;
   return flw;
@@ -868,10 +866,8 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 
   WILSON_INVERT_BEGIN;
 
-  QOP_malloc(flw, QOPPC(FermionLinksWilson), 1);
-  QOP_malloc(flw->links, QDPPC(ColorMatrix) *, 4);
-  QOP_malloc(flw->bcklinks, QDPPC(ColorMatrix) *, 4);
-  QOP_malloc(flw->dbllinks, QDPPC(ColorMatrix) *, 8);
+  flw = wilson_initialize_gauge_L();
+
   if(clov!=NULL) {
     int size = QDP_sites_on_node*CLOV_REALS;
     QOP_malloc(flw->clov, REAL, size);
@@ -924,12 +920,6 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   }
 
   //check_setup(flw);
-
-  flw->rawlinks = NULL;
-  flw->rawclov = NULL;
-  flw->qopgf = NULL;
-  flw->qdpclov = clov;
-  flw->eigcg.u = NULL;
 
   WILSON_INVERT_END;
   return flw;
