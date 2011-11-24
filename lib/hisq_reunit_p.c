@@ -116,7 +116,7 @@ void QOPPC(u3reunit)(QOP_info_t *info, QDP_ColorMatrix *V, QDP_ColorMatrix *W)
 {
   QLA_ColorMatrix *Vlinks;
   QLA_ColorMatrix *Wlinks;
-  int svd_calls;
+  int svd_calls = 0;
   
   //custom_QLA_ColorMatrix A;
   
@@ -397,6 +397,8 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
   QLA_Complex ftmp;
   QLA_ColorTensor4 dwdv, dwdagdv;
   int svd_calls = 0;
+  int ff_counter = 0;
+  size_t nflops = 0;
 
   nd = QDP_ndim();
 
@@ -411,8 +413,8 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
   
     for( j=0; j<QDP_sites_on_node; j++ ) {
       // derivative with respect to V and V^+
-      svd_calls += QOPPC(u3_un_der_analytic)( info, &( Vlinks[j] ),
-					      &dwdv, &dwdagdv );
+      QOPPC(u3_un_der_analytic)( info, &( Vlinks[j] ),
+				 &dwdv, &dwdagdv, &svd_calls, &ff_counter );
     
 //      if( j==0 ) {
 //        printf("FORCE REUNIT V link at site 0\n");
@@ -449,15 +451,21 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
 //      }
     }
 
-    // Tally across all nodes and update global counter
-    QMP_sum_int(&svd_calls);
-    QOP_info_hisq_svd_counter(info) += svd_calls;
+    nflops += 198 + 81*16;
 
     // resume QDP operations on links
     QDP_reset_M( V[i] );
     QDP_reset_M( Force[i] );
     QDP_reset_M( Force_old[i] );
   }
+
+  // Tally across all nodes and update global counter
+  QMP_sum_int(&svd_calls);
+  QMP_sum_int(&ff_counter);
+  QOP_info_hisq_svd_counter(info) += svd_calls;
+  QOP_info_hisq_force_filter_counter(info) += ff_counter;
+
+  info->final_flop += (double)nflops*QDP_sites_on_node;
 }
 
 

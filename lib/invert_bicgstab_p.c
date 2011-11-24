@@ -31,7 +31,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 
   r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
-  VERB(LOW, "BICG: rsqstop = %g\n", rsqstop);
+  VERB(LOW, "BICG: rsqstop = %g relmin = %g\n", rsqstop, res_arg->relmin);
   rsq = 0;
   relnorm2 = 1.;
 

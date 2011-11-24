@@ -49,8 +49,10 @@ PrintMone(QLA_ColorMatrix m){
 #define QOP_PI 3.14159265358979323846
 
 // Forward declaration for SVD functions
-static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_Real U2[2][2], QLA_Real V2[2][2]);
-static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U, QLA_ColorMatrix *V);
+static int QOPPC(svd2x2bidiag)(QOP_info_t *info, QLA_Real *a00, QLA_Real *a01, 
+			       QLA_Real *a11, QLA_Real U2[2][2], QLA_Real V2[2][2]);
+static int QOPPC(svd3x3)(QOP_info_t *info, QLA_ColorMatrix *A, QLA_Real *sigma, 
+			 QLA_ColorMatrix *U, QLA_ColorMatrix *V);
 
 
 #define Uelem(a,b) QLA_elem_M(*U,a,b)
@@ -103,6 +105,7 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
   QLA_ColorMatrix Q, Q2, Q3, Uleft, Vright, S1, S2;
   int i, j, perform_svd;
   int svd_calls = 0;
+  size_t nflops = 0;
 
   // No SVD initially
   perform_svd=0;
@@ -118,15 +121,19 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
     det_check = det.real*det.real + det.imag*det.imag;
   }
 
+  nflops += 67;
 
   /* Hermitian matrix: Q=V^+ V */
   QLA_M_eq_Ma_times_M( &Q, V, V );
+  nflops += 198;
 
   /* Q^2 */
   QLA_M_eq_M_times_M( &Q2, &Q, &Q );
+  nflops += 198;
 
   /* Q^3 */
   QLA_M_eq_M_times_M( &Q3, &Q2, &Q );
+  nflops += 198;
 
   /* (real) traces */
   QLA_R_eq_re_trace_M(&c0, &Q);
@@ -136,11 +143,13 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
   c2 /= 3;
 
   S = c1/3 - c0 * (c0/18);
+  nflops += 11;
   if( fabs(S)<QOP_U3_UNIT_ANALYTIC_EPS ) {
     /* eigenvalues of Q */
     g0 = c0/3;
     g1 = c0/3;
     g2 = c0/3;
+    nflops += 3;
   }
   else {
     R = c2/2 - c0 * (c1/3) + c0 * c0 * (c0/27);
@@ -150,6 +159,7 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
     S3 = S*S*S;
     /* treat possible underflow: R/S^3/2>1.0 leads to acos giving NaN */
     RoS = R/S3;
+    nflops += 15;
     if( !( fabs(RoS)<1.0 ) ) {
       if( R>0 ) {
         theta = 0.0;
@@ -180,6 +190,8 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
     g0 = c0/3 + 2 * S * cos( theta3 );
     g1 = c0/3 + 2 * S * cos( theta3 + pi23 );
     g2 = c0/3 + 2 * S * cos( theta3 + 2*pi23 );
+
+    nflops += 21;
   }
 
 
@@ -191,6 +203,7 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
 	if( fabs(det_check-g0*g1*g2)/fabs(det_check)
 	    > QOP_hisq_links.reunit_svd_rel_error) {
 	  perform_svd=1;
+	  nflops += 4;
 	}
       }
       if( det_check<QOP_hisq_links.reunit_svd_abs_error ) {
@@ -209,7 +222,7 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
   if( 0!=perform_svd ) {
     
     /* call SVD */
-    QOPPC(svd3x3)( V, sigma, &Uleft, &Vright);
+    QOPPC(svd3x3)( info, V, sigma, &Uleft, &Vright);
     
     svd_calls++;
     
@@ -229,6 +242,7 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
     
     // W = Uleft * Vright^+
     QLA_M_eq_M_times_Ma( W, &Uleft, &Vright );
+    nflops += 198;
     
   }  else { 
     // SVD is not performed, just use eigenvalues from cubic equation
@@ -259,12 +273,16 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
     f1 = ( 2*us*vs - ws - us*us*us ) / denom;
     f2 = us / denom;
     
+    nflops += 30;
+
     /* assemble inverse root: Q^-1/2 = f0 + f1*Q + f2*Q^2 */
     QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
     QLA_M_eq_r_times_M_plus_M( &S2, &f1, &Q, &S1 );
     QLA_c_peq_r(QLA_elem_M(S2,0,0), f0);
     QLA_c_peq_r(QLA_elem_M(S2,1,1), f0);
     QLA_c_peq_r(QLA_elem_M(S2,2,2), f0);
+
+    nflops += 18 + 36 + 3;
     
     /* W = V*S2 */
     QLA_M_eq_M_times_M( W, V, &S2 );
@@ -275,6 +293,8 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
 //  printf("Exit  QOPPC(u3_un_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
+  info->final_flop += nflops;
+
   return svd_calls;
 }
 
@@ -282,8 +302,9 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
 
 // Analytic derivative of the unitarized matrix with respect to the original:
 //   dW/dV and d(W^+)/dV, where W=V(V^+V)^-1/2 */
-int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V, 
-			       QLA_ColorTensor4 *dwdv, QLA_ColorTensor4 *dwdagdv ) {
+void QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V, 
+				QLA_ColorTensor4 *dwdv, QLA_ColorTensor4 *dwdagdv,
+				int *svd_calls, int *ff_counter) {
   int i, j, m, n, perform_svd;
   QLA_Complex det, der, ctmp, ctmp2;
   QLA_Real det_check, c0, c1, c2, S, g0, g1, g2, R, R2, CQ3, S3, RoS, theta, theta3, pi23;
@@ -293,7 +314,7 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   QLA_ColorMatrix Q12, Q, Q2, Q3, Uleft, Vright, W, S1, S2;
   QLA_ColorMatrix VVd, VQ, QVd, QQVd, VQQ, VQVd, PVd, RVd, SVd, Vd;
   QLA_Real sigma[3];
-  int svd_calls = 0;
+  size_t nflops = 0;
 
   // No SVD initially
   perform_svd=0;
@@ -314,12 +335,15 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
 
   /* Hermitian matrix: Q=V^+ V */
   QLA_M_eq_Ma_times_M( &Q, V, V );
+  nflops += 198;
 
   /* Q^2 */
   QLA_M_eq_M_times_M( &Q2, &Q, &Q );
+  nflops += 198;
 
   /* Q^3 */
   QLA_M_eq_M_times_M( &Q3, &Q2, &Q );
+  nflops += 198;
 
   /* (real) traces */
   QLA_R_eq_re_trace_M(&c0, &Q);
@@ -329,11 +353,14 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   c2 /= 3;
 
   S = c1/3 - c0 * (c0/18);
+  nflops += 24;
+
   if( fabs(S)<QOP_U3_UNIT_ANALYTIC_EPS ) {
     /* eigenvalues of Q */
     g0 = c0/3;
     g1 = c0/3;
     g2 = c0/3;
+    nflops += 3;
   }
   else {
     R = c2/2 - c0 * (c1/3) + c0 * c0 * (c0/27);
@@ -343,6 +370,9 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
     S3 = S*S*S;
     /* treat possible underflow: R/S^3/2>1.0 leads to acos giving NaN */
     RoS = R/S3;
+
+    nflops += 14;
+
     if( !( fabs(RoS)<1.0 ) ) {
       if( R>0 ) {
         theta = 0.0;
@@ -361,6 +391,7 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
           for( j=0; j<3; j++ ) {
             printf( "%24.18g %24.18g\n", QLA_real(QLA_elem_M(*V,i,j)), QLA_imag(QLA_elem_M(*V,i,j)) );
           }
+	  nflops += 1;
         }
         QDP_abort(0);
       }
@@ -372,6 +403,8 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
     g0 = c0/3 + 2 * S * cos( theta3 );
     g1 = c0/3 + 2 * S * cos( theta3 + pi23 );
     g2 = c0/3 + 2 * S * cos( theta3 + 2*pi23 );
+
+    nflops += 20;
   }
 
   if(QOP_hisq_links.reunit_allow_svd){
@@ -383,6 +416,7 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
 	if( fabs(det_check-g0*g1*g2)/fabs(det_check) > 
 	    QOP_hisq_links.reunit_svd_rel_error ) {
 	  perform_svd=1;
+	  nflops += 4;
 	}
       }
       if( det_check < QOP_hisq_links.reunit_svd_abs_error ) {
@@ -402,9 +436,9 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   if( 0!=perform_svd ) {
     
     /* call SVD */
-    QOPPC(svd3x3)( V, sigma, &Uleft, &Vright);
+    QOPPC(svd3x3)( info, V, sigma, &Uleft, &Vright);
     
-    svd_calls++;
+    (*svd_calls)++;
     
     if(!QOP_hisq_links.reunit_svd_only && QOP_hisq_links.svd_values_info){
       printf("*** QOPQDP reunitarization while calculating fat links ***\n");
@@ -424,6 +458,8 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
     g1=sigma[1]*sigma[1];
     g2=sigma[2]*sigma[2];
     
+    nflops += 3;
+
   }
 
   if(QOP_hisq_ff.force_filter > 0){
@@ -433,6 +469,7 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
     if(g2<gmin) gmin=g2;
     g_epsilon = QOP_hisq_ff.force_filter;
     if(gmin<g_epsilon) {
+      (*ff_counter)++;
       g0 += g_epsilon;
       g1 += g_epsilon;
       g2 += g_epsilon;
@@ -442,8 +479,10 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
       for(i=0;i<3;i++) {
 	//Q.e[i][i].real+=g_epsilon;
 	QLA_c_peq_r(QLA_elem_M(Q,i,i), g_epsilon);
+	nflops += 1;
       }
       QLA_M_eq_M_times_M( &Q2, &Q, &Q );
+      nflops += 3+198;
       QOP_info_hisq_force_filter_counter(info)++;
     }
   }
@@ -475,6 +514,8 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   f2 = us / denom;
   // +15 flops
 
+  nflops += 12+15;
+
   /* assemble inverse root: Q^-1/2 = f0 + f1*Q + f2*Q^2 */
   QLA_M_eq_r_times_M( &S1, &f2, &Q2 );
   QLA_M_eq_r_times_M_plus_M( &Q12, &f1, &Q, &S1 );
@@ -482,11 +523,13 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   QLA_c_peq_r(QLA_elem_M(Q12,1,1), f0);
   QLA_c_peq_r(QLA_elem_M(Q12,2,2), f0);
 
+  nflops += 18+36+3;
+
   /* W = V*S2 */
   QLA_M_eq_M_times_M( &W, V, &Q12 );
 
-
   denom3 = 2*denom*denom*denom; // +3 flops
+  nflops += 198 + 3;
 
   /* derivatives of coefficients: B_ij=df_i/dc_j */
   u2 = us*us;
@@ -524,6 +567,8 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   b22 = -ws*u4 -v2*u3 +3*vs*ws*u2 -3*w2*us;
   b22 /= denom3; // +12 flops
 
+  nflops += 16+33+38+22+37+22+12;
+
   /* ** create several building blocks for derivative ** */
   QLA_M_eq_M_times_M( &VQ, V, &Q );
   QLA_M_eq_M_times_Ma( &QVd, &Q, V );
@@ -541,6 +586,8 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   QLA_M_eq_r_times_M_plus_M( &S2, &b22, &QQVd, &S1 );
   QLA_M_eq_r_times_M_plus_M( &SVd, &b02, &Vd, &S2 );
 
+  nflops += 198*6+4*18+5*36;
+
   /* assemble the derivative rank 4 tensor */
   for( i=0; i<3; i++) {
     for( j=0; j<3; j++) {
@@ -550,10 +597,12 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
           /* dW/dV */
           if( i==m ) {
 	    QLA_c_peq_c(der, QLA_elem_M(Q12, n, j));
+	    nflops += 2;
           }
           if( j==n ) {
 	    QLA_c_peq_r_times_c(der, f1, QLA_elem_M(VVd,i,m));
 	    QLA_c_peq_r_times_c(der, f2, QLA_elem_M(VQVd,i,m));
+	    nflops += 4;
           }
           QLA_c_eq_c_times_c( ctmp, QLA_elem_M(*V,i,j), QLA_elem_M(PVd,n,m) );
           QLA_c_peq_c( der, ctmp );
@@ -579,16 +628,18 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
 	  QLA_c_peq_r_times_c(der, f2, ctmp2);
           dwdagdv->t4[i][m][n][j].real = QLA_real(der);
           dwdagdv->t4[i][m][n][j].imag = QLA_imag(der);
+	  nflops += 10*6+5*2+4*4;
         }
       }
     }
   }
 
+  info->final_flop += nflops;
+
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
 //  printf("Exit  QOPPC(u3_un_der_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
-  return svd_calls;
 }
 
 
@@ -657,7 +708,8 @@ int QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
    Output: sigma[3] -- singular values,
            U,V -- U(3) matrices such, that
            A=U Sigma V^+ */
-static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U, QLA_ColorMatrix *V) {
+static int QOPPC(svd3x3)(QOP_info_t *info, QLA_ColorMatrix *A, QLA_Real *sigma, 
+			 QLA_ColorMatrix *U, QLA_ColorMatrix *V) {
   QLA_Real Ad[3][3][2], P[3][3][2], Q[3][3][2];
   QLA_Real U1[3][3][2], U2[3][3][2], U3[3][3][2], V1[3][3][2], V2[3][3][2];
   QLA_Real UO3[3][3], VO3[3][3], v[3][2];
@@ -665,6 +717,7 @@ static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U
   register QLA_Real a, b, c, d, factor, norm, min, max, taure, tauim, beta;
   register QLA_Real m11, m12, m22, dm, lambdamax, cosphi, sinphi, tanphi, cotphi;
   register int i, j, iter;
+  size_t nflops = 0;
 
 
   /* format of external matrices A, U and V can be arbitrary,
@@ -733,6 +786,8 @@ static int QOPPC(svd3x3)(QLA_ColorMatrix *A, QLA_Real *sigma, QLA_ColorMatrix *U
     }
   }
   norm = factor*sqrt(c);
+
+  nflops += 15;
 
   if( norm==0 && Ad[0][0][1]==0 ) { /* no rotation needed */
 #ifdef QOP_SVD3x3_DEBUG
@@ -877,6 +932,8 @@ for(i=0;i<3;i++) {
     U1[2][2][0]=1-taure*a;
     U1[2][2][1]=tauim*a;
 
+    nflops += 91;
+
 
     /* apply the transformation to A matrix and store the result in P
        P=U^+A */
@@ -929,6 +986,7 @@ for(i=0;i<3;i++) {
               +U1[1][2][0]*Ad[1][2][1]-U1[1][2][1]*Ad[1][2][0]
               +U1[2][2][0]*Ad[2][2][1]-U1[2][2][1]*Ad[2][2][0];
 
+    nflops += 9*12;
 
   }
 #ifdef QOP_SVD3x3_DEBUG
@@ -1051,6 +1109,9 @@ printf("Left unitary matrix U1:\n");
     a=P[0][2][0]/norm; b=-P[0][2][1]/norm;
     v[2][0]=a*c+b*d;
     v[2][1]=b*c-a*d;
+
+    nflops += 27;
+
 #ifdef QOP_SVD3x3_DEBUG
 for(i=0;i<3;i++) {
   printf("v[%d].re=%28.18e  v[%d].im=%28.18e\n",i,v[i][0],i,v[i][1]);
@@ -1120,6 +1181,7 @@ for(i=0;i<3;i++) {
     Q[2][2][1]=P[2][1][0]*V1[1][2][1]+P[2][1][1]*V1[1][2][0]
               +P[2][2][0]*V1[2][2][1]+P[2][2][1]*V1[2][2][0];
 
+    nflops += 15 + 7*8;
   }
 #ifdef QOP_SVD3x3_DEBUG
 printf("Right unitary matrix V1:\n");
@@ -1239,6 +1301,8 @@ printf("Right unitary matrix V1:\n");
     a=Q[2][1][0]/norm; b=Q[2][1][1]/norm;
     v[2][0]=a*c+b*d;
     v[2][1]=b*c-a*d;
+
+    nflops += 27;
 #ifdef QOP_SVD3x3_DEBUG
 for(i=0;i<3;i++) {
   printf("v[%d].re=%28.18e  v[%d].im=%28.18e\n",i,v[i][0],i,v[i][1]);
@@ -1310,6 +1374,8 @@ printf("Left unitary matrix U2:\n");
               +U2[2][2][0]*Q[2][2][0]+U2[2][2][1]*Q[2][2][1];
     P[2][2][1]=U2[1][2][0]*Q[1][2][1]-U2[1][2][1]*Q[1][2][0]
               +U2[2][2][0]*Q[2][2][1]-U2[2][2][1]*Q[2][2][0];
+
+    nflops += 15 + 7*8;
 
   }
 
@@ -1417,7 +1483,7 @@ printf("Right unitary matrix V2:\n");
     Q[2][2][0]=P[2][2][0]*V2[2][2][0]-P[2][2][1]*V2[2][2][1];
     Q[2][2][1]=P[2][2][0]*V2[2][2][1]+P[2][2][1]*V2[2][2][0];
 
-
+    nflops += 12;
   }
 
 
@@ -1523,6 +1589,8 @@ printf("Left unitary matrix U3:\n");
     P[2][2][0]=beta;
     P[2][2][1]=0.;
 
+    nflops += 6;
+
   }
 
 
@@ -1561,6 +1629,8 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
       b12=0;
     }
 
+    nflops += 4;
+
     /* Cases:
        b01=b12=0 -- matrix is already diagonalized,
        b01=0 -- need to work with 2x2 lower block,
@@ -1572,7 +1642,7 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
 printf( "Entering case b01==0\n" );
 #endif /* QOP_SVD3x3_DEBUG */
         /* need to diagonalize 2x2 lower block */
-        QOPPC(svd2x2bidiag)( &b11, &b12, &b22, UO2, VO2 );
+       QOPPC(svd2x2bidiag)(info, &b11, &b12, &b22, UO2, VO2 );
 
         /* multiply left UO3 matrix */
         for(i=0;i<3;i++) {
@@ -1587,6 +1657,8 @@ printf( "Entering case b01==0\n" );
           VO3[i][2]=a*VO2[0][1]+b*VO2[1][1];
         }
 
+	nflops += 36;
+
       }
       else {
         if( b12==0 ) {
@@ -1594,7 +1666,7 @@ printf( "Entering case b01==0\n" );
 printf( "Entering case b12==0\n" );
 #endif /* QOP_SVD3x3_DEBUG */
           /* need to diagonalize 2x2 upper block */
-          QOPPC(svd2x2bidiag)( &b00, &b01, &b11, UO2, VO2 );
+         QOPPC(svd2x2bidiag)(info, &b00, &b01, &b11, UO2, VO2 );
 
           /* multiply left UO3 matrix */
           for(i=0;i<3;i++) {
@@ -1609,6 +1681,7 @@ printf( "Entering case b12==0\n" );
             VO3[i][1]=a*VO2[0][1]+b*VO2[1][1];
           }
 
+	  nflops += 36;
         }
         else {
           /* normal 3x3 iteration */
@@ -1664,6 +1737,8 @@ printf( "Entering case b00==0\n" );
             /* apply to bidiagonal matrix */
             b22=b02*sinphi+b22*cosphi;
             b02=0.;
+
+	    nflops += 56;
           }
           else if( b11==0 ) {
 #ifdef QOP_SVD3x3_DEBUG
@@ -1689,6 +1764,8 @@ printf( "Entering case b11==0\n" );
             /* apply to bidiagonal matrix */
             b22=b12*sinphi+b22*cosphi;
             b12=0.;
+
+	    nflops += 27;
           }
           else if( b22==0 ) {
 #ifdef QOP_SVD3x3_DEBUG
@@ -1738,6 +1815,8 @@ printf( "Entering case b22==0\n" );
             /* apply to bidiagonal matrix */
             b00=b00*cosphi+b02*sinphi;
             b02=0.;
+	    
+	    nflops += 64;
           }
           else {
             /* full iteration with QR shift */
@@ -1792,6 +1871,7 @@ printf( "Entering case of normal QR iteration\n" );
                 cosphi=1./sqrt(1+tanphi*tanphi);
                 sinphi=tanphi*cosphi;
               }
+	      nflops += 7;
             }
             /* multiply right VO3 matrix */
             for(i=0;i<3;i++) {
@@ -1822,6 +1902,8 @@ printf( "Entering case of normal QR iteration\n" );
                 cosphi=1/sqrt(1+tanphi*tanphi);
                 sinphi=tanphi*cosphi;
               }
+
+	      nflops += 7;
             }
             /* multiply left UO3 matrix */
             for(i=0;i<3;i++) {
@@ -1854,6 +1936,8 @@ printf( "Entering case of normal QR iteration\n" );
                 cosphi=1/sqrt(1+tanphi*tanphi);
                 sinphi=tanphi*cosphi;
               }
+
+	      nflops += 7;
             }
             /* multiply right VO3 matrix */
             for(i=0;i<3;i++) {
@@ -1886,6 +1970,8 @@ printf( "Entering case of normal QR iteration\n" );
                 cosphi=1/sqrt(1+tanphi*tanphi);
                 sinphi=tanphi*cosphi;
               }
+
+	      nflops += 7;
             }
             /* multiply left UO3 matrix */
             for(i=0;i<3;i++) {
@@ -1899,6 +1985,8 @@ printf( "Entering case of normal QR iteration\n" );
             b12=a*cosphi-b*sinphi;
             b22=a*sinphi+b*cosphi;
             b21=0.;
+
+	    nflops += 127;
           }
         } /* end of normal 3x3 iteration */
       }
@@ -1982,6 +2070,8 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
   b=Q[2][2][0]*U3[2][2][1]+Q[2][2][1]*U3[2][2][0];
   Q[2][2][0]=a; Q[2][2][1]=b;
 
+  nflops += 102;
+
   /* final U=Q*UO3
      (unitary times orthogonal that accumulated Givens rotations) */
 #if 0
@@ -2012,6 +2102,8 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
       QLA_c_eq_r_plus_ir(QLA_elem_M(*U,i,j), tr, ti);
     }
   }
+
+  nflops += 90;
 
   /* Q=V1*V2 (V1 is block diagonal with V2_11=1,
               V2 is block diagonal with V2_11=1, V2_22=1) */
@@ -2058,8 +2150,12 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
     }
   }
 
+  nflops += 102;
+
   /* singular values */
   sigma[0]=b00; sigma[1]=b11; sigma[2]=b22;
+
+  info->final_flop += nflops;
 
   return 0;
 }
@@ -2069,12 +2165,14 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
     [ a00 a01]
     [   0 a11]
    This routine eliminates off-diagonal element, handling special cases */
-static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_Real U2[2][2], QLA_Real V2[2][2]) {
+static int QOPPC(svd2x2bidiag)(QOP_info_t *info, QLA_Real *a00, QLA_Real *a01, 
+			       QLA_Real *a11, QLA_Real U2[2][2], QLA_Real V2[2][2]) {
   register double sinphi, cosphi, tanphi, cotphi;
   register double a, b, min, max, abs00, abs01, abs11;
   register double lna01a11, lna00, ln_num, tau, t;
   register double P00, P01, P10, P11;
   register int isign;
+  size_t nflops;
 
 
   U2[0][0]=1.; U2[0][1]=0.;
@@ -2098,6 +2196,7 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
         cosphi=1/sqrt(1+tanphi*tanphi);
         sinphi=tanphi*cosphi;
       }
+      nflops += 6;
     }
     /* multiply matrix A */
     (*a00)=cosphi*(*a01)-sinphi*(*a11);
@@ -2108,6 +2207,8 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
     /* U is just Givens rotation */
     U2[0][0]= cosphi; U2[0][1]= sinphi;
     U2[1][0]=-sinphi; U2[1][1]= cosphi;
+
+    nflops += 3;
   }
   else if( *a11==0 ) {
     if( *a01==0 ) {
@@ -2125,6 +2226,7 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
         cosphi=1/sqrt(1+tanphi*tanphi);
         sinphi=tanphi*cosphi;
       }
+      nflops += 7;
     }
     /* multiply matrix A */
     (*a00)=cosphi*(*a00)-sinphi*(*a01);
@@ -2132,6 +2234,7 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
     /* V is just Givens rotation */
     V2[0][0]= cosphi; V2[0][1]= sinphi;
     V2[1][0]=-sinphi; V2[1][1]= cosphi;
+    nflops += 3;
   }
   else if( *a01==0 ){ /* nothing to be done */
     ;
@@ -2249,6 +2352,7 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
         cosphi=1/sqrt(1+tanphi*tanphi);
         sinphi=tanphi*cosphi;
       }
+      nflops += 7;
     }
     *a00=P00*cosphi-P10*sinphi;
     *a01=0.;
@@ -2258,7 +2362,10 @@ static int QOPPC(svd2x2bidiag)(QLA_Real *a00, QLA_Real *a01, QLA_Real *a11, QLA_
     U2[0][0]= cosphi; U2[0][1]= sinphi;
     U2[1][0]=-sinphi; U2[1][1]= cosphi;
 
+    nflops += 56;
   }
+
+  info->final_flop += nflops;
 
   return 0;
 }

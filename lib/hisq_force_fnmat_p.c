@@ -612,6 +612,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
   int inaik;
   int n_naik_shift;
+  size_t nflops = 0;
 
   QDP_ColorMatrix * force[4] =  {Force->force[0], Force->force[1], 
 				 Force->force[2], Force->force[3]};
@@ -646,6 +647,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
   REAL treal;
 
+  info->final_flop = 0.0;
 
   if( first_force==1 ){
     if( q_paths_sorted_1==NULL ) 
@@ -752,6 +754,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
     for(dir=XUP;dir<=TUP;dir++) {
       QDP_M_peq_r_times_M(force_accum_2[dir],&coeff_mult,
 			  force_accum_1[dir],QDP_all);
+      nflops += 36;
     }
     n_naik_shift += n_orders_naik[inaik];
 
@@ -803,6 +806,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   for(dir=XUP;dir<=TUP;dir++){
 
     QDP_M_eq_M_times_M(force_final[dir],Ugf[dir],force_accum_1[dir],QDP_all);
+    nflops += 198;
 
   }
 
@@ -816,9 +820,11 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
     treal = 2.0;
     QDP_M_eq_r_times_M(force_final[dir],&treal,tmat,QDP_even);
+    nflops += 36;
 
     treal = -2.0;
     QDP_M_eq_r_times_M(force_final[dir],&treal,tmat,QDP_odd);
+    nflops += 36;
 
   }
 
@@ -830,6 +836,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
     QDP_M_eq_antiherm_M(mat_tmp0, force_final[dir], QDP_all);
     QDP_M_peq_M(force[dir], mat_tmp0, QDP_all);
+    nflops += 18;
     //QDP_M_peq_M(force_final[dir], force[dir], QDP_all);
     //QDP_M_eq_antiherm_M(force[dir], force_final[dir], QDP_all);
 
@@ -850,7 +857,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   QDP_destroy_M( mat_tmp0 );
 
   info->final_sec = QDP_time() - dtime;
-  info->final_flop = 0*QDP_sites_on_node;
+  info->final_flop += (double)nflops*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
 } //hisq_force_multi_wrapper_fnmat
 
@@ -928,6 +935,7 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
   QDP_ColorMatrix *oprod_along_path[MAX_PATH_LENGTH+1];
   QDP_ColorMatrix *mat_tmp0;
   QDP_ColorVector *tsrc[2], *vec_tmp[2];
+  size_t nflops = 0;
 
   if( nterms==0 )return;
 
@@ -962,9 +970,11 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
       }
       //QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
       QDP_M_eq_V_times_Va(tmat, tsrc[k], vec_tmp[k], QDP_all);
+      nflops += 90;
       QDP_discard_V(vec_tmp[k]);
       QDP_M_peq_r_times_M(oprod_along_path[0], &residues[term], tmat, 
 			  QDP_all);
+      nflops += 36;
       
       k=1-k; // swap 0 and 1
     } // end loop over terms in rational function expansion 
@@ -973,6 +983,8 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
 			       dir );
     coeff = 1.;
     QDP_M_peq_r_times_M(force_accum[dir],&coeff,oprod_along_path[1],QDP_all);
+
+    nflops += 36;
 
   } // end of loop on directions //
 
@@ -1000,8 +1012,10 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
       }
       //QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
       QDP_M_eq_V_times_Va(tmat, tsrc[k], vec_tmp[k], QDP_all);
+      nflops += 90;
       QDP_discard_V(vec_tmp[k]);
       QDP_M_peq_r_times_M(oprod_along_path[0], &residues[term], tmat, QDP_all);
+      nflops += 36;
 
       k=1-k; // swap 0 and 1
     } // end loop over terms in rational function expansion 
@@ -1011,17 +1025,20 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
     coeff = 1; // fermion_eps is outside this routine in "wrapper" routine
     QDP_M_peq_r_times_M(force_accum_naik[dir],&coeff,
 			oprod_along_path[1],QDP_all);
+    nflops += 36;
   } // end of loop on directions 
 
-QDP_destroy_V( tsrc[0] );
-QDP_destroy_V( tsrc[1] );
-QDP_destroy_V( vec_tmp[0] );
-QDP_destroy_V( vec_tmp[1] );
-QDP_destroy_M( mat_tmp0 );
-QDP_destroy_M( tmat );
+  QDP_destroy_V( tsrc[0] );
+  QDP_destroy_V( tsrc[1] );
+  QDP_destroy_V( vec_tmp[0] );
+  QDP_destroy_V( vec_tmp[1] );
+  QDP_destroy_M( mat_tmp0 );
+  QDP_destroy_M( tmat );
   for(i=0;i<=MAX_PATH_LENGTH;i++){
     QDP_destroy_M( oprod_along_path[i] );
   }
+
+  info->final_flop += (double)nflops*QDP_sites_on_node;
   return;
 } //hisq_force_multi_smearing0_fnmat
 
@@ -1055,6 +1072,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
   QDP_ColorVector *vec_tmp[2];
 
   int netbackdir, last_netbackdir;
+  size_t nflops = 0;
 
 // table of net path displacements (backwards from usual convention)
 
@@ -1109,8 +1127,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
     if( netbackdir<8) { // Not a Naik path
       link_gather_connection_qdp(oprod_along_path[0] , 
 				 force_accum_old[OPP_DIR(netbackdir)],
-				 tmat, 
-				 netbackdir );
+				 tmat, netbackdir );
     }
     else { // Naik path
       if( NULL==force_accum_naik_old ) {
@@ -1121,9 +1138,8 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
       // CONVERSION FROM 3-LINK DIRECTION TO 1-LINK DIRECTION
 
       link_gather_connection_qdp(oprod_along_path[0] , 
-      			 force_accum_naik_old[OPP_DIR(netbackdir-8)],
-				 tmat,
-      			 netbackdir );
+				 force_accum_naik_old[OPP_DIR(netbackdir-8)],
+				 tmat, netbackdir );
 
     }
 
@@ -1138,6 +1154,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
       link_transport_connection_qdp( oprod_along_path[length-ilink], 
 				     oprod_along_path[length-ilink-1], gf,
 				     mat_tmp0, stmp, this_path->dir[ilink]  );
+      nflops += 198;
     }
 
 
@@ -1158,14 +1175,13 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 			QDP_backward, QDP_all);
 	    QDP_M_eq_Ma(mats_along_path[1], tmat, QDP_all);
 	    QDP_discard_M(tmat);
-
           }
           else{
 
 	    QDP_M_eq_M(mats_along_path[1], gf[OPP_DIR(dir)], QDP_all);
 
           }
-
+	  nflops += 198;
 
       }
       else { // ilink != 0
@@ -1174,7 +1190,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 	link_transport_connection_qdp( mats_along_path[ilink+1], 
 				       mats_along_path[ilink], gf,
 				       mat_tmp0, stmp, dir );
-
+	nflops += 198;
       }
     } // end loop over links
 
@@ -1212,9 +1228,8 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 
 	    QDP_M_eq_M_times_Ma(mat_tmp0, mats_along_path[ilink], 
 				mat_tmp1, QDP_all);
+	    nflops += 198;
 	    QDP_M_eq_Ma(mat_tmp1,mat_tmp0,QDP_all);
-
-
 	  }
 
 	QDP_M_peq_r_times_M(force_accum[dir],&coeff,mat_tmp1,QDP_all);
@@ -1235,6 +1250,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 
 	  QDP_M_eq_M_times_Ma(mat_tmp0, oprod_along_path[length-ilink], 
 			      mat_tmp1, QDP_all);
+	  nflops += 198;
 	  QDP_M_eq_Ma(mat_tmp1, mat_tmp0, QDP_all);
 
 
@@ -1242,6 +1258,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 
 
 	QDP_M_peq_r_times_M(force_accum[odir],&coeff,mat_tmp1,QDP_all);
+	nflops += 36;
 
       }
       lastdir = dir;
@@ -1263,6 +1280,8 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
   for(i=1;i<=MAX_PATH_LENGTH;i++){
     QDP_destroy_M( mats_along_path[i] );
   }
+
+  info->final_flop += (double)nflops*QDP_sites_on_node;
 
   return;
 }//hisq_force_multi_smearing_fnmat

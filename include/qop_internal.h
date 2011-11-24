@@ -132,10 +132,10 @@ int
 QOP_F3_u3_un_analytic( QOP_info_t *info,
 		       QLA_F3_ColorMatrix *V, QLA_F3_ColorMatrix *W );
   
-int
+void
 QOP_F3_u3_un_der_analytic( QOP_info_t *info, 
 			   QLA_F3_ColorMatrix *V, QLA_F3_ColorTensor4 *dwdv, 
-			   QLA_F3_ColorTensor4 *dwdagdv );
+			   QLA_F3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
 QLA_F_Complex 
 QOP_F3_su3_mat_det( QLA_F3_ColorMatrix *U) ;
 
@@ -143,10 +143,10 @@ int
 QOP_D3_u3_un_analytic( QOP_info_t *info,
 		       QLA_D3_ColorMatrix *V, QLA_D3_ColorMatrix *W );
 
-int
+void
 QOP_D3_u3_un_der_analytic( QOP_info_t *info,
 			    QLA_D3_ColorMatrix *V, QLA_D3_ColorTensor4 *dwdv, 
-			    QLA_D3_ColorTensor4 *dwdagdv );
+			   QLA_D3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
 QLA_D_Complex 
 QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U) ;
 

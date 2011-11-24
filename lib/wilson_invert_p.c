@@ -176,7 +176,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
 {
   double dtime=0;
   double nflop;
-  double rsqminold;
+  double rsqminold, relminold;
   QLA_Real rsq, rsqstop, relnorm2, insq;
   QDP_DiracFermion *qdpin, *qdpout;
   QDP_DiracFermion *cgp, *cgr;
@@ -291,7 +291,9 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   rsq = 0;
   relnorm2 = 1.;
   rsqminold = res_arg->rsqmin;
+  relminold = res_arg->relmin;
   res_arg->rsqmin *= 0.9;
+  res_arg->relmin *= 0.5;
   inv_arg->max_restarts = 0;
   do {
     inv_arg->max_iter = max_iter_old - iter;
@@ -343,17 +345,25 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
     //printf("nrm = %g\n", rsq);
     QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, cgr, qdpout, ineo, QOP_EVENODD);
     QDP_D_meq_D(cgr, in, insub);
+    /* rsq of the full solution */
     QDP_r_eq_norm2_D(&rsq, cgr, insub);
     if(res_arg->relmin > 0)
       relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
+    /* If reconstruction was done, the rsq of the full solution could
+       be larger than the rsq of the reduced solution.  So dynamically
+       set a new rsqmin for a possible restart.  Use new rsqmin = 0.9
+       * (reduced solution rsq / full solution rsq) * original rsqmin */
     res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
+    /* Do the same for the relative minimum if we are using it */
+    if(res_arg->relmin > 0)
+      res_arg->relmin = 0.5*res_arg->final_rel/relnorm2 * relminold;
     iter += res_arg->final_iter;
     VERB(LOW, "WILSON_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq, 
 	 relnorm2);
   } while( rsq > rsqstop &&
-	   relnorm2 > res_arg->relmin &&
+	   relnorm2 > relminold &&
 	   nrestart++ < max_restarts );
 
   QDP_D_eq_D(out, qdpout, insub);
@@ -366,6 +376,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   inv_arg->max_iter = max_iter_old;
   inv_arg->max_restarts = max_restarts_old;
   res_arg->rsqmin = rsqminold;
+  res_arg->relmin = relminold;
   res_arg->final_iter = iter;
   res_arg->final_rsq = rsq/insq;
   res_arg->final_rel = relnorm2;

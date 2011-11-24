@@ -36,20 +36,19 @@ static void FD3_T4_eq_T4(QLA_F3_ColorTensor4 *t, QLA_D3_ColorTensor4 *tD){
 	  QLA_FD_C_eq_C(&t->t4[i0][i1][i2][i3], &tD->t4[i0][i1][i2][i3]);
 }
 
-int QOP_F3_u3_un_der_analytic( QOP_info_t *info, QLA_F3_ColorMatrix *V, 
-			       QLA_F3_ColorTensor4 *dwdv, QLA_F3_ColorTensor4 *dwdagdv ){
+void QOP_F3_u3_un_der_analytic( QOP_info_t *info, QLA_F3_ColorMatrix *V, 
+				QLA_F3_ColorTensor4 *dwdv, QLA_F3_ColorTensor4 *dwdagdv,
+				int *svd_calls, int *ff_counter){
   QLA_D3_ColorMatrix VD;
   QLA_D3_ColorTensor4 dwdvD, dwdagdvD;
-  int svd_calls;
 
   QLA_DF3_M_eq_M(&VD, V);
 
-  svd_calls = QOP_D3_u3_un_der_analytic(info, &VD, &dwdvD, &dwdagdvD );
+  QOP_D3_u3_un_der_analytic(info, &VD, &dwdvD, &dwdagdvD, svd_calls, ff_counter );
 
   FD3_T4_eq_T4(dwdv, &dwdvD);
   FD3_T4_eq_T4(dwdagdv, &dwdagdvD);
 
-  return svd_calls;
 }
 
 // The following is needed only for testing
