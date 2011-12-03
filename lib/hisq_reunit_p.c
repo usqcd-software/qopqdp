@@ -117,10 +117,12 @@ void QOPPC(u3reunit)(QOP_info_t *info, QDP_ColorMatrix *V, QDP_ColorMatrix *W)
   QLA_ColorMatrix *Vlinks;
   QLA_ColorMatrix *Wlinks;
   int svd_calls = 0;
+  double dtime = -QOP_time();
   
   //custom_QLA_ColorMatrix A;
   
   int i;
+
   
 //  printf("sizeof(custom_QLA_ColorMatrix)=%d\n",sizeof(custom_QLA_ColorMatrix));
 
@@ -128,7 +130,7 @@ void QOPPC(u3reunit)(QOP_info_t *info, QDP_ColorMatrix *V, QDP_ColorMatrix *W)
   Vlinks = QDP_expose_M(V);
   Wlinks = QDP_expose_M(W);
 
-  
+  info->final_flop = 0.0;
   for( i=0; i<QDP_sites_on_node; i++ ) {
     svd_calls += QOPPC(u3_un_analytic)( info, &(Vlinks[i]), &(Wlinks[i]) );
   }
@@ -140,6 +142,8 @@ void QOPPC(u3reunit)(QOP_info_t *info, QDP_ColorMatrix *V, QDP_ColorMatrix *W)
   // resume QDP operations on links
   QDP_reset_M( V );
   QDP_reset_M( W );
+  dtime += QOP_time();
+  info->final_sec = dtime;
 }
 
 
@@ -398,7 +402,8 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
   QLA_ColorTensor4 dwdv, dwdagdv;
   int svd_calls = 0;
   int ff_counter = 0;
-  size_t nflops = 0;
+
+  info->final_flop = 0.0;
 
   nd = QDP_ndim();
 
@@ -451,8 +456,6 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
 //      }
     }
 
-    nflops += 198 + 81*16;
-
     // resume QDP operations on links
     QDP_reset_M( V[i] );
     QDP_reset_M( Force[i] );
@@ -465,7 +468,7 @@ QOPPC(hisq_force_multi_reunit)(QOP_info_t *info,
   QOP_info_hisq_svd_counter(info) += svd_calls;
   QOP_info_hisq_force_filter_counter(info) += ff_counter;
 
-  info->final_flop += (double)nflops*QDP_sites_on_node;
+  info->final_flop += ((double)(198 + 81*16))*QDP_sites_on_node;
 }
 
 

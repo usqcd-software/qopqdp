@@ -219,6 +219,9 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
+    /* Do the same for the relative minimum if we are using it */
+    if(res_arg->relmin > 0)
+      res_arg->relmin = 0.5*res_arg->final_rel/relnorm2 * relminold;
     iter += res_arg->final_iter;
     VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq,
 	 relnorm2);

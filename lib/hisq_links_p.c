@@ -144,6 +144,8 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   QOP_asqtad_coeffs_t acoeffs1, acoeffs2, acoeffs3;
   int i,inaik;
   QOPPC(GaugeField) *qopgf_tmp;
+  double final_flop = 0.0;
+  double dtime = -QOP_time();
 
   HISQ_LINKS_BEGIN;
 
@@ -185,6 +187,7 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   
   // smear gauge with fat7 
   fla = QOP_asqtad_create_L_from_G(info, &acoeffs1, gauge);
+  final_flop += info->final_flop;
   
   // convert fla back to gauge to enable further smearing 
   // since fat7 contains only fat links, can just copy fla->fatlinks to gauge
@@ -194,6 +197,9 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
       QDP_M_eq_r_times_M(flh->V_links[i], &two, fla->fatlinks[i], QDP_all);
     }
   QOP_asqtad_destroy_L(fla);
+  final_flop += 198 * QDP_sites_on_node;
+
+
 
   //AB CAREFUL HERE: MAY NEED TO REMOVE PHASES, UNITARIZE
   //   AND THEN PUT PHASES BACK IN
@@ -202,8 +208,11 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   // project gauge fields to SU3 or U3
 
   if(ugroup == QOP_UNITARIZE_U3)
-    for (i=0;i<4;i++)
+    for (i=0;i<4;i++){
       QOPPC(u3reunit)(info, flh->V_links[i],flh->Y_unitlinks[i]);
+      final_flop += info->final_flop;
+    }
+
 
   if(!want_aux){
     destroy_4M(flh->V_links);
@@ -232,10 +241,6 @@ exit(1);
   }
 
 
-//ABprint    printf("** Done reunitarization, store in *W_unitlinks\n");
-//ABprint    fflush(stdout);
-
-
   // prepare the unitarized links
   qopgf_tmp = QOP_create_G_from_qdp( &(flh->W_unitlinks[0]) );
 
@@ -256,16 +261,24 @@ exit(1);
     
     // 3rd path table set
     flh->fn[0] = QOP_asqtad_create_L_from_G(info, &acoeffs3, qopgf_tmp);
+    final_flop += info->final_flop;
+
     // Copy to fn_deps if we want the derivative wrto epsilon
     if(want_deps)
       flh->fn_deps = QOPPC(asqtad_create_L_from_L)(flh->fn[0]);
+
 
     for( inaik = 1; inaik < n_naiks; inaik++ ) {
       QLA_Real rr;
       rr = eps_naik[inaik];
       flh->fn[inaik] = QOPPC(asqtad_create_L_from_r_times_L)(&rr, flh->fn[0]);
+      if(flh->fn[inaik]->longlinks)
+	final_flop += 8*18*QDP_sites_on_node*(n_naiks-1);
+      else
+	final_flop += 4*18*QDP_sites_on_node*(n_naiks-1);
     }
     
+
     // dispose Asqtad links object
     QOP_asqtad_destroy_L(flh->fn[0]);
     
@@ -273,9 +286,15 @@ exit(1);
 
     // 2nd path table set 
     flh->fn[0] = QOP_asqtad_create_L_from_G(info, &acoeffs2, qopgf_tmp);
+    final_flop += info->final_flop;
 
     for( inaik = 1; inaik < n_naiks; inaik++) {
       QOPPC(asqtad_L_peq_L)(flh->fn[inaik], flh->fn[0]);
+
+      if(flh->fn[inaik]->longlinks)
+	final_flop += 8*18*QDP_sites_on_node;
+      else
+	final_flop += 4*18*QDP_sites_on_node;
     }
 
   } else { // there are no Naik corrections, n_naiks=1 (can't be 0)
@@ -283,9 +302,13 @@ exit(1);
     // asqtad stage 
 
     flh->fn[0] = QOP_asqtad_create_L_from_G(info, &acoeffs2, qopgf_tmp);
+    final_flop += info->final_flop;
     
-    if(want_deps)
+    if(want_deps){
       flh->fn_deps = QOP_asqtad_create_L_from_G(info, &acoeffs3, qopgf_tmp);
+      final_flop += info->final_flop;
+    }
+
   }
 
   QOP_destroy_G(qopgf_tmp);
@@ -294,9 +317,12 @@ exit(1);
   printf("Exit  QOPPC(hisq_create_L_from_G) in hisq_links_p.c\n");
 #endif
 
+  dtime += QOP_time();
+  info->final_flop = final_flop;
+  info->final_sec = dtime;
+
   HISQ_LINKS_END;
 
-  //  return hisq_flag;
   return flh;
 }
 

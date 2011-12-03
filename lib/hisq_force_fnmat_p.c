@@ -612,7 +612,8 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
   int inaik;
   int n_naik_shift;
-  size_t nflops = 0;
+  double final_flop = 0.;
+  size_t nflops;
 
   QDP_ColorMatrix * force[4] =  {Force->force[0], Force->force[1], 
 				 Force->force[2], Force->force[3]};
@@ -646,8 +647,6 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   QDP_ColorMatrix *mat_tmp0;
 
   REAL treal;
-
-  info->final_flop = 0.0;
 
   if( first_force==1 ){
     if( q_paths_sorted_1==NULL ) 
@@ -720,6 +719,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
     QOPPC(hisq_force_multi_smearing0_fnmat)(info,residues+n_naik_shift, 
 					    x+n_naik_shift, n_orders_naik_current,
 					    force_accum_0, force_accum_0_naik);
+    final_flop += info->final_flop;
  
     
     // smearing level 2
@@ -742,6 +742,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    num_q_paths_current, 
 					    q_paths_sorted_current, 
 					    netbackdir_table_current );
+    final_flop += info->final_flop;
 
     if( 0==inaik ) {
       coeff_mult = 1.0;
@@ -773,6 +774,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    num_q_paths_1, 
 					    q_paths_sorted_1, 
 					    netbackdir_table_1 );
+    final_flop += info->final_flop;
     
   }
   else if ( umethod==QOP_UNITARIZE_RATIONAL ){
@@ -781,6 +783,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
     // reunitarization
     QOPPC(hisq_force_multi_reunit)(info,Vgf,force_accum_1u,
 					 force_accum_2);
+    final_flop += info->final_flop;
     
     // smearing level 1
     QOPPC(hisq_force_multi_smearing_fnmat)( info,Ugf,residues, 
@@ -790,7 +793,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    num_q_paths_1, 
 					    q_paths_sorted_1, 
 					    netbackdir_table_1 );
-
+    final_flop += info->final_flop;
   }
   else
     {
@@ -856,8 +859,10 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   QDP_destroy_M( tmat );
   QDP_destroy_M( mat_tmp0 );
 
+  final_flop += ((double)nflops)*QDP_sites_on_node;
+
   info->final_sec = QDP_time() - dtime;
-  info->final_flop += (double)nflops*QDP_sites_on_node;
+  info->final_flop = final_flop;
   info->status = QOP_SUCCESS;
 } //hisq_force_multi_wrapper_fnmat
 
@@ -1038,7 +1043,7 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
     QDP_destroy_M( oprod_along_path[i] );
   }
 
-  info->final_flop += (double)nflops*QDP_sites_on_node;
+  info->final_flop = (double)nflops*QDP_sites_on_node;
   return;
 } //hisq_force_multi_smearing0_fnmat
 
@@ -1281,7 +1286,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
     QDP_destroy_M( mats_along_path[i] );
   }
 
-  info->final_flop += (double)nflops*QDP_sites_on_node;
+  info->final_flop = (double)nflops*QDP_sites_on_node;
 
   return;
 }//hisq_force_multi_smearing_fnmat
