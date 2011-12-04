@@ -99,7 +99,7 @@ QOPPC(su3_mat_det)( QLA_ColorMatrix *U)
 int QOPPC(u3_un_analytic)( QOP_info_t *info, 
 			   QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
   QLA_Real c0, c1, c2, S, S3, R, R2, CQ3, RoS, theta, theta3, pi23, denom;
-  QLA_Real g0, g1, g2, g0sq, g1sq, g2sq, f0, f1, f2, us, vs, ws, det_check;
+  QLA_Real g0, g1, g2, g0sq, g1sq, g2sq, f0, f1, f2, us, vs, ws, det_check=0;
   QLA_Real sigma[3];
   QLA_Complex det;
   QLA_ColorMatrix Q, Q2, Q3, Uleft, Vright, S1, S2;
@@ -114,7 +114,7 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
 //  printf("Enter QOPPC(u3_un_analytic) in hisq_reunit_utilities_p.c\n");
 #endif
 
-  if(QOP_hisq_links.reunit_allow_svd){
+  if(QOP_hisq_links.reunit_allow_svd) {
     // get determinant for future comparison
     det = QOPPC(su3_mat_det)( V );
     // det_check = |det|^2
@@ -307,7 +307,7 @@ void QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
 				int *svd_calls, int *ff_counter) {
   int i, j, m, n, perform_svd;
   QLA_Complex det, der, ctmp, ctmp2;
-  QLA_Real det_check, c0, c1, c2, S, g0, g1, g2, R, R2, CQ3, S3, RoS, theta, theta3, pi23;
+  QLA_Real det_check=0, c0, c1, c2, S, g0, g1, g2, R, R2, CQ3, S3, RoS, theta, theta3, pi23;
   QLA_Real g0sq, g1sq, g2sq, us, vs, ws, f0, f1, f2, denom;
   QLA_Real u2, u3, u4, u5, u6, u7, u8, v2, v3, v4, v5, v6, w2, w3, w4, w5;
   QLA_Real b00, b01, b02, b11, b12, b22, denom3;
@@ -2160,7 +2160,6 @@ printf( "%+20.16e %+20.16e %+20.16e\n", b20, b21, b22 );
   return 0;
 }
 
-
 /* SVD of 2x2 real matrix brought to the form:
     [ a00 a01]
     [   0 a11]
@@ -2172,8 +2171,7 @@ static int QOPPC(svd2x2bidiag)(QOP_info_t *info, QLA_Real *a00, QLA_Real *a01,
   register double lna01a11, lna00, ln_num, tau, t;
   register double P00, P01, P10, P11;
   register int isign;
-  size_t nflops;
-
+  size_t nflops = 0;
 
   U2[0][0]=1.; U2[0][1]=0.;
   U2[1][0]=0.; U2[1][1]=1.;

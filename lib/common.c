@@ -3,6 +3,7 @@
 #include <qop_internal.h>
 
 QOP_common_t QOP_common = {.inited=0};
+extern QDP_Layout *QOP_layout_user;
 
 static int
 compare_sizes(int n1, int *v1, char *s1, int n2, int *v2, char *s2)
@@ -49,6 +50,7 @@ QOP_init(QOP_layout_t *layout)
 
   if(!QDP_is_initialized()) {
     QDP_initialize(NULL, NULL);
+    QDP_set_default_layout(QOP_layout_user);
     QDP_set_latsize(layout->latdim, layout->latsize);
     QDP_create_layout();
     QOP_common.we_inited_qdp = 1;

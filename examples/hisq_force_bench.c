@@ -151,6 +151,8 @@ start(void)
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
   QDP_profcontrol(1);
+  //{ QOP_opt_t ol = {.tag="reunit_allow_svd_only",.value=0}; QOP_hisq_links_set_opts(&ol,1); }
+  //{ QOP_opt_t ol = {.tag="reunit_svd_only",.value=1}; QOP_hisq_links_set_opts(&ol,1); }
   flh = QOP_hisq_create_L_from_G(&info, &coeffs, gauge);
   //fla = QOP_get_asqtad_links_from_hisq(flh)[0];
   QDP_profcontrol(0);

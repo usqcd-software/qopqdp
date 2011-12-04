@@ -13,7 +13,7 @@ QOPPC(asqtad_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 		    QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
 
 void 
-QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,  
+QOPPC(hisq_deriv_multi_wrapper_fnmat2)(QOP_info_t *info,  
 				       QOPPC(FermionLinksHisq) *flh,
 				       QOP_Force *Force, 
 				       QOP_hisq_coeffs_t *hisq_coeff,
@@ -24,7 +24,8 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
 
   double dtime = QDP_time();
-  int nflops = 0;
+  double totalflops = 0;
+  int siteflops = 0;
   QOP_info_t tinfo;
 
   QDP_ColorMatrix *force[4] =  {Force->force[0], Force->force[1], 
@@ -71,14 +72,13 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
 
     QOPPC(get_mid)(&tinfo, force_accum_0, QDP_neighbor, 4,
 		   residues+n_naik_shift, x+n_naik_shift, n_orders_naik_current);
-    nflops += tinfo.final_flop;
+    totalflops += tinfo.final_flop;
     QOPPC(get_mid)(&tinfo, force_accum_0_naik, QOP_common.neighbor3, 4,
 		   residues+n_naik_shift, x+n_naik_shift, n_orders_naik_current);
-    nflops += tinfo.final_flop;
+    totalflops += tinfo.final_flop;
 
     // smearing level 0
-    for(int i=0; i<4; i++)
-      QDP_M_eq_zero(force_accum_1[i], QDP_all);
+    for(int i=0; i<4; i++) QDP_M_eq_zero(force_accum_1[i], QDP_all);
     if(inaik==0) {
       QOP_asqtad_coeffs_t acoef;
       acoef.one_link = hisq_coeff->asqtad_one_link;
@@ -89,7 +89,8 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
       acoef.naik = hisq_coeff->asqtad_naik;
       QOPPC(asqtad_deriv)(&tinfo, Wgf, force_accum_1, &acoef,
 			  force_accum_0, force_accum_0_naik);
-      nflops += tinfo.final_flop;
+      //QOP_printf0("HISQ smear0 flops = %g\n", tinfo.final_flop);
+      totalflops += tinfo.final_flop;
     } else {
       QOP_asqtad_coeffs_t acoef;
       acoef.one_link = hisq_coeff->difference_one_link;
@@ -100,7 +101,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
       acoef.naik = hisq_coeff->difference_naik;
       QOPPC(asqtad_deriv)(&tinfo, Wgf, force_accum_1, &acoef,
 			  force_accum_0, force_accum_0_naik);
-      nflops += tinfo.final_flop;
+      totalflops += tinfo.final_flop;
     }
 
     QLA_Real coeff_mult;
@@ -113,7 +114,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
       QDP_M_peq_r_times_M(force_accum_2[dir], &coeff_mult,
 			  force_accum_1[dir], QDP_all);
     }
-    nflops += 4*36*QDP_sites_on_node;
+    siteflops += 4*36;
 
     n_naik_shift += n_orders_naik[inaik];
   }
@@ -133,15 +134,16 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
       QDP_M_eq_zero(force_accum_1[dir], QDP_all);
     QOPPC(asqtad_deriv)(&tinfo, Ugf, force_accum_1, &acoef,
 			force_accum_2, NULL);
-    nflops += tinfo.final_flop;
+    totalflops += tinfo.final_flop;
 
   } else if ( umethod==QOP_UNITARIZE_RATIONAL ) {
 
     for(int mu=0; mu<4; mu++) QDP_M_eq_Ma(force_accum_1u[mu], force_accum_2[mu], QDP_all);
     // reunitarization
-    QOPPC(hisq_force_multi_reunit)(info, Vgf, force_accum_2, force_accum_1u);
+    QOPPC(hisq_force_multi_reunit)(&tinfo, Vgf, force_accum_2, force_accum_1u);
+    //QOP_printf0("reunit flops = %g\n", tinfo.final_flop);
     for(int mu=0; mu<4; mu++) QDP_M_eq_Ma(force_accum_1u[mu], force_accum_2[mu], QDP_all);
-    nflops += 1000*QDP_sites_on_node; // ??? need to count
+    totalflops += tinfo.final_flop;
 
     // smearing level 1
     QOP_asqtad_coeffs_t acoef;
@@ -151,41 +153,25 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
     acoef.seven_staple = hisq_coeff->fat7_seven_staple;
     acoef.lepage = 0;
     acoef.naik = 0;
-    for(int dir=XUP;dir<=TUP;dir++)
-      QDP_M_eq_zero(force_accum_1[dir], QDP_all);
+    for(int dir=XUP;dir<=TUP;dir++) QDP_M_eq_zero(force_accum_1[dir], QDP_all);
     QOPPC(asqtad_deriv)(&tinfo, Ugf, force_accum_1, &acoef,
 			force_accum_1u, NULL);
-    nflops += tinfo.final_flop;
+    //QOP_printf0("HISQ smear1 flops = %g\n", tinfo.final_flop);
+    totalflops += tinfo.final_flop;
 
   } else {
     QOP_printf0("Unknown or unsupported unitarization method\n");
     exit(1);
   }
 
-  // contraction with the link in question should be done here,
-  // after contributions from all levels of smearing are taken into account
-  for(int dir=0; dir<4; dir++) {
-    QDP_M_eq_M_times_Ma(force_final[dir], Ugf[dir], force_accum_1[dir], QDP_all);
-  }
-  nflops += 4*198*QDP_sites_on_node;
-
   // take into account even/odd parity (it is NOT done in "smearing" routine)
-  //eps multiplication done outside QOP 
+  // eps multiplication done outside QOP 
   for(int dir=0; dir<4; dir++) {
     QLA_Real treal = 2;
-    QDP_M_eq_M(tmat, force_final[dir], QDP_all);
-    QDP_M_eq_r_times_M(force_final[dir], &treal, tmat, QDP_even);
-    QDP_M_eqm_r_times_M(force_final[dir], &treal, tmat, QDP_odd);
+    QDP_M_peq_r_times_M(force[dir], &treal, force_accum_1[dir], QDP_even);
+    QDP_M_meq_r_times_M(force[dir], &treal, force_accum_1[dir], QDP_odd);
   }
-  nflops += 4*18*QDP_sites_on_node;
-
-  // Put antihermitian traceless part into momentum 
-  // add force to momentum
-  for(int dir=0; dir<4; dir++) {
-    QDP_M_eq_antiherm_M(tmat, force_final[dir], QDP_all);
-    QDP_M_peq_M(force[dir], tmat, QDP_all);
-  }
-  nflops += 4*(24+18)*QDP_sites_on_node;
+  siteflops += 4*36;
 
   for(int i=0; i<4; i++) {
      QDP_destroy_M( force_accum_0[i] );
@@ -197,7 +183,49 @@ QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,
   }
   QDP_destroy_M( tmat );
 
+  totalflops += ((double)siteflops)*QDP_sites_on_node;
   info->final_sec = QDP_time() - dtime;
-  info->final_flop = nflops;
+  info->final_flop = totalflops;
   info->status = QOP_SUCCESS;
+}
+
+void 
+QOPPC(hisq_force_multi_wrapper_fnmat2)(QOP_info_t *info,  
+				       QOPPC(FermionLinksHisq) *flh,
+				       QOP_Force *Force, 
+				       QOP_hisq_coeffs_t *hisq_coeff,
+				       REAL *residues,
+				       QDP_ColorVector *x[], 
+				       int *n_orders_naik)
+{
+  double dtime = QOP_time();
+
+  QDP_ColorMatrix *tforce0[4];
+  for(int mu=0; mu<4; mu++) {
+    tforce0[mu] = QDP_create_M();
+    QDP_M_eq_zero(tforce0[mu], QDP_all);
+  }
+  QOP_Force *deriv = QOP_convert_F_from_qdp(tforce0);
+  QOPPC(hisq_deriv_multi_wrapper_fnmat2)(info, flh, deriv, hisq_coeff, residues, x, n_orders_naik);
+  QDP_ColorMatrix **tforce = QOP_convert_F_to_qdp(deriv); // also destroys deriv
+  QDP_ColorMatrix *mtmp = QDP_create_M();
+
+  // contraction with the link in question should be done here,
+  // after contributions from all levels of smearing are taken into account
+  // Put antihermitian traceless part into momentum 
+  // add force to momentum
+  for(int dir=0; dir<4; dir++) {
+    QDP_M_eq_M_times_Ma(mtmp, flh->U_links[dir], tforce[dir], QDP_all);
+    QDP_M_eq_antiherm_M(tforce[dir], mtmp, QDP_all);
+    QDP_M_peq_M(Force->force[dir], tforce[dir], QDP_all);
+  }
+  info->final_flop += (4.*(198+24+18))*QDP_sites_on_node; 
+
+  QDP_destroy_M(mtmp);
+  for(int mu=0; mu<4; mu++) {
+    QDP_destroy_M(tforce[mu]);
+  }
+
+  info->final_sec = QOP_time() - dtime;
+  //QOP_printf0("HISQ force flops = %g\n", info->final_flop);
 }

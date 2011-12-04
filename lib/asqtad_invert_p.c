@@ -31,6 +31,7 @@ static REAL gl_mass;
 static QOP_evenodd_t gl_eo;
 static QDP_ColorVector *gl_tmp, *gl_tmp2;
 
+#if 0
 static void
 dumpvec(QDP_ColorVector *in, QDP_Subset sub)
 {
@@ -51,6 +52,7 @@ dumpvec(QDP_ColorVector *in, QDP_Subset sub)
     });
   exit(0);
 }
+#endif
 
 /* calculates out = mass*in - D*in on subset eo */
 static void

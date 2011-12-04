@@ -25,6 +25,11 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
 
+  // avoid compiler warning about unitialized variables
+  QLA_c_eq_r(alpha, 0);
+  QLA_c_eq_r(omega, 0);
+  QLA_c_eq_r(rho1, 0);
+
   create_V(r0);
   create_V(t);
   create_V(v);

@@ -25,6 +25,23 @@
  */
 
 void
+QOPPC(hisq_deriv_multi_qdp)(QOP_info_t *info, 
+			    QOP_FermionLinksHisq *flh,
+			    QOP_Force *force, 
+			    QOP_hisq_coeffs_t *coef,
+			    REAL epsv[], 
+			    QDP_ColorVector *in_pt[], 
+			    int *n_orders_naik)
+{
+  HISQ_FORCE_BEGIN;
+
+  QOPPC(hisq_deriv_multi_wrapper_fnmat2)(info, flh, force, 
+					 coef, epsv, in_pt, n_orders_naik);
+
+  HISQ_FORCE_END;
+}
+
+void
 QOPPC(hisq_force_multi_qdp)(QOP_info_t *info, 
 			    QOP_FermionLinksHisq *flh,
 			    QOP_Force *force, 

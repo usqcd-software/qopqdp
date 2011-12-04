@@ -1,4 +1,27 @@
 ===========================================================================
+2011-12-04      version 0.17.5
+===========================================================================
+2011-12-04:	James Osborn
+  	Added QDP layout using QMP logical topology to be used if
+	  QDP is not already initialized.
+	Fixed some flop counts in HISQ force.
+	Added some derivative routines.
+
+2011-12-03:	Carleton DeTar
+	Further corrections to SVD and force filter counting
+
+2011-11-24:	Carleton DeTar
+	Add HISQ flop count for fermion force and refine Wilson invert
+	 relative norm stopping
+
+2011-11-13:	Carleton DeTar
+	Corrected bug in copy from double- to single-precision
+	 FermionLinksWilson structure
+
+2011-11-04:	Carleton DeTar
+	Updates to HISQ utilities
+
+===========================================================================
 2011-09-16      version 0.17.2
 ===========================================================================
 2011-09-16:	James Osborn

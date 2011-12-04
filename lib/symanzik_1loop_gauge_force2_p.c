@@ -453,7 +453,7 @@ staplep2(QDP_ColorMatrix *outmu, QDP_ColorMatrix *Unu0,
 #define G(x) gauge->links[x]
 
 void
-QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge, 
+QOPPC(symanzik_1loop_gauge_deriv)(QOP_info_t *info, QOP_GaugeField *gauge, 
 				  QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
 {
   double dtime = QOP_time();
@@ -673,36 +673,10 @@ QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge,
 #endif
   }
 
-#ifdef CHKSUM
-  QLA_ColorMatrix qcm;
-  QLA_Complex det, chk;
-  QLA_c_eq_r(chk, 0);
-#endif
-  QLA_Real trace=0;
   for(int mu=0; mu<4; mu++) {
-    QDP_M_eq_M_times_Ma(mtmp[0], G(mu), tforce[mu], QDP_all);
-    if(QOP_common.verbosity==QOP_VERB_DEBUG) {
-      QLA_ColorMatrix tm;
-      QLA_Real tr;
-      QDP_m_eq_sum_M(&tm, mtmp[0], QDP_all);
-      QLA_R_eq_re_trace_M(&tr, &tm);
-      trace += tr;
-    }
-    QDP_M_eq_antiherm_M(tforce[mu], mtmp[0], QDP_all);
     QDP_M_peq_M(force->force[mu], tforce[mu], QDP_all);
-#ifdef CHKSUM
-    QDP_m_eq_sum_M(&qcm, force->force[mu], QDP_all);
-    QLA_C_eq_det_M(&det, &qcm);
-    QLA_c_peq_c(chk, det);
-#endif
   }
-#ifdef CHKSUM
-  QOP_printf0("chksum: %g %g\n", QLA_real(chk), QLA_imag(chk));
-#endif
-  if(QOP_common.verbosity==QOP_VERB_DEBUG) {
-    QOP_printf0("re trace: %g\n", trace);
-  }
-  nflops += 4*(24+18);
+  nflops += 4*18;
 
   if(rect||pgm) {
     for(int mu=0; mu<4; mu++) {
@@ -719,8 +693,63 @@ QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge,
   }
   free_temps();
 
-  //double nflop = 96720;
+  //double nflop = 96720 - 4*(24+18);
   info->final_sec = QOP_time() - dtime;
   info->final_flop = nflops*QDP_sites_on_node; 
   info->status = QOP_SUCCESS;
 } 
+
+void
+QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge, 
+				  QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+{
+  double dtime = QOP_time();
+
+  QDP_ColorMatrix *tforce0[4];
+  for(int mu=0; mu<4; mu++) {
+    tforce0[mu] = QDP_create_M();
+    QDP_M_eq_zero(tforce0[mu], QDP_all);
+  }
+  QOP_Force *deriv = QOP_convert_F_from_qdp(tforce0);
+  QOP_symanzik_1loop_gauge_deriv(info, gauge, deriv, coeffs, eps);
+  QDP_ColorMatrix **tforce = QOP_convert_F_to_qdp(deriv); // also destroys deriv
+  QDP_ColorMatrix *mtmp = QDP_create_M();
+
+#ifdef CHKSUM
+  QLA_ColorMatrix qcm;
+  QLA_Complex det, chk;
+  QLA_c_eq_r(chk, 0);
+#endif
+  QLA_Real trace=0;
+  for(int mu=0; mu<4; mu++) {
+    QDP_M_eq_M_times_Ma(mtmp, G(mu), tforce[mu], QDP_all);
+    if(QOP_common.verbosity==QOP_VERB_DEBUG) {
+      QLA_ColorMatrix tm;
+      QLA_Real tr;
+      QDP_m_eq_sum_M(&tm, mtmp, QDP_all);
+      QLA_R_eq_re_trace_M(&tr, &tm);
+      trace += tr;
+    }
+    QDP_M_eq_antiherm_M(tforce[mu], mtmp, QDP_all);
+    QDP_M_peq_M(force->force[mu], tforce[mu], QDP_all);
+#ifdef CHKSUM
+    QDP_m_eq_sum_M(&qcm, force->force[mu], QDP_all);
+    QLA_C_eq_det_M(&det, &qcm);
+    QLA_c_peq_c(chk, det);
+#endif
+  }
+#ifdef CHKSUM
+  QOP_printf0("chksum: %g %g\n", QLA_real(chk), QLA_imag(chk));
+#endif
+  if(QOP_common.verbosity==QOP_VERB_DEBUG) {
+    QOP_printf0("re trace: %g\n", trace);
+  }
+  info->final_flop += 4*(198+24+18)*QDP_sites_on_node; 
+
+  QDP_destroy_M(mtmp);
+  for(int mu=0; mu<4; mu++) {
+    QDP_destroy_M(tforce[mu]);
+  }
+
+  info->final_sec = QOP_time() - dtime;
+}

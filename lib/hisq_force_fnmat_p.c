@@ -613,7 +613,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   int inaik;
   int n_naik_shift;
   double final_flop = 0.;
-  size_t nflops;
+  size_t nflops = 0;
 
   QDP_ColorMatrix * force[4] =  {Force->force[0], Force->force[1], 
 				 Force->force[2], Force->force[3]};
@@ -742,6 +742,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    num_q_paths_current, 
 					    q_paths_sorted_current, 
 					    netbackdir_table_current );
+    //QOP_printf0("HISQ smear0 flops = %g\n", info->final_flop);
     final_flop += info->final_flop;
 
     if( 0==inaik ) {
@@ -783,6 +784,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
     // reunitarization
     QOPPC(hisq_force_multi_reunit)(info,Vgf,force_accum_1u,
 					 force_accum_2);
+    //QOP_printf0("reunit flops = %g\n", info->final_flop);
     final_flop += info->final_flop;
     
     // smearing level 1
@@ -793,6 +795,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 					    num_q_paths_1, 
 					    q_paths_sorted_1, 
 					    netbackdir_table_1 );
+    //QOP_printf0("HISQ smear1 flops = %g\n", info->final_flop);
     final_flop += info->final_flop;
   }
   else
@@ -823,11 +826,10 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
     treal = 2.0;
     QDP_M_eq_r_times_M(force_final[dir],&treal,tmat,QDP_even);
-    nflops += 36;
 
     treal = -2.0;
     QDP_M_eq_r_times_M(force_final[dir],&treal,tmat,QDP_odd);
-    nflops += 36;
+    nflops += 18;
 
   }
 
@@ -839,7 +841,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
     QDP_M_eq_antiherm_M(mat_tmp0, force_final[dir], QDP_all);
     QDP_M_peq_M(force[dir], mat_tmp0, QDP_all);
-    nflops += 18;
+    nflops += 24+18;
     //QDP_M_peq_M(force_final[dir], force[dir], QDP_all);
     //QDP_M_eq_antiherm_M(force[dir], force_final[dir], QDP_all);
 
@@ -864,6 +866,7 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   info->final_sec = QDP_time() - dtime;
   info->final_flop = final_flop;
   info->status = QOP_SUCCESS;
+  //QOP_printf0("HISQ force flops = %g\n", info->final_flop);
 } //hisq_force_multi_wrapper_fnmat
 
 
@@ -975,7 +978,7 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
       }
       //QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
       QDP_M_eq_V_times_Va(tmat, tsrc[k], vec_tmp[k], QDP_all);
-      nflops += 90;
+      nflops += 54;
       QDP_discard_V(vec_tmp[k]);
       QDP_M_peq_r_times_M(oprod_along_path[0], &residues[term], tmat, 
 			  QDP_all);
@@ -988,7 +991,6 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
 			       dir );
     coeff = 1.;
     QDP_M_peq_r_times_M(force_accum[dir],&coeff,oprod_along_path[1],QDP_all);
-
     nflops += 36;
 
   } // end of loop on directions //
@@ -1017,7 +1019,7 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
       }
       //QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
       QDP_M_eq_V_times_Va(tmat, tsrc[k], vec_tmp[k], QDP_all);
-      nflops += 90;
+      nflops += 54;
       QDP_discard_V(vec_tmp[k]);
       QDP_M_peq_r_times_M(oprod_along_path[0], &residues[term], tmat, QDP_all);
       nflops += 36;
@@ -1043,7 +1045,7 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
     QDP_destroy_M( oprod_along_path[i] );
   }
 
-  info->final_flop = (double)nflops*QDP_sites_on_node;
+  info->final_flop = ((double)nflops)*QDP_sites_on_node;
   return;
 } //hisq_force_multi_smearing0_fnmat
 
@@ -1186,7 +1188,6 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 	    QDP_M_eq_M(mats_along_path[1], gf[OPP_DIR(dir)], QDP_all);
 
           }
-	  nflops += 198;
 
       }
       else { // ilink != 0
@@ -1238,6 +1239,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 	  }
 
 	QDP_M_peq_r_times_M(force_accum[dir],&coeff,mat_tmp1,QDP_all);
+	nflops += 36;
 	
 
       }
@@ -1286,8 +1288,7 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
     QDP_destroy_M( mats_along_path[i] );
   }
 
-  info->final_flop = (double)nflops*QDP_sites_on_node;
+  info->final_flop = ((double)nflops)*QDP_sites_on_node;
 
   return;
 }//hisq_force_multi_smearing_fnmat
-

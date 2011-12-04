@@ -4,6 +4,7 @@ lib_LIBRARIES = libqopqdp.a
 
 libqopqdp_a_SOURCES = \
   common.c common_f.c common_d.c \
+  layout_user.c \
   symanzik_1loop_gauge_action_f.c symanzik_1loop_gauge_action_d.c \
   symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
   asqtad_dslash_f.c asqtad_dslash_d.c \
@@ -85,6 +86,7 @@ invert_utilities_vD_d.o: invert_utilities_p.c
 
 EXTRA_DIST = \
   common_p.c \
+  layout_user.c \
   symanzik_1loop_gauge_action_p.c \
   symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \

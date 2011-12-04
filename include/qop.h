@@ -382,6 +382,18 @@ void QOP_D3_symanzik_1loop_gauge_force(QOP_info_t *info,
 				       QOP_gauge_coeffs_t *coeffs,
 				       double eps);
 
+void QOP_F3_symanzik_1loop_gauge_deriv(QOP_info_t *info, 
+				       QOP_F3_GaugeField *gauge, 
+				       QOP_F3_Force *force,
+				       QOP_gauge_coeffs_t *coeffs,
+				       float eps);
+
+void QOP_D3_symanzik_1loop_gauge_deriv(QOP_info_t *info, 
+				       QOP_D3_GaugeField *gauge, 
+				       QOP_D3_Force *force,
+				       QOP_gauge_coeffs_t *coeffs,
+				       double eps);
+
 
   /*********************/
   /*  Asqtad routines  */
@@ -1092,7 +1104,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_rephase_G QOP_F3_rephase_G
 
 #define QOP_symanzik_1loop_gauge_action  QOP_F3_symanzik_1loop_gauge_action
-#define QOP_symanzik_1loop_gauge_force  QOP_F3_symanzik_1loop_gauge_force
+#define QOP_symanzik_1loop_gauge_force   QOP_F3_symanzik_1loop_gauge_force
+#define QOP_symanzik_1loop_gauge_deriv   QOP_F3_symanzik_1loop_gauge_deriv
 
 #define QOP_FermionLinksAsqtad        QOP_F3_FermionLinksAsqtad
 #define QOP_asqtad_create_L_from_raw  QOP_F3_asqtad_create_L_from_raw
@@ -1197,7 +1210,8 @@ void QOP_D3_dw_force_multi(QOP_info_t *info,
 #define QOP_rephase_G QOP_D3_rephase_G
 
 #define QOP_symanzik_1loop_gauge_action  QOP_D3_symanzik_1loop_gauge_action
-#define QOP_symanzik_1loop_gauge_force  QOP_D3_symanzik_1loop_gauge_force
+#define QOP_symanzik_1loop_gauge_force   QOP_D3_symanzik_1loop_gauge_force
+#define QOP_symanzik_1loop_gauge_deriv   QOP_D3_symanzik_1loop_gauge_deriv
 
 #define QOP_FermionLinksAsqtad       QOP_D3_FermionLinksAsqtad
 #define QOP_asqtad_create_L_from_raw QOP_D3_asqtad_create_L_from_raw
