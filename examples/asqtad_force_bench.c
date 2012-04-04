@@ -73,6 +73,7 @@ bench_force(QOP_asqtad_coeffs_t *asqcoef,
 
   secs = sec/nit;
   flops = flop/nit;
+  //printf("flops: %.0f\n", flops);
   return mf/nit;
 }
 

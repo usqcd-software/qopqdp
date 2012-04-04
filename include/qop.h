@@ -151,6 +151,7 @@ typedef struct {
   double fat7_three_staple;
   double fat7_five_staple;
   double fat7_seven_staple;
+  double fat7_lepage;
   double asqtad_one_link;
   double asqtad_three_staple;
   double asqtad_five_staple;

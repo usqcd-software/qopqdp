@@ -118,6 +118,7 @@ typedef struct {
   double reunit_svd_rel_error;
   double reunit_svd_abs_error;
   int svd_values_info;
+  int use_fat7_lepage;
 } QOP_hisq_links_t;
 extern QOP_hisq_links_t QOP_hisq_links;
 

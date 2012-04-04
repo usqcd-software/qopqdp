@@ -166,6 +166,35 @@ QOP_wilson_invert(QOP_info_t *info,
 }
 
 void
+QOP_wilson_invert_ne_qdp(QOP_info_t *info,
+			 QOP_FermionLinksWilson *flw,
+			 QOP_invert_arg_t *inv_arg,
+			 QOP_resid_arg_t *res_arg,
+			 REAL kappa,
+			 QDP_DiracFermion *out,
+			 QDP_DiracFermion *in)
+{
+  QDP_DiracFermion *cgp;
+  QDP_Subset cgsub;
+  QOP_evenodd_t cgeo = QOP_EVEN;
+
+  WILSON_INVERT_BEGIN;
+
+  gl_flw = flw;
+  gl_kappa = kappa;
+  cgsub = qdpsub(cgeo);
+  gl_eo = cgeo;
+  cgp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 1);
+  gl_tmp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 2);
+  gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
+
+  QOPPC(invert_cg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
+		     out, in, cgp, cgsub);
+
+  WILSON_INVERT_END;
+}
+
+void
 QOP_wilson_invert_qdp(QOP_info_t *info,
 		      QOP_FermionLinksWilson *flw,
 		      QOP_invert_arg_t *inv_arg,
@@ -430,3 +459,231 @@ QOP_wilson_invert_multi_qdp(QOP_info_t *info,
   QOP_error("QOP_wilson_invert_multi unimplemented");
   WILSON_INVERT_END;
 }
+
+#if 0
+void
+QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
+			       QOP_FermionLinksWilson *links,
+			       QOP_invert_arg_t *inv_arg,
+			       QOP_resid_arg_t **res_arg[],
+			       REAL *kappas[],
+			       int nkappa[],
+			       QDP_DiracFermion **out_pt[],
+			       QDP_DiracFermion *in_pt[],
+			       int nsrc)
+{
+  double dtime=0;
+  double nflop;
+  double rsqminold, relminold;
+  QLA_Real rsq, rsqstop, relnorm2, insq;
+  QDP_DiracFermion *qdpin, *qdpout;
+  QDP_DiracFermion *cgp, *cgr;
+  QDP_Subset insub, cgsub;
+  QOP_evenodd_t ineo, cgeo;
+  int iter = 0;
+  int max_iter_old = inv_arg->max_iter;
+  int max_restarts_old = inv_arg->max_restarts;
+  int nrestart = -1, max_restarts = inv_arg->max_restarts;
+  if(max_restarts<=0) max_restarts = 5;
+
+  WILSON_INVERT_BEGIN;
+
+  if(QOP_wilson_cgtype==2) {
+    flw->eigcg.numax = QOP_wilson_eigcg_numax;
+    flw->eigcg.m = QOP_wilson_eigcg_m;
+    flw->eigcg.nev = QOP_wilson_eigcg_nev;
+  }
+
+  ineo = inv_arg->evenodd;
+  insub = qdpsub(ineo);
+
+  qdpin = QDP_create_D();
+  qdpout = QDP_create_D();
+  if(flw->clov!=NULL) ctmp = QDP_create_D();
+  if(QOP_wilson_cgtype==0) gtmp = QDP_create_D();
+
+  gl_flw = flw;
+  gl_kappa = kappa;
+
+  /* cg has 5 * 48 = 240 flops/site/it */
+  /* bicg has 9*4*24 = 864 flops/site/it */
+#ifdef LU
+  /* MdagM(no clov) -> 2*(2*(144+168*7)+48) = 5376 flops/site */
+  /* MdagM(clov)    -> 2*(2*(144+168*7+12*42)+24) = 7344 flops/site */
+  if(flw->clov==NULL) {
+    nflop = 5376;
+  } else {
+    nflop = 7344;
+  }
+  if(QOP_wilson_cgtype==1) {
+    nflop += 864;
+  } else {
+    nflop += 240;
+  }
+  nflop *= 0.5; /* half for half of the sites */
+  cgeo = ineo;
+  if(ineo==QOP_EVENODD) cgeo = QOP_EVEN;
+#else
+  /* MdagM -> 2*((144+168*7)+48) = 2736 flops/site */
+  /* clov -> 2*(12*(42-2)) = 960 flops/site */
+  nflop = 2736 + 240;
+  if(QOP_wilson_cgtype==1) nflop += (864-240);
+  if(flw->clov!=NULL) nflop += 960;
+  cgeo = QOP_EVENODD;
+#endif
+  cgsub = qdpsub(cgeo);
+  gl_eo = cgeo;
+
+  cgp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 1);
+  cgr = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 2);
+  gl_tmp = cgr;
+
+  //printf("test1\n");
+  QDP_D_eq_zero(qdpin, QDP_all);
+#ifdef LU
+  gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
+  if(ineo==cgeo) {
+    QDP_D_eq_D(qdpin, in, insub);
+  } else {
+    QDP_D_eq_zero(cgp, QDP_all);
+    QDP_D_eq_D(cgp, in, insub);
+    project(flw, kappa, 1, qdpin, cgp, cgeo);
+  }
+  if(QOP_wilson_cgtype==1 || QOP_wilson_cgtype==3) {
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
+    QDP_D_eq_D(qdpin, cgp, cgsub);
+  } else {
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
+    dslash2(flw, kappa, -1, qdpin, gl_tmp2, cgp, cgeo);
+  }
+#else
+  gl_tmp2 = cgr;
+  if(QOP_wilson_cgtype==1) {
+    QDP_D_eq_D(qdpin, in, insub);
+  } else {
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, -1, qdpin, in, cgeo, ineo);
+  }
+#endif
+  if(ineo!=QOP_EVENODD && ineo!=cgeo) {
+    QDP_D_eq_zero(qdpout, cgsub);
+    reconstruct(flw, kappa, qdpout, out, qdpout, oppsub(ineo));
+  }
+  QDP_D_eq_D(qdpout, out, insub);
+
+#if 0
+  {
+    QDP_r_eq_norm2_D(&rsq, qdpin, cgsub);
+    printf("nrm = %g\n", rsq);
+    QOP_wilson_diaginv_qdp(NULL, flw, kappa, cgp, qdpin, cgeo);
+    QDP_r_eq_norm2_D(&rsq, cgp, cgsub);
+    printf("nrm = %g\n", rsq);
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, qdpin, cgp, cgeo, cgeo);
+    QDP_r_eq_norm2_D(&rsq, qdpin, cgsub);
+    printf("nrm = %g\n", rsq);
+  }
+#endif
+
+  QDP_r_eq_norm2_D(&insq, in, insub);
+  rsqstop = insq * res_arg->rsqmin;
+  VERB(LOW, "WILSON_INVERT: rsqstop = %g\n", rsqstop);
+  rsq = 0;
+  relnorm2 = 1.;
+  rsqminold = res_arg->rsqmin;
+  relminold = res_arg->relmin;
+  res_arg->rsqmin *= 0.9;
+  res_arg->relmin *= 0.5;
+  inv_arg->max_restarts = 0;
+  do {
+    inv_arg->max_iter = max_iter_old - iter;
+
+    dtime -= QOP_time();
+
+#ifdef LU
+    if(QOP_wilson_cgtype==3) {
+      QOPPC(invert_gmres2_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
+			     qdpout, qdpin, cgp, cgsub);
+    } else if(QOP_wilson_cgtype==2) {
+      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+    } else if(QOP_wilson_cgtype==1) {
+      QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
+			       qdpout, qdpin, cgp, cgr, cgsub);
+    } else {
+      QOPPC(invert_cg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub);
+    }
+#else
+    if(QOP_wilson_cgtype==2) {
+      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+    } else if(QOP_wilson_cgtype==1) {
+      QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d), inv_arg, res_arg,
+			       qdpout, qdpin, cgp, cgr, cgsub);
+    } else {
+      QOPPC(invert_cg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub);
+    }
+#endif
+
+    dtime += QOP_time();
+    //printf("finished cg\n");
+
+    //QDP_r_eq_norm2_D(&rsq, qdpout, cgsub);
+    //printf("nrm = %g\n", rsq);
+#ifdef LU
+    if(ineo==QOP_EVENODD) {
+      reconstruct(flw, kappa, qdpout, qdpout, in, oppsub(cgeo));
+      //reconstruct(flw, kappa, qdpout, qdpout, qdpin, oppsub(cgeo));
+    } else {
+      reconstruct(flw, kappa, qdpout, qdpout, qdpin, oppsub(cgeo));
+    }
+#endif
+    // get final residual
+    //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
+    //printf("nrm = %g\n", rsq);
+    QOP_wilson_dslash_qdp(NULL, flw, kappa, 1, cgr, qdpout, ineo, QOP_EVENODD);
+    QDP_D_meq_D(cgr, in, insub);
+    /* rsq of the full solution */
+    QDP_r_eq_norm2_D(&rsq, cgr, insub);
+    if(res_arg->relmin > 0)
+      relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
+    //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
+    //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
+    /* If reconstruction was done, the rsq of the full solution could
+       be larger than the rsq of the reduced solution.  So dynamically
+       set a new rsqmin for a possible restart.  Use new rsqmin = 0.9
+       * (reduced solution rsq / full solution rsq) * original rsqmin */
+    res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
+    /* Do the same for the relative minimum if we are using it */
+    if(res_arg->relmin > 0)
+      res_arg->relmin = 0.5*res_arg->final_rel/relnorm2 * relminold;
+    iter += res_arg->final_iter;
+    VERB(LOW, "WILSON_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq, 
+	 relnorm2);
+  } while( rsq > rsqstop &&
+	   relnorm2 > relminold &&
+	   nrestart++ < max_restarts );
+
+  QDP_D_eq_D(out, qdpout, insub);
+
+  QDP_destroy_D(qdpin);
+  QDP_destroy_D(qdpout);
+  if(flw->clov!=NULL) QDP_destroy_D(ctmp);
+  if(QOP_wilson_cgtype==0) QDP_destroy_D(gtmp);
+
+  inv_arg->max_iter = max_iter_old;
+  inv_arg->max_restarts = max_restarts_old;
+  res_arg->rsqmin = rsqminold;
+  res_arg->relmin = relminold;
+  res_arg->final_iter = iter;
+  res_arg->final_rsq = rsq/insq;
+  res_arg->final_rel = relnorm2;
+  res_arg->final_restart = nrestart;
+
+  info->final_sec = dtime;
+  info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+
+  WILSON_INVERT_END;
+}
+#endif

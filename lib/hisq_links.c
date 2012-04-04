@@ -9,7 +9,8 @@ QOP_hisq_links_t QOP_hisq_links = {
   .reunit_svd_only = 0,
   .reunit_svd_rel_error = 1e-8,
   .reunit_svd_abs_error = 1e-8,
-  .svd_values_info = 1
+  .svd_values_info = 1,
+  .use_fat7_lepage = 0
 };
 
 #define setvar(_var, _type, _tag, _opts, _nopts)			\
@@ -34,7 +35,7 @@ QOP_hisq_links_set_opts(QOP_opt_t opts[], int nopts)
   int want_deps, want_aux;
   int reunit_allow_svd, reunit_svd_only;
   double reunit_svd_rel_error, reunit_svd_abs_error;
-  int svd_values_info;
+  int svd_values_info, use_fat7_lepage;
 
   HISQ_LINKS_BEGIN;
 
@@ -65,6 +66,10 @@ QOP_hisq_links_set_opts(QOP_opt_t opts[], int nopts)
   svd_values_info = QOP_hisq_links.svd_values_info;
   setvar(svd_values_info, int, "svd_values_info", opts, nopts);
   QOP_hisq_links.svd_values_info = svd_values_info;
+
+  use_fat7_lepage = QOP_hisq_links.use_fat7_lepage;
+  setvar(use_fat7_lepage, int, "use_fat7_lepage", opts, nopts);
+  QOP_hisq_links.use_fat7_lepage = use_fat7_lepage;
 
   HISQ_LINKS_END;
 

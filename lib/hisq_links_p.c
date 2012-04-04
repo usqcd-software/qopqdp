@@ -170,6 +170,9 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   // by definition lepage and naik coeffs are 0 for fat7
   acoeffs1.lepage = 0.;
   acoeffs1.naik = 0.;
+  if(QOP_hisq_links.use_fat7_lepage) {
+    acoeffs1.lepage = coeffs->fat7_lepage;
+  }
 
   acoeffs2.one_link     = coeffs->asqtad_one_link;
   acoeffs2.three_staple = coeffs->asqtad_three_staple;

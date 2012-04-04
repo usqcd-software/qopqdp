@@ -73,6 +73,7 @@ bench_force(QOP_FermionLinksHisq *flh, QOP_hisq_coeffs_t *coeffs,
 
   secs = sec/nit;
   flops = flop/nit;
+  printf("flops: %.0f\n", flops);
   return mf/nit;
 }
 

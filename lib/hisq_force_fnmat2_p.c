@@ -119,17 +119,21 @@ QOPPC(hisq_deriv_multi_wrapper_fnmat2)(QOP_info_t *info,
     n_naik_shift += n_orders_naik[inaik];
   }
 
+  // smearing level 1
+  QOP_asqtad_coeffs_t acoef;
+  acoef.one_link = hisq_coeff->fat7_one_link;
+  acoef.three_staple = hisq_coeff->fat7_three_staple;
+  acoef.five_staple = hisq_coeff->fat7_five_staple;
+  acoef.seven_staple = hisq_coeff->fat7_seven_staple;
+  acoef.lepage = 0;
+  acoef.naik = 0;
+  if(QOP_hisq_links.use_fat7_lepage) {
+    acoef.lepage = hisq_coeff->fat7_lepage;
+  }
+
   QOP_hisq_unitarize_method_t umethod = hisq_coeff->umethod;
   if ( umethod==QOP_UNITARIZE_NONE ){
 
-    // smearing level 1
-    QOP_asqtad_coeffs_t acoef;
-    acoef.one_link = hisq_coeff->fat7_one_link;
-    acoef.three_staple = hisq_coeff->fat7_three_staple;
-    acoef.five_staple = hisq_coeff->fat7_five_staple;
-    acoef.seven_staple = hisq_coeff->fat7_seven_staple;
-    acoef.lepage = 0;
-    acoef.naik = 0;
     for(int dir=0; dir<4; dir++)
       QDP_M_eq_zero(force_accum_1[dir], QDP_all);
     QOPPC(asqtad_deriv)(&tinfo, Ugf, force_accum_1, &acoef,
@@ -145,14 +149,6 @@ QOPPC(hisq_deriv_multi_wrapper_fnmat2)(QOP_info_t *info,
     for(int mu=0; mu<4; mu++) QDP_M_eq_Ma(force_accum_1u[mu], force_accum_2[mu], QDP_all);
     totalflops += tinfo.final_flop;
 
-    // smearing level 1
-    QOP_asqtad_coeffs_t acoef;
-    acoef.one_link = hisq_coeff->fat7_one_link;
-    acoef.three_staple = hisq_coeff->fat7_three_staple;
-    acoef.five_staple = hisq_coeff->fat7_five_staple;
-    acoef.seven_staple = hisq_coeff->fat7_seven_staple;
-    acoef.lepage = 0;
-    acoef.naik = 0;
     for(int dir=XUP;dir<=TUP;dir++) QDP_M_eq_zero(force_accum_1[dir], QDP_all);
     QOPPC(asqtad_deriv)(&tinfo, Ugf, force_accum_1, &acoef,
 			force_accum_1u, NULL);
