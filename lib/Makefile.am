@@ -7,7 +7,7 @@ libqopqdp_a_SOURCES = \
   layout_user.c \
   symanzik_1loop_gauge_action_f.c symanzik_1loop_gauge_action_d.c \
   symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
-  asqtad_dslash_f.c asqtad_dslash_d.c \
+  asqtad_dslash.c asqtad_dslash_f.c asqtad_dslash_d.c \
   asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
   asqtad_force.c asqtad_force_f.c asqtad_force_d.c \
   asqtad_force_fnmat_f.c asqtad_force_fnmat_d.c \

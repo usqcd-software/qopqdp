@@ -152,7 +152,6 @@ QLA_D_Complex
 QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U) ;
 
 
-
 #ifdef __cplusplus
 }
 #endif

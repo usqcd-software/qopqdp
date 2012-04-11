@@ -766,6 +766,9 @@ QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double);
 QOP_F3_FermionLinksWilson *
 QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double);
 
+QOP_F3_FermionLinksAsqtad *
+QOP_FD3_asqtad_create_L_from_L(QOP_D3_FermionLinksAsqtad *fla_src);
+
   /* inverter routines */
 
 QOP_status_t QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts);

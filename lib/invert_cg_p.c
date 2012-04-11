@@ -194,7 +194,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
        res_arg[imin]->relmin);
   VERB(LOW, "CGMS: rsqstop = %g\n", rsqstop);
   rsq = insq;
-  relnorm2 = 0;
+  relnorm2 = 1;
   //printf("start %g\n", rsq);
 
   while(1) {
