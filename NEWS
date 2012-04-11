@@ -4,7 +4,9 @@
 2012-04-11:	Carleton DeTar
 	Added QOP_FD3_asqtad_create_L_from_L in asqtad_dslash.c for 
          convenience.
-
+===========================================================================
+2012-04-04      version 0.17.6
+===========================================================================
 2012-04-04:	James Osborn
 	Added optional HISQ fat7_lepage term.
 
