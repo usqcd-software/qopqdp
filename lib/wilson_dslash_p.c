@@ -190,8 +190,8 @@ double_store(QOP_FermionLinksWilson *flw)
 }
 
 QDP_DiracFermion *
-QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *flw,
-			     QOP_evenodd_t eo, int n)
+QOP_wilson_dslash_get_tmp(QOP_FermionLinksWilson *flw,
+			  QOP_evenodd_t eo, int n)
 {
   check_setup(flw);
   if(n>=1 && n<=NTMPSUB) return tmpsub(eo,n);
@@ -669,10 +669,10 @@ wilson_initialize_gauge_L()
 
   WILSON_INVERT_BEGIN;
 
-  QOP_malloc(flw          ,QOPPC(FermionLinksWilson),1);
-  QOP_malloc(flw->links   ,QDPPC(ColorMatrix) *     ,4);
-  QOP_malloc(flw->bcklinks,QDPPC(ColorMatrix) *     ,4);
-  QOP_malloc(flw->dbllinks,QDPPC(ColorMatrix) *,     8);
+  QOP_malloc(flw          ,QOP_FermionLinksWilson,1);
+  QOP_malloc(flw->links   ,QDP_ColorMatrix *     ,4);
+  QOP_malloc(flw->bcklinks,QDP_ColorMatrix *     ,4);
+  QOP_malloc(flw->dbllinks,QDP_ColorMatrix *,     8);
 
   flw->dblstored = 0;
   flw->clov      = NULL;

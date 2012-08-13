@@ -21,7 +21,7 @@ with z = m x - D_ab y.
 #include <qop_internal.h>
 
 extern QOP_asqtad_t QOP_asqtad;
-extern QDP_ColorVector *QOPPC(asqtad_dslash_get_tmp)
+extern QDP_ColorVector *QOP_asqtad_dslash_get_tmp
      (QOP_FermionLinksAsqtad *fla, QOP_evenodd_t eo, int n);
 
 /* inverter stuff */
@@ -78,8 +78,8 @@ reconstruct(QOP_FermionLinksAsqtad *fla, QLA_Real mass, QDP_ColorVector *out,
 }
 
 static void
-QOPPC(asqtad_invert_d2)(QDP_ColorVector *out, QDP_ColorVector *in,
-			QDP_Subset subset)
+QOP_asqtad_invert_d2(QDP_ColorVector *out, QDP_ColorVector *in,
+		     QDP_Subset subset)
 {
   QLA_Real m2 = gl_mass*gl_mass;
   //QLA_Real m2 = -1.0/(gl_mass*gl_mass);
@@ -100,6 +100,57 @@ QOP_asqtad_invert(QOP_info_t *info,
 {
   QOP_asqtad_invert_qdp(info, fla, inv_arg, res_arg, mass, out->cv, in->cv);
 }
+
+#if 0
+void
+asqtad_invert_threadfunc_qdp(void *args0)
+{
+  void **args = args0;
+  QOP_info_t *info = args[0];
+  QOP_FermionLinksAsqtad *fla = args[1];
+  QOP_invert_arg_t *inv_arg = args[2];
+  QOP_resid_arg_t *res_arg = args[3];
+  REAL mass = *(REAL*)args[4];
+  QDP_ColorVector *out = args[5];
+  QDP_ColorVector *in = args[6];
+  QOP_asqtad_invert_qdp(info, fla, inv_arg, res_arg, mass, out, in);
+  //QDP_thread_barrier();
+}
+
+void
+QOP_asqtad_invert_threaded_qdp(QOP_info_t *info,
+			       QOP_FermionLinksAsqtad *fla,
+			       QOP_invert_arg_t *inv_arg,
+			       QOP_resid_arg_t *res_arg,
+			       REAL mass,
+			       QDP_ColorVector *out,
+			       QDP_ColorVector *in,
+			       int nthreads)
+{
+  void *args[7];
+  args[0] = info;
+  args[1] = fla;
+  args[2] = inv_arg;
+  args[3] = res_arg;
+  args[4] = &mass;
+  args[5] = out;
+  args[6] = in;
+  //QDP_create_threads(nthreads, 1, asqtad_invert_threadfunc_qdp, args);
+}
+
+void
+QOP_asqtad_invert_threaded(QOP_info_t *info,
+			   QOP_FermionLinksAsqtad *fla,
+			   QOP_invert_arg_t *inv_arg,
+			   QOP_resid_arg_t *res_arg,
+			   REAL mass,
+			   QOP_ColorVector *out,
+			   QOP_ColorVector *in,
+			   int nthreads)
+{
+  QOP_asqtad_invert_threaded_qdp(info, fla, inv_arg, res_arg, mass, out->cv, in->cv, nthreads);
+}
+#endif
 
 void
 QOP_asqtad_invert_qdp(QOP_info_t *info,
@@ -153,10 +204,10 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
-  cgp = QOPPC(asqtad_dslash_get_tmp)(fla, oppsub(cgeo), 1);
-  cgr = QOPPC(asqtad_dslash_get_tmp)(fla, oppsub(cgeo), 2);
+  cgp = QOP_asqtad_dslash_get_tmp(fla, oppsub(cgeo), 1);
+  cgr = QOP_asqtad_dslash_get_tmp(fla, oppsub(cgeo), 2);
   gl_tmp = cgr;
-  gl_tmp2 = QOPPC(asqtad_dslash_get_tmp)(fla, cgeo, 1);
+  gl_tmp2 = QOP_asqtad_dslash_get_tmp(fla, cgeo, 1);
 
   QDP_V_eq_zero(qdpin, QDP_all);
   if(ineo==cgeo) {
@@ -184,20 +235,21 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   rsq = 0;
   relnorm2 = 1.;
   rsqminold = res_arg->rsqmin;
-  res_arg->rsqmin *= 0.9;
   relminold = res_arg->relmin;
-  res_arg->relmin *= 0.5;
+  //QDP_thread_barrier();
+  res_arg->rsqmin = 0.9 * rsqminold;
+  res_arg->relmin = 0.5 * relminold;
   inv_arg->max_restarts = 0;
   do {
     inv_arg->max_iter = max_iter_old - iter;
 
     dtime -= QOP_time();
     if(QOP_asqtad.cgtype==1) {
-      QOPPC(invert_eigcg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
-			    qdpout, qdpin, cgp, cgsub, &fla->eigcg);
+      QOP_invert_eigcg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub, &fla->eigcg);
     } else {
-      QOPPC(invert_cg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg,
-			 qdpout, qdpin, cgp, cgsub);
+      QOP_invert_cg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
+		      qdpout, qdpin, cgp, cgsub);
     }
     //printf("resid = %g\n", res_arg->final_rsq);
     dtime += QOP_time();
@@ -217,7 +269,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
     QDP_V_meq_V(cgr, in, insub);
     QDP_r_eq_norm2_V(&rsq, cgr, insub);
     if(res_arg->relmin > 0)
-      relnorm2 = QOPPC(relnorm2_V)(&cgr, &qdpout, insub, 1);
+      relnorm2 = QOP_relnorm2_V(&cgr, &qdpout, insub, 1);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
@@ -298,14 +350,13 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
   double nflop = 0.5 * 2364;
   double nflopm = 0.5 * 30; /* per extra mass */
   QDP_ColorVector *cgp, *cgr;
-  QDP_Subset insub, cgsub;
+  QDP_Subset cgsub;
   QOP_evenodd_t ineo, cgeo;
   int i, j;
 
   ASQTAD_INVERT_BEGIN;
 
   ineo = inv_arg->evenodd;
-  insub = qdpsub(ineo);
 
   //QOP_printf0("masses[0][0] = %g\n", masses[0][0]);
   //dumpvec(in_pt[0], insub);
@@ -322,10 +373,10 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
-  cgp = QOPPC(asqtad_dslash_get_tmp)(fla, oppsub(cgeo), 1);
-  cgr = QOPPC(asqtad_dslash_get_tmp)(fla, oppsub(cgeo), 2);
+  cgp = QOP_asqtad_dslash_get_tmp(fla, oppsub(cgeo), 1);
+  cgr = QOP_asqtad_dslash_get_tmp(fla, oppsub(cgeo), 2);
   gl_tmp = cgr;
-  gl_tmp2 = QOPPC(asqtad_dslash_get_tmp)(fla, cgeo, 1);
+  gl_tmp2 = QOP_asqtad_dslash_get_tmp(fla, cgeo, 1);
 
   info->final_flop = 0;
   dtime = -QDP_time();
@@ -335,8 +386,8 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
     for(j=0; j<nmass[i]; j++) {
       gl_mass = masses[i][j];
 
-      QOPPC(invert_cg_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg[i][j],
-			 out_pt[i][j]->cv, in_pt[i]->cv, cgp, cgsub);
+      QOP_invert_cg_V(QOP_asqtad_invert_d2, inv_arg, res_arg[i][j],
+		      out_pt[i][j]->cv, in_pt[i]->cv, cgp, cgsub);
 
       info->final_flop += nflop*res_arg[i][j]->final_iter*QDP_sites_on_node;
     }
@@ -367,7 +418,7 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
     QDP_V_eq_V_minus_V(x0, incv[1], incv[0], cgsub);
     QDP_V_eq_r_times_V(x0, &st, x0, cgsub);
     QDP_V_eq_V(cgp, x0, cgsub);
-    QOPPC(asqtad_invert_d2)(src, cgp, cgsub);
+    QOP_asqtad_invert_d2(src, cgp, cgsub);
     QDP_V_eq_V_minus_V(src, incv[imin], src, cgsub);
 
     QDP_r_eq_norm2_V(&rsq1, src, cgsub);
@@ -377,8 +428,8 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
       res_arg[i][0]->rsqmin *= rsq0/rsq1;
     }
 
-    QOPPC(invert_cgms_V)(QOPPC(asqtad_invert_d2), inv_arg, ra, shifts, 2,
-			 outcv, src, cgp, cgsub);
+    QOP_invert_cgms_V(QOP_asqtad_invert_d2, inv_arg, ra, shifts, 2,
+		      outcv, src, cgp, cgsub);
 
     info->final_flop += (nflop+nflopm)*ra[imin]->final_iter*QDP_sites_on_node;
 
@@ -407,8 +458,8 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
       gl_mass = masses[i][jmin];
       for(j=0; j<nmass[i]; j++) shifts[j] -= gl_mass*gl_mass;
 
-      QOPPC(invert_cgms_V)(QOPPC(asqtad_invert_d2), inv_arg, res_arg[i],
-			   shifts, nmass[i], cv, in_pt[i], cgp, cgsub);
+      QOP_invert_cgms_V(QOP_asqtad_invert_d2, inv_arg, res_arg[i],
+			shifts, nmass[i], cv, in_pt[i], cgp, cgsub);
 
       info->final_flop += (nflop+nflopm*(nmass[i]-1))
 	* res_arg[i][0]->final_iter * QDP_sites_on_node;

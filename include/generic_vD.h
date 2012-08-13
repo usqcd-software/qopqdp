@@ -1,4 +1,5 @@
-#define QOPPCV(x)		QOPPC(x ## _vD)
+//#define QOPPCV(x)		QOPPC(x ## _vD)
+#define QOPPCV(x)		QOP_ ## x ## _vD
 //#define Vector			QDP_DiracFermion *
 typedef QDP_DiracFermion * Vector;
 #define Vector2			QDP_DiracFermion
@@ -17,7 +18,7 @@ typedef QDP_DiracFermion * Vector;
 #define r_eq_norm2_v	       QLA_R_eq_norm2_D
 #define V_eq_funci             QDP_D_eq_funci
 
-#define relnorm2_V(r,o,s)      QOPPC(relnorm2_D)(r, o, s, _n)
+#define relnorm2_V(r,o,s)      QOP_relnorm2_D(r, o, s, _n)
 
 #define V_eq_zero(r,s)		{ for(int _i=0; _i<_n; _i++) QDP_D_eq_zero(r[_i],s); }
 #define V_eq_V(r,a,s)		QDP_D_veq_D(r,a,s,_n)

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+f=$1  # source filename
+t=$2  # source pc type: P PC
+n=$3  # new specific type
+o=$4  # old type
+if [ ! -z $o ]; then uo=_$o; fi
+
+echo "// DO NOT EDIT"
+echo "// generated from $f"
+echo "#ifndef _QOP_"$n"_"$o"_"$t"_GENERIC_H"
+echo "#define _QOP_"$n"_"$o"_"$t"_GENERIC_H"
+echo
+cat $f |sed 's/\([a-zA-Z0-9_][a-zA-Z0-9_]*\)/ \1 /g' |tr ' ' '\n' |\
+  sed -n '/^QOP_'$t'_/{s/^QOP_'$t'_\(.*\)/#define QOP'$uo'_\1 QOP_'$n'_\1/;p}' |sort -u
+echo
+echo "#endif //_QOP_"$n"_"$o"_"$t"_GENERIC_H"

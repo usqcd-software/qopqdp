@@ -43,6 +43,7 @@ with z = Ca^-1 [ x - D_ab Cb^-1 y ].
 ***************************************************************************/
 
 
+//#define DO_TRACE
 #include <string.h>
 #include <qop_internal.h>
 
@@ -55,7 +56,6 @@ extern int QOP_wilson_cgtype;
 extern int QOP_wilson_eigcg_numax;
 extern int QOP_wilson_eigcg_m;
 extern int QOP_wilson_eigcg_nev;
-extern QDP_DiracFermion *QOPPC(wilson_dslash_get_tmp)(QOP_FermionLinksWilson *flw, QOP_evenodd_t eo, int n);
 
 /* inverter stuff */
 
@@ -103,24 +103,23 @@ static QDP_DiracFermion *gl_tmp, *gl_tmp2, *ctmp, *gtmp;
   } \
 }
 
-void
-QOPPC(wilson_invert_d)(QDP_DiracFermion *out, QDP_DiracFermion *in,
-		       QDP_Subset subset)
+#if 0
+static void
+QOP_wilson_invert_d(QDP_DiracFermion *out, QDP_DiracFermion *in, QDP_Subset subset)
 {
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, 1, out, in, gl_eo, gl_eo);
 }
 
-void
-QOPPC(wilson_invert_dne)(QDP_DiracFermion *out, QDP_DiracFermion *in,
-			 QDP_Subset subset)
+static void
+QOP_wilson_invert_dne(QDP_DiracFermion *out, QDP_DiracFermion *in, QDP_Subset subset)
 {
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, 1, gl_tmp, in, gl_eo, gl_eo);
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, -1, out, gl_tmp, gl_eo, gl_eo);
 }
+#endif
 
-void
-QOPPC(wilson_invert_d2)(QDP_DiracFermion *out, QDP_DiracFermion *in,
-			QDP_Subset subset)
+static void
+QOP_wilson_invert_d2(QDP_DiracFermion *out, QDP_DiracFermion *in, QDP_Subset subset)
 {
 #if 0
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, 1,
@@ -132,8 +131,7 @@ QOPPC(wilson_invert_d2)(QDP_DiracFermion *out, QDP_DiracFermion *in,
 }
 
 void
-QOPPC(wilson_invert_d2ne)(QDP_DiracFermion *out, QDP_DiracFermion *in,
-			  QDP_Subset subset)
+QOP_wilson_invert_d2ne(QDP_DiracFermion *out, QDP_DiracFermion *in, QDP_Subset subset)
 {
 #if 0
   QOP_wilson_dslash_qdp(NULL, gl_flw, gl_kappa, 1,
@@ -184,12 +182,13 @@ QOP_wilson_invert_ne_qdp(QOP_info_t *info,
   gl_kappa = kappa;
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
-  cgp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 1);
-  gl_tmp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 2);
-  gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
+  cgp = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 1);
+  gl_tmp = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 2);
+  gl_tmp2 = QOP_wilson_dslash_get_tmp(flw, cgeo, 1);
 
-  QOPPC(invert_cg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
-		     out, in, cgp, cgsub);
+  //TRACE;
+  QOP_invert_cg_D(QOP_wilson_invert_d2ne, inv_arg, res_arg,
+		  out, in, cgp, cgsub);
 
   WILSON_INVERT_END;
 }
@@ -265,14 +264,14 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
-  cgp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 1);
-  cgr = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 2);
+  cgp = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 1);
+  cgr = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 2);
   gl_tmp = cgr;
 
   //printf("test1\n");
   QDP_D_eq_zero(qdpin, QDP_all);
 #ifdef LU
-  gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
+  gl_tmp2 = QOP_wilson_dslash_get_tmp(flw, cgeo, 1);
   if(ineo==cgeo) {
     QDP_D_eq_D(qdpin, in, insub);
   } else {
@@ -331,28 +330,28 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
 
 #ifdef LU
     if(QOP_wilson_cgtype==3) {
-      QOPPC(invert_gmres2_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
-			     qdpout, qdpin, cgp, cgsub);
+      QOP_invert_gmres2_D(QOP_wilson_invert_d2, inv_arg, res_arg,
+			  qdpout, qdpin, cgp, cgsub);
     } else if(QOP_wilson_cgtype==2) {
-      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
-			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+      QOP_invert_eigcg_D(QOP_wilson_invert_d2ne, inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub, &flw->eigcg);
     } else if(QOP_wilson_cgtype==1) {
-      QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
-			       qdpout, qdpin, cgp, cgr, cgsub);
+      QOP_invert_bicgstab_D(QOP_wilson_invert_d2, inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgr, cgsub);
     } else {
-      QOPPC(invert_cg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
-			 qdpout, qdpin, cgp, cgsub);
+      QOP_invert_cg_D(QOP_wilson_invert_d2ne, inv_arg, res_arg,
+		      qdpout, qdpin, cgp, cgsub);
     }
 #else
     if(QOP_wilson_cgtype==2) {
-      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
-			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+      QOP_invert_eigcg_D(QOP_wilson_invert_dne, inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub, &flw->eigcg);
     } else if(QOP_wilson_cgtype==1) {
-      QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d), inv_arg, res_arg,
-			       qdpout, qdpin, cgp, cgr, cgsub);
+      QOP_invert_bicgstab_D(QOP_wilson_invert_d, inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgr, cgsub);
     } else {
-      QOPPC(invert_cg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
-			 qdpout, qdpin, cgp, cgsub);
+      QOP_invert_cg_D(QOP_wilson_invert_dne, inv_arg, res_arg,
+		      qdpout, qdpin, cgp, cgsub);
     }
 #endif
 
@@ -377,7 +376,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
     /* rsq of the full solution */
     QDP_r_eq_norm2_D(&rsq, cgr, insub);
     if(res_arg->relmin > 0)
-      relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
+      relnorm2 = QOP_relnorm2_D(&cgr, &qdpout, insub, 1);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     /* If reconstruction was done, the rsq of the full solution could
@@ -534,14 +533,14 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
-  cgp = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 1);
-  cgr = QOPPC(wilson_dslash_get_tmp)(flw, oppsub(cgeo), 2);
+  cgp = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 1);
+  cgr = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 2);
   gl_tmp = cgr;
 
   //printf("test1\n");
   QDP_D_eq_zero(qdpin, QDP_all);
 #ifdef LU
-  gl_tmp2 = QOPPC(wilson_dslash_get_tmp)(flw, cgeo, 1);
+  gl_tmp2 = QOP_wilson_dslash_get_tmp(flw, cgeo, 1);
   if(ineo==cgeo) {
     QDP_D_eq_D(qdpin, in, insub);
   } else {
@@ -600,8 +599,8 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
 
 #ifdef LU
     if(QOP_wilson_cgtype==3) {
-      QOPPC(invert_gmres2_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
-			     qdpout, qdpin, cgp, cgsub);
+      QOP_invert_gmres2_D(QOP_wilson_invert_d2, inv_arg, res_arg,
+			  qdpout, qdpin, cgp, cgsub);
     } else if(QOP_wilson_cgtype==2) {
       QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
 			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);

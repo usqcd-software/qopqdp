@@ -153,31 +153,20 @@ make_path_table_hisq( char *action_desc, int npaths, int max_paths,
 //originally make_path_table in quark_stuff_hisq.c
 static void 
 QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef, 
-			     QOP_hisq_unitarize_method_t umethod) {
-
-
-  int index_naik = -1, index_onelink = -1;
-  
-#ifdef INDEX_NAIK
-  index_naik = INDEX_NAIK;
-  index_onelink = INDEX_ONELINK;
-#endif
-
-
-  int i;
+			     QOP_hisq_unitarize_method_t umethod)
+{
   int disp[4] = {0,0,0,0};
 
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     disp[i] = 3;
     neighbor3[i] = QDP_create_shift(disp);
     disp[i] = 0;
   }
 
-  for(i=0; i<4; ++i) {
+  for(int i=0; i<4; ++i) {
     shiftdirs[i] = QDP_neighbor[i];
     shiftdirs[i+4] = neighbor3[i];
   }
-
 
   REAL path_coeff_1[NUM_BASIC_PATHS_1] = {coef->fat7_one_link, 
 					  coef->fat7_three_staple, 
@@ -194,9 +183,7 @@ QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef,
   REAL path_coeff_3[NUM_BASIC_PATHS_3] = {coef->difference_one_link, 
 					  coef->difference_naik};
 
-
   QOP_printf0("QOP MAKING PATH TABLES\n");
-
 
   num_q_paths_1 = 
     make_path_table_hisq( QUARK_ACTION_DESCRIPTION_1, 
@@ -204,7 +191,6 @@ QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef,
 			  MAX_NUM_1, path_length_in_1, 
 			  path_coeff_1, path_ind_1, 
 			  act_path_coeff_1, q_paths_1, 0.0, -1, -1 );
-    
 
   if ( umethod==QOP_UNITARIZE_NONE )
     {
@@ -219,24 +205,19 @@ QOP_make_paths_and_dirs_hisq(QOP_hisq_coeffs_t *coef,
       QOP_printf0("QOP Unknown or unsupported unitarization method\n"); 
       exit(0);
     }
-  
 
   num_q_paths_2 = 
     make_path_table_hisq( QUARK_ACTION_DESCRIPTION_2, quark_action_npaths_2,
 			  MAX_NUM_2, 
 			  path_length_in_2, path_coeff_2, path_ind_2, 
 			  act_path_coeff_2, q_paths_2, 0.0, -1, -1 );
-  
+
   num_q_paths_3 = 
     make_path_table_hisq( QUARK_ACTION_DESCRIPTION_3, quark_action_npaths_3,
 			  MAX_NUM_3, 
 			  path_length_in_3, path_coeff_3, path_ind_3, 
 			  act_path_coeff_3, q_paths_3, 0.0, -1, -1 );
-  
 }
-
-
-
 
 static int 
 make_path_table_hisq( char *action_desc, int npaths, int max_paths,
@@ -505,28 +486,26 @@ static int
 sort_quark_paths_hisq( Q_path *src_table, Q_path *dest_table, 
 		       int npaths, int num_back_dirs )
 {
-    int netdir,dir0,dir1,dir1tmp,thislength,num_new,i,j;
-
-    num_new=0; // number of paths in sorted table
-    for( i=0; i<num_back_dirs; i++ ){ // loop over net_back_dirs
-        netdir = net_back_dirs[i]; // table of possible displacements for Fat-Naik
-	for( dir0=0; dir0<=7; dir0++){ // XUP ... TDOWN
-	  for( dir1=-1; dir1<=7; dir1++){ // NODIR, XUP ... TDOWN
-	    if( dir1==-1 )dir1tmp=NODIR; else dir1tmp=dir1;
-	    for( j=0; j<npaths; j++ ){ // pick out paths with right net displacement
-	    thislength = src_table[j].length;
-	        if( find_backwards_gather( &(src_table[j]) ) == netdir && 
-			src_table[j].dir[0]==dir0 &&
-			src_table[j].dir[1]==dir1tmp ){
-		    dest_table[num_new] = src_table[j];
-		    num_new++;
-	        }
-	    } // loop over paths
-	  } //dir1
-	} //dir0
-    }
-    if( num_new!=npaths){ QOP_printf0("OOPS: path table error, num_new=%d, npaths=%d\n",num_new,npaths); exit(0); }
-    return 0;
+  int netdir,dir0,dir1,dir1tmp,num_new,i,j;
+  num_new=0; // number of paths in sorted table
+  for( i=0; i<num_back_dirs; i++ ){ // loop over net_back_dirs
+    netdir = net_back_dirs[i]; // table of possible displacements for Fat-Naik
+    for( dir0=0; dir0<=7; dir0++){ // XUP ... TDOWN
+      for( dir1=-1; dir1<=7; dir1++){ // NODIR, XUP ... TDOWN
+	if( dir1==-1 )dir1tmp=NODIR; else dir1tmp=dir1;
+	for( j=0; j<npaths; j++ ){ // pick out paths with right net displacement
+	  if( find_backwards_gather( &(src_table[j]) ) == netdir && 
+	      src_table[j].dir[0]==dir0 &&
+	      src_table[j].dir[1]==dir1tmp ){
+	    dest_table[num_new] = src_table[j];
+	    num_new++;
+	  }
+	} // loop over paths
+      } //dir1
+    } //dir0
+  }
+  if( num_new!=npaths){ QOP_printf0("OOPS: path table error, num_new=%d, npaths=%d\n",num_new,npaths); exit(0); }
+  return 0;
 } //sort_quark_paths_hisq
 
 
@@ -541,40 +520,40 @@ sort_quark_paths_hisq( Q_path *src_table, Q_path *dest_table,
 /* Smearing level 0 Forward Declaration */
 
 static void 
-QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,  
-					REAL *residues,
-					QDP_ColorVector *x[], 
-					int nterms, 
-					QDP_ColorMatrix *force_accum[4],
-					QDP_ColorMatrix *force_accum_naik[4]);
+QOP_hisq_force_multi_smearing0_fnmat(QOP_info_t *info,  
+				     REAL *residues,
+				     QDP_ColorVector *x[], 
+				     int nterms, 
+				     QDP_ColorMatrix *force_accum[4],
+				     QDP_ColorMatrix *force_accum_naik[4]);
 
 
 /* Smearing level i Forward Declaration */
 static void 
-QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info, 
-				       QDP_ColorMatrix * gf[4],
-				       REAL *residues,
-				       QDP_ColorVector *x[], 
-				       int nterms, 
-				       QDP_ColorMatrix *force_accum[4],
-				       QDP_ColorMatrix *force_accum_old[4],
-				       QDP_ColorMatrix 
-				        *force_accum_naik_old[4],
-				       int internal_num_q_paths,
-				       Q_path *internal_q_paths_sorted,
-				       int *internal_netbackdir_table
-				       );
+QOP_hisq_force_multi_smearing_fnmat(QOP_info_t *info, 
+				    QDP_ColorMatrix * gf[4],
+				    REAL *residues,
+				    QDP_ColorVector *x[], 
+				    int nterms, 
+				    QDP_ColorMatrix *force_accum[4],
+				    QDP_ColorMatrix *force_accum_old[4],
+				    QDP_ColorMatrix 
+				    *force_accum_naik_old[4],
+				    int internal_num_q_paths,
+				    Q_path *internal_q_paths_sorted,
+				    int *internal_netbackdir_table
+				    );
 
 /* HISQ Force: main wrapper*/
 
 void 
-QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,  
-				      QOPPC(FermionLinksHisq) *flh,
-				      QOP_Force *Force, 
-				      QOP_hisq_coeffs_t *hisq_coeff,
-				      REAL *residues,
-				      QDP_ColorVector *x[], 
-				      int *n_orders_naik)
+QOP_hisq_force_multi_wrapper_fnmat(QOP_info_t *info,  
+				   QOP_FermionLinksHisq *flh,
+				   QOP_Force *Force, 
+				   QOP_hisq_coeffs_t *hisq_coeff,
+				   REAL *residues,
+				   QDP_ColorVector *x[], 
+				   int *n_orders_naik)
   
 {
   double dtime = QDP_time();
@@ -716,9 +695,9 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
     }
     
 
-    QOPPC(hisq_force_multi_smearing0_fnmat)(info,residues+n_naik_shift, 
-					    x+n_naik_shift, n_orders_naik_current,
-					    force_accum_0, force_accum_0_naik);
+    QOP_hisq_force_multi_smearing0_fnmat(info,residues+n_naik_shift, 
+					 x+n_naik_shift, n_orders_naik_current,
+					 force_accum_0, force_accum_0_naik);
     final_flop += info->final_flop;
  
     
@@ -734,14 +713,14 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
       netbackdir_table_current = netbackdir_table_3;
     }
     
-    QOPPC(hisq_force_multi_smearing_fnmat)( info,Wgf,residues+n_naik_shift, 
-					    x+n_naik_shift, 
-					    n_orders_naik_current, 
-					    force_accum_1, 
-					    force_accum_0, force_accum_0_naik, 
-					    num_q_paths_current, 
-					    q_paths_sorted_current, 
-					    netbackdir_table_current );
+    QOP_hisq_force_multi_smearing_fnmat( info,Wgf,residues+n_naik_shift, 
+					 x+n_naik_shift, 
+					 n_orders_naik_current, 
+					 force_accum_1, 
+					 force_accum_0, force_accum_0_naik, 
+					 num_q_paths_current, 
+					 q_paths_sorted_current, 
+					 netbackdir_table_current );
     //QOP_printf0("HISQ smear0 flops = %g\n", info->final_flop);
     final_flop += info->final_flop;
 
@@ -768,13 +747,13 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
   if ( umethod==QOP_UNITARIZE_NONE ){
 
     // smearing level 1
-    QOPPC(hisq_force_multi_smearing_fnmat)( info,Ugf,residues, 
-					    x, 
-					    nterms, force_accum_1, 
-					    force_accum_2, NULL, 
-					    num_q_paths_1, 
-					    q_paths_sorted_1, 
-					    netbackdir_table_1 );
+    QOP_hisq_force_multi_smearing_fnmat( info,Ugf,residues, 
+					 x, 
+					 nterms, force_accum_1, 
+					 force_accum_2, NULL, 
+					 num_q_paths_1, 
+					 q_paths_sorted_1, 
+					 netbackdir_table_1 );
     final_flop += info->final_flop;
     
   }
@@ -782,19 +761,19 @@ QOPPC(hisq_force_multi_wrapper_fnmat)(QOP_info_t *info,
 
     
     // reunitarization
-    QOPPC(hisq_force_multi_reunit)(info,Vgf,force_accum_1u,
-					 force_accum_2);
+    QOP_hisq_force_multi_reunit(info,Vgf,force_accum_1u,
+				force_accum_2);
     //QOP_printf0("reunit flops = %g\n", info->final_flop);
     final_flop += info->final_flop;
     
     // smearing level 1
-    QOPPC(hisq_force_multi_smearing_fnmat)( info,Ugf,residues, 
-					    x, 
-					    nterms, force_accum_1, 
-					    force_accum_1u, NULL, 
-					    num_q_paths_1, 
-					    q_paths_sorted_1, 
-					    netbackdir_table_1 );
+    QOP_hisq_force_multi_smearing_fnmat( info,Ugf,residues, 
+					 x, 
+					 nterms, force_accum_1, 
+					 force_accum_1u, NULL, 
+					 num_q_paths_1, 
+					 q_paths_sorted_1, 
+					 netbackdir_table_1 );
     //QOP_printf0("HISQ smear1 flops = %g\n", info->final_flop);
     final_flop += info->final_flop;
   }
@@ -927,12 +906,12 @@ link_gather_connection_qdp( QDP_ColorMatrix *dest,
 
 /* Smearing level 0 */
 static void 
-QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,  
-					REAL *residues,
-					QDP_ColorVector *x[], 
-					int nterms, 
-					QDP_ColorMatrix *force_accum[4],
-					QDP_ColorMatrix *force_accum_naik[4])
+QOP_hisq_force_multi_smearing0_fnmat(QOP_info_t *info,  
+				     REAL *residues,
+				     QDP_ColorVector *x[], 
+				     int nterms, 
+				     QDP_ColorMatrix *force_accum[4],
+				     QDP_ColorMatrix *force_accum_naik[4])
 {
   int term;
   int i,k;
@@ -1051,26 +1030,21 @@ QOPPC(hisq_force_multi_smearing0_fnmat)(QOP_info_t *info,
 
 /* Smearing level i*/
 static void 
-QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info, 
-				       QDP_ColorMatrix * gf[4],
-				       REAL *residues,
-				       QDP_ColorVector *x[], 
-					int nterms, 
-				       QDP_ColorMatrix *force_accum[4],
-				       QDP_ColorMatrix *force_accum_old[4],
-				       QDP_ColorMatrix 
-				        *force_accum_naik_old[4],
-				       int internal_num_q_paths,
-				       Q_path *internal_q_paths_sorted,
-				       int *internal_netbackdir_table
-					)
-
+QOP_hisq_force_multi_smearing_fnmat(QOP_info_t *info, 
+				    QDP_ColorMatrix * gf[4],
+				    REAL *residues,
+				    QDP_ColorVector *x[], 
+				    int nterms, 
+				    QDP_ColorMatrix *force_accum[4],
+				    QDP_ColorMatrix *force_accum_old[4],
+				    QDP_ColorMatrix *force_accum_naik_old[4],
+				    int internal_num_q_paths,
+				    Q_path *internal_q_paths_sorted,
+				    int *internal_netbackdir_table)
 {
-
   int i,j,k,lastdir=-99,ipath,ilink;
   int length,dir,odir;
   REAL coeff;
-
 
   QDP_ColorMatrix *tmat;
   QDP_ColorMatrix *oprod_along_path[MAX_PATH_LENGTH+1];
@@ -1078,59 +1052,42 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
   QDP_ColorMatrix *mat_tmp0,*mat_tmp1, *stmp[8];;
   QDP_ColorVector *vec_tmp[2];
 
-  int netbackdir, last_netbackdir;
+  int netbackdir;
   size_t nflops = 0;
 
 // table of net path displacements (backwards from usual convention)
 
   Q_path *this_path;	// pointer to current path
-  Q_path *last_path;	// pointer to previous path
-
 
   /* Allocate fields */
- for(i=0;i<=MAX_PATH_LENGTH;i++){
-   oprod_along_path[i] = QDP_create_M();
- }
- for(i=1;i<=MAX_PATH_LENGTH;i++){ 
+  for(i=0;i<=MAX_PATH_LENGTH;i++){
+    oprod_along_path[i] = QDP_create_M();
+  }
+  for(i=1;i<=MAX_PATH_LENGTH;i++){ 
     // 0 element is never used (it's unit matrix)
-   mats_along_path[i] = QDP_create_M();
- }
+    mats_along_path[i] = QDP_create_M();
+  }
 
-
-
- mat_tmp0   = QDP_create_M();
- mat_tmp1   = QDP_create_M();
- for(i=0; i<8; i++) stmp[i] = QDP_create_M();
- tmat       = QDP_create_M();
- vec_tmp[0] = QDP_create_V();
- vec_tmp[1] = QDP_create_V();
+  mat_tmp0   = QDP_create_M();
+  mat_tmp1   = QDP_create_M();
+  for(i=0; i<8; i++) stmp[i] = QDP_create_M();
+  tmat       = QDP_create_M();
+  vec_tmp[0] = QDP_create_V();
+  vec_tmp[1] = QDP_create_V();
  
-
-
   // clear force accumulators
   for(dir=XUP;dir<=TUP;dir++)
     QDP_M_eq_zero(force_accum[dir], QDP_all);
 
   // loop over paths, and loop over links in path 
-  last_netbackdir = NODIR;
-  last_path = NULL;
-
-
-
   for( ipath=0; ipath<internal_num_q_paths; ipath++ ){
-
-   this_path = &(internal_q_paths_sorted[ipath]); 
-
-   if(this_path->forwback== -1)continue;	// skip backwards dslash 
-
-
+    this_path = &(internal_q_paths_sorted[ipath]); 
+    if(this_path->forwback== -1)continue;	// skip backwards dslash 
     length = this_path->length;
     netbackdir = internal_netbackdir_table[ipath];
 
     // move f(i-1) force from current site in positive direction,
     //  this corresponds to outer product |X><Y| calculated at the endpoint of the path 
-
-
     if( netbackdir<8) { // Not a Naik path
       link_gather_connection_qdp(oprod_along_path[0] , 
 				 force_accum_old[OPP_DIR(netbackdir)],
@@ -1143,19 +1100,15 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
         exit(0);
       }
       // CONVERSION FROM 3-LINK DIRECTION TO 1-LINK DIRECTION
-
       link_gather_connection_qdp(oprod_along_path[0] , 
 				 force_accum_naik_old[OPP_DIR(netbackdir-8)],
 				 tmat, netbackdir );
-
     }
-
 
     // figure out how much of the outer products along the path must be
     // recomputed. j is last one needing recomputation. k is first one.
     j=length-1; // default is recompute all
     if( GOES_BACKWARDS(this_path->dir[0]) ) k=1; else k=0;
-
 
     for(ilink=j;ilink>=k;ilink--){
       link_transport_connection_qdp( oprod_along_path[length-ilink], 
@@ -1163,8 +1116,6 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 				     mat_tmp0, stmp, this_path->dir[ilink]  );
       nflops += 198;
     }
-
-
 
     // maintain an array of transports "to this point" along the path.
     //	Don't recompute beginning parts of path if same as last path 
@@ -1175,20 +1126,15 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
     for( ; ilink<k; ilink++ ){
       if( ilink==0 ){
         dir = this_path->dir[0];
-          if( GOES_FORWARDS(dir) ){
-
-
-	    QDP_M_eq_sM(tmat, gf[dir], QDP_neighbor[dir],
-			QDP_backward, QDP_all);
-	    QDP_M_eq_Ma(mats_along_path[1], tmat, QDP_all);
-	    QDP_discard_M(tmat);
-          }
-          else{
-
-	    QDP_M_eq_M(mats_along_path[1], gf[OPP_DIR(dir)], QDP_all);
-
-          }
-
+	if( GOES_FORWARDS(dir) ){
+	  QDP_M_eq_sM(tmat, gf[dir], QDP_neighbor[dir],
+		      QDP_backward, QDP_all);
+	  QDP_M_eq_Ma(mats_along_path[1], tmat, QDP_all);
+	  QDP_discard_M(tmat);
+	}
+	else{
+	  QDP_M_eq_M(mats_along_path[1], gf[OPP_DIR(dir)], QDP_all);
+	}
       }
       else { // ilink != 0
         dir = OPP_DIR(this_path->dir[ilink]);
@@ -1200,8 +1146,6 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
       }
     } // end loop over links
 
-
-
     // A path has (length+1) points, counting the ends.  At first
     //	 point, no "down" direction links have their momenta "at this
     //	 point". At last, no "up" ... 
@@ -1209,39 +1153,25 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
     for( ilink=0; ilink<=k; ilink++ ){
       if(ilink<length)dir = this_path->dir[ilink];
       else dir=NODIR;
-
-
-
       coeff = this_path->coeff;
-
       if( (ilink%2)==1 )coeff = -coeff;
-
-
-
       // add in contribution to the force 
       if( ilink<length && GOES_FORWARDS(dir) ){
-
-
 	link_gather_connection_qdp(mat_tmp1, 
 		       oprod_along_path[length-ilink-1], tmat, dir );
-
         if(ilink==0) 
 	  {
 	    QDP_M_eq_M(mat_tmp0,mat_tmp1,QDP_all);
 	  }
         else
 	  {
-
 	    QDP_M_eq_M_times_Ma(mat_tmp0, mats_along_path[ilink], 
 				mat_tmp1, QDP_all);
 	    nflops += 198;
 	    QDP_M_eq_Ma(mat_tmp1,mat_tmp0,QDP_all);
 	  }
-
 	QDP_M_peq_r_times_M(force_accum[dir],&coeff,mat_tmp1,QDP_all);
 	nflops += 36;
-	
-
       }
       if( ilink>0 && GOES_BACKWARDS(lastdir) ){
 	odir = OPP_DIR(lastdir);
@@ -1250,30 +1180,19 @@ QOPPC(hisq_force_multi_smearing_fnmat)(QOP_info_t *info,
 	  QDP_M_eq_Ma(mat_tmp1,mat_tmp0,QDP_all);
 	}
         else{
-
 	  link_gather_connection_qdp(mat_tmp1, mats_along_path[ilink-1], 
 				     tmat, odir );
-
-
 	  QDP_M_eq_M_times_Ma(mat_tmp0, oprod_along_path[length-ilink], 
 			      mat_tmp1, QDP_all);
 	  nflops += 198;
 	  QDP_M_eq_Ma(mat_tmp1, mat_tmp0, QDP_all);
-
-
         }
-
-
 	QDP_M_peq_r_times_M(force_accum[odir],&coeff,mat_tmp1,QDP_all);
 	nflops += 36;
-
       }
       lastdir = dir;
     } // end loop over links in path //
-
   } // end loop over paths //
-
-
 
   QDP_destroy_V( vec_tmp[0] );
   QDP_destroy_V( vec_tmp[1] );

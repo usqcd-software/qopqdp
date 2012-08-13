@@ -39,7 +39,7 @@ PrintMone(QLA_ColorMatrix m){
 
 #endif
 
-#if (QOP_Precision==1)
+#if QOP_Precision == 'F'
 #define QOP_U3_UNIT_ANALYTIC_EPS 1.0e-6
 //#define SU3_ROOT_INV_NORM_EPS 1.0e-6
 #else
@@ -49,11 +49,10 @@ PrintMone(QLA_ColorMatrix m){
 #define QOP_PI 3.14159265358979323846
 
 // Forward declaration for SVD functions
-static int QOPPC(svd2x2bidiag)(QOP_info_t *info, QLA_Real *a00, QLA_Real *a01, 
+static int QOP_D3_svd2x2bidiag(QOP_info_t *info, QLA_Real *a00, QLA_Real *a01, 
 			       QLA_Real *a11, QLA_Real U2[2][2], QLA_Real V2[2][2]);
-static int QOPPC(svd3x3)(QOP_info_t *info, QLA_ColorMatrix *A, QLA_Real *sigma, 
+static int QOP_D3_svd3x3(QOP_info_t *info, QLA_ColorMatrix *A, QLA_Real *sigma, 
 			 QLA_ColorMatrix *U, QLA_ColorMatrix *V);
-
 
 #define Uelem(a,b) QLA_elem_M(*U,a,b)
 
@@ -98,7 +97,7 @@ QOPPC(su3_mat_det)( QLA_ColorMatrix *U)
 // Analytic reunitarization
 int QOPPC(u3_un_analytic)( QOP_info_t *info, 
 			   QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
-  QLA_Real c0, c1, c2, S, S3, R, R2, CQ3, RoS, theta, theta3, pi23, denom;
+  QLA_Real c0, c1, c2, S, S3, R, /*R2, CQ3,*/ RoS, theta, theta3, pi23, denom;
   QLA_Real g0, g1, g2, g0sq, g1sq, g2sq, f0, f1, f2, us, vs, ws, det_check=0;
   QLA_Real sigma[3];
   QLA_Complex det;
@@ -153,8 +152,8 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
   }
   else {
     R = c2/2 - c0 * (c1/3) + c0 * c0 * (c0/27);
-    R2 = R*R;
-    CQ3 = S*S*S;
+    //R2 = R*R;
+    //CQ3 = S*S*S;
     S = sqrt(S);
     S3 = S*S*S;
     /* treat possible underflow: R/S^3/2>1.0 leads to acos giving NaN */
@@ -307,7 +306,7 @@ void QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
 				int *svd_calls, int *ff_counter) {
   int i, j, m, n, perform_svd;
   QLA_Complex det, der, ctmp, ctmp2;
-  QLA_Real det_check=0, c0, c1, c2, S, g0, g1, g2, R, R2, CQ3, S3, RoS, theta, theta3, pi23;
+  QLA_Real det_check=0, c0, c1, c2, S, g0, g1, g2, R, /*R2, CQ3,*/ S3, RoS, theta, theta3, pi23;
   QLA_Real g0sq, g1sq, g2sq, us, vs, ws, f0, f1, f2, denom;
   QLA_Real u2, u3, u4, u5, u6, u7, u8, v2, v3, v4, v5, v6, w2, w3, w4, w5;
   QLA_Real b00, b01, b02, b11, b12, b22, denom3;
@@ -364,8 +363,8 @@ void QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
   }
   else {
     R = c2/2 - c0 * (c1/3) + c0 * c0 * (c0/27);
-    R2 = R*R;
-    CQ3 = S*S*S;
+    //R2 = R*R;
+    //CQ3 = S*S*S;
     S = sqrt(S);
     S3 = S*S*S;
     /* treat possible underflow: R/S^3/2>1.0 leads to acos giving NaN */

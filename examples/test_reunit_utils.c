@@ -5,14 +5,11 @@
 #include <math.h>
 #include <qop_internal.h>
 
-
 // amplitude of the random matrix
 #define MAX_AMPLITUDE 10
 // number of repetitions
 //#define MAX_REPEAT 10000
 #define MAX_REPEAT 2
-
-
 
 static void print_mat( QLA_ColorMatrix *A ) {
   int i,j;
@@ -25,7 +22,6 @@ static void print_mat( QLA_ColorMatrix *A ) {
   }
   printf("\n");
 }
-
 
 int
 main(int argc, char *argv[]) {
@@ -70,10 +66,10 @@ main(int argc, char *argv[]) {
     printf( "*** Iteration %d\n", irpt );
     printf( "Random 3x3 complex matrix A:\n" );
     print_mat( &A );
-    det=QOPPC(su3_mat_det)( &A );
+    //det=QOPPC(su3_mat_det)( &A );
+    QLA_C_eq_det_M( &det, &A );
     printf( "det(A): (%18.10g,%18.10g)\n\n", det.real, det.imag );
   }
-
 
   // free random number generator
   free(s);

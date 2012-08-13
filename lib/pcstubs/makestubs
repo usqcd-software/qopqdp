@@ -1,0 +1,27 @@
+#!/bin/sh
+
+makestub() {
+  fn=$1
+  P=$2
+  C=$3
+  p=`echo $P |tr 'A-Z' 'a-z'`
+  of=`echo $1 |sed 's/_p.c/_'$p$C'.c/'`
+  if [ ! -f $of ]; then
+    cat <<EOF >$of
+#define QDP_Precision '$P'
+#define QDP_Nc $C
+#define QOP_Precision '$P'
+#define QOP_Nc $C
+
+#include "$fn"
+EOF
+  fi
+}
+
+for f in "$@"; do
+  b=`basename $f`
+  makestub $b F 2
+  makestub $b D 2
+  makestub $b F 3
+  makestub $b D 3
+done

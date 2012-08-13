@@ -4,11 +4,6 @@
 #include <qop.h>
 #include <qop_qdp.h>
 #include <qop_config.h>
-//AB 4-tensor definition, should be moved to QLA
-typedef struct { QLA_F_Complex t4[3][3][3][3]; } QLA_F3_ColorTensor4;
-typedef struct { QLA_D_Complex t4[3][3][3][3]; } QLA_D3_ColorTensor4;
-#include <qop_internal_p.h>
-#include <qmp.h>
 
 #define oppsub(eo) ((4-(eo))%3)
 #define qdpsub(eo) ((eo)==2 ? QDP_all : QDP_even_and_odd[eo])
@@ -64,6 +59,21 @@ typedef struct { QLA_D_Complex t4[3][3][3][3]; } QLA_D3_ColorTensor4;
   fprintf(stderr, "QOP error: %s\n", str); \
   QDP_abort(1);
 
+#define QLATYPE_V QLA_ColorVector
+#define QLATYPE_D QLA_DiracFermion
+#define QLATYPE_M QLA_ColorMatrix
+
+#define QOP_qdp_eq_raw(abbr, qdp, raw, evenodd) \
+  QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_all)
+
+#define QOP_raw_eq_qdp(abbr, raw, qdp, evenodd)		      \
+  if(evenodd==QOP_EVEN) {				      \
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_even); \
+  } else if(evenodd==QOP_ODD) {				      \
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_odd);  \
+  } else {						      \
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_all);  \
+  }
 
 typedef struct {
   int inited;
@@ -122,38 +132,64 @@ typedef struct {
 } QOP_hisq_links_t;
 extern QOP_hisq_links_t QOP_hisq_links;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 double QOP_time(void);
 QOP_status_t QOP_asqtad_invert_init(void);
 
+#if QOP_Precision == 'F'
+#define QOPP(x) QOP_F_##x
+#define QOPPC(x) QOP_F3_##x
+#define QDPP(x) QDP_F_##x
+#define QDPPC(x) QDP_F3_##x
+#define REAL float
+#else
+#define QOPP(x) QOP_D_##x
+#define QOPPC(x) QOP_D3_##x
+#define QDPP(x) QDP_D_##x
+#define QDPPC(x) QDP_D3_##x
+#define REAL double
+#endif
+
+//AB HISQ derivatives, rank-4 tensor
+#if QOP_Precision == 'F'
+#define QLA_ColorTensor4 QLA_F3_ColorTensor4
+#define QOP_u3_un_analytic QOP_F3_u3_un_analytic
+#define QOP_u3_un_der_analytic QOP_F3_u3_un_der_analytic
+#else
+#define QLA_ColorTensor4 QLA_D3_ColorTensor4
+#define QOP_u3_un_analytic QOP_D3_u3_un_analytic
+#define QOP_u3_un_der_analytic QOP_D3_u3_un_der_analytic
+#endif
+
+//AB 4-tensor definition, should be moved to QLA
+typedef struct { QLA_F_Complex t4[3][3][3][3]; } QLA_F3_ColorTensor4;
+typedef struct { QLA_D_Complex t4[3][3][3][3]; } QLA_D3_ColorTensor4;
+
 int
 QOP_F3_u3_un_analytic( QOP_info_t *info,
-		       QLA_F3_ColorMatrix *V, QLA_F3_ColorMatrix *W );
-  
+                       QLA_F3_ColorMatrix *V, QLA_F3_ColorMatrix *W );
 void
 QOP_F3_u3_un_der_analytic( QOP_info_t *info, 
-			   QLA_F3_ColorMatrix *V, QLA_F3_ColorTensor4 *dwdv, 
-			   QLA_F3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
-QLA_F_Complex 
-QOP_F3_su3_mat_det( QLA_F3_ColorMatrix *U) ;
-
+                           QLA_F3_ColorMatrix *V, QLA_F3_ColorTensor4 *dwdv, 
+                           QLA_F3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
+QLA_F_Complex QOP_F3_su3_mat_det( QLA_F3_ColorMatrix *U);
 int
 QOP_D3_u3_un_analytic( QOP_info_t *info,
-		       QLA_D3_ColorMatrix *V, QLA_D3_ColorMatrix *W );
-
+                       QLA_D3_ColorMatrix *V, QLA_D3_ColorMatrix *W );
 void
 QOP_D3_u3_un_der_analytic( QOP_info_t *info,
-			    QLA_D3_ColorMatrix *V, QLA_D3_ColorTensor4 *dwdv, 
-			   QLA_D3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
-QLA_D_Complex 
-QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U) ;
+			   QLA_D3_ColorMatrix *V, QLA_D3_ColorTensor4 *dwdv, 
+                           QLA_D3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
+QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 
-
-#ifdef __cplusplus
-}
+#if QOP_Colors == 2
+#include <qop_f2_internal.h>
+#include <qop_d2_internal.h>
+#elif QOP_Colors == 3
+#include <qop_f3_internal.h>
+#include <qop_d3_internal.h>
+#elif QOP_Colors == 'N'
+#include <qop_fn_internal.h>
+#include <qop_dn_internal.h>
 #endif
 
 #endif /* _QOP_INTERNAL_H */

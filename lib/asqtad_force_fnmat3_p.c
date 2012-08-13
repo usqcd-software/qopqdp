@@ -4,19 +4,15 @@
 //#define QOP_printf0(...)
 #define QOP_trace(...)
 
-void 
-QOPPC(get_mid)(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
-	       REAL eps[], QDP_ColorVector *x[], int nterms);
-
-void
-QOPPC(asqtad_force_multi_fnmat3)(QOP_info_t *info, QOP_GaugeField *gauge,
-				 QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-				 QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
+static void
+QOP_asqtad_force_multi_fnmat3(QOP_info_t *info, QOP_GaugeField *gauge,
+			      QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+			      QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
 
 void 
-QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info, QOP_GaugeField *gauge,
-				QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-				REAL eps[], QDP_ColorVector *x[], int nterms)
+QOP_asqtad_force_multi_fnmat(QOP_info_t *info, QOP_GaugeField *gauge,
+			     QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+			     REAL eps[], QDP_ColorVector *x[], int nterms)
 {
   ASQTAD_FORCE_BEGIN;
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
@@ -28,12 +24,12 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_ColorMatrix *mid[8];  // 4 fat and 4 naik
   for(int i=0; i<8; i++) mid[i] = QDP_create_M();
 
-  QOPPC(get_mid)(&tinfo, mid, QDP_neighbor, 4, eps, x, nterms);
+  QOP_get_mid(&tinfo, mid, QDP_neighbor, 4, eps, x, nterms);
   nflops += tinfo.final_flop;
-  QOPPC(get_mid)(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, x, nterms);
+  QOP_get_mid(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, x, nterms);
   nflops += tinfo.final_flop;
 
-  QOPPC(asqtad_force_multi_fnmat3)(&tinfo, gauge, force, coef, mid, mid+4);
+  QOP_asqtad_force_multi_fnmat3(&tinfo, gauge, force, coef, mid, mid+4);
   nflops += tinfo.final_flop;
 
   for(int i=0; i<8; i++) QDP_destroy_M(mid[i]);
@@ -47,8 +43,8 @@ QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info, QOP_GaugeField *gauge,
 
 // gather vectors for mid link
 void 
-QOPPC(get_mid)(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
-	       REAL eps[], QDP_ColorVector *x[], int nterms)
+QOP_get_mid(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
+	    REAL eps[], QDP_ColorVector *x[], int nterms)
 {
   double dtime = QOP_time();
 
@@ -255,10 +251,10 @@ side_force(QDP_ColorMatrix *force, QDP_ColorMatrix *bot0, QDP_ColorMatrix *side0
 #undef botsidemu
 }
 
-void
-QOPPC(fat_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
-		 QDP_ColorMatrix *deriv[], QOP_asqtad_coeffs_t *coef,
-		 QDP_ColorMatrix *mid[])
+static void
+QOP_fat_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
+	      QDP_ColorMatrix *deriv[], QOP_asqtad_coeffs_t *coef,
+	      QDP_ColorMatrix *mid[])
 {
   double dtime = QOP_time();
   int nflops = 0;
@@ -407,10 +403,10 @@ QOPPC(fat_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 }
 
 void
-QOPPC(asqtad_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
-		    QDP_ColorMatrix *deriv[], QOP_asqtad_coeffs_t *coef,
-		    QDP_ColorMatrix *mid_fat[],
-		    QDP_ColorMatrix *mid_naik[])
+QOP_asqtad_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
+		 QDP_ColorMatrix *deriv[], QOP_asqtad_coeffs_t *coef,
+		 QDP_ColorMatrix *mid_fat[],
+		 QDP_ColorMatrix *mid_naik[])
 {
   double dtime = QOP_time();
   int nflops = 0;
@@ -440,7 +436,7 @@ QOPPC(asqtad_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 
   // fat
   if(mid_fat) {
-    QOPPC(fat_deriv)(&tinfo, gauge, deriv, coef, mid_fat);
+    QOP_fat_deriv(&tinfo, gauge, deriv, coef, mid_fat);
     nflops += tinfo.final_flop;
   }
 
@@ -510,11 +506,12 @@ QOPPC(asqtad_deriv)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
   info->status = QOP_SUCCESS;
 }
 
-void
-QOPPC(asqtad_deriva)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
-		     QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
-		     QDP_ColorMatrix *mid_fat[],
-		     QDP_ColorMatrix *mid_naik[])
+#if 0
+static void
+QOP_asqtad_deriva(QOP_info_t *info, QDP_ColorMatrix *gauge[],
+		  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+		  QDP_ColorMatrix *mid_fat[],
+		  QDP_ColorMatrix *mid_naik[])
 {
   QDP_ColorMatrix *cm;
   cm = QDP_create_M();
@@ -525,7 +522,7 @@ QOPPC(asqtad_deriva)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
     adj(mid_fat[mu]);
     if(mid_naik) adj(mid_naik[mu]);
   }
-  QOPPC(asqtad_deriv)(info, gauge, force, coef, mid_fat, mid_naik);
+  QOP_asqtad_deriv(info, gauge, force, coef, mid_fat, mid_naik);
   for(int mu=0; mu<4; mu++) {
     adj(force[mu]);
     adj(mid_fat[mu]);
@@ -534,12 +531,13 @@ QOPPC(asqtad_deriva)(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 #undef adj
   QDP_destroy_M(cm);
 }
+#endif
 
 void
-QOPPC(asqtad_force_multi_fnmat3)(QOP_info_t *info, QOP_GaugeField *gauge,
-				 QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-				 QDP_ColorMatrix *mid_fat[],
-				 QDP_ColorMatrix *mid_naik[])
+QOP_asqtad_force_multi_fnmat3(QOP_info_t *info, QOP_GaugeField *gauge,
+			      QOP_Force *force, QOP_asqtad_coeffs_t *coef,
+			      QDP_ColorMatrix *mid_fat[],
+			      QDP_ColorMatrix *mid_naik[])
 {
   double dtime = QOP_time();
   QOP_info_t tinfo;
@@ -550,7 +548,7 @@ QOPPC(asqtad_force_multi_fnmat3)(QOP_info_t *info, QOP_GaugeField *gauge,
     QDP_M_eq_zero(deriv[mu], QDP_all);
     gcm[mu] = gauge->links[mu];
   }
-  QOPPC(asqtad_deriv)(&tinfo, gcm, deriv, coef, mid_fat, mid_naik);
+  QOP_asqtad_deriv(&tinfo, gcm, deriv, coef, mid_fat, mid_naik);
   for(int mu=0; mu<4; mu++) {
     QDP_M_eq_M_times_Ma(cm, gauge->links[mu], deriv[mu], QDP_all);
     QDP_M_eq_antiherm_M(deriv[mu], cm, QDP_all);

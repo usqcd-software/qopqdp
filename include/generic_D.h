@@ -1,4 +1,5 @@
-#define QOPPCV(x)		QOPPC(x ## _D)
+//#define QOPPCV(x)		QOPPC(x ## _D)
+#define QOPPCV(x)		QOP_ ## x ## _D
 #define Vector			QDP_DiracFermion
 /* We need a Vector that is not pointerized in generic_vD.h */
 #define Vector2			QDP_DiracFermion
@@ -12,7 +13,7 @@
 
 #define V_eq_funci              QDP_D_eq_funci
 
-#define relnorm2_V(r,o,s)       QOPPCV(relnorm2)(&r, &o, s, 1);
+#define relnorm2_V(r,o,s)       QOP_relnorm2_D(&r, &o, s, 1);
 
 #define insert_packed_V(r,a,s)  QDP_insert_packed_D(r,(QLA_DiracFermion*)(a),s)
 #define extract_packed_V(r,a,s) QDP_extract_packed_D((QLA_DiracFermion*)(r),a,s)

@@ -85,8 +85,8 @@ orth(QDP_Subset subset)
   }
 #else
   QLA_Complex z[n];
-  Vector *vp[n], *vAp[n];
-  for(int i=0; i<n; i++) { vp[i] = vec[n]; vAp[i] = Avec[n]; }
+  Vector /* *vp[n],*/ *vAp[n];
+  for(int i=0; i<n; i++) { /*vp[i] = vec[n];*/ vAp[i] = Avec[n]; }
   c_veq_V_dot_V(z, Avec, vAp, subset, n);
   for(int i=0; i<n; i++) { QLA_c_eq_c_div_r(beta[n][i], z[i], -Avn[i]); QLA_c_eq_c(z[i], beta[n][i]); }
   V_vpeq_c_times_V(vAp, z, Avec, subset, n);

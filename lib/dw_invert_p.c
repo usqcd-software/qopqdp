@@ -18,25 +18,6 @@ extern int QOP_dw_initQ;
 extern int QOP_dw_style;
 extern int dslash_initQ;
 
-extern void
-QOPPC(dw_schur2_qdp)(QOP_info_t *info, QOP_FermionLinksDW *fldw,
-                     QLA_Real M5, QLA_Real mq,
-                     QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                     int ls, QOP_evenodd_t eo);
-extern void
-QOPPC(dw_schur_qdp)(QOP_info_t *info, QOP_FermionLinksDW *fldw,
-                    QLA_Real M5, QLA_Real mq, int sign,
-                    QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                    int ls, QOP_evenodd_t eo);
-extern void
-QOPPC(dw_EO_project)(QOP_FermionLinksDW *fldw,
-                     QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                     QLA_Real M5, QLA_Real mq, int ls, QOP_evenodd_t eo);
-extern void
-QOPPC(dw_EO_reconstruct)(QOP_FermionLinksDW *fldw,
-                         QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                         QLA_Real M5, QLA_Real mq, int ls, QOP_evenodd_t eo);
-
 // Local globals (for easy passing into the D2 wrapper)
 static QLA_Real gl_mq, gl_M5;
 static int gl_ls;
@@ -48,51 +29,50 @@ static QOP_FermionLinksDW *gl_fldw;
 // Domain-wall inverter
 
 void
-QOPPC(dw_dslash2_wrap)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                       QDP_Subset subset)
+QOP_dw_dslash2_wrap(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+		    QDP_Subset subset)
 {
-  QOPPC(dw_dslash2_qdp)(NULL, gl_fldw, gl_M5, gl_mq, out, in, gl_ls,
-                        QDP_to_QOP(gl_osubset),QDP_to_QOP(subset));
+  QOP_dw_dslash2_qdp(NULL, gl_fldw, gl_M5, gl_mq, out, in, gl_ls,
+		     QDP_to_QOP(gl_osubset),QDP_to_QOP(subset));
 }
 
 void
-QOPPC(dw_schur2_wrap)(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
-                       QDP_Subset subset)
+QOP_dw_schur2_wrap(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
+		   QDP_Subset subset)
 {
-  QOPPC(dw_schur2_qdp)(NULL, gl_fldw, gl_M5, gl_mq, out, in, gl_ls,
-                       QDP_to_QOP(subset));
+  QOP_dw_schur2_qdp(NULL, gl_fldw, gl_M5, gl_mq, out, in, gl_ls,
+		    QDP_to_QOP(subset));
 }
 
-
 void
-QOPPC(dw_invert)(QOP_info_t *info,
-		 QOP_FermionLinksDW *fldw,
-		 QOP_invert_arg_t *inv_arg,
-		 QOP_resid_arg_t *res_arg,
-		 REAL M5,
-		 REAL mq,
-		 QOP_DiracFermion *out_pt[],
-		 QOP_DiracFermion *in_pt[],
-		 int ls)
+QOP_dw_invert(QOP_info_t *info,
+	      QOP_FermionLinksDW *fldw,
+	      QOP_invert_arg_t *inv_arg,
+	      QOP_resid_arg_t *res_arg,
+	      REAL M5,
+	      REAL mq,
+	      QOP_DiracFermion *out_pt[],
+	      QOP_DiracFermion *in_pt[],
+	      int ls)
 {
   QDP_DiracFermion *out[ls], *in[ls];
   for(int i=0; i<ls; i++) {
     out[i] = out_pt[i]->df;
     in[i] = in_pt[i]->df;
   }
-  QOPPC(dw_invert_qdp)(info, fldw, inv_arg, res_arg, M5, mq, out, in, ls);
+  QOP_dw_invert_qdp(info, fldw, inv_arg, res_arg, M5, mq, out, in, ls);
 }
 
 void
-QOPPC(dw_invert_qdp)(QOP_info_t *info,
-		     QOP_FermionLinksDW *fldw,
-		     QOP_invert_arg_t *inv_arg,
-		     QOP_resid_arg_t *res_arg,
-		     REAL M5,
-		     REAL mq,
-		     QDP_DiracFermion *out[],
-		     QDP_DiracFermion *in[],
-		     int ls)
+QOP_dw_invert_qdp(QOP_info_t *info,
+		  QOP_FermionLinksDW *fldw,
+		  QOP_invert_arg_t *inv_arg,
+		  QOP_resid_arg_t *res_arg,
+		  REAL M5,
+		  REAL mq,
+		  QDP_DiracFermion *out[],
+		  QDP_DiracFermion *in[],
+		  int ls)
 {
   double dtime;
   double nflop;
@@ -132,19 +112,19 @@ QOPPC(dw_invert_qdp)(QOP_info_t *info,
 
 // Even-odd precondition the input
 #ifdef LU
-  QOPPC(dw_EO_project)(fldw, tin, in, M5, mq, ls, QDP_to_QOP(subset));
+  QOP_dw_EO_project(fldw, tin, in, M5, mq, ls, QDP_to_QOP(subset));
 #endif
 
 // Prepare the source for inversion using the normal equations
 // (if necessary, which it always is, since only CG is currently implemented)
 #ifdef LU
-  QOPPC(dw_schur_qdp)(info, fldw, M5, mq, -1, qdpin, tin, ls,
-                      QDP_to_QOP(subset));
+  QOP_dw_schur_qdp(info, fldw, M5, mq, -1, qdpin, tin, ls,
+		   QDP_to_QOP(subset));
   // The opposite subset goes through trivially; we'll set it now
   //for (s=0; s<ls; s++) QDP_D_eq_D(out[s], tin[s], osubset);
 #else
-  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, -1, qdpin, in, ls,
-                       QDP_to_QOP(osubset), QDP_to_QOP(subset));
+  QOP_dw_dslash_qdp(info, fldw, M5, mq, -1, qdpin, in, ls,
+		    QDP_to_QOP(osubset), QDP_to_QOP(subset));
 #endif
 
 // Invoke the CG inverter on the normal equation
@@ -156,13 +136,13 @@ QOPPC(dw_invert_qdp)(QOP_info_t *info,
   QOP_common.verbosity = QOP_VERB_DEBUG;
 #endif
   //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
-  QOPPC(invert_cg_vD)(QOPPC(dw_schur2_wrap), inv_arg, res_arg,
-                      out, qdpin, tcg, subset, ls);
+  QOP_invert_cg_vD(QOP_dw_schur2_wrap, inv_arg, res_arg,
+		   out, qdpin, tcg, subset, ls);
 #else
   //res_arg->rsqmin /= (5-M5)*(5-M5)*(5-M5)*(5-M5);
   //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
-  QOPPC(invert_cg_vD)(QOPPC(dw_dslash2_wrap), inv_arg, res_arg,
-                      out, qdpin, tcg, subset, ls);
+  QOP_invert_cg_vD(QOP_dw_dslash2_wrap, inv_arg, res_arg,
+		   out, qdpin, tcg, subset, ls);
   //res_arg->rsqmin *= (5-M5)*(5-M5)*(5-M5)*(5-M5);
 #endif
   dtime += QOP_time();
@@ -170,14 +150,14 @@ QOPPC(dw_invert_qdp)(QOP_info_t *info,
 
 // Reconstruct the EO solution
 #ifdef LU
-  QOPPC(dw_EO_reconstruct)(fldw, out, in, M5, mq, ls,
-                           QDP_to_QOP(subset));
+  QOP_dw_EO_reconstruct(fldw, out, in, M5, mq, ls,
+			QDP_to_QOP(subset));
 #endif
 
 #if 0
   // calculate final residual
-  QOPPC(dw_dslash_qdp)(info, fldw, M5, mq, 1, tcg, out, ls,
-		       QOP_EVENODD, QOP_EVENODD);
+  QOP_dw_dslash_qdp(info, fldw, M5, mq, 1, tcg, out, ls,
+		    QOP_EVENODD, QOP_EVENODD);
   //#ifdef LU
   //#else
   //QOPPC(dw_dslash2_qdp)(info, fldw, M5, mq, tcg, out, ls,

@@ -1,12 +1,9 @@
 /******* hisq_links_p.c ****************/
-
-
-#include <qop_internal.h>
-
 /* 10/1/2009 A.Bazavov, modified version from Alan Gray,
                         introduced function to allocate FermionLinksHisq */
 /* 4/23/2011 C. DeTar, simplified the HISQ links structure and API */
 
+#include <qop_internal.h>
 
 #ifdef AB_DEBUG_QOP_HISQ
 
@@ -57,16 +54,14 @@ PrintMone(QLA_ColorMatrix m){
 
 #endif
 
-
 /* CD: This is now internal to QOP */
-static QOPPC(FermionLinksHisq)*
+static QOP_FermionLinksHisq *
 allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
 {
-
   int n_naiks = coeffs->n_naiks;
   int i;
   QOP_hisq_unitarize_group_t ugroup = coeffs->ugroup;
-  QOPPC(FermionLinksHisq)* flh;
+  QOP_FermionLinksHisq *flh;
 
 #if (QOP_Precision==1)
 //ABprint  printf("Enter QOP_F3_allocate_hisq_fermion_links\n");
@@ -75,7 +70,7 @@ allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
 #endif
 
   //AB Allocate space for the structure itself
-  QOP_malloc( flh, QOPPC(FermionLinksHisq), 1 );
+  QOP_malloc( flh, QOP_FermionLinksHisq, 1 );
 
   if(ugroup == QOP_UNITARIZE_SU3)
     flh->WeqY = 0;
@@ -83,10 +78,10 @@ allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
     flh->WeqY = 1;
 
   //AB Allocate space for all intermediate links
-  QOP_malloc(flh->U_links, QDPPC(ColorMatrix) *, 4); // gauge links
-  QOP_malloc(flh->V_links, QDPPC(ColorMatrix) *, 4); // Fat7 smeared
-  QOP_malloc(flh->Y_unitlinks, QDPPC(ColorMatrix) *, 4); // projected U(3)
-  QOP_malloc(flh->W_unitlinks, QDPPC(ColorMatrix) *, 4); // projected SU(3)
+  QOP_malloc(flh->U_links, QDP_ColorMatrix *, 4); // gauge links
+  QOP_malloc(flh->V_links, QDP_ColorMatrix *, 4); // Fat7 smeared
+  QOP_malloc(flh->Y_unitlinks, QDP_ColorMatrix *, 4); // projected U(3)
+QOP_malloc(flh->W_unitlinks, QDP_ColorMatrix *, 4); // projected SU(3)
   for(i=0;i<4;i++) {
     flh->U_links[i]=QDP_create_M();
     flh->V_links[i]=QDP_create_M();
@@ -98,7 +93,7 @@ allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
   }
 
   flh->n_naiks = n_naiks;
-  QOP_malloc(flh->fn, QOPPC(FermionLinksAsqtad) *, n_naiks); // Asqtad links
+  QOP_malloc(flh->fn, QOP_FermionLinksAsqtad *, n_naiks); // Asqtad links
 
 #if (QOP_Precision==1)
 //ABprint  printf("Exit  QOP_F3_allocate_hisq_fermion_links\n");
@@ -107,31 +102,27 @@ allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
 #endif
 
   return flh;
-
 }
 
 static void
-destroy_4M( QDPPC(ColorMatrix) **links ){
-  int i;
-
-  for(i = 0; i < 4; i++)
+destroy_4M(QDP_ColorMatrix **links)
+{
+  for(int i = 0; i < 4; i++)
     if(links[i] != NULL)
       QDP_destroy_M(links[i]);
-  
   free(links);
-  
 }
 
 //create HISQ links from QOPPC(GaugeField)
 //CD Here we follow closely what the simplified MILC code does
 
-QOPPC(FermionLinksHisq) *
-QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
-			    QOP_hisq_coeffs_t *coeffs,
-			    QOPPC(GaugeField) *gauge)
+QOP_FermionLinksHisq *
+QOP_hisq_create_L_from_G(QOP_info_t *info,
+			 QOP_hisq_coeffs_t *coeffs,
+			 QOP_GaugeField *gauge)
 {
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-  printf("Enter QOPPC(hisq_create_L_from_G) in hisq_links_p.c\n");
+  printf("Enter QOP_hisq_create_L_from_G in hisq_links_p.c\n");
 #endif
 
   int n_naiks = coeffs->n_naiks;
@@ -139,11 +130,11 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   QOP_hisq_unitarize_group_t ugroup = coeffs->ugroup;
   int want_aux = QOP_hisq_links.want_aux;
   int want_deps = QOP_hisq_links.want_deps;
-  QOPPC(FermionLinksHisq) *flh;
-  QOPPC(FermionLinksAsqtad) *fla;
+  QOP_FermionLinksHisq *flh;
+  QOP_FermionLinksAsqtad *fla;
   QOP_asqtad_coeffs_t acoeffs1, acoeffs2, acoeffs3;
   int i,inaik;
-  QOPPC(GaugeField) *qopgf_tmp;
+  QOP_GaugeField *qopgf_tmp;
   double final_flop = 0.0;
   double dtime = -QOP_time();
 
@@ -153,15 +144,14 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
 
   //AB Copy the gauge field in FermionLinksHisq structure
   if(want_aux)
-    QOPPC(extract_G_to_qdp)(&(flh->U_links[0]), gauge);
+    QOP_extract_G_to_qdp(&(flh->U_links[0]), gauge);
 
 #ifdef AB_DEBUG_QOP_HISQ
   printf("*** U check in hisq_links_p.c\n");
   PrintM(flh->U_links[0]);fflush(stdout);
 #endif
 
-
-  // fat7 stage 
+  // fat7 stage
   // convert hisq style coeffs to asqtad style 
   acoeffs1.one_link     = coeffs->fat7_one_link;
   acoeffs1.three_staple = coeffs->fat7_three_staple;
@@ -187,11 +177,11 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   acoeffs3.seven_staple = 0;
   acoeffs3.lepage       = 0;
   acoeffs3.naik         = coeffs->difference_naik;
-  
+
   // smear gauge with fat7 
   fla = QOP_asqtad_create_L_from_G(info, &acoeffs1, gauge);
   final_flop += info->final_flop;
-  
+
   // convert fla back to gauge to enable further smearing 
   // since fat7 contains only fat links, can just copy fla->fatlinks to gauge
   for (i=0;i<4;i++)
@@ -202,8 +192,6 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   QOP_asqtad_destroy_L(fla);
   final_flop += 198 * QDP_sites_on_node;
 
-
-
   //AB CAREFUL HERE: MAY NEED TO REMOVE PHASES, UNITARIZE
   //   AND THEN PUT PHASES BACK IN
   
@@ -212,10 +200,9 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
 
   if(ugroup == QOP_UNITARIZE_U3)
     for (i=0;i<4;i++){
-      QOPPC(u3reunit)(info, flh->V_links[i],flh->Y_unitlinks[i]);
+      QOP_u3reunit(info, flh->V_links[i],flh->Y_unitlinks[i]);
       final_flop += info->final_flop;
     }
-
 
   if(!want_aux){
     destroy_4M(flh->V_links);
@@ -232,17 +219,16 @@ QOPPC(hisq_create_L_from_G)(QOP_info_t *info,
   if(ugroup == QOP_UNITARIZE_SU3){
     // TO DO: WE NEED TO REMOVE THE STANDARD KS PHASES FIRST
     // THEN THIS WILL WORK.
-QOP_printf0("QOP_hisq_create_L_from_G: SU(3) projection not supported for now\n");
-exit(1);
+    QOP_printf0("QOP_hisq_create_L_from_G: SU(3) projection not supported for now\n");
+    exit(1);
     for (i=0;i<4;i++)
-      QOPPC(su3reunit)(info, flh->Y_unitlinks[i],flh->W_unitlinks[i]);
+      QOP_su3reunit(info, flh->Y_unitlinks[i], flh->W_unitlinks[i]);
   }
 
   if(!want_aux && !flh->WeqY){
     destroy_4M(flh->Y_unitlinks);
     flh->Y_unitlinks = NULL;
   }
-
 
   // prepare the unitarized links
   qopgf_tmp = QOP_create_G_from_qdp( &(flh->W_unitlinks[0]) );
@@ -268,13 +254,12 @@ exit(1);
 
     // Copy to fn_deps if we want the derivative wrto epsilon
     if(want_deps)
-      flh->fn_deps = QOPPC(asqtad_create_L_from_L)(flh->fn[0]);
-
+      flh->fn_deps = QOP_asqtad_create_L_from_L(flh->fn[0]);
 
     for( inaik = 1; inaik < n_naiks; inaik++ ) {
       QLA_Real rr;
       rr = eps_naik[inaik];
-      flh->fn[inaik] = QOPPC(asqtad_create_L_from_r_times_L)(&rr, flh->fn[0]);
+      flh->fn[inaik] = QOP_asqtad_create_L_from_r_times_L(&rr, flh->fn[0]);
       if(flh->fn[inaik]->longlinks)
 	final_flop += 8*18*QDP_sites_on_node*(n_naiks-1);
       else
@@ -292,7 +277,7 @@ exit(1);
     final_flop += info->final_flop;
 
     for( inaik = 1; inaik < n_naiks; inaik++) {
-      QOPPC(asqtad_L_peq_L)(flh->fn[inaik], flh->fn[0]);
+      QOP_asqtad_L_peq_L(flh->fn[inaik], flh->fn[0]);
 
       if(flh->fn[inaik]->longlinks)
 	final_flop += 8*18*QDP_sites_on_node;
@@ -317,7 +302,7 @@ exit(1);
   QOP_destroy_G(qopgf_tmp);
 
 #ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-  printf("Exit  QOPPC(hisq_create_L_from_G) in hisq_links_p.c\n");
+  printf("Exit  QOP_hisq_create_L_from_G in hisq_links_p.c\n");
 #endif
 
   dtime += QOP_time();
@@ -330,7 +315,7 @@ exit(1);
 }
 
 void
-QOPPC(hisq_destroy_L)(QOPPC(FermionLinksHisq) *flh)
+QOP_hisq_destroy_L(QOP_FermionLinksHisq *flh)
 {
   int i;
   int n_naiks = flh->n_naiks;
@@ -359,18 +344,17 @@ QOPPC(hisq_destroy_L)(QOPPC(FermionLinksHisq) *flh)
   free(flh);
 
   HISQ_LINKS_END;
-
 }
 
-QOPPC(FermionLinksAsqtad) **
-  QOPPC(get_asqtad_links_from_hisq)(QOPPC(FermionLinksHisq) *flh){
-
+QOP_FermionLinksAsqtad **
+QOP_get_asqtad_links_from_hisq(QOP_FermionLinksHisq *flh)
+{
   return flh->fn;
 }
 
-QOPPC(FermionLinksAsqtad) *
-  QOPPC(get_asqtad_deps_links_from_hisq)(QOPPC(FermionLinksHisq) *flh){
-
+QOP_FermionLinksAsqtad *
+QOP_get_asqtad_deps_links_from_hisq(QOP_FermionLinksHisq *flh)
+{
   return flh->fn_deps;
 }
 

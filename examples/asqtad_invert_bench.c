@@ -12,6 +12,7 @@ static int style=-1;
 static int cgtype=0;
 static int verb=0;
 static double naik=0.1;
+static int nthreads=0;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -39,7 +40,11 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
     QMP_barrier();
-    QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+    if(nthreads==0) {
+      QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+    } else {
+      //QOP_asqtad_invert_threaded(info, fla, inv_arg, res_arg, mass, qopout, qopin, nthreads);
+    }
     QMP_barrier();
     //printf0("%i %i %10g %10g %10g\n", i,res_arg->final_iter,info->final_sec,
     //info->final_flop, info->final_flop/(1e6*info->final_sec));
@@ -211,6 +216,7 @@ usage(char *s)
   printf("k\tnaik term\n");
   printf("m\tmass\n");
   printf("n\tnumber of iterations\n");
+  printf("t\tnthreads\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("v\tverbosity\n");
@@ -237,6 +243,7 @@ main(int argc, char *argv[])
     case 'k' : naik=atof(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
+    case 't' : nthreads=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
     case 'v' : verb=atoi(&argv[i][1]); break;

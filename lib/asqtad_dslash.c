@@ -1,5 +1,4 @@
-
-#define QOP_Precision 2
+#define QOP_Precision 'D'
 #include <qop_internal.h>
 
 /* Copy with multiplication from double to single precision */

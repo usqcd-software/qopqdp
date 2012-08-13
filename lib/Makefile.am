@@ -3,90 +3,77 @@ AM_CFLAGS = -I@top_srcdir@/include
 lib_LIBRARIES = libqopqdp.a
 
 libqopqdp_a_SOURCES = \
-  common.c common_f.c common_d.c \
+  common.c \
   layout_user.c \
-  symanzik_1loop_gauge_action_f.c symanzik_1loop_gauge_action_d.c \
-  symanzik_1loop_gauge_force_f.c symanzik_1loop_gauge_force_d.c \
-  asqtad_dslash.c asqtad_dslash_f.c asqtad_dslash_d.c \
-  asqtad_invert.c asqtad_invert_f.c asqtad_invert_d.c \
-  asqtad_force.c asqtad_force_f.c asqtad_force_d.c \
-  asqtad_force_fnmat_f.c asqtad_force_fnmat_d.c \
-  hisq_links.c hisq_links_f.c hisq_links_d.c \
-  hisq_reunit_f.c hisq_reunit_d.c \
-  hisq_reunit_utilities_f.c hisq_reunit_utilities_d.c\
-  hisq_force_f.c hisq_force_d.c hisq_force.c \
-  hisq_force_fnmat_f.c hisq_force_fnmat_d.c \
-  wilson_dslash.c wilson_dslash_f.c wilson_dslash_d.c \
-  wilson_invert.c wilson_invert_f.c wilson_invert_d.c \
-  dw_dslash.c dw_dslash_f.c dw_dslash_d.c \
-  dw_invert.c dw_invert_f.c dw_invert_d.c \
-  invert_cg_V_f.c invert_cg_V_d.c \
-  invert_cg_D_f.c invert_cg_D_d.c \
-  invert_cg_vD_f.c invert_cg_vD_d.c \
-  invert_bicgstab_D_f.c invert_bicgstab_D_d.c \
-  invert_eigcg_V_f.c invert_eigcg_V_d.c \
-  invert_eigcg_D_f.c invert_eigcg_D_d.c \
-  invert_gmres2_D_f.c invert_gmres2_D_d.c \
-  invert_utilities_V_d.c invert_utilities_V_f.c \
-  invert_utilities_D_d.c invert_utilities_D_f.c \
-  invert_utilities_vD_d.c invert_utilities_vD_f.c
+  asqtad_dslash.c \
+  asqtad_invert.c \
+  asqtad_force.c \
+  hisq_links.c \
+  hisq_force.c \
+  wilson_dslash.c \
+  wilson_invert.c \
+  dw_dslash.c \
+  dw_invert.c
 
-common_f.o: common_p.c
-common_d.o: common_p.c
-symanzik_1loop_gauge_action_f.o: symanzik_1loop_gauge_action_p.c
-symanzik_1loop_gauge_action_d.o: symanzik_1loop_gauge_action_p.c
-symanzik_1loop_gauge_force_f.o: symanzik_1loop_gauge_force2_p.c
-symanzik_1loop_gauge_force_d.o: symanzik_1loop_gauge_force2_p.c
-asqtad_dslash_f.o: asqtad_dslash_p.c
-asqtad_dslash_d.o: asqtad_dslash_p.c
-asqtad_invert_f.o: asqtad_invert_p.c
-asqtad_invert_d.o: asqtad_invert_p.c
-asqtad_force_f.o: asqtad_force_p.c
-asqtad_force_d.o: asqtad_force_p.c
-asqtad_force_fnmat_f.o: asqtad_force_fnmat3_p.c
-asqtad_force_fnmat_d.o: asqtad_force_fnmat3_p.c
-hisq_links_f.o: hisq_links_p.c
-hisq_links_d.o: hisq_links_p.c
-hisq_reunit_f.o: hisq_reunit_p.c
-hisq_reunit_d.o: hisq_reunit_p.c
-hisq_reunit_utilities_f.o: hisq_reunit_utilities_p.c
-hisq_reunit_utilities_d.o: hisq_reunit_utilities_p.c
-hisq_force_f.o: hisq_force_p.c
-hisq_force_d.o: hisq_force_p.c
-hisq_force_fnmat_f.o: hisq_force_fnmat_p.c hisq_force_fnmat2_p.c
-hisq_force_fnmat_d.o: hisq_force_fnmat_p.c hisq_force_fnmat2_p.c
-wilson_dslash_f.o: wilson_dslash_p.c
-wilson_dslash_d.o: wilson_dslash_p.c
-wilson_invert_f.o: wilson_invert_p.c
-wilson_invert_d.o: wilson_invert_p.c
-dw_dslash_f.o: dw_dslash_p.c
-dw_dslash_d.o: dw_dslash_p.c
-dw_invert_f.o: dw_invert_p.c
-dw_invert_d.o: dw_invert_p.c
-invert_cg_V_f.o: invert_cg_p.c
-invert_cg_V_d.o: invert_cg_p.c
-invert_cg_D_f.o: invert_cg_p.c
-invert_cg_D_d.o: invert_cg_p.c
-invert_cg_vD_f.o: invert_cg_p.c
-invert_cg_vD_d.o: invert_cg_p.c
-invert_bicgstab_D_f.o: invert_bicgstab_p.c
-invert_bicgstab_D_d.o: invert_bicgstab_p.c
-invert_eigcg_V_f.o: invert_eigcg_p.c
-invert_eigcg_V_d.o: invert_eigcg_p.c
-invert_eigcg_D_f.o: invert_eigcg_p.c
-invert_eigcg_D_d.o: invert_eigcg_p.c
-invert_gmres2_D_f.o: invert_gmres2_p.c
-invert_gmres2_D_d.o: invert_gmres2_p.c
-invert_utilities_V_f.o: invert_utilities_p.c
-invert_utilities_V_d.o: invert_utilities_p.c
-invert_utilities_D_f.o: invert_utilities_p.c
-invert_utilities_D_d.o: invert_utilities_p.c
-invert_utilities_vD_f.o: invert_utilities_p.c
-invert_utilities_vD_d.o: invert_utilities_p.c
+NC2SOURCES = \
+  pcstubs/common_f2.c pcstubs/common_d2.c \
+  pcstubs/symanzik_1loop_gauge_action_f2.c pcstubs/symanzik_1loop_gauge_action_d2.c \
+  pcstubs/symanzik_1loop_gauge_force_f2.c pcstubs/symanzik_1loop_gauge_force_d2.c \
+  pcstubs/asqtad_dslash_f2.c pcstubs/asqtad_dslash_d2.c \
+  pcstubs/asqtad_invert_f2.c pcstubs/asqtad_invert_d2.c \
+  pcstubs/asqtad_force_f2.c pcstubs/asqtad_force_d2.c \
+  pcstubs/asqtad_force_fnmat_f2.c pcstubs/asqtad_force_fnmat_d2.c \
+  pcstubs/hisq_links_f2.c pcstubs/hisq_links_d2.c \
+  pcstubs/hisq_reunit_f2.c pcstubs/hisq_reunit_d2.c \
+  pcstubs/hisq_force_f2.c pcstubs/hisq_force_d2.c \
+  pcstubs/hisq_force_fnmat_f2.c pcstubs/hisq_force_fnmat_d2.c \
+  pcstubs/wilson_dslash_f2.c pcstubs/wilson_dslash_d2.c \
+  pcstubs/wilson_invert_f2.c pcstubs/wilson_invert_d2.c \
+  pcstubs/wilson_force_f2.c pcstubs/wilson_force_d2.c \
+  pcstubs/dw_dslash_f2.c pcstubs/dw_dslash_d2.c \
+  pcstubs/dw_invert_f2.c pcstubs/dw_invert_d2.c \
+  pcstubs/invert_cg_V_f2.c pcstubs/invert_cg_V_d2.c \
+  pcstubs/invert_cg_D_f2.c pcstubs/invert_cg_D_d2.c \
+  pcstubs/invert_cg_vD_f2.c pcstubs/invert_cg_vD_d2.c \
+  pcstubs/invert_bicgstab_D_f2.c pcstubs/invert_bicgstab_D_d2.c \
+  pcstubs/invert_eigcg_V_f2.c pcstubs/invert_eigcg_V_d2.c \
+  pcstubs/invert_eigcg_D_f2.c pcstubs/invert_eigcg_D_d2.c \
+  pcstubs/invert_gmres2_D_f2.c pcstubs/invert_gmres2_D_d2.c \
+  pcstubs/invert_utilities_V_f2.c pcstubs/invert_utilities_V_d2.c \
+  pcstubs/invert_utilities_D_f2.c pcstubs/invert_utilities_D_d2.c \
+  pcstubs/invert_utilities_vD_f2.c pcstubs/invert_utilities_vD_d2.c
+
+NC3SOURCES = \
+  pcstubs/common_f3.c pcstubs/common_d3.c \
+  pcstubs/symanzik_1loop_gauge_action_f3.c pcstubs/symanzik_1loop_gauge_action_d3.c \
+  pcstubs/symanzik_1loop_gauge_force_f3.c pcstubs/symanzik_1loop_gauge_force_d3.c \
+  pcstubs/asqtad_dslash_f3.c pcstubs/asqtad_dslash_d3.c \
+  pcstubs/asqtad_invert_f3.c pcstubs/asqtad_invert_d3.c \
+  pcstubs/asqtad_force_f3.c pcstubs/asqtad_force_d3.c \
+  pcstubs/asqtad_force_fnmat_f3.c pcstubs/asqtad_force_fnmat_d3.c \
+  pcstubs/hisq_links_f3.c pcstubs/hisq_links_d3.c \
+  pcstubs/hisq_reunit_f3.c pcstubs/hisq_reunit_d3.c \
+  pcstubs/hisq_reunit_utilities_f3.c pcstubs/hisq_reunit_utilities_d3.c \
+  pcstubs/hisq_force_f3.c pcstubs/hisq_force_d3.c \
+  pcstubs/hisq_force_fnmat_f3.c pcstubs/hisq_force_fnmat_d3.c \
+  pcstubs/wilson_dslash_f3.c pcstubs/wilson_dslash_d3.c \
+  pcstubs/wilson_invert_f3.c pcstubs/wilson_invert_d3.c \
+  pcstubs/wilson_force_f3.c pcstubs/wilson_force_d3.c \
+  pcstubs/dw_dslash_f3.c pcstubs/dw_dslash_d3.c \
+  pcstubs/dw_invert_f3.c pcstubs/dw_invert_d3.c \
+  pcstubs/invert_cg_V_f3.c pcstubs/invert_cg_V_d3.c \
+  pcstubs/invert_cg_D_f3.c pcstubs/invert_cg_D_d3.c \
+  pcstubs/invert_cg_vD_f3.c pcstubs/invert_cg_vD_d3.c \
+  pcstubs/invert_bicgstab_D_f3.c pcstubs/invert_bicgstab_D_d3.c \
+  pcstubs/invert_eigcg_V_f3.c pcstubs/invert_eigcg_V_d3.c \
+  pcstubs/invert_eigcg_D_f3.c pcstubs/invert_eigcg_D_d3.c \
+  pcstubs/invert_gmres2_D_f3.c pcstubs/invert_gmres2_D_d3.c \
+  pcstubs/invert_utilities_V_f3.c pcstubs/invert_utilities_V_d3.c \
+  pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
+  pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c
 
 EXTRA_DIST = \
   common_p.c \
-  layout_user.c \
   symanzik_1loop_gauge_action_p.c \
   symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
@@ -101,9 +88,11 @@ EXTRA_DIST = \
   hisq_force_p.c \
   hisq_links_p.c \
   hisq_reunit_p.c \
+  hisq_reunit_p2.c \
   hisq_reunit_utilities_p.c \
   wilson_dslash_p.c \
   wilson_invert_p.c \
+  wilson_force_p.c \
   dw_dslash_p.c \
   dw_invert_p.c \
   invert_cg_p.c \
@@ -113,3 +102,10 @@ EXTRA_DIST = \
   invert_gmres2_p.c \
   invert_utilities_p.c \
   linalg.h
+
+if NC2
+  libqopqdp_a_SOURCES += $(NC2SOURCES)
+endif
+if NC3
+  libqopqdp_a_SOURCES += $(NC3SOURCES)
+endif

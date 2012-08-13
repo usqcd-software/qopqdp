@@ -51,6 +51,4 @@ norm of the input vector.
 
 Conventions for passing the Wilson clover term as raw data can be found in
 lib/wilson_dslash_p.c
-
-The creation of the clover term from the gauge field is not implemented yet.
 ===============================================================================

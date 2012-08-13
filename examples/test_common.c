@@ -296,18 +296,18 @@ load_lattice(QDP_ColorMatrix *gauge[], char *fn)
   qr = QDP_open_read(md, fn);
 
 #if QDP_Precision == 'F'
-  QDP_F3_vread_M(qr, md, gauge, ndim);
+  QDP_F_vread_M(qr, md, gauge, ndim);
 #else
   {
     int i;
-    QDP_F3_ColorMatrix *tm[ndim];
+    QDP_F_ColorMatrix *tm[ndim];
     for(i=0; i<ndim; i++) {
-      tm[i] = QDP_F3_create_M();
+      tm[i] = QDP_F_create_M();
     }
-    QDP_F3_vread_M(qr, md, tm, ndim);
+    QDP_F_vread_M(qr, md, tm, ndim);
     for(i=0; i<ndim; i++) {
-      QDP_DF3_M_eq_M(gauge[i], tm[i], QDP_all);
-      QDP_F3_destroy_M(tm[i]);
+      QDP_DF_M_eq_M(gauge[i], tm[i], QDP_all);
+      QDP_F_destroy_M(tm[i]);
     }
   }
 #endif
@@ -328,14 +328,14 @@ load_fermion(QDP_DiracFermion *df, char *fn)
   qr = QDP_open_read(md, fn);
 
 #if QDP_Precision == 'F'
-  QDP_F3_read_D(qr, md, df);
+  QDP_F_read_D(qr, md, df);
 #else
   {
-    QDP_F3_DiracFermion *tdf;
-    tdf = QDP_F3_create_D();
-    QDP_F3_read_D(qr, md, tdf);
-    QDP_DF3_D_eq_D(df, tdf, QDP_all);
-    QDP_F3_destroy_D(tdf);
+    QDP_F_DiracFermion *tdf;
+    tdf = QDP_F_create_D();
+    QDP_F_read_D(qr, md, tdf);
+    QDP_DF_D_eq_D(df, tdf, QDP_all);
+    QDP_F_destroy_D(tdf);
   }
 #endif
 

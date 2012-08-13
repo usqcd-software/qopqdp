@@ -3,8 +3,8 @@
 #include <qop_internal.h>
 
 void 
-QOPPC(symanzik_1loop_gauge_action)(QOP_info_t *info, QOP_GaugeField *gauge,
-				   REAL *acts, REAL *actt, QOP_gauge_coeffs_t *coeffs)
+QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
+				REAL *acts, REAL *actt, QOP_gauge_coeffs_t *coeffs)
 {
   double dtime = QOP_time();
   double nflops = 0;

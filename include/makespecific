@@ -1,0 +1,36 @@
+#!/bin/sh
+
+f=$1
+PC=$2
+
+P=`echo $PC |sed 's/\(.*\)./\1/'`
+O=`echo $P |tr 'FD' 'DF'`
+OC=`echo $PC |sed 's/^./'$O'/'`
+POC=$P$OC
+OPC=$O$PC
+QPQ="\'$P\'"
+C=`echo $PC |sed 's/.*\(.\)/\1/'`
+QCQ=`echo $C |sed "s/N/'N'/"`
+DFC="DF$C"
+pc=`echo $PC |tr 'A-Z' 'a-z'`
+poc=`echo $POC |tr 'A-Z' 'a-z'`
+opc=`echo $OPC |tr 'A-Z' 'a-z'`
+dfc=`echo $DFC |tr 'A-Z' 'a-z'`
+
+echo "// DO NOT EDIT"
+echo "// generated from $f"
+cat $f |sed '
+  s/_QOP_Precision/'$QPQ'/g;
+  s/_QOP_Colors/'$QCQ'/g;
+  s/QOP_POC_/QOP_'$POC'_/g;
+  s/QOP_IPC_/QOP_'$PC'_/g;
+  s/QOP_PC_/QOP_'$PC'_/g;
+  s/QOP_OC_/QOP_'$OC'_/g;
+  s/QOP_P_/QOP_'$P'_/g;
+  s/qop_dfc_/qop_'$dfc'_/g;
+  s/qop_pc_/qop_'$pc'_/g;
+  s/QDP_PC_/QDP_'$PC'_/g;
+  s/QDP_P_/QDP_'$P'_/g;
+  s/QLA_PC_/QLA_'$PC'_/g;
+  s/QLA_P_/QLA_'$P'_/g;
+'

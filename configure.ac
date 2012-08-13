@@ -1,10 +1,26 @@
-AC_INIT(qopqdp, 0.17.7, [detar at physics.utah.edu])
+AC_INIT(qopqdp, 0.18.0, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE
+#AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_CONFIG_SRCDIR(include/qop.h)
 AC_CONFIG_SRCDIR(lib/common.c)
 AM_CONFIG_HEADER(include/qop_config.h)
+
+dnl --enable-nc=<ColorLib>
+AC_ARG_ENABLE(
+  nc,
+  AC_HELP_STRING([--enable-nc],
+    [make just the libraries necessary for the given color]),
+  AC_SUBST(NC, [$enableval]),
+  AC_SUBST(NC, [all])
+)
+if test "X$NC" = Xn -o "X$NC" = X1; then NC="N"; fi
+if test `expr $NC : '[0-9]*$' \& $NC \> 3` -ne 0; then NC="N"; fi
+if test "X$NC" != X2 -a "X$NC" != X3 -a "X$NC" != XN; then NC="all"; fi 
+AM_CONDITIONAL(NC2, [test "X$NC" = "X2" -o "X$NC" = "Xall"])
+AM_CONDITIONAL(NC3, [test "X$NC" = "X3" -o "X$NC" = "Xall"])
+AM_CONDITIONAL(NCN, [test "X$NC" = "XN" -o "X$NC" = "Xall"])
 
 dnl --enable-blas
 AC_ARG_ENABLE(
@@ -71,13 +87,24 @@ AC_SUBST(QMPDIR)
 
 AC_SUBST(QDP_CFLAGS, "-I${QDPDIR}/include")
 AC_SUBST(QDP_LDFLAGS, "-L${QDPDIR}/lib")
-#AC_SUBST(QDP_LIBS, "-lqdp_fn -lqdp_f -lqdp_int -lqdp_common")
-AC_SUBST(QDP_LIBS, "-lqdp_f3 -lqdp_f -lqdp_d3 -lqdp_d -lqdp_int -lqdp_common")
-
 AC_SUBST(QLA_CFLAGS, "-I${QLADIR}/include")
 AC_SUBST(QLA_LDFLAGS, "-L${QLADIR}/lib")
-#AC_SUBST(QLA_LIBS, "-lqla_dfn -lqla_df -lqla_dn -lqla_d -lqla_fn -lqla_f -lqla_int -lqla_random -lqla_cmath -lm")
-AC_SUBST(QLA_LIBS, "-lqla_df3 -lqla_df -lqla_f3 -lqla_f -lqla_d3 -lqla_d -lqla_int -lqla_random -lqla_cmath -lm")
+if test "X$NC" = "X2" -o "X$NC" = "Xall"; then
+  qdplibs="$qdplibs -lqdp_df2 -lqdp_f2 -lqdp_d2"
+  qlalibs="$qlalibs -lqla_df2 -lqla_f2 -lqla_d2"
+fi
+if test "X$NC" = "X3" -o "X$NC" = "Xall"; then
+  qdplibs="$qdplibs -lqdp_df3 -lqdp_f3 -lqdp_d3"
+  qlalibs="$qlalibs -lqla_df3 -lqla_f3 -lqla_d3"
+fi
+if test "X$NC" = "XN" -o "X$NC" = "Xall"; then
+  qdplibs="$qdplibs -lqdp_dfn -lqdp_fn -lqdp_dn"
+  qlalibs="$qlalibs -lqla_dfn -lqla_fn -lqla_dn"
+fi
+qdplibs="$qdplibs -lqdp_df -lqdp_f -lqdp_d -lqdp_int -lqdp_common"
+qlalibs="$qlalibs -lqla_df -lqla_f -lqla_d -lqla_int -lqla_random -lqla_cmath -lm"
+AC_SUBST(QDP_LIBS, $qdplibs)
+AC_SUBST(QLA_LIBS, $qlalibs)
 
 AC_SUBST(QIO_CFLAGS, "-I${QIODIR}/include")
 AC_SUBST(QIO_LDFLAGS, "-L${QIODIR}/lib")

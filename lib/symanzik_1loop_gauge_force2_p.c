@@ -453,8 +453,8 @@ staplep2(QDP_ColorMatrix *outmu, QDP_ColorMatrix *Unu0,
 #define G(x) gauge->links[x]
 
 void
-QOPPC(symanzik_1loop_gauge_deriv)(QOP_info_t *info, QOP_GaugeField *gauge, 
-				  QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+QOP_symanzik_1loop_gauge_deriv(QOP_info_t *info, QOP_GaugeField *gauge, 
+			       QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
 {
   double dtime = QOP_time();
   double nflops = 0;
@@ -700,8 +700,8 @@ QOPPC(symanzik_1loop_gauge_deriv)(QOP_info_t *info, QOP_GaugeField *gauge,
 } 
 
 void
-QOPPC(symanzik_1loop_gauge_force)(QOP_info_t *info, QOP_GaugeField *gauge, 
-				  QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge, 
+			       QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
 {
   double dtime = QOP_time();
 
