@@ -45,6 +45,7 @@
     QMP_error("Error: QOP ran out of memory in function %s\n", __func__); \
     exit(1);								\
   }
+#define QOP_free(x) free(x)
 
 #define QOP_printf0 if(QDP_this_node==0) printf
 #define VERB(PRI, ...) if(QOP_common.verbosity>=QOP_VERB_##PRI) QOP_printf0(__VA_ARGS__)

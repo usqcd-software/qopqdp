@@ -27,16 +27,17 @@
 void
 QOP_hisq_deriv_multi_qdp(QOP_info_t *info, 
 			 QOP_FermionLinksHisq *flh,
-			 QOP_Force *force, 
+			 QDP_ColorMatrix *deriv[],
 			 QOP_hisq_coeffs_t *coef,
 			 REAL epsv[], 
 			 QDP_ColorVector *in_pt[], 
-			 int *n_orders_naik)
+			 int *n_orders_naik,
+			 int doLastScale)
 {
   HISQ_FORCE_BEGIN;
 
-  QOP_hisq_deriv_multi_wrapper_fnmat2(info, flh, force, 
-				      coef, epsv, in_pt, n_orders_naik);
+  QOP_hisq_deriv_multi_fnmat2_qdp(info, flh, deriv, coef, epsv, in_pt,
+				  n_orders_naik/*, doLastScale*/);
 
   HISQ_FORCE_END;
 }
@@ -44,21 +45,15 @@ QOP_hisq_deriv_multi_qdp(QOP_info_t *info,
 void
 QOP_hisq_force_multi_qdp(QOP_info_t *info, 
 			 QOP_FermionLinksHisq *flh,
-			 QOP_Force *force, 
+			 QDP_ColorMatrix *force[],
 			 QOP_hisq_coeffs_t *coef,
-			 REAL epsv[], 
+			 REAL epsv[],
 			 QDP_ColorVector *in_pt[], 
 			 int *n_orders_naik)
 {
   HISQ_FORCE_BEGIN;
 
-  if(n_orders_naik[0]<QOP_hisq_ff.fnmat_src_min) {
-    QOP_hisq_force_multi_wrapper_fnmat(info, flh, force, 
-				       coef, epsv, in_pt, n_orders_naik);
-  } else {
-    QOP_hisq_force_multi_wrapper_fnmat2(info, flh, force, 
-					coef, epsv, in_pt, n_orders_naik);
-  }
+  QOP_hisq_force_multi_fnmat2_qdp(info, flh, force, coef, epsv, in_pt, n_orders_naik);
 
   HISQ_FORCE_END;
 }
@@ -82,7 +77,7 @@ QOP_hisq_force_multi(QOP_info_t *info,
   QDP_ColorVector *x[nterms];
   for(int i=0; i<nterms; i++) x[i] = in_pt[i]->cv;
 
-  QOP_hisq_force_multi_qdp(info, flh, force, coef, epsv, x, n_orders_naik);
+  QOP_hisq_force_multi_qdp(info, flh, force->force, coef, epsv, x, n_orders_naik);
 
   HISQ_FORCE_END;
 }

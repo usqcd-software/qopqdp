@@ -602,25 +602,25 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
       QOP_invert_gmres2_D(QOP_wilson_invert_d2, inv_arg, res_arg,
 			  qdpout, qdpin, cgp, cgsub);
     } else if(QOP_wilson_cgtype==2) {
-      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
-			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+      QOP_invert_eigcg_D(QOP_wilson_invert_d2ne, inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub, &flw->eigcg);
     } else if(QOP_wilson_cgtype==1) {
-      QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d2), inv_arg, res_arg,
-			       qdpout, qdpin, cgp, cgr, cgsub);
+      QOP_invert_bicgstab_D(QOP_wilson_invert_d2, inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgr, cgsub);
     } else {
-      QOPPC(invert_cg_D)(QOPPC(wilson_invert_d2ne), inv_arg, res_arg,
-			 qdpout, qdpin, cgp, cgsub);
+      QOP_invert_cg_D(QOP_wilson_invert_d2ne, inv_arg, res_arg,
+		      qdpout, qdpin, cgp, cgsub);
     }
 #else
     if(QOP_wilson_cgtype==2) {
-      QOPPC(invert_eigcg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
-			    qdpout, qdpin, cgp, cgsub, &flw->eigcg);
+      QOP_invert_eigcg_D(QOP_wilson_invert_dne, inv_arg, res_arg,
+			 qdpout, qdpin, cgp, cgsub, &flw->eigcg);
     } else if(QOP_wilson_cgtype==1) {
-      QOPPC(invert_bicgstab_D)(QOPPC(wilson_invert_d), inv_arg, res_arg,
-			       qdpout, qdpin, cgp, cgr, cgsub);
+      QOP_invert_bicgstab_D(QOP_wilson_invert_d, inv_arg, res_arg,
+			    qdpout, qdpin, cgp, cgr, cgsub);
     } else {
-      QOPPC(invert_cg_D)(QOPPC(wilson_invert_dne), inv_arg, res_arg,
-			 qdpout, qdpin, cgp, cgsub);
+      QOP_invert_cg_D(QOP_wilson_invert_dne, inv_arg, res_arg,
+		      qdpout, qdpin, cgp, cgsub);
     }
 #endif
 
@@ -645,7 +645,7 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
     /* rsq of the full solution */
     QDP_r_eq_norm2_D(&rsq, cgr, insub);
     if(res_arg->relmin > 0)
-      relnorm2 = QOPPC(relnorm2_D)(&cgr, &qdpout, insub, 1);
+      relnorm2 = QOP_relnorm2_D(&cgr, &qdpout, insub, 1);
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
     /* If reconstruction was done, the rsq of the full solution could

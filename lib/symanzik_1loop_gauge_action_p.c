@@ -9,7 +9,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   double dtime = QOP_time();
   double nflops = 0;
 
-  QLA_Real fac = 1./3.;
+  QLA_Real fac = 1./QLA_Nc;
   QLA_Real plaq = fac*coeffs->plaquette;
   QLA_Real rect = fac*coeffs->rectangle;
   QLA_Real pgm  = fac*coeffs->parallelogram;

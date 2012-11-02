@@ -1,18 +1,15 @@
 //#define DO_TRACE
 #include <qop_internal.h>
-//#undef QOP_printf0
-//#define QOP_printf0(...)
-#define QOP_trace(...)
 
 static void
-QOP_asqtad_force_multi_fnmat3(QOP_info_t *info, QOP_GaugeField *gauge,
-			      QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-			      QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
+QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+				  QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
 
 void 
-QOP_asqtad_force_multi_fnmat(QOP_info_t *info, QOP_GaugeField *gauge,
-			     QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-			     REAL eps[], QDP_ColorVector *x[], int nterms)
+QOP_asqtad_force_multi_fnmat_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				 QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+				 REAL eps[], QDP_ColorVector *x[], int nterms)
 {
   ASQTAD_FORCE_BEGIN;
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
@@ -29,7 +26,7 @@ QOP_asqtad_force_multi_fnmat(QOP_info_t *info, QOP_GaugeField *gauge,
   QOP_get_mid(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, x, nterms);
   nflops += tinfo.final_flop;
 
-  QOP_asqtad_force_multi_fnmat3(&tinfo, gauge, force, coef, mid, mid+4);
+  QOP_asqtad_force_multi_fnmat3_qdp(&tinfo, gauge, force, coef, mid, mid+4);
   nflops += tinfo.final_flop;
 
   for(int i=0; i<8; i++) QDP_destroy_M(mid[i]);
@@ -534,10 +531,10 @@ QOP_asqtad_deriva(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 #endif
 
 void
-QOP_asqtad_force_multi_fnmat3(QOP_info_t *info, QOP_GaugeField *gauge,
-			      QOP_Force *force, QOP_asqtad_coeffs_t *coef,
-			      QDP_ColorMatrix *mid_fat[],
-			      QDP_ColorMatrix *mid_naik[])
+QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+				  QDP_ColorMatrix *mid_fat[],
+				  QDP_ColorMatrix *mid_naik[])
 {
   double dtime = QOP_time();
   QOP_info_t tinfo;
@@ -552,8 +549,8 @@ QOP_asqtad_force_multi_fnmat3(QOP_info_t *info, QOP_GaugeField *gauge,
   for(int mu=0; mu<4; mu++) {
     QDP_M_eq_M_times_Ma(cm, gauge->links[mu], deriv[mu], QDP_all);
     QDP_M_eq_antiherm_M(deriv[mu], cm, QDP_all);
-    QDP_M_peq_M(force->force[mu], deriv[mu], QDP_even);
-    QDP_M_meq_M(force->force[mu], deriv[mu], QDP_odd);
+    QDP_M_peq_M(force[mu], deriv[mu], QDP_even);
+    QDP_M_meq_M(force[mu], deriv[mu], QDP_odd);
     QDP_destroy_M(deriv[mu]);
   }
   QDP_destroy_M(cm);

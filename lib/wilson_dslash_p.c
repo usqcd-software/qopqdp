@@ -680,6 +680,7 @@ wilson_initialize_gauge_L()
   flw->clovinv   = NULL;
   flw->rawlinks  = NULL;
   flw->qopgf     = NULL;
+  flw->gauge     = NULL;
   flw->qdpclov   = NULL;
   flw->eigcg.u   = NULL;
 
@@ -737,6 +738,8 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   for(i=0; i<4; i++) {
     flw->links[i] = newlinks[i];
   }
+
+  flw->gauge = gauge;
 
   WILSON_INVERT_END;
   return flw;

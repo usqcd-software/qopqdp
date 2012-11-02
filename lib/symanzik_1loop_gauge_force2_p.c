@@ -452,14 +452,17 @@ staplep2(QDP_ColorMatrix *outmu, QDP_ColorMatrix *Unu0,
 
 #define G(x) gauge->links[x]
 
+// TODO: implement chain rule
 void
-QOP_symanzik_1loop_gauge_deriv(QOP_info_t *info, QOP_GaugeField *gauge, 
-			       QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge, 
+				   QDP_ColorMatrix *deriv[],
+				   QOP_gauge_coeffs_t *coeffs,
+				   REAL eps, int doLastScale)
 {
   double dtime = QOP_time();
   double nflops = 0;
 
-  QLA_Real fac = -eps/3.0;
+  QLA_Real fac = -eps/QLA_Nc;
   QLA_Real plaq = fac*coeffs->plaquette;
   QLA_Real rect = fac*coeffs->rectangle;
   QLA_Real pgm  = fac*coeffs->parallelogram;
@@ -674,7 +677,7 @@ QOP_symanzik_1loop_gauge_deriv(QOP_info_t *info, QOP_GaugeField *gauge,
   }
 
   for(int mu=0; mu<4; mu++) {
-    QDP_M_peq_M(force->force[mu], tforce[mu], QDP_all);
+    QDP_M_peq_M(deriv[mu], tforce[mu], QDP_all);
   }
   nflops += 4*18;
 
@@ -699,22 +702,22 @@ QOP_symanzik_1loop_gauge_deriv(QOP_info_t *info, QOP_GaugeField *gauge,
   info->status = QOP_SUCCESS;
 } 
 
+// TODO: use top gauge field in force
 void
-QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge, 
-			       QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				   QDP_ColorMatrix *force[], QOP_gauge_coeffs_t *coeffs,
+				   QLA_Real eps)
 {
   double dtime = QOP_time();
 
-  QDP_ColorMatrix *tforce0[4];
+  QDP_ColorMatrix *deriv[4];
   for(int mu=0; mu<4; mu++) {
-    tforce0[mu] = QDP_create_M();
-    QDP_M_eq_zero(tforce0[mu], QDP_all);
+    deriv[mu] = QDP_create_M();
+    QDP_M_eq_zero(deriv[mu], QDP_all);
   }
-  QOP_Force *deriv = QOP_convert_F_from_qdp(tforce0);
-  QOP_symanzik_1loop_gauge_deriv(info, gauge, deriv, coeffs, eps);
-  QDP_ColorMatrix **tforce = QOP_convert_F_to_qdp(deriv); // also destroys deriv
-  QDP_ColorMatrix *mtmp = QDP_create_M();
+  QOP_symanzik_1loop_gauge_deriv_qdp(info, gauge, deriv, coeffs, eps, 0);
 
+  QDP_ColorMatrix *mtmp = QDP_create_M();
 #ifdef CHKSUM
   QLA_ColorMatrix qcm;
   QLA_Complex det, chk;
@@ -722,7 +725,7 @@ QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge,
 #endif
   QLA_Real trace=0;
   for(int mu=0; mu<4; mu++) {
-    QDP_M_eq_M_times_Ma(mtmp, G(mu), tforce[mu], QDP_all);
+    QDP_M_eq_M_times_Ma(mtmp, G(mu), deriv[mu], QDP_all);
     if(QOP_common.verbosity==QOP_VERB_DEBUG) {
       QLA_ColorMatrix tm;
       QLA_Real tr;
@@ -730,8 +733,8 @@ QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge,
       QLA_R_eq_re_trace_M(&tr, &tm);
       trace += tr;
     }
-    QDP_M_eq_antiherm_M(tforce[mu], mtmp, QDP_all);
-    QDP_M_peq_M(force->force[mu], tforce[mu], QDP_all);
+    QDP_M_eq_antiherm_M(deriv[mu], mtmp, QDP_all);
+    QDP_M_peq_M(force[mu], deriv[mu], QDP_all);
 #ifdef CHKSUM
     QDP_m_eq_sum_M(&qcm, force->force[mu], QDP_all);
     QLA_C_eq_det_M(&det, &qcm);
@@ -748,8 +751,15 @@ QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge,
 
   QDP_destroy_M(mtmp);
   for(int mu=0; mu<4; mu++) {
-    QDP_destroy_M(tforce[mu]);
+    QDP_destroy_M(deriv[mu]);
   }
 
   info->final_sec = QOP_time() - dtime;
+}
+
+void
+QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge, 
+			       QOP_Force *force, QOP_gauge_coeffs_t *coeffs, REAL eps)
+{
+  QOP_symanzik_1loop_gauge_force_qdp(info, gauge, force->force, coeffs, eps);
 }

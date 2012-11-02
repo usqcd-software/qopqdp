@@ -1,5 +1,29 @@
 #include <stdlib.h>
+#include <string.h>
 #include <qop_internal.h>
+
+// helpers
+
+static QOP_GaugeField *
+QOP_new_G(void)
+{
+  QOP_GaugeField *qopgf;
+  QOP_malloc(qopgf, QOP_GaugeField, 1);
+  QOP_malloc(qopgf->links, QDP_ColorMatrix *, QOP_common.ndim);
+  for(int i=0; i<QOP_common.ndim; i++) {
+    qopgf->links[i] = NULL;
+  }
+  qopgf->raw = NULL;
+  qopgf->parents = NULL;
+  qopgf->nparents = 0;
+  qopgf->deriv = NULL;
+  qopgf->chained = 0;
+  qopgf->scale = NULL;
+  qopgf->r0 = NULL;
+  qopgf->bc.phase = NULL;
+  qopgf->sign.signmask = NULL;
+  return qopgf;
+}
 
 /*******************/
 /* public routines */
@@ -32,15 +56,11 @@ QOP_create_D_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
 QOP_GaugeField *
 QOP_create_G_from_raw(QOP_Real *links[], QOP_evenodd_t evenodd)
 {
-  QOP_GaugeField *qopgf;
-  int i;
-  QOP_malloc(qopgf, QOP_GaugeField, 1);
-  QOP_malloc(qopgf->links, QDP_ColorMatrix *, QOP_common.ndim);
-  for(i=0; i<QOP_common.ndim; i++) {
+  QOP_GaugeField *qopgf = QOP_new_G();
+  for(int i=0; i<QOP_common.ndim; i++) {
     qopgf->links[i] = QDP_create_M();
     QOP_qdp_eq_raw(M, qopgf->links[i], links[i], evenodd);
   }
-  qopgf->raw = NULL;
   return qopgf;
 }
 
@@ -75,7 +95,7 @@ QOP_extract_D_to_raw(QOP_Real *dest, QOP_DiracFermion *src,
 
 void
 QOP_extract_G_to_raw(QOP_Real *dest[], QOP_GaugeField *src,
-			QOP_evenodd_t evenodd)
+		     QOP_evenodd_t evenodd)
 {
   int i;
   for(i=0; i<QOP_common.ndim; i++) {
@@ -244,15 +264,11 @@ QOP_create_D_from_qdp(QDP_DiracFermion *src)
 QOP_GaugeField *
 QOP_create_G_from_qdp(QDP_ColorMatrix *links[])
 {
-  QOP_GaugeField *qopgf;
-  int i;
-  QOP_malloc(qopgf, QOP_GaugeField, 1);
-  QOP_malloc(qopgf->links, QDP_ColorMatrix *, QOP_common.ndim);
-  for(i=0; i<QOP_common.ndim; i++) {
+  QOP_GaugeField *qopgf = QOP_new_G();
+  for(int i=0; i<QOP_common.ndim; i++) {
     qopgf->links[i] = QDP_create_M();
     QDP_M_eq_M(qopgf->links[i], links[i], QDP_all);
   }
-  qopgf->raw = NULL;
   return qopgf;
 }
 
@@ -324,14 +340,10 @@ QOP_convert_D_from_qdp(QDP_DiracFermion *src)
 QOP_GaugeField *
 QOP_convert_G_from_qdp(QDP_ColorMatrix *links[])
 {
-  QOP_GaugeField *qopgf;
-  int i;
-  QOP_malloc(qopgf, QOP_GaugeField, 1);
-  QOP_malloc(qopgf->links, QDP_ColorMatrix *, QOP_common.ndim);
-  for(i=0; i<QOP_common.ndim; i++) {
+  QOP_GaugeField *qopgf = QOP_new_G();
+  for(int i=0; i<QOP_common.ndim; i++) {
     qopgf->links[i] = links[i];
   }
-  qopgf->raw = NULL;
   return qopgf;
 }
 
@@ -414,6 +426,32 @@ rephase_func(QLA_ColorMatrix *m, int coords[])
   }
 }
 
+static void
+scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
+{
+  nd = QDP_ndim();
+  for(int i=0; i<nd; i++) {
+    bc_dir = -1;
+    staggered_sign_bits = 0;
+    if(g->bc.phase && (g->bc.phase[i].re!=1. || g->bc.phase[i].im!=0.)) {
+      bc_dir = i;
+      bc_coord = QDP_coord_size(i);
+      bc_origin = g->r0[i];
+      if(inv) {
+	QLA_Complex z;
+	QLA_c_eq_r_plus_ir(z, g->bc.phase[i].re, g->bc.phase[i].im);
+	QLA_c_eq_r_div_c(bc_phase, 1, z);
+      } else {
+	QLA_c_eq_r_plus_ir(bc_phase, g->bc.phase[i].re, g->bc.phase[i].im);
+      }
+    }
+    if(g->sign.signmask) {
+      staggered_sign_bits = g->sign.signmask[i];
+    }
+    QDP_M_eq_func(l[i], rephase_func, QDP_all);
+  }
+}
+
 void
 QOP_rephase_G(QOP_GaugeField *links,
 	      int *r0,
@@ -421,18 +459,11 @@ QOP_rephase_G(QOP_GaugeField *links,
 	      QOP_staggered_sign_t *sign)
 {
   nd = QDP_ndim();
-  for(int i=0; i<nd; i++) {
-    bc_dir = -1;
-    staggered_sign_bits = 0;
-    if(bc && (bc->phase[i].re!=1. || bc->phase[i].im!=0.)) {
-      bc_dir = i;
-      bc_coord = QDP_coord_size(i);
-      bc_origin = r0[i];
-      QLA_c_eq_r_plus_ir(bc_phase, bc->phase[i].re, bc->phase[i].im);
-    }
-    if(sign) {
-      staggered_sign_bits = sign->signmask[i];
-    }
-    QDP_M_eq_func(links->links[i], rephase_func, QDP_all);
-  }
+  //links->scale = scale;
+  //links->chained = 1;
+#define copyarray(d,s,t,n) do{ QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t)); }while(0)
+  copyarray(links->r0, r0, int, nd);
+  copyarray(links->bc.phase, bc->phase, QOP_Complex, nd);
+  copyarray(links->sign.signmask, sign->signmask, int, nd);
+  scale(links->links, links, 0);
 }

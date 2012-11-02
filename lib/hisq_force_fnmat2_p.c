@@ -4,13 +4,13 @@
 #include <qop_internal.h>
 
 void 
-QOP_hisq_deriv_multi_wrapper_fnmat2(QOP_info_t *info,  
-				    QOP_FermionLinksHisq *flh,
-				    QOP_Force *Force, 
-				    QOP_hisq_coeffs_t *hisq_coeff,
-				    REAL *residues,
-				    QDP_ColorVector *x[], 
-				    int *n_orders_naik)
+QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,  
+				QOP_FermionLinksHisq *flh,
+				QDP_ColorMatrix *deriv[],
+				QOP_hisq_coeffs_t *hisq_coeff,
+				REAL *residues,
+				QDP_ColorVector *x[], 
+				int *n_orders_naik)
 {
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
 
@@ -18,9 +18,6 @@ QOP_hisq_deriv_multi_wrapper_fnmat2(QOP_info_t *info,
   double totalflops = 0;
   int siteflops = 0;
   QOP_info_t tinfo;
-
-  QDP_ColorMatrix *force[4] =  {Force->force[0], Force->force[1], 
-				Force->force[2], Force->force[3]};
 
   QDP_ColorMatrix *Ugf[4], *Vgf[4], *Wgf[4];
   for(int i=0; i<4; i++) {
@@ -155,8 +152,8 @@ QOP_hisq_deriv_multi_wrapper_fnmat2(QOP_info_t *info,
   // eps multiplication done outside QOP 
   for(int dir=0; dir<4; dir++) {
     QLA_Real treal = 2;
-    QDP_M_peq_r_times_M(force[dir], &treal, force_accum_1[dir], QDP_even);
-    QDP_M_meq_r_times_M(force[dir], &treal, force_accum_1[dir], QDP_odd);
+    QDP_M_peq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_even);
+    QDP_M_meq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_odd);
   }
   siteflops += 4*36;
 
@@ -177,40 +174,38 @@ QOP_hisq_deriv_multi_wrapper_fnmat2(QOP_info_t *info,
 }
 
 void 
-QOP_hisq_force_multi_wrapper_fnmat2(QOP_info_t *info,  
-				    QOP_FermionLinksHisq *flh,
-				    QOP_Force *Force, 
-				    QOP_hisq_coeffs_t *hisq_coeff,
-				    REAL *residues,
-				    QDP_ColorVector *x[], 
-				    int *n_orders_naik)
+QOP_hisq_force_multi_fnmat2_qdp(QOP_info_t *info,  
+				QOP_FermionLinksHisq *flh,
+				QDP_ColorMatrix *force[], 
+				QOP_hisq_coeffs_t *hisq_coeff,
+				REAL *residues,
+				QDP_ColorVector *x[], 
+				int *n_orders_naik)
 {
   double dtime = QOP_time();
 
-  QDP_ColorMatrix *tforce0[4];
+  QDP_ColorMatrix *deriv[4];
   for(int mu=0; mu<4; mu++) {
-    tforce0[mu] = QDP_create_M();
-    QDP_M_eq_zero(tforce0[mu], QDP_all);
+    deriv[mu] = QDP_create_M();
+    QDP_M_eq_zero(deriv[mu], QDP_all);
   }
-  QOP_Force *deriv = QOP_convert_F_from_qdp(tforce0);
-  QOP_hisq_deriv_multi_wrapper_fnmat2(info, flh, deriv, hisq_coeff, residues, x, n_orders_naik);
-  QDP_ColorMatrix **tforce = QOP_convert_F_to_qdp(deriv); // also destroys deriv
-  QDP_ColorMatrix *mtmp = QDP_create_M();
+  QOP_hisq_deriv_multi_fnmat2_qdp(info, flh, deriv, hisq_coeff, residues, x, n_orders_naik);
 
   // contraction with the link in question should be done here,
   // after contributions from all levels of smearing are taken into account
   // Put antihermitian traceless part into momentum 
   // add force to momentum
+  QDP_ColorMatrix *mtmp = QDP_create_M();
   for(int dir=0; dir<4; dir++) {
-    QDP_M_eq_M_times_Ma(mtmp, flh->U_links[dir], tforce[dir], QDP_all);
-    QDP_M_eq_antiherm_M(tforce[dir], mtmp, QDP_all);
-    QDP_M_peq_M(Force->force[dir], tforce[dir], QDP_all);
+    QDP_M_eq_M_times_Ma(mtmp, flh->U_links[dir], deriv[dir], QDP_all);
+    QDP_M_eq_antiherm_M(deriv[dir], mtmp, QDP_all);
+    QDP_M_peq_M(force[dir], deriv[dir], QDP_all);
   }
   info->final_flop += (4.*(198+24+18))*QDP_sites_on_node; 
 
   QDP_destroy_M(mtmp);
   for(int mu=0; mu<4; mu++) {
-    QDP_destroy_M(tforce[mu]);
+    QDP_destroy_M(deriv[mu]);
   }
 
   info->final_sec = QOP_time() - dtime;

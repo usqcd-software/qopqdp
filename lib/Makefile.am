@@ -17,11 +17,13 @@ libqopqdp_a_SOURCES = \
 
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
+  pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
   pcstubs/symanzik_1loop_gauge_action_f2.c pcstubs/symanzik_1loop_gauge_action_d2.c \
   pcstubs/symanzik_1loop_gauge_force_f2.c pcstubs/symanzik_1loop_gauge_force_d2.c \
   pcstubs/asqtad_dslash_f2.c pcstubs/asqtad_dslash_d2.c \
   pcstubs/asqtad_invert_f2.c pcstubs/asqtad_invert_d2.c \
   pcstubs/asqtad_force_f2.c pcstubs/asqtad_force_d2.c \
+  pcstubs/asqtad_force_asvec_f2.c pcstubs/asqtad_force_asvec_d2.c \
   pcstubs/asqtad_force_fnmat_f2.c pcstubs/asqtad_force_fnmat_d2.c \
   pcstubs/hisq_links_f2.c pcstubs/hisq_links_d2.c \
   pcstubs/hisq_reunit_f2.c pcstubs/hisq_reunit_d2.c \
@@ -45,11 +47,13 @@ NC2SOURCES = \
 
 NC3SOURCES = \
   pcstubs/common_f3.c pcstubs/common_d3.c \
+  pcstubs/gauge_deriv_d3.c pcstubs/gauge_deriv_f3.c \
   pcstubs/symanzik_1loop_gauge_action_f3.c pcstubs/symanzik_1loop_gauge_action_d3.c \
   pcstubs/symanzik_1loop_gauge_force_f3.c pcstubs/symanzik_1loop_gauge_force_d3.c \
   pcstubs/asqtad_dslash_f3.c pcstubs/asqtad_dslash_d3.c \
   pcstubs/asqtad_invert_f3.c pcstubs/asqtad_invert_d3.c \
   pcstubs/asqtad_force_f3.c pcstubs/asqtad_force_d3.c \
+  pcstubs/asqtad_force_asvec_f3.c pcstubs/asqtad_force_asvec_d3.c \
   pcstubs/asqtad_force_fnmat_f3.c pcstubs/asqtad_force_fnmat_d3.c \
   pcstubs/hisq_links_f3.c pcstubs/hisq_links_d3.c \
   pcstubs/hisq_reunit_f3.c pcstubs/hisq_reunit_d3.c \
@@ -74,16 +78,14 @@ NC3SOURCES = \
 
 EXTRA_DIST = \
   common_p.c \
+  gauge_deriv_p.c \
   symanzik_1loop_gauge_action_p.c \
-  symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \
-  asqtad_force_fnmat_p.c \
-  asqtad_force_fnmat2_p.c \
+  asqtad_force_asvec_p.c \
   asqtad_force_fnmat3_p.c \
-  hisq_force_fnmat_p.c \
   hisq_force_fnmat2_p.c \
   hisq_force_p.c \
   hisq_links_p.c \

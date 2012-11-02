@@ -18,9 +18,24 @@ struct QOP_F3_DiracFermion_struct {
   QOP_F_Real *raw;
 };
 
+typedef void (*QOP_F3_gauge_deriv)(QDP_F3_ColorMatrix **d[],
+				    QOP_F3_GaugeField *g,
+				    QDP_F3_ColorMatrix *c[]);
+
+typedef void (*QOP_F3_gauge_scale)(QDP_F3_ColorMatrix *l[],
+				    QOP_F3_GaugeField *g, int inv);
+
 struct QOP_F3_GaugeField_struct {
   QDP_F3_ColorMatrix **links;
   QOP_F_Real **raw;
+  QOP_F3_GaugeField **parents;
+  QOP_F3_gauge_deriv deriv;
+  QOP_F3_gauge_scale scale;
+  int *r0;
+  QOP_bc_t bc;
+  QOP_staggered_sign_t sign;
+  int chained;
+  int nparents;
 };
 
 struct QOP_F3_Force_struct {
@@ -83,6 +98,7 @@ struct QOP_F3_FermionLinksWilson_struct {
   QDP_F3_ColorMatrix **bcklinks;
   QDP_F3_ColorMatrix **dbllinks;
   QOP_F3_GaugeField *qopgf;
+  QOP_F3_GaugeField *gauge;
   QDP_F3_DiracPropagator *qdpclov;
   QOP_F_Real *clov, *clovinv;
   QOP_F_Real **rawlinks, *rawclov;
@@ -210,9 +226,13 @@ void QOP_F3_asqtad_deriv(QOP_info_t *info, QDP_F3_ColorMatrix *gauge[],
 			  QDP_F3_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
 			  QDP_F3_ColorMatrix *mid_fat[], QDP_F3_ColorMatrix *mid_naik[]);
 
-void QOP_F3_asqtad_force_multi_fnmat(QOP_info_t *info, QOP_F3_GaugeField *gauge,
-				      QOP_F3_Force *force, QOP_asqtad_coeffs_t *coef,
-				      QOP_F_Real eps[], QDP_F3_ColorVector *x[], int nterms);
+void QOP_F3_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QOP_F3_GaugeField *gauge,
+					  QDP_F3_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+					  QOP_F_Real eps[], QDP_F3_ColorVector *x[], int nsrc);
+
+void QOP_F3_asqtad_force_multi_fnmat_qdp(QOP_info_t *info, QOP_F3_GaugeField *gauge,
+					  QDP_F3_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+					  QOP_F_Real eps[], QDP_F3_ColorVector *x[], int nterms);
 
 //AB internal operations for HISQ
 
@@ -232,22 +252,22 @@ QOP_F3_hisq_force_multi_wrapper_fnmat(QOP_info_t *info,
 				       int *n_orders_naik);
 
 void 
-QOP_F3_hisq_deriv_multi_wrapper_fnmat2(QOP_info_t *info,  
-					QOP_F3_FermionLinksHisq *flh,
-					QOP_F3_Force *Force, 
-					QOP_hisq_coeffs_t *hisq_coeff,
-					QOP_F_Real *epsv,
-					QDP_F3_ColorVector *in_pt[], 
-					int *n_orders_naik);
+QOP_F3_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,  
+				    QOP_F3_FermionLinksHisq *flh,
+				    QDP_F3_ColorMatrix *deriv[],
+				    QOP_hisq_coeffs_t *hisq_coeff,
+				    QOP_F_Real *epsv,
+				    QDP_F3_ColorVector *in_pt[], 
+				    int *n_orders_naik);
 
 void 
-QOP_F3_hisq_force_multi_wrapper_fnmat2(QOP_info_t *info,  
-					QOP_F3_FermionLinksHisq *flh,
-					QOP_F3_Force *Force, 
-					QOP_hisq_coeffs_t *hisq_coeff,
-					QOP_F_Real *epsv,
-					QDP_F3_ColorVector *in_pt[], 
-					int *n_orders_naik);
+QOP_F3_hisq_force_multi_fnmat2_qdp(QOP_info_t *info,  
+				    QOP_F3_FermionLinksHisq *flh,
+				    QDP_F3_ColorMatrix *force[],
+				    QOP_hisq_coeffs_t *hisq_coeff,
+				    QOP_F_Real *epsv,
+				    QDP_F3_ColorVector *in_pt[], 
+				    int *n_orders_naik);
 
 void QOP_F3_u3reunit(QOP_info_t *info, QDP_F3_ColorMatrix *U, QDP_F3_ColorMatrix *V);
 
