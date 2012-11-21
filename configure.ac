@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.18.1, [osborn at alcf.anl.gov])
+AC_INIT(qopqdp, 0.18.2, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 #AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])

@@ -163,6 +163,25 @@ typedef struct {
   double aniso;
 } QOP_wilson_coeffs_t;
 
+  /* Oktay-Kronfeld OK action datatypes */
+typedef struct {
+  double kapifla ;
+  double kappa_s ;
+  double kappa_t ;
+  double r_s     ;
+  double r_t     ;
+  double zeta    ;
+  double c_E     ; 
+  double c_B     ; 
+  double c_1     ;
+  double c_2     ;
+  double c_3     ;
+  double c_4     ;
+  double c_5     ;
+  double c_EE    ; 
+  double u0      ;
+} QOP_wilson_ifla_coeffs_t;
+
   /* Domain Wall datatypes */
 typedef struct {
   // need to add Mobius parameters here

@@ -51,5 +51,6 @@
 #define QOP_su3reunit QOP_F3_su3reunit
 #define QOP_u3reunit QOP_F3_u3reunit
 #define QOP_wilson_dslash_get_tmp QOP_F3_wilson_dslash_get_tmp
+#define QOP_wilson_ifla_dslash_qdp    QOP_F3_wilson_ifla_dslash_qdp
 
 #endif //_QOP_F3__IPC_GENERIC_H

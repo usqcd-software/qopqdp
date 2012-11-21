@@ -104,6 +104,8 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
   if(0) {
     //if(flw->gauge && flw->gauge->chained &&
     //(flw->gauge->nparents || doLastScale)) { // apply chain rule
+    //warning: passing argument 4 of 'QOP_F3_gauge_deriv_multi_qdp' from incompatible pointer type [enabled by default]
+    //note: expected 'struct QDP_F3_ColorMatrix ***' but argument is of type 'struct QDP_F3_ColorMatrix * (*)[4]'
     QOP_gauge_deriv_multi_qdp(info, deriv, &flw->gauge, &d, 1, doLastScale);
     for(int mu=0; mu<4; mu++) {
       QDP_destroy_M(d[mu]);

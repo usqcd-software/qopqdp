@@ -90,9 +90,6 @@ static QDP_DiracFermion *tin[NTMP];
 #define tmpnum(eo,n) ((eo)+3*((n)-1))
 #define tmpsub(eo,n) tin[tmpnum(eo,n)]
 
-#define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
-#define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
-
 #define check_setup(flw) \
 { \
   if( (!dslash_setup) || (QOP_wilson_optnum != old_optnum) ) { \
@@ -662,8 +659,8 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 /* --------------------------------------------------- */
 /* This part is added by Bugra ----------------------- */
 
-static QOP_FermionLinksWilson *
-wilson_initialize_gauge_L()
+QOP_FermionLinksWilson *
+QOP_wilson_initialize_gauge_L()
 {
   QOP_FermionLinksWilson *flw;
 
@@ -704,7 +701,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   WILSON_INVERT_BEGIN;
 
   /* initialize FermionLinksWilson and allocate memory---- */
-  flw = wilson_initialize_gauge_L();
+  flw = QOP_wilson_initialize_gauge_L();
 
   /* First create QDP Color Matrices */
   for(i=0; i<4; i++) {
@@ -869,7 +866,7 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 
   WILSON_INVERT_BEGIN;
 
-  flw = wilson_initialize_gauge_L();
+  flw = QOP_wilson_initialize_gauge_L();
 
   if(clov!=NULL) {
     int size = QDP_sites_on_node*CLOV_REALS;
@@ -1497,3 +1494,1073 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
   }
   TRACE;
 }
+
+#if QOP_Colors == 3
+
+// ---------------------------------------------------------- :
+// new fermilab action IFLA -- added by bugra --------------- :
+// New name is Ok-action ------------------------------------ :
+// ---------------------------------------------------------- :
+// ---------------------------------------------------------- :
+static void
+wilson_okaction_full_testtadpole(QOP_FermionLinksWilson *flw,
+                                 QDP_DiracFermion *dest,
+                                 QDP_DiracFermion *src,
+                                 int sign,
+                                 QOP_wilson_ifla_coeffs_t *coeffs,
+                                 QOP_evenodd_t eo, int n);
+void
+QOP_wilson_ifla_dslash(QOP_info_t *info,
+                       QOP_FermionLinksWilson *flw,
+                       REAL kappa,
+                       int sign,
+                       QOP_wilson_ifla_coeffs_t *coeffs,
+                       QOP_DiracFermion *out,
+                       QOP_DiracFermion *in,
+                       QOP_evenodd_t eo_out,
+                       QOP_evenodd_t eo_in)
+{
+  //printf("This is the function : (QOP_wilson_ifla_dslash)\n");
+  //printf("Currently being tested **\n");
+  QOP_wilson_ifla_dslash_qdp(info,flw,kappa,sign,coeffs,out->df,in->df,eo_out,eo_in);
+};
+
+void QOP_wilson_ifla_dslash_qdp(QOP_info_t *info,
+                                QOP_FermionLinksWilson *flw,
+                                REAL kappa,
+                                int  sign,
+                                QOP_wilson_ifla_coeffs_t *coeffs,
+                                QDP_DiracFermion *out,
+                                QDP_DiracFermion *in,
+                                QOP_evenodd_t eo_out,
+                                QOP_evenodd_t eo_in)
+{
+#if 0
+  // test version
+  wilson_ifla_full_tad(flw,out,in,sign,coeffs,2,2);
+  //wilson_okaction_full_4(flw,out,in,sign,coeffs,2,2);
+#else
+  // new version correct c_5 term
+  wilson_okaction_full_testtadpole(flw,out,in,sign,coeffs,2,2);
+#endif
+};
+
+// ****************************************************************
+// ****************************************************************
+//    _____.   -----.  .      .-----.  -----. .    .  |
+//  ||     |  |        |      |     | |       |    |  |     
+//  ||     |--.-----.  |      |-----| .-----. |----|  .-----.
+//  ||     |        |  |      |     |       | |    |  |     |
+//  ||-----.  .-----.   .----- .     . .-----. .    .  .-----.
+// ****************************************************************
+// ****************************************************************
+
+static void
+wilson_okaction_full_testtadpole(QOP_FermionLinksWilson *flw,
+				 QDP_DiracFermion *result,
+				 QDP_DiracFermion *source,
+				 int sign,
+				 QOP_wilson_ifla_coeffs_t *coeffs,
+				 QOP_evenodd_t eo,
+				 int n)
+{
+
+  //printf("LATEST V.4 FULL OK_ACTION\n");
+  /* Tadpole improved version   */
+  /* Here is the tadpole factor */
+  /* Hard wired for now         */
+  /* -------------------------- */
+  static int dir;
+  /* -------------------------- */
+  QLA_Real tpf      = 1.0/(coeffs->u0);
+  //warning: unused variable 'sff' ??
+  QLA_Real sff      = 1e10;
+
+  //printf("Tadpole Factor u0 = %e\n",tpf);
+  /* Coefficients ------------- */
+  QLA_Real Kappa   = coeffs->kapifla;
+  QLA_Real r_s     = coeffs->r_s;
+  QLA_Real zeta    = coeffs->zeta;
+  QLA_Real c_E     = coeffs->c_E;
+  QLA_Real c_B     = coeffs->c_B;
+  /* Improvement Coefficients */
+  QLA_Real c_1     = coeffs->c_1;
+  QLA_Real c_2     = coeffs->c_2;
+  QLA_Real c_3     = coeffs->c_3;
+  QLA_Real c_4     = coeffs->c_4;
+  QLA_Real c_5     = coeffs->c_5;
+  QLA_Real c_EE    = coeffs->c_EE;
+  /* ------------------------ */
+
+
+  QLA_Real slc1    = 0.5;
+
+#if 0
+  printf("&&IFLA COEFFICIENTS : \n");
+  printf("kappa_wilson = %e\t r_s = %e\t zeta = %e\n",Kappa,r_s,zeta);
+  printf("c_E          = %e\t c_B = %e\t c_EE = %e\n",c_E,c_B,c_EE);
+  printf("c_1          = %e\t c_2 = %e\t c_3  = %e\n",c_1,c_2,c_3);
+  printf("c_4          = %e\t c_5 = %e\t          \n",c_4,c_5);
+#endif
+
+
+  /* Gamma Matrix Indices in QDP ============================ */
+
+  //warning: variable 'bidx' set but not used ??
+  QLA_Int gidx[4],aidx[4],bidx[4];
+
+  gidx[0] = 1;  /* gamma[X]   = QDP_Gamma[1]   */
+  gidx[1] = 2;  /* gamma[Y]   = QDP_Gamma[2]   */
+  gidx[2] = 4;  /* gamma[Z]   = QDP_Gamma[4]   */
+  gidx[3] = 8;  /* gamma[0]   = QDP_Gamma[8]   */
+
+  aidx[0] = 9;  /* alpha[0]   = -QDP_Gamma[9]  */
+  aidx[1] = 10; /* alpha[1]   = -QDP_Gamma[10] */
+  aidx[2] = 12; /* alpha[2]   = -QDP_Gamma[12] */
+
+  bidx[0] = 3;  /* i*Sigma[0] = QDP_Gamma[3]   */
+  bidx[1] = 5;  /* i*Sigma[1] = QDP_Gamma[5]   */
+  bidx[2] = 6;  /* i*Simga[2] = QDP_Gamma[6]   */
+  /* --------------------------------------------------------- */
+
+  /* DUMMY FIELDS ============================================ */
+  int mu;
+  QDP_DiracFermion *tempD1,*tempD2,*tempD3,*tempD4;
+  QDP_DiracFermion *tempM,*tempP;
+  QDP_DiracFermion *gamD;
+  QDP_ColorMatrix  *tempG1,*tempG2,*tempG3;
+  QDP_DiracFermion *psi_up[4];
+  QDP_DiracFermion *psi_dw[4];
+  QDP_ColorMatrix *f12,*f02,*f01;
+  
+
+  tempD1       = QDP_create_D();
+  tempD2       = QDP_create_D();
+  tempD3       = QDP_create_D();
+  tempD4       = QDP_create_D();
+  tempP        = QDP_create_D();
+  tempM        = QDP_create_D();
+  gamD         = QDP_create_D();
+  tempG1       = QDP_create_M();
+  tempG2       = QDP_create_M();
+  tempG3       = QDP_create_M();
+  f01          = QDP_create_M();
+  f02          = QDP_create_M();
+  f12          = QDP_create_M();
+
+  /* --------------------------------------------------------- */
+  
+  /* Reading the gauge fields from FermionLinksWilson */
+  QDP_ColorMatrix  *gauge[4];
+
+  //  Rescaling the fields back
+  static QLA_Real scale1 = -2.0;
+  for(mu = 0;mu<4; mu++){
+    gauge[mu] = QDP_create_M();
+    //gauge[mu] = flw->links[mu];
+    QDP_M_eq_r_times_M(gauge[mu],&scale1,flw->links[mu],QDP_all);
+    // Here I scale with the tadpole factor 
+    /*
+    QDP_M_eq_r_times_M(gauge[mu],&tpf,gauge[mu],QDP_all);
+    */
+  };
+
+  //Kappa = Kappa*tpf;
+
+  /* This is 1/[ 2*Kappa_Wilson ] */
+  QLA_Real m4 = 0.5/Kappa;
+
+  //printf("1/(2*Kappa) = %e\n",m4);
+
+  /*^^ result = (1/2*Kappa)*Source  */
+  QDP_D_eq_zero(result,QDP_all);
+  QDP_D_eq_zero(gamD,QDP_all);
+
+#if 0
+  static QLA_DiracFermion *qladf;
+  static int st,nc,ns;
+  static QLA_Real c1,c2;
+  qladf = QDP_expose_D(source);
+  printf("Exposing Dirac Fermion :: source \n");  
+  for(st=1;st<2;st++){
+    for(nc=0;nc<3;nc++){
+      for(ns=0;ns<1;ns++){
+	c1=QLA_real(QLA_elem_D(qladf[st],nc,ns));
+	c2=QLA_imag(QLA_elem_D(qladf[st],nc,ns));
+	printf("site : %d  color : %d  spin  : %d = (%e,%e)\n",st,nc,ns,c1,c2);
+      };
+    };
+    printf("***********************************\n");
+  };
+  QDP_reset_D(source);
+#endif
+  // ------------------------------------------------
+  //QDP_D_eq_r_times_D(source,&sff,source,QDP_all);
+
+
+
+  //QLA_Real kapifla = m4+18.0*c_4; definition!!
+  QDP_D_eq_r_times_D(result,&m4,source,QDP_all);
+  
+  /*^^ result -= [ D-Slash ]*Source */
+  for(dir=0;dir<4;dir++){
+    psi_up[dir] = QDP_create_D();
+    psi_dw[dir] = QDP_create_D();
+  };
+
+  QLA_Real kat_a = 0.5*r_s*zeta+4.0*c_4;
+  QLA_Real kat_b = 0.5*zeta-(c_1)-(6.0*c_2);
+  
+  
+  //printf("r^primes_s = %e\n", kat_a);
+  //printf("zeta^prime = %e\n", kat_b);
+  
+
+  for(dir=0;dir<4;dir++){
+
+    QDP_D_eq_M_times_sD(psi_up[dir],gauge[dir],source,QDP_neighbor[dir],QDP_forward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD1,gauge[dir],source,QDP_all);
+    QDP_D_eq_sD(psi_dw[dir],tempD1,QDP_neighbor[dir],QDP_backward,QDP_all);
+    
+    if(dir!=3){
+      QDP_D_eq_D_plus_D(tempD1,psi_up[dir],psi_dw[dir],QDP_all);
+      QDP_D_eq_r_times_D(tempD1,&kat_a,tempD1,QDP_all);
+      
+      QDP_D_eq_D_minus_D(tempD2,psi_up[dir],psi_dw[dir],QDP_all);
+      QDP_D_eq_gamma_times_D(tempD3,tempD2,gidx[dir],QDP_all);
+      //
+      if(c_3!=0){
+	QDP_D_peq_D(gamD,tempD3,QDP_all); // \Gamma.D.Psi(x) for c_3
+      };
+      //
+      QDP_D_eq_r_times_D(tempD3,&kat_b,tempD3,QDP_all);
+      QDP_D_meq_D(tempD1,tempD3,QDP_all);
+    }
+    else {
+      /* This is the time component */
+      QDP_D_eq_D_plus_D( tempD1,psi_up[dir],psi_dw[dir],QDP_all);
+      QDP_D_eq_D_minus_D(tempD2,psi_up[dir],psi_dw[dir],QDP_all);
+      QDP_D_eq_gamma_times_D(tempD3,tempD2,gidx[dir],QDP_all);
+      QDP_D_meq_D(tempD1,tempD3,QDP_all);
+      QDP_D_eq_r_times_D(tempD1,&slc1,tempD1,QDP_all);
+    };
+    QDP_D_meq_D(result,tempD1,QDP_all);
+  };
+
+  
+  /* ---------- up to here is standard -------------- */
+ 
+  /* ------------------------------------------------ */
+  /* ------- start of c_1+c_2+c4 diagonal terms ----- */
+  /* ------------------------------------------------ */
+  if((c_1!=0)||(c_2!=0)||(c_4!=0)){
+
+    QLA_Real qc     = (0.5*c_1+c_2)*tpf;
+    
+    QDP_DiracFermion *u0u0,*u1u1,*u2u2,*d0d0,*d1d1,*d2d2;
+    
+    u0u0 = QDP_create_D();
+    u1u1 = QDP_create_D();
+    u2u2 = QDP_create_D();
+    d0d0 = QDP_create_D();
+    d1d1 = QDP_create_D();
+    d2d2 = QDP_create_D();
+    
+    if((c_1!=0)||(c_2!=0)){
+      // Create U_i(x)U_j(x+i)Psi(x+i+j)
+      QDP_D_eq_M_times_sD(u0u0,gauge[0],psi_up[0],QDP_neighbor[0],QDP_forward,QDP_all);
+      QDP_D_eq_M_times_sD(u1u1,gauge[1],psi_up[1],QDP_neighbor[1],QDP_forward,QDP_all);
+      QDP_D_eq_M_times_sD(u2u2,gauge[2],psi_up[2],QDP_neighbor[2],QDP_forward,QDP_all);
+      // Create Ud_i(x-i)Ud_j(x-i-j)Psi(x-i-j)
+      QDP_D_eq_Ma_times_D(tempD1,gauge[0],psi_dw[0],QDP_all);
+      QDP_D_eq_sD(d0d0,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+      QDP_D_eq_Ma_times_D(tempD1,gauge[1],psi_dw[1],QDP_all);
+      QDP_D_eq_sD(d1d1,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+      QDP_D_eq_Ma_times_D(tempD1,gauge[2],psi_dw[2],QDP_all);
+      QDP_D_eq_sD(d2d2,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+      // Construct and Add :
+      QDP_D_eq_D_minus_D(tempD1,u0u0,d0d0,QDP_all);
+      QDP_D_eq_gamma_times_D(tempD2,tempD1,gidx[0],QDP_all);
+      QDP_D_eq_D_minus_D(tempD1,u1u1,d1d1,QDP_all);
+      QDP_D_eq_gamma_times_D(tempD3,tempD1,gidx[1],QDP_all);
+      QDP_D_eq_D_plus_D(tempP,tempD2,tempD3,QDP_all);
+      QDP_D_eq_D_minus_D(tempD1,u2u2,d2d2,QDP_all);
+      QDP_D_eq_gamma_times_D(tempD2,tempD1,gidx[2],QDP_all);
+      QDP_D_peq_D(tempP,tempD2,QDP_all);
+      QDP_D_eq_r_times_D(tempP,&qc,tempP,QDP_all);
+      QDP_D_peq_D(result,tempP,QDP_all);
+    };
+    //  
+    if(c_4!=0){
+      QLA_Real tadc4 = c_4*tpf;
+      QDP_D_eq_D_plus_D(tempD1,u0u0,d0d0,QDP_all);
+      QDP_D_eq_D_plus_D(tempD2,u1u1,d1d1,QDP_all);
+      QDP_D_eq_D_plus_D(tempP,tempD1,tempD2,QDP_all);
+      QDP_D_eq_D_plus_D(tempD1,u2u2,d2d2,QDP_all);
+      QDP_D_peq_D(tempP,tempD1,QDP_all);
+      QDP_D_eq_r_times_D(tempP,&tadc4,tempP,QDP_all);
+      QDP_D_peq_D(result,tempP,QDP_all);
+    };
+    
+    QDP_destroy_D(u0u0);
+    QDP_destroy_D(u1u1);
+    QDP_destroy_D(u2u2);
+    QDP_destroy_D(d0d0);
+    QDP_destroy_D(d1d1);
+    QDP_destroy_D(d2d2);
+    
+  };
+  /* ------------------------------------------------ */
+  /* --------- end of c_1+c_2+c4 diagonal terms ----- */
+  /* ------------------------------------------------ */
+
+
+  /* ------------------------------------------------ */
+  /* ------- start of c_2 non-diagonal terms -------- */
+  /* ------------------------------------------------ */
+
+  if(c_2!=0){
+    QLA_Real c2half = (0.5*c_2)*tpf;
+    //1
+    QDP_DiracFermion *s0,*s1,*s2,*d0,*d1,*d2;
+    s0 = QDP_create_D();
+    s1 = QDP_create_D();
+    s2 = QDP_create_D();
+    d0 = QDP_create_D();
+    d1 = QDP_create_D();
+    d2 = QDP_create_D();
+    // -------------------------------------------------
+    QDP_D_eq_D_plus_D( s0,psi_up[0],psi_dw[0],QDP_all);
+    QDP_D_eq_D_plus_D( s1,psi_up[1],psi_dw[1],QDP_all);
+    QDP_D_eq_D_plus_D( s2,psi_up[2],psi_dw[2],QDP_all);
+    QDP_D_eq_D_minus_D(d0,psi_up[0],psi_dw[0],QDP_all);
+    QDP_D_eq_D_minus_D(d1,psi_up[1],psi_dw[1],QDP_all);
+    QDP_D_eq_D_minus_D(d2,psi_up[2],psi_dw[2],QDP_all);
+    // -------------------------------------------------
+    // 1
+    QDP_D_eq_D_plus_D(tempP,s1,s2,QDP_all);
+    QDP_D_eq_M_times_sD(tempD1,gauge[0],tempP,QDP_neighbor[0],QDP_forward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[0],tempP,QDP_all);
+    QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[0],QDP_backward,QDP_all);
+    QDP_D_eq_D_minus_D(tempP,tempD1,tempD2,QDP_all); //D_0(S_1+S_2)
+    //---
+    QDP_D_eq_M_times_sD(tempD1,gauge[1],d0,QDP_neighbor[1],QDP_forward,QDP_all);
+    QDP_D_eq_M_times_sD(tempD2,gauge[2],d0,QDP_neighbor[2],QDP_forward,QDP_all);
+    QDP_D_eq_D_plus_D(tempM,tempD1,tempD2,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[1],d0,QDP_all);
+    QDP_D_eq_sD(tempD1,tempD3,QDP_neighbor[1],QDP_backward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[2],d0,QDP_all);
+    QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[2],QDP_backward,QDP_all);
+    QDP_D_peq_D(tempD1,tempD2,QDP_all);
+    QDP_D_peq_D(tempM,tempD1,QDP_all);
+    QDP_D_peq_D(tempP,tempM,QDP_all);
+    QDP_D_eq_r_times_D(tempP,&c2half,tempP,QDP_all);
+    QDP_D_eq_gamma_times_D(tempM,tempP,gidx[0],QDP_all);
+    QDP_D_peq_D(result,tempM,QDP_all);
+    // 2
+    QDP_D_eq_D_plus_D(tempP,s0,s2,QDP_all);
+    QDP_D_eq_M_times_sD(tempD1,gauge[1],tempP,QDP_neighbor[1],QDP_forward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[1],tempP,QDP_all);
+    QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[1],QDP_backward,QDP_all);
+    QDP_D_eq_D_minus_D(tempP,tempD1,tempD2,QDP_all); //D_1(S_0+S_2)
+    //---
+    QDP_D_eq_M_times_sD(tempD1,gauge[0],d1,QDP_neighbor[0],QDP_forward,QDP_all);
+    QDP_D_eq_M_times_sD(tempD2,gauge[2],d1,QDP_neighbor[2],QDP_forward,QDP_all);
+    QDP_D_eq_D_plus_D(tempM,tempD1,tempD2,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[0],d1,QDP_all);
+    QDP_D_eq_sD(tempD1,tempD3,QDP_neighbor[0],QDP_backward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[2],d1,QDP_all);
+    QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[2],QDP_backward,QDP_all);
+    QDP_D_peq_D(tempD1,tempD2,QDP_all);
+    QDP_D_peq_D(tempM,tempD1,QDP_all);
+    QDP_D_peq_D(tempP,tempM,QDP_all);
+    QDP_D_eq_r_times_D(tempP,&c2half,tempP,QDP_all);
+    QDP_D_eq_gamma_times_D(tempM,tempP,gidx[1],QDP_all);
+    QDP_D_peq_D(result,tempM,QDP_all);
+    // 3
+    QDP_D_eq_D_plus_D(tempP,s0,s1,QDP_all);
+    QDP_D_eq_M_times_sD(tempD1,gauge[2],tempP,QDP_neighbor[2],QDP_forward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[2],tempP,QDP_all);
+    QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[2],QDP_backward,QDP_all);
+    QDP_D_eq_D_minus_D(tempP,tempD1,tempD2,QDP_all); //D_2(S_0+S_1)
+    //---
+    QDP_D_eq_M_times_sD(tempD1,gauge[0],d2,QDP_neighbor[0],QDP_forward,QDP_all);
+    QDP_D_eq_M_times_sD(tempD2,gauge[1],d2,QDP_neighbor[1],QDP_forward,QDP_all);
+    QDP_D_eq_D_plus_D(tempM,tempD1,tempD2,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[0],d2,QDP_all);
+    QDP_D_eq_sD(tempD1,tempD3,QDP_neighbor[0],QDP_backward,QDP_all);
+    QDP_D_eq_Ma_times_D(tempD3,gauge[1],d2,QDP_all);
+    QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[1],QDP_backward,QDP_all);
+    QDP_D_peq_D(tempD1,tempD2,QDP_all);
+    QDP_D_peq_D(tempM,tempD1,QDP_all);
+    QDP_D_peq_D(tempP,tempM,QDP_all);
+    QDP_D_eq_r_times_D(tempP,&c2half,tempP,QDP_all);
+    QDP_D_eq_gamma_times_D(tempM,tempP,gidx[2],QDP_all);
+    QDP_D_peq_D(result,tempM,QDP_all);
+    
+
+    // ---------------------------------------------------
+    QDP_destroy_D(s0);
+    QDP_destroy_D(s1);
+    QDP_destroy_D(s2);
+    QDP_destroy_D(d0);
+    QDP_destroy_D(d1);
+    QDP_destroy_D(d2);
+    
+  };
+  
+  
+/* ------------------------------------------------ */
+/* ------- end of c_2 non-diagonal terms ---------- */
+/* ------------------------------------------------ */
+ 
+/* ------------------------------------------------ */
+/* ------- start of c_E and c_EE terms --- -------- */
+/* ------------------------------------------------ */
+ 
+ if((c_E!=0)||(c_EE!=0)){
+   
+   QLA_Real cEhalf   = (0.5*c_E*zeta)*tpf*tpf*tpf;
+   QLA_Real cE2half  = (0.5*c_EE)*tpf*tpf*tpf*tpf;
+   
+   QDP_ColorMatrix  *e0,*e1,*e2;
+   
+   e0 = QDP_create_M();
+   e1 = QDP_create_M();
+   e2 = QDP_create_M();
+
+   f_mu_nu(e0,1.0,gauge,3,0); // E_0 = F_{30} :: Alpha[0] = -Qamma[9]
+   f_mu_nu(e1,1.0,gauge,3,1); // E_1 = F_{31} :: Alpha[1] = -Qamma[10]
+   f_mu_nu(e2,1.0,gauge,3,2); // E_2 = F_{32} :: Alpha[2] = -Qamma[12]
+   // tempD4 = [U_3(x).Psi(x+3)-Ud_3(x-3).Psi(x-3)]
+   QDP_D_eq_D_minus_D(tempD4,psi_up[3],psi_dw[3],QDP_all);
+   // --------------------------------------------------- 
+   /* C_E TERM */
+   QDP_D_eq_M_times_D(tempD1,e0,source,QDP_all); //E_0 Psi(x)
+   QDP_D_eq_gamma_times_D(tempP,tempD1,aidx[0],QDP_all);// +Qop[9]E_0Psi(x)  
+   QDP_D_eq_M_times_D(tempD2,e1,source,QDP_all); //E_1 Psi(x)
+   QDP_D_eq_gamma_times_D(tempM,tempD2,aidx[1],QDP_all);// +Qop[10]E_1Psi(x)
+   QDP_D_peq_D(tempP,tempM,QDP_all); // (Qop[9]E_0+Qop[10]E_1)Psi(x)
+   QDP_D_eq_M_times_D(tempD3,e2,source,QDP_all); // E_2 Psi(x)
+   QDP_D_eq_gamma_times_D(tempM,tempD3,aidx[2],QDP_all); // +Qop[12]E_2Psi(x)
+   QDP_D_peq_D(tempP,tempM,QDP_all); // (Qop[9]E_0+Qop[10]E_1+Qop[12]E_2)Psi(x)
+   // \alpha.E.Psi(x) = -tempP
+   QDP_D_eq_r_times_D(tempM,&cEhalf,tempP,QDP_all);
+   QDP_D_peq_D(result,tempM,QDP_all); // plus becaue of - sign from the op //
+   // --------------------------------------------------
+   /* c_EE TERM */
+   if(c_EE!=0){
+     QDP_D_eq_M_times_sD(tempD1,gauge[3],tempP,QDP_neighbor[3],QDP_forward,QDP_all);
+     QDP_D_eq_Ma_times_D(tempD3,gauge[3],tempP,QDP_all);
+     QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[3],QDP_backward,QDP_all);
+     QDP_D_meq_D(tempD1,tempD2,QDP_all);
+     QDP_D_eq_gamma_times_D(tempM,tempD1,8,QDP_all);//-Gam[4]D_4\alphaE
+     // --------------------------------------
+     QDP_D_eq_gamma_times_D(tempD2,tempD4,gidx[0],QDP_all);
+     QDP_D_eq_M_times_D(tempD3,e0,tempD2,QDP_all);
+     QDP_D_peq_D(tempM,tempD3,QDP_all);
+     //
+     QDP_D_eq_gamma_times_D(tempD2,tempD4,gidx[1],QDP_all);
+     QDP_D_eq_M_times_D(tempD3,e1,tempD2,QDP_all);
+     QDP_D_peq_D(tempM,tempD3,QDP_all);
+     //
+     QDP_D_eq_gamma_times_D(tempD2,tempD4,gidx[2],QDP_all);
+     QDP_D_eq_M_times_D(tempD3,e2,tempD2,QDP_all);
+     QDP_D_peq_D(tempM,tempD3,QDP_all);
+     // ----
+     QDP_D_eq_r_times_D(tempM,&cE2half,tempM,QDP_all);
+     QDP_D_meq_D(result,tempM,QDP_all);
+     
+   };
+   QDP_destroy_M(e0);
+   QDP_destroy_M(e1);
+   QDP_destroy_M(e2);
+  
+ };
+ /* ------------------------------------------------ */
+ /* --------- end of c_E and c_EE terms ------------ */
+ /* ------------------------------------------------ */
+
+
+ 
+ 
+ /* ------------------------------------------------ */
+ /* ------- start of c_B+c_3+c+5 ------ ------------ */
+ /* ------------------------------------------------ */ 
+ 
+ f_mu_nu(f12,1.0,gauge,1,2);
+ f_mu_nu(f02,1.0,gauge,0,2); //*****
+ f_mu_nu(f01,1.0,gauge,0,1); 
+
+ // LOOP NO : 8
+ //******if((c_B!=0)||(c_3!=0)){
+   
+   QLA_Real cBhalf = (0.5*c_B*zeta+8.0*c_5)*tpf*tpf*tpf;
+   QLA_Real c3half = (0.5*c_3)*tpf*tpf*tpf*tpf;
+   
+   //printf("cBhalf = %e\n",cBhalf);
+   //printf("c3half = %e\n",c3half);
+
+   
+   QDP_DiracFermion *b0psi;
+   QDP_DiracFermion *b1psi;
+   QDP_DiracFermion *b2psi;
+   QDP_DiracFermion *sigB;
+   b0psi = QDP_create_D();
+   b1psi = QDP_create_D();
+   b2psi = QDP_create_D();
+   sigB  = QDP_create_D();
+
+   // tempG1 = F_{12} = B_0
+   // b0psi  = B_0 Psi(x)
+   // tempD1 = Gamma[6].B_0.Psi(x) = (+)iSigma[0].B_0.Psi(x)
+   /* f_mu_nu(f12,1.0,gauge,1,2); */
+   QDP_D_eq_M_times_D(b0psi,f12,source,QDP_all);
+   QDP_D_eq_gamma_times_D(tempD1,b0psi,6,QDP_all);
+
+   // tempG2 = F_{20} = B_1
+   // b1psi  = B_1 Psi(x)
+   // tempD2 = Gamma[5].B_1.Psi(x) = (-)iSigma[1].B_1.Psi(x)
+   /* f_mu_nu(f02,1.0,gauge,0,2); */ //*****
+   QDP_D_eq_M_times_D(b1psi,f02,source,QDP_all);
+   QDP_D_eq_gamma_times_D(tempD2,b1psi,5,QDP_all);
+   
+   // tempG3 = F_{01} = B_2
+   // b2psi  = B_2 Psi(x)
+   // tempD3 = Gamma[3].B_2.Psi(x) = (+)iSigma[2].B_2.Psi(x)
+   /* f_mu_nu(f01,1.0,gauge,0,1); */
+   QDP_D_eq_M_times_D(b2psi,f01,source,QDP_all);
+   QDP_D_eq_gamma_times_D(tempD3,b2psi,3,QDP_all);
+   
+   // tempM = tempD1 - tempD2 Because : iSigma[1] = -Qamma[5]
+   // sigB  = tempM  + tempD3
+   QDP_D_eq_D_plus_D(tempM,tempD1,tempD2,QDP_all); //**** minus->plus
+   QDP_D_eq_D_plus_D(sigB,tempM,tempD3,QDP_all);
+   //
+   QDP_D_eq_r_times_D(tempP,&cBhalf,sigB,QDP_all);
+   // minus sign comes from the -c_B/2\Sigma.B term 
+   QDP_D_meq_D(result,tempP,QDP_all);
+    
+   QDP_destroy_D(b0psi);
+   QDP_destroy_D(b1psi);
+   QDP_destroy_D(b2psi);
+  
+   // Now the c_3 part 
+   //*****if(c3half!=0){
+     // iSigma.B Gamma.D Psi(x)
+     // 1 : tempG1 = F_{12}
+     QDP_D_eq_M_times_D(tempD1,f12,gamD,QDP_all);
+     QDP_D_eq_gamma_times_D(tempP,tempD1,6,QDP_all);
+     // 2 : tempG2 = F_{20}
+     QDP_D_eq_M_times_D(tempD1,f02,gamD,QDP_all);
+     QDP_D_eq_gamma_times_D(tempD2,tempD1,5,QDP_all);
+     QDP_D_peq_D(tempP,tempD2,QDP_all); //meq->peq
+     //3
+     QDP_D_eq_M_times_D(tempD1,f01,gamD,QDP_all);
+     QDP_D_eq_gamma_times_D(tempD2,tempD1,3,QDP_all);
+     QDP_D_peq_D(tempP,tempD2,QDP_all);
+     //
+     // gamma.D Sigma.B Psi(x)
+     for(dir=0;dir<3;dir++){
+       QDP_D_eq_M_times_sD(tempD1,gauge[dir],sigB,QDP_neighbor[dir],QDP_forward,QDP_all);
+       QDP_D_eq_Ma_times_D(tempD3,gauge[dir],sigB,QDP_all);
+       QDP_D_eq_sD(tempD2,tempD3,QDP_neighbor[dir],QDP_backward,QDP_all);
+       QDP_D_meq_D(tempD1,tempD2,QDP_all);
+       QDP_D_eq_gamma_times_D(tempD2,tempD1,gidx[dir],QDP_all);
+       QDP_D_peq_D(tempP,tempD2,QDP_all);
+     };
+     //
+     QDP_D_eq_r_times_D(tempP,&c3half,tempP,QDP_all);
+     QDP_D_peq_D(result,tempP,QDP_all);
+     //
+     //*****}; // end of c3half
+   
+     //*****}; // end of LOOP 8
+ 
+ 
+ // I no longer need tempP and tempM
+ // empty memory
+ //QDP_destroy_D(tempP);
+     QDP_destroy_D(sigB);
+     QDP_destroy_D(tempM);
+     QDP_destroy_D(gamD);
+
+ 
+ // Below is the new c_5 term where the three and five
+ // link terms are seperated and multiplied with the 
+ // appropriate power of tadpole factor. Keeping it separete for now.
+ // Factor of 2 coming from \Delta is observed in c_B calculation above.
+ // ::::::
+ QLA_Real oneeight = +0.125;
+ QLA_Real two      = +2.0;
+ 
+ QLA_Real c5u3     = c_5*tpf*tpf;
+ QLA_Real c5u5     = c_5*tpf*tpf*tpf*tpf;
+
+ QDP_ColorMatrix *mat;
+ mat = QDP_create_M();
+ 
+ //1
+#if 1
+ //f_mu_nu(f12,1,gauge,1,2);
+ 
+ // (I) i\Sigma[0][ B_0 (u1+d1+u2+d2) + (u1+d1+u2+d2) B_0 ] psi(x)
+ // i\Sigma[0] = QOP_Gamma[6] and B_0 = F_{12} 
+ // ##############################################################
+ // ##############################################################
+ // ##############################################################
+ // LINKS-SEPARATED VERSION 
+ // ###########################################################
+ // M = -U_2(x)U_1(x+2)Ud_2(x+1)+Ud_2(x-2)U_1(x-2)U_2(x+1-2)
+ QDP_M_eq_sM(tempG1,gauge[1],QDP_neighbor[2],QDP_forward,QDP_all);
+ QDP_M_eq_sM(tempG2,gauge[2],QDP_neighbor[1],QDP_forward,QDP_all);
+ QDP_M_eq_M_times_Ma(tempG3,tempG1,tempG2,QDP_all);
+ QDP_M_eq_M_times_M(tempG1,gauge[2],tempG3,QDP_all);
+ //---
+ QDP_M_eq_Ma_times_M(tempG2,gauge[2],gauge[1],QDP_all);
+ QDP_M_eq_M_times_sM(tempG3,tempG2,gauge[2],QDP_neighbor[1],QDP_forward,QDP_all);
+ QDP_M_eq_sM(mat,tempG3,QDP_neighbor[2],QDP_backward,QDP_all);
+ //---
+ QDP_M_meq_M(mat,tempG1,QDP_all);
+ QDP_M_eq_r_times_M(mat,&oneeight,mat,QDP_all); // times 2
+ // ###########################################################
+ // u1
+ QDP_M_eq_M_times_Ma(tempG1,mat,gauge[1],QDP_all);
+ QDP_M_eq_M_minus_M(tempG2,f12,tempG1,QDP_all);
+ // R :QDP_D_eq_M_times_sD(tempD1,gauge[1],source,QDP_neighbor[1],QDP_forward,QDP_all);
+ // W : tempD1 --> psi_up[1]
+ QDP_D_eq_M_times_D(tempD2,tempG2,psi_up[1],QDP_all); // YES
+ // d1
+ QDP_M_eq_Ma_times_M(tempG1,mat,gauge[1],QDP_all);
+ QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[1],QDP_backward,QDP_all);
+ QDP_M_eq_M_plus_M(tempG1,f12,tempG2,QDP_all);
+ 
+ //R:QDP_D_eq_Ma_times_D(tempD1,gauge[1],source,QDP_all);
+ //R:QDP_D_eq_M_times_sD(tempD3,tempG1,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+ QDP_D_eq_M_times_D(tempD3,tempG1,psi_dw[1],QDP_all); // YES
+ QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //u1
+ QDP_M_eq_Ma_times_M(tempG1,gauge[1],mat,QDP_all);
+ QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[1],QDP_backward,QDP_all);
+ QDP_M_eq_M_minus_M(tempG3,f12,tempG2,QDP_all);
+ QDP_M_eq_M_times_sM(tempG1,gauge[1],tempG3,QDP_neighbor[1],QDP_forward,QDP_all);
+ QDP_D_eq_M_times_sD(tempD3,tempG1,source,QDP_neighbor[1],QDP_forward,QDP_all);
+ QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //d1
+ QDP_M_eq_M_times_Ma(tempG1,gauge[1],mat,QDP_all);
+ QDP_M_eq_M_plus_M(tempG2,f12,tempG1,QDP_all);
+ QDP_M_eq_Ma_times_M(tempG1,gauge[1],tempG2,QDP_all);
+ QDP_D_eq_M_times_D(tempD1,tempG1,source,QDP_all);
+ QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+ //
+ QDP_D_peq_D(tempD2,tempD3,QDP_all); // all 5-links
+  //
+ QDP_D_eq_r_times_D(tempD2,&c5u5,tempD2,QDP_all);
+ QDP_D_eq_gamma_times_D(tempD4,tempD2,6,QDP_all);
+ QDP_D_peq_D(result,tempD4,QDP_all); // all 5-links added to result
+ //
+ // u1 M(x)Psi(x+1)
+ QDP_D_eq_M_times_sD(tempD4,mat,source,QDP_neighbor[1],QDP_forward,QDP_all);
+ //d1
+ QDP_D_eq_Ma_times_D(tempD1,mat,source,QDP_all); // Md(x)Psi(x)
+ // Md(x-1)Psi(x-1)
+ QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+ QDP_D_meq_D(tempD4,tempD3,QDP_all);
+ QDP_D_eq_r_times_D(tempD4,&two,tempD4,QDP_all);
+ //
+ QDP_D_eq_r_times_D(tempD4,&c5u3,tempD4,QDP_all);
+ QDP_D_eq_gamma_times_D(tempD3,tempD4,6,QDP_all);
+ QDP_D_peq_D(result,tempD3,QDP_all); // all 3-links added to result
+ 
+ // ###########################################################
+ QDP_M_eq_sM(tempG1,gauge[2],QDP_neighbor[1],QDP_forward,QDP_all);
+ QDP_M_eq_sM(tempG2,gauge[1],QDP_neighbor[2],QDP_forward,QDP_all);
+ QDP_M_eq_M_times_Ma(tempG3,tempG1,tempG2,QDP_all);
+ QDP_M_eq_M_times_M(mat,gauge[1],tempG3,QDP_all);
+ //---
+ QDP_M_eq_Ma_times_M(tempG2,gauge[1],gauge[2],QDP_all);
+ QDP_M_eq_M_times_sM(tempG3,tempG2,gauge[1],QDP_neighbor[2],QDP_forward,QDP_all);
+ QDP_M_eq_sM(tempG1,tempG3,QDP_neighbor[1],QDP_backward,QDP_all);
+ //---
+ QDP_M_meq_M(mat,tempG1,QDP_all);
+ QDP_M_eq_r_times_M(mat,&oneeight,mat,QDP_all);
+ // ###########################################################
+ // u2
+ QDP_M_eq_M_times_Ma(tempG1,mat,gauge[2],QDP_all);
+ QDP_M_eq_M_minus_M(tempG2,f12,tempG1,QDP_all);
+ // R : QDP_D_eq_M_times_sD(tempD1,gauge[2],source,QDP_neighbor[2],QDP_forward,QDP_all);
+ // W : tempD1 = psi_up[2]-----------V
+ QDP_D_eq_M_times_D(tempD2,tempG2,psi_up[2],QDP_all); // YES
+ // d2
+ QDP_M_eq_Ma_times_M(tempG1,mat,gauge[2],QDP_all);
+ QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[2],QDP_backward,QDP_all);
+ QDP_M_eq_M_plus_M(tempG1,f12,tempG2,QDP_all);
+
+ //R: QDP_D_eq_Ma_times_D(tempD1,gauge[2],source,QDP_all);
+ //R: QDP_D_eq_M_times_sD(tempD3,tempG1,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+ // W : V
+ QDP_D_eq_M_times_D(tempD3,tempG1,psi_dw[2],QDP_all); // YES
+ QDP_D_peq_D(tempD2,tempD3,QDP_all);
+ //u2
+ QDP_M_eq_Ma_times_M(tempG1,gauge[2],mat,QDP_all);
+ QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[2],QDP_backward,QDP_all);
+ QDP_M_eq_M_minus_M(tempG3,f12,tempG2,QDP_all);
+ QDP_M_eq_M_times_sM(tempG1,gauge[2],tempG3,QDP_neighbor[2],QDP_forward,QDP_all);
+ QDP_D_eq_M_times_sD(tempD3,tempG1,source,QDP_neighbor[2],QDP_forward,QDP_all);
+ QDP_D_peq_D(tempD2,tempD3,QDP_all);
+ //d2
+ QDP_M_eq_M_times_Ma(tempG1,gauge[2],mat,QDP_all);
+ QDP_M_eq_M_plus_M(tempG2,f12,tempG1,QDP_all);
+ QDP_M_eq_Ma_times_M(tempG1,gauge[2],tempG2,QDP_all);
+ QDP_D_eq_M_times_D(tempD1,tempG1,source,QDP_all);
+ QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+ //
+ QDP_D_peq_D(tempD2,tempD3,QDP_all); // all 5-links
+ QDP_D_eq_r_times_D(tempD2,&c5u5,tempD2,QDP_all);
+ QDP_D_eq_gamma_times_D(tempD3,tempD2,6,QDP_all);
+ QDP_D_peq_D(result,tempD3,QDP_all); // all 5-links added to result
+ //
+ // u1
+ QDP_D_eq_M_times_sD(tempD4,mat,source,QDP_neighbor[2],QDP_forward,QDP_all);
+ //d1
+ QDP_D_eq_Ma_times_D(tempD1,mat,source,QDP_all);
+ QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+ QDP_D_meq_D(tempD4,tempD3,QDP_all);
+ QDP_D_eq_r_times_D(tempD4,&two,tempD4,QDP_all);
+ //
+ QDP_D_eq_r_times_D(tempD4,&c5u3,tempD4,QDP_all);
+ QDP_D_eq_gamma_times_D(tempD2,tempD4,6,QDP_all);
+ QDP_D_peq_D(result,tempD2,QDP_all); // all 3-links added to result
+
+ // I no longer need F12
+ QDP_destroy_M(f12);
+#endif
+
+ //2
+#if 1
+ // ##############################################################
+ // ##############################################################
+ // ##############################################################
+ // (I) i\Sigma[1][ B_1 (u0+d0+u2+d2) + (u0+d0+u2+d2) B_0 ] psi(x)
+ // i\Sigma[1] = -QOP_Gamma[5] and B_1 = -F_{02} 
+ // ##############################################################
+ // ##############################################################
+ // ##############################################################
+ // LINKS-SEPARATED VERSION 
+ // ###########################################################
+ // M = Ud_2(x-2)U_0(x-0)U_2(x+0-2)-U_2(x)U_0(x+2)Ud_2(x+0)
+
+ 
+ //f_mu_nu(f02,1,gauge,0,2);
+ 
+ QDP_M_eq_sM(tempG1,gauge[0],QDP_neighbor[2],QDP_forward,QDP_all);
+ QDP_M_eq_sM(tempG2,gauge[2],QDP_neighbor[0],QDP_forward,QDP_all);
+ QDP_M_eq_M_times_Ma(tempG3,tempG1,tempG2,QDP_all);
+ QDP_M_eq_M_times_M(tempG1,gauge[2],tempG3,QDP_all);
+ //---
+ QDP_M_eq_Ma_times_M(tempG2,gauge[2],gauge[0],QDP_all);
+ QDP_M_eq_M_times_sM(tempG3,tempG2,gauge[2],QDP_neighbor[0],QDP_forward,QDP_all);
+ QDP_M_eq_sM(mat,tempG3,QDP_neighbor[2],QDP_backward,QDP_all);
+ //---
+ QDP_M_meq_M(mat,tempG1,QDP_all);
+ QDP_M_eq_r_times_M(mat,&oneeight,mat,QDP_all);
+ // ###########################################################
+ // u1
+ QDP_M_eq_M_times_Ma(tempG1,mat,gauge[0],QDP_all);
+ QDP_M_eq_M_minus_M(tempG2,f02,tempG1,QDP_all);
+ //R: QDP_D_eq_M_times_sD(tempD1,gauge[0],source,QDP_neighbor[0],QDP_forward,QDP_all);
+ //W: tempD1 = psi_up[0]-----------V
+ QDP_D_eq_M_times_D(tempD2,tempG2,psi_up[0],QDP_all); //YES
+  // d1
+  QDP_M_eq_Ma_times_M(tempG1,mat,gauge[0],QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[0],QDP_backward,QDP_all);
+  QDP_M_eq_M_plus_M(tempG1,f02,tempG2,QDP_all);
+  
+  //R:QDP_D_eq_Ma_times_D(tempD1,gauge[0],source,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD3,tempG1,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+  //W: tempD1 = psi_dw[0]---^
+  QDP_D_eq_M_times_D(tempD3,tempG1,psi_dw[0],QDP_all); //YES
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //u1
+  QDP_M_eq_Ma_times_M(tempG1,gauge[0],mat,QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[0],QDP_backward,QDP_all);
+  QDP_M_eq_M_minus_M(tempG3,f02,tempG2,QDP_all);
+  QDP_M_eq_M_times_sM(tempG1,gauge[0],tempG3,QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_D_eq_M_times_sD(tempD3,tempG1,source,QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //d1
+  QDP_M_eq_M_times_Ma(tempG1,gauge[0],mat,QDP_all);
+  QDP_M_eq_M_plus_M(tempG2,f02,tempG1,QDP_all);
+  QDP_M_eq_Ma_times_M(tempG1,gauge[0],tempG2,QDP_all);
+  QDP_D_eq_M_times_D(tempD1,tempG1,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+  //
+  QDP_D_peq_D(tempD2,tempD3,QDP_all); // all 5-links
+  //
+  QDP_D_eq_r_times_D(tempD2,&c5u5,tempD2,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD4,tempD2,5,QDP_all);
+  QDP_D_peq_D(result,tempD4,QDP_all); // 5-links added to result
+  //
+  // u1
+  QDP_D_eq_M_times_sD(tempD4,mat,source,QDP_neighbor[0],QDP_forward,QDP_all);
+  //d1
+  QDP_D_eq_Ma_times_D(tempD1,mat,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+  QDP_D_meq_D(tempD4,tempD3,QDP_all);
+  QDP_D_eq_r_times_D(tempD4,&two,tempD4,QDP_all);
+  //
+  QDP_D_eq_r_times_D(tempD4,&c5u3,tempD4,QDP_all);
+ 
+  QDP_D_eq_gamma_times_D(tempD3,tempD4,5,QDP_all);
+  QDP_D_peq_D(result,tempD3,QDP_all);
+  
+  // ###########################################################
+  // ###########################################################
+  // ###########################################################
+  
+  QDP_M_eq_sM(tempG1,gauge[2],QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_M_eq_sM(tempG2,gauge[0],QDP_neighbor[2],QDP_forward,QDP_all);
+  QDP_M_eq_M_times_Ma(tempG3,tempG1,tempG2,QDP_all);
+  QDP_M_eq_M_times_M(mat,gauge[0],tempG3,QDP_all);
+  //---
+  QDP_M_eq_Ma_times_M(tempG2,gauge[0],gauge[2],QDP_all);
+  QDP_M_eq_M_times_sM(tempG3,tempG2,gauge[0],QDP_neighbor[2],QDP_forward,QDP_all);
+  QDP_M_eq_sM(tempG1,tempG3,QDP_neighbor[0],QDP_backward,QDP_all);
+  //---
+  QDP_M_meq_M(mat,tempG1,QDP_all);
+  QDP_M_eq_r_times_M(mat,&oneeight,mat,QDP_all);
+  // ###########################################################
+  // u2
+  QDP_M_eq_M_times_Ma(tempG1,mat,gauge[2],QDP_all);
+  QDP_M_eq_M_minus_M(tempG2,f02,tempG1,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD1,gauge[2],source,QDP_neighbor[2],QDP_forward,QDP_all);
+  // W: tempD1 = psi_up[2]-----------V
+  QDP_D_eq_M_times_D(tempD2,tempG2,psi_up[2],QDP_all); //YES
+  // d2
+  QDP_M_eq_Ma_times_M(tempG1,mat,gauge[2],QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[2],QDP_backward,QDP_all);
+  QDP_M_eq_M_plus_M(tempG1,f02,tempG2,QDP_all);
+  //R:QDP_D_eq_Ma_times_D(tempD1,gauge[2],source,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD3,tempG1,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+  // W:
+  QDP_D_eq_M_times_D(tempD3,tempG1,psi_dw[2],QDP_all); //YES
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //u2
+  QDP_M_eq_Ma_times_M(tempG1,gauge[2],mat,QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[2],QDP_backward,QDP_all);
+  QDP_M_eq_M_minus_M(tempG3,f02,tempG2,QDP_all);
+  QDP_M_eq_M_times_sM(tempG1,gauge[2],tempG3,QDP_neighbor[2],QDP_forward,QDP_all);
+  QDP_D_eq_M_times_sD(tempD3,tempG1,source,QDP_neighbor[2],QDP_forward,QDP_all);
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //d2
+  QDP_M_eq_M_times_Ma(tempG1,gauge[2],mat,QDP_all);
+  QDP_M_eq_M_plus_M(tempG2,f02,tempG1,QDP_all);
+  QDP_M_eq_Ma_times_M(tempG1,gauge[2],tempG2,QDP_all);
+  QDP_D_eq_M_times_D(tempD1,tempG1,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+  //
+  QDP_D_peq_D(tempD2,tempD3,QDP_all); // all 5-links
+  QDP_D_eq_r_times_D(tempD2,&c5u5,tempD2,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD3,tempD2,5,QDP_all);
+  QDP_D_peq_D(result,tempD3,QDP_all); // 5 links added to the result 
+  //
+  // u1
+  QDP_D_eq_M_times_sD(tempD4,mat,source,QDP_neighbor[2],QDP_forward,QDP_all);
+  //d1
+  QDP_D_eq_Ma_times_D(tempD1,mat,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[2],QDP_backward,QDP_all);
+  QDP_D_meq_D(tempD4,tempD3,QDP_all);
+  QDP_D_eq_r_times_D(tempD4,&two,tempD4,QDP_all);
+  //
+  QDP_D_eq_r_times_D(tempD4,&c5u3,tempD4,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD2,tempD4,5,QDP_all);
+  QDP_D_peq_D(result,tempD2,QDP_all);
+  
+  // I no longer need f_02
+  QDP_destroy_M(f02);
+
+#endif
+
+  //3
+#if 1
+
+  // ##############################################################
+  // ##############################################################
+  // ##############################################################
+  // (I) i\Sigma[2][ B_2 (u0+d0+u1+d1) + (u0+d0+u1+d1) B_2 ] psi(x)
+  // i\Sigma[2] = +QOP_Gamma[3] and B_1 = +F_{01} 
+  // ##############################################################
+  // ##############################################################
+  // ##############################################################
+  // LINKS-SEPARATED VERSION 
+  // ###########################################################
+  // M = 
+
+  //f_mu_nu(f01,1,gauge,0,1);
+
+  QDP_M_eq_sM(tempG1,gauge[0],QDP_neighbor[1],QDP_forward,QDP_all);
+  QDP_M_eq_sM(tempG2,gauge[1],QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_M_eq_M_times_Ma(tempG3,tempG1,tempG2,QDP_all);
+  QDP_M_eq_M_times_M(tempG1,gauge[1],tempG3,QDP_all);
+  //---
+  QDP_M_eq_Ma_times_M(tempG2,gauge[1],gauge[0],QDP_all);
+  QDP_M_eq_M_times_sM(tempG3,tempG2,gauge[1],QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_M_eq_sM(mat,tempG3,QDP_neighbor[1],QDP_backward,QDP_all);
+  //---
+  QDP_M_meq_M(mat,tempG1,QDP_all);
+  QDP_M_eq_r_times_M(mat,&oneeight,mat,QDP_all);
+  // ###########################################################
+  // u1
+  QDP_M_eq_M_times_Ma(tempG1,mat,gauge[0],QDP_all);
+  QDP_M_eq_M_minus_M(tempG2,f01,tempG1,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD1,gauge[0],source,QDP_neighbor[0],QDP_forward,QDP_all);
+  //W:tempD1 = psi_up[0]------------V
+  QDP_D_eq_M_times_D(tempD2,tempG2,psi_up[0],QDP_all); //YES
+  // d1
+  QDP_M_eq_Ma_times_M(tempG1,mat,gauge[0],QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[0],QDP_backward,QDP_all);
+  QDP_M_eq_M_plus_M(tempG1,f01,tempG2,QDP_all);
+  //R:QDP_D_eq_Ma_times_D(tempD1,gauge[0],source,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD3,tempG1,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+  //W: tempD1 = psi_dw[0];
+  QDP_D_eq_M_times_D(tempD3,tempG1,psi_dw[0],QDP_all); //YES
+ QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //u1
+  QDP_M_eq_Ma_times_M(tempG1,gauge[0],mat,QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[0],QDP_backward,QDP_all);
+  QDP_M_eq_M_minus_M(tempG3,f01,tempG2,QDP_all);
+  QDP_M_eq_M_times_sM(tempG1,gauge[0],tempG3,QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_D_eq_M_times_sD(tempD3,tempG1,source,QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //d1
+  QDP_M_eq_M_times_Ma(tempG1,gauge[0],mat,QDP_all);
+  QDP_M_eq_M_plus_M(tempG2,f01,tempG1,QDP_all);
+  QDP_M_eq_Ma_times_M(tempG1,gauge[0],tempG2,QDP_all);
+  QDP_D_eq_M_times_D(tempD1,tempG1,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+  //
+  QDP_D_peq_D(tempD2,tempD3,QDP_all); // all 5-links
+  //
+  QDP_D_eq_r_times_D(tempD2,&c5u5,tempD2,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD4,tempD2,3,QDP_all);
+  QDP_D_peq_D(result,tempD4,QDP_all); // 5-links added to the result
+  //
+  // u1
+  QDP_D_eq_M_times_sD(tempD4,mat,source,QDP_neighbor[0],QDP_forward,QDP_all);
+  //d1
+  QDP_D_eq_Ma_times_D(tempD1,mat,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[0],QDP_backward,QDP_all);
+  QDP_D_meq_D(tempD4,tempD3,QDP_all);
+  QDP_D_eq_r_times_D(tempD4,&two,tempD4,QDP_all);
+  //
+  QDP_D_eq_r_times_D(tempD4,&c5u3,tempD4,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD3,tempD4,3,QDP_all);
+  QDP_D_peq_D(result,tempD3,QDP_all); // 3-links added to the result
+  
+  
+  // ###########################################################
+  QDP_M_eq_sM(tempG1,gauge[1],QDP_neighbor[0],QDP_forward,QDP_all);
+  QDP_M_eq_sM(tempG2,gauge[0],QDP_neighbor[1],QDP_forward,QDP_all);
+  QDP_M_eq_M_times_Ma(tempG3,tempG1,tempG2,QDP_all);
+  QDP_M_eq_M_times_M(mat,gauge[0],tempG3,QDP_all);
+  //---
+  QDP_M_eq_Ma_times_M(tempG2,gauge[0],gauge[1],QDP_all);
+  QDP_M_eq_M_times_sM(tempG3,tempG2,gauge[0],QDP_neighbor[1],QDP_forward,QDP_all);
+  QDP_M_eq_sM(tempG1,tempG3,QDP_neighbor[0],QDP_backward,QDP_all);
+  //---
+  QDP_M_meq_M(mat,tempG1,QDP_all);
+  QDP_M_eq_r_times_M(mat,&oneeight,mat,QDP_all);
+  // ###########################################################
+  // u2
+  QDP_M_eq_M_times_Ma(tempG1,mat,gauge[1],QDP_all);
+  QDP_M_eq_M_minus_M(tempG2,f01,tempG1,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD1,gauge[1],source,QDP_neighbor[1],QDP_forward,QDP_all);
+  // W: tempD1 = psi_up[1]-----------V
+  QDP_D_eq_M_times_D(tempD2,tempG2,psi_up[1],QDP_all); // YES
+  // d2
+  QDP_M_eq_Ma_times_M(tempG1,mat,gauge[1],QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[1],QDP_backward,QDP_all);
+  QDP_M_eq_M_plus_M(tempG1,f01,tempG2,QDP_all);
+  //R:QDP_D_eq_Ma_times_D(tempD1,gauge[1],source,QDP_all);
+  //R:QDP_D_eq_M_times_sD(tempD3,tempG1,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+  //W : tempD1 =psi_dw[1]
+  QDP_D_eq_M_times_D(tempD3,tempG1,psi_dw[1],QDP_all); // YES
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //u2
+  QDP_M_eq_Ma_times_M(tempG1,gauge[1],mat,QDP_all);
+  QDP_M_eq_sM(tempG2,tempG1,QDP_neighbor[1],QDP_backward,QDP_all);
+  QDP_M_eq_M_minus_M(tempG3,f01,tempG2,QDP_all);
+  QDP_M_eq_M_times_sM(tempG1,gauge[1],tempG3,QDP_neighbor[1],QDP_forward,QDP_all);
+  QDP_D_eq_M_times_sD(tempD3,tempG1,source,QDP_neighbor[1],QDP_forward,QDP_all);
+  QDP_D_peq_D(tempD2,tempD3,QDP_all);
+  //d2
+  QDP_M_eq_M_times_Ma(tempG1,gauge[1],mat,QDP_all);
+  QDP_M_eq_M_plus_M(tempG2,f01,tempG1,QDP_all);
+  QDP_M_eq_Ma_times_M(tempG1,gauge[1],tempG2,QDP_all);
+  QDP_D_eq_M_times_D(tempD1,tempG1,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+  //
+  QDP_D_peq_D(tempD2,tempD3,QDP_all); // all 5-links
+  QDP_D_eq_r_times_D(tempD2,&c5u5,tempD2,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD3,tempD2,3,QDP_all);
+  QDP_D_peq_D(result,tempD3,QDP_all); // 5-links added
+  //
+  // u1
+  QDP_D_eq_M_times_sD(tempD4,mat,source,QDP_neighbor[1],QDP_forward,QDP_all);
+  //d1
+  QDP_D_eq_Ma_times_D(tempD1,mat,source,QDP_all);
+  QDP_D_eq_sD(tempD3,tempD1,QDP_neighbor[1],QDP_backward,QDP_all);
+  QDP_D_meq_D(tempD4,tempD3,QDP_all);
+  QDP_D_eq_r_times_D(tempD4,&two,tempD4,QDP_all);
+  //
+  QDP_D_eq_r_times_D(tempD4,&c5u3,tempD4,QDP_all);
+  QDP_D_eq_gamma_times_D(tempD2,tempD4,3,QDP_all);
+  QDP_D_peq_D(result,tempD2,QDP_all);
+
+  QDP_destroy_M(f01);
+#endif
+
+#if 0
+  //static QLA_DiracFermion *qladf;
+  //static int st,nc,ns;
+  //static QLA_Real c1,c2;
+  qladf = QDP_expose_D(result);
+  printf("Exposing Dirac Fermion :: result \n");  
+  for(st=1;st<2;st++){
+    for(nc=0;nc<3;nc++){
+      for(ns=0;ns<1;ns++){
+	c1=QLA_real(QLA_elem_D(qladf[st],nc,ns));
+	c2=QLA_imag(QLA_elem_D(qladf[st],nc,ns));
+	printf("site : %d  color : %d  spin  : %d = (%e,%e)\n",st,nc,ns,c1,c2);
+      };
+    };
+    printf("***********************************\n");
+  };
+  QDP_reset_D(result);
+#endif
+  // ------------------------------------------------
+  //  printf("Tracing my steps..... *** D-slash completed\n");
+
+  
+  
+
+
+ // DESTROYING FIELDS ----------------------------------
+ for(dir=0;dir<4;dir++){
+ QDP_destroy_D(psi_up[dir]);
+ QDP_destroy_D(psi_dw[dir]);
+ QDP_destroy_M(gauge[dir]);
+ };
+ QDP_destroy_M(tempG1);
+ QDP_destroy_M(tempG2);
+ QDP_destroy_M(tempG3);
+ QDP_destroy_D(tempD1);
+ QDP_destroy_D(tempD2);
+ QDP_destroy_D(tempD3);
+ QDP_destroy_D(tempD4);
+ QDP_destroy_M(mat);
+ 
+ QDP_destroy_D(tempP);
+};
+
+#endif /* QOP_Colors == 3 */

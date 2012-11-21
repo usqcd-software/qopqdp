@@ -61,6 +61,7 @@ NC3SOURCES = \
   pcstubs/hisq_force_f3.c pcstubs/hisq_force_d3.c \
   pcstubs/hisq_force_fnmat_f3.c pcstubs/hisq_force_fnmat_d3.c \
   pcstubs/wilson_dslash_f3.c pcstubs/wilson_dslash_d3.c \
+  pcstubs/wilson_ifla_invert_f3.c pcstubs/wilson_ifla_invert_d3.c \
   pcstubs/wilson_invert_f3.c pcstubs/wilson_invert_d3.c \
   pcstubs/wilson_force_f3.c pcstubs/wilson_force_d3.c \
   pcstubs/dw_dslash_f3.c pcstubs/dw_dslash_d3.c \
@@ -93,6 +94,7 @@ EXTRA_DIST = \
   hisq_reunit_p2.c \
   hisq_reunit_utilities_p.c \
   wilson_dslash_p.c \
+  wilson_ifla_invert_p.c \
   wilson_invert_p.c \
   wilson_force_p.c \
   dw_dslash_p.c \

@@ -182,6 +182,9 @@ QOP_D3_u3_un_der_analytic( QOP_info_t *info,
                            QLA_D3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
 QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 
+#define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
+#define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
+
 #if QOP_Colors == 2
 #include <qop_f2_internal.h>
 #include <qop_d2_internal.h>

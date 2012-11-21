@@ -218,6 +218,17 @@ QOP_F3_invert_eigcg_D(QOP_F3_linop_t_D *linop,
 
 QDP_F3_ColorVector *QOP_F3_asqtad_dslash_get_tmp(QOP_F3_FermionLinksAsqtad *fla, QOP_evenodd_t eo, int n);
 QDP_F3_DiracFermion *QOP_F3_wilson_dslash_get_tmp(QOP_F3_FermionLinksWilson *flw, QOP_evenodd_t eo, int n);
+void QOP_F3_wilson_ifla_dslash_qdp(QOP_info_t *info,
+				   QOP_F3_FermionLinksWilson *flw,
+				   float kappa,
+				   int sign,
+				   QOP_wilson_ifla_coeffs_t *coeffs,
+				   QDP_F3_DiracFermion *out,
+				   QDP_F3_DiracFermion *in,
+				   QOP_evenodd_t eo_out,
+				   QOP_evenodd_t eo_in);
+
+QOP_F3_FermionLinksWilson *QOP_F3_wilson_initialize_gauge_L(void);
 
 void QOP_F3_get_mid(QOP_info_t *info, QDP_F3_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
 		     QOP_F_Real eps[], QDP_F3_ColorVector *x[], int nterms);

@@ -566,6 +566,33 @@ void QOP_D3_wilson_force_prec_multi_qdp(QOP_info_t *info,
 					int n);
 
 
+  /*******************************/
+  /*  Wilson OK action routines  */
+  /*******************************/
+
+  /* inverter routines */
+
+void QOP_D3_wilson_ifla_dslash(QOP_info_t *info,
+			       QOP_D3_FermionLinksWilson *flw,
+			       double kappa,
+			       int sign,
+			       QOP_wilson_ifla_coeffs_t *coeffs,
+			       QOP_D3_DiracFermion *out,
+			       QOP_D3_DiracFermion *in,
+			       QOP_evenodd_t eo_out,
+			       QOP_evenodd_t eo_in); 
+
+
+void QOP_D3_wilson_ifla_invert(QOP_info_t *info,
+			       QOP_D3_FermionLinksWilson *links,
+			       QOP_invert_arg_t *inv_arg,
+			       QOP_resid_arg_t *res_arg,
+			       double kappa,
+			       QOP_wilson_ifla_coeffs_t *ifla_cof,
+			       QOP_D3_DiracFermion *out_pt,
+			       QOP_D3_DiracFermion *in_pt);
+
+
   /**************************/
   /*  Domain Wall routines  */
   /**************************/

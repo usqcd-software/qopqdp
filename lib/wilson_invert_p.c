@@ -130,7 +130,7 @@ QOP_wilson_invert_d2(QDP_DiracFermion *out, QDP_DiracFermion *in, QDP_Subset sub
 #endif
 }
 
-void
+static void
 QOP_wilson_invert_d2ne(QDP_DiracFermion *out, QDP_DiracFermion *in, QDP_Subset subset)
 {
 #if 0

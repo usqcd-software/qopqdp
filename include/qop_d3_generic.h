@@ -165,6 +165,9 @@
 #define QOP_wilson_force QOP_D3_wilson_force
 #define QOP_wilson_force_multi QOP_D3_wilson_force_multi
 #define QOP_wilson_force_prec_multi_qdp QOP_D3_wilson_force_prec_multi_qdp
+#define QOP_wilson_ifla_dslash  QOP_D3_wilson_ifla_dslash
+#define QOP_wilson_ifla_invert  QOP_D3_wilson_ifla_invert
+#define QOP_wilson_initialize_gauge_L QOP_D3_wilson_initialize_gauge_L
 #define QOP_wilson_invert QOP_D3_wilson_invert
 #define QOP_wilson_invert_multi QOP_D3_wilson_invert_multi
 #define QOP_wilson_invert_multi_qdp QOP_D3_wilson_invert_multi_qdp

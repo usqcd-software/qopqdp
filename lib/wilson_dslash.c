@@ -6,106 +6,9 @@
 #include <qop_qdp.h>
 #include <qmp.h>
 
-/* We have to redefine these here, since the present design of the
-   qop_internal.h header does not permit defining both single and
-   double precision types in the same source file. */
+#define QOP_color 3
 
-#define QOP_malloc(var, type, num)					\
-  (var) = (type *) malloc(num*sizeof(type));				\
-  if(!(var)) {								\
-    QMP_error("Error: QOP ran out of memory in function %s\n", __func__); \
-    exit(1);								\
-  }
-
-struct QOP_D3_GaugeField_struct {
-  QDP_D3_ColorMatrix **links;
-  QLA_D3_ColorMatrix **raw;
-};
-
-
-struct QOP_F3_GaugeField_struct {
-  QDP_F3_ColorMatrix **links;
-  QLA_F3_ColorMatrix **raw;
-};
-
-
-typedef struct {
-  QDP_D3_DiracFermion **u;
-  QLA_Real *l;
-  int numax, nu, nev, m, nv;
-  int nn, addvecs;
-} QOP_D3_eigcg_t_D;
-
-struct QOP_D3_FermionLinksWilson_struct {
-  double clovinvkappa;
-  int dblstored;
-  QDP_D3_ColorMatrix **links;
-  QDP_D3_ColorMatrix **bcklinks;
-  QDP_D3_ColorMatrix **dbllinks;
-  QOP_D3_GaugeField *qopgf;
-  QDP_D3_DiracPropagator *qdpclov;
-  double *clov, *clovinv;
-  double **rawlinks, *rawclov;
-  QOP_D3_eigcg_t_D eigcg;
-};
-
-typedef struct {
-  QDP_F3_DiracFermion **u;
-  QLA_Real *l;
-  int numax, nu, nev, m, nv;
-  int nn, addvecs;
-} QOP_F3_eigcg_t_D;
-
-struct QOP_F3_FermionLinksWilson_struct {
-  float clovinvkappa;
-  int dblstored;
-  QDP_F3_ColorMatrix **links;
-  QDP_F3_ColorMatrix **bcklinks;
-  QDP_F3_ColorMatrix **dbllinks;
-  QOP_F3_GaugeField *qopgf;
-  QDP_F3_DiracPropagator *qdpclov;
-  float *clov, *clovinv;
-  float **rawlinks, *rawclov;
-  QOP_F3_eigcg_t_D eigcg;
-};
-
-typedef struct {
-  int inited;
-  int verbosity;
-  int proflevel;
-  int we_inited_qdp;
-  int ndim;
-  QDP_Shift neighbor3[4];
-  QDP_ShiftDir shiftfwd[8], shiftbck[8];
-} QOP_common_t;
-extern QOP_common_t QOP_common;
-
-#define QOP_printf0 if(QDP_this_node==0) printf
-
-#define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
-
-/* NOTE: Same routine is defined in wilson_dslash_p.c */
-static QOP_F3_FermionLinksWilson *
-wilson_initialize_gauge_L()
-{
-  QOP_FermionLinksWilson *flw;
-
-  QOP_malloc(flw          ,QOP_F3_FermionLinksWilson,1);
-  QOP_malloc(flw->links   ,QDP_F3_ColorMatrix *     ,4);
-  QOP_malloc(flw->bcklinks,QDP_F3_ColorMatrix *     ,4);
-  QOP_malloc(flw->dbllinks,QDP_F3_ColorMatrix *,     8);
-
-  flw->dblstored = 0;
-  flw->clov      = NULL;
-  flw->rawclov   = NULL;
-  flw->clovinv   = NULL;
-  flw->rawlinks  = NULL;
-  flw->qopgf     = NULL;
-  flw->qdpclov   = NULL;
-  flw->eigcg.u   = NULL;
-
-  return flw;
-}
+#include <qop_internal.h>
 
 /* Create a single-precision copy of a double-precision gauge field */
 
@@ -127,11 +30,11 @@ QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
   } else {
     qopgf_single->links = NULL;
     QOP_printf0("QOP_FD3_create_G_from_G: Warning: raw member is not supported\n");
-    QOP_malloc(qopgf_single->raw, QLA_F3_ColorMatrix *, QOP_common.ndim);
+    QOP_malloc(qopgf_single->raw, QLA_F_Real *, QOP_common.ndim);
     for(i=0; i<QOP_common.ndim; i++) {
-      QOP_malloc(qopgf_single->raw[i], QLA_F3_ColorMatrix, QDP_sites_on_node);
-      for(x=0; x<QDP_sites_on_node; x++)
-	QLA_FD3_M_eq_M(qopgf_single->raw[i]+x, qopgf_double->raw[i]+x);
+      QOP_malloc(qopgf_single->raw[i], QLA_F_Real, 18*QDP_sites_on_node);
+      for(x=0; x<18*QDP_sites_on_node; x++)
+	  QLA_FD_R_eq_R(qopgf_single->raw[i]+x, qopgf_double->raw[i]+x);
     }
   }
   return qopgf_single;
@@ -146,7 +49,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
   int i;
 
   /* Create the parent struct */
-  flw_single = wilson_initialize_gauge_L();
+  flw_single = QOP_wilson_initialize_gauge_L();
 
   /* Copy scalar values */
   flw_single->dblstored = flw_double->dblstored;
