@@ -94,6 +94,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
   /* ------------------------ */
 
   
+#if 0
   if(count == 0){
     printf("====================\n");
     printf("Function : QOP_wilson_ifla_invert\n");
@@ -105,7 +106,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
     printf("====================\n");
   };
   count += count ;
-
+#endif
   
   ineo   = inv_arg->evenodd; /* subset of source vectors */
   insub  = qdpsub(ineo);
