@@ -505,6 +505,13 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   info->status = QOP_SUCCESS;
 }
 
+void
+QOP_smear_fat7l_qdp(QOP_info_t *info, QDP_ColorMatrix *sg[],
+		    QDP_ColorMatrix *g[], QOP_asqtad_coeffs_t *coeffs)
+{
+  make_imp_links(info, sg, NULL, coeffs, g);
+}
+
 QOP_FermionLinksAsqtad *
 QOP_asqtad_create_L_from_G(QOP_info_t *info,
 			   QOP_asqtad_coeffs_t *coeffs,

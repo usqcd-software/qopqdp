@@ -218,15 +218,10 @@ QOP_D2_invert_eigcg_D(QOP_D2_linop_t_D *linop,
 
 QDP_D2_ColorVector *QOP_D2_asqtad_dslash_get_tmp(QOP_D2_FermionLinksAsqtad *fla, QOP_evenodd_t eo, int n);
 QDP_D2_DiracFermion *QOP_D2_wilson_dslash_get_tmp(QOP_D2_FermionLinksWilson *flw, QOP_evenodd_t eo, int n);
-
-QOP_D2_FermionLinksWilson *QOP_D2_wilson_initialize_gauge_L(void);
+QOP_D2_FermionLinksWilson *QOP_D2_wilson_initialize_gauge_L();
 
 void QOP_D2_get_mid(QOP_info_t *info, QDP_D2_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
 		     QOP_D_Real eps[], QDP_D2_ColorVector *x[], int nterms);
-
-void QOP_D2_asqtad_deriv(QOP_info_t *info, QDP_D2_ColorMatrix *gauge[],
-			  QDP_D2_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
-			  QDP_D2_ColorMatrix *mid_fat[], QDP_D2_ColorMatrix *mid_naik[]);
 
 void QOP_D2_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QOP_D2_GaugeField *gauge,
 					  QDP_D2_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,

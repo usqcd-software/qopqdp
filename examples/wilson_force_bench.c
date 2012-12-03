@@ -26,7 +26,7 @@ bench_force(QOP_info_t *info, QOP_FermionLinksWilson *flw,
   for(int i=0; i<ndim; i++) {
     QDP_M_eq_zero(cm[i], QDP_all);
   }
-  QOP_Force *force = QOP_create_F_from_qdp(cm);
+  //QOP_Force *force = QOP_create_F_from_qdp(cm);
 
   sumeps = 0;
   for(int i=0; i<nsrc; i++) {
@@ -37,7 +37,8 @@ bench_force(QOP_info_t *info, QOP_FermionLinksWilson *flw,
 
   for(int i=0; i<=nit; i++) {
     QMP_barrier();
-    QOP_wilson_force_prec_multi_qdp(info, flw, force, kappav, eps, x, y, nsrc);
+    //QOP_wilson_force_prec_multi_qdp(info, flw, force, kappav, eps, x, y, nsrc);
+    QOP_wilson_force_prec_multi_qdp(info, flw, cm, kappav, eps, x, y, nsrc);
     QMP_barrier();
     if(i>0) {
       sec += info->final_sec;
@@ -46,7 +47,7 @@ bench_force(QOP_info_t *info, QOP_FermionLinksWilson *flw,
   }
 
   if(check) {
-    QOP_extract_F_to_qdp(cm, force);
+    //QOP_extract_F_to_qdp(cm, force);
     QLA_Real nrm2 = 0, tr = 0;
     QLA_ColorMatrix qcm, qcm2;
     for(int i=0; i<ndim; i++) {
@@ -61,7 +62,7 @@ bench_force(QOP_info_t *info, QOP_FermionLinksWilson *flw,
     printf0("|F|^2 = %12g   scaled = %g\n", nrm2, nrm2/(sumeps*sumeps));
     printf0("ReTr(sum^2F) = %12g   scaled = %g\n", tr, tr/(sumeps*sumeps));
   }
-  QOP_destroy_F(force);
+  //QOP_destroy_F(force);
 
   mf = 1;
   QMP_sum_double(&mf);

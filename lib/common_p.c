@@ -467,3 +467,20 @@ QOP_rephase_G(QOP_GaugeField *links,
   copyarray(links->sign.signmask, sign->signmask, int, nd);
   scale(links->links, links, 0);
 }
+
+void
+QOP_rephase_G_qdp(QDP_ColorMatrix *links[],
+		  int *r0,
+		  QOP_bc_t *bc,
+		  QOP_staggered_sign_t *sign)
+{
+  nd = QDP_ndim();
+  QOP_GaugeField g;
+  //links->scale = scale;
+  //links->chained = 1;
+#define copyarray(d,s,t,n) do{ QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t)); }while(0)
+  copyarray(g.r0, r0, int, nd);
+  copyarray(g.bc.phase, bc->phase, QOP_Complex, nd);
+  copyarray(g.sign.signmask, sign->signmask, int, nd);
+  scale(links, &g, 0);
+}

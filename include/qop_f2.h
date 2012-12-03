@@ -117,6 +117,15 @@ void QOP_F2_rephase_G(QOP_F2_GaugeField *links,
 		      QOP_bc_t *bc,
 		      QOP_staggered_sign_t *sign);
 
+void QOP_F2_rephase_G_qdp(QDP_F2_ColorMatrix *links[],
+			  int *r0,
+			  QOP_bc_t *bc,
+			  QOP_staggered_sign_t *sign);
+
+void QOP_F2_smear_fat7l_qdp(QOP_info_t *info, QDP_F2_ColorMatrix *sg[],
+			    QDP_F2_ColorMatrix *g[],
+			    QOP_asqtad_coeffs_t *coeffs);
+
 void QOP_F2_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_F2_ColorMatrix *deriv[],
 				  QOP_F2_GaugeField *g[], QDP_F2_ColorMatrix **chain[],
 				  int n, int doLastScale);
@@ -323,6 +332,12 @@ void QOP_F2_asqtad_get_eigcg(QOP_F2_FermionLinksAsqtad *asqtad,
 			     QLA_F_Real *evals, int *nv);
 
   /* fermion force routines */
+
+void QOP_F2_asqtad_deriv(QOP_info_t *info, QDP_F2_ColorMatrix *gauge[],
+			 QDP_F2_ColorMatrix *force[],
+			 QOP_asqtad_coeffs_t *coef,
+			 QDP_F2_ColorMatrix *mid_fat[],
+			 QDP_F2_ColorMatrix *mid_naik[]);
 
 void QOP_F2_asqtad_force(QOP_info_t *info,
 			 QOP_F2_GaugeField *gauge,
@@ -548,6 +563,14 @@ void QOP_F2_wilson_force(QOP_info_t *info,
 			 QOP_F_Real eps,
 			 QOP_F2_DiracFermion *in_pt);
 
+void QOP_F2_wilson_deriv_multi_qdp(QOP_info_t *info,
+				   QOP_F2_FermionLinksWilson *flw,
+				   QDP_F2_ColorMatrix *deriv[],
+				   QOP_F_Real eps[],
+				   QDP_F2_DiracFermion *x[],
+				   QDP_F2_DiracFermion *y[],
+				   int n);
+
 void QOP_F2_wilson_force_multi(QOP_info_t *info,
 			       QOP_F2_GaugeField *gauge,
 			       QOP_F2_Force *force,
@@ -555,6 +578,15 @@ void QOP_F2_wilson_force_multi(QOP_info_t *info,
 			       QOP_F_Real eps[],
 			       QOP_F2_DiracFermion *in_pt[],
 			       int nsrc);
+
+void QOP_F2_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
+					QOP_F2_FermionLinksWilson *flw,
+					QDP_F2_ColorMatrix *deriv[],
+					QOP_F_Real kappa[],
+					QOP_F_Real eps[],
+					QDP_F2_DiracFermion *x[],
+					QDP_F2_DiracFermion *y[],
+					int n);
 
 void QOP_F2_wilson_force_prec_multi_qdp(QOP_info_t *info,
 					QOP_F2_FermionLinksWilson *flw,
@@ -564,6 +596,28 @@ void QOP_F2_wilson_force_prec_multi_qdp(QOP_info_t *info,
 					QDP_F2_DiracFermion *x[],
 					QDP_F2_DiracFermion *y[],
 					int n);
+
+  // new fermilab action IFLA -- added by bugra --------------- :
+
+void QOP_F2_wilson_ifla_dslash(QOP_info_t *info,
+			       QOP_F2_FermionLinksWilson *flw,
+			       QOP_F_Real kappa,
+			       int sign,
+			       QOP_wilson_ifla_coeffs_t *coeffs,
+			       QOP_F2_DiracFermion *out,
+			       QOP_F2_DiracFermion *in,
+			       QOP_evenodd_t eo_out,
+			       QOP_evenodd_t eo_in);
+
+void QOP_F2_wilson_ifla_dslash_qdp(QOP_info_t *info,
+				   QOP_F2_FermionLinksWilson *flw,
+				   QOP_F_Real kappa,
+				   int sign,
+				   QOP_wilson_ifla_coeffs_t *coeffs,
+				   QDP_F2_DiracFermion *out,
+				   QDP_F2_DiracFermion *in,
+				   QOP_evenodd_t eo_out,
+				   QOP_evenodd_t eo_in);
 
 
   /**************************/

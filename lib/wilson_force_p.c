@@ -82,8 +82,7 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
 			   QLA_Real eps[],
 			   QDP_DiracFermion *x[],
 			   QDP_DiracFermion *y[],
-			   int n,
-			   int doLastScale)
+			   int n)
 {
   QDP_ColorMatrix *d[4];
   if(0) {
@@ -106,7 +105,7 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
     //(flw->gauge->nparents || doLastScale)) { // apply chain rule
     //warning: passing argument 4 of 'QOP_F3_gauge_deriv_multi_qdp' from incompatible pointer type [enabled by default]
     //note: expected 'struct QDP_F3_ColorMatrix ***' but argument is of type 'struct QDP_F3_ColorMatrix * (*)[4]'
-    QOP_gauge_deriv_multi_qdp(info, deriv, &flw->gauge, &d, 1, doLastScale);
+    // QOP_gauge_deriv_multi_qdp(info, deriv, &flw->gauge, &d, 1);
     for(int mu=0; mu<4; mu++) {
       QDP_destroy_M(d[mu]);
     }
@@ -142,7 +141,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
   }
   QLA_Real teps[n];
   for(int i=0; i<n; i++) teps[i] = s*eps[i];
-  QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n, 0);
+  QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n);
   QDP_ColorMatrix *t = QDP_create_M();
   for(int mu=0; mu<4; mu++) {
     QDP_M_eq_M_times_Ma(t, links[mu], deriv[mu], QDP_all);
@@ -168,8 +167,7 @@ QOP_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
 				QLA_Real eps[],
 				QDP_DiracFermion *x[],
 				QDP_DiracFermion *y[],
-				int n,
-				int doLastScale)
+				int n)
 {
   double dtime = QOP_time();
 
@@ -179,7 +177,7 @@ QOP_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
     QOP_wilson_dslash_qdp(info, flw, kappa[i],  1, y[i], y[i], QOP_ODD, QOP_EVEN);
     teps[i] = -4*kappa[i]*kappa[i]*eps[i];
   }
-  QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n, doLastScale);
+  QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n);
 
   info->final_flop += ((144+168*7)+48)*n*QDP_sites_on_node; 
   info->final_sec = QOP_time() - dtime;
