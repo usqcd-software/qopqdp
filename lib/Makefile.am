@@ -77,10 +77,18 @@ NC3SOURCES = \
   pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
   pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c
 
+NCNSOURCES = \
+  pcstubs/common_fn.c pcstubs/common_dn.c \
+  pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
+  pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
+  pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
+  pcstubs/wilson_dslash_fn.c pcstubs/wilson_dslash_dn.c
+
 EXTRA_DIST = \
   common_p.c \
   gauge_deriv_p.c \
   symanzik_1loop_gauge_action_p.c \
+  symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
@@ -107,6 +115,9 @@ EXTRA_DIST = \
   invert_utilities_p.c \
   linalg.h
 
+if NCN
+  libqopqdp_a_SOURCES += $(NCNSOURCES)
+endif
 if NC2
   libqopqdp_a_SOURCES += $(NC2SOURCES)
 endif

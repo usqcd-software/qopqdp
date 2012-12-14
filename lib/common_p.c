@@ -407,12 +407,30 @@ static QLA_Complex bc_phase;
 static int staggered_sign_bits;
 
 static void
+#if QOP_Colors != 'N'
 rephase_func(QLA_ColorMatrix *m, int coords[])
+#else
+#if QOP_Precision == 'F'
+rephase_func(int nc, QLA_FN_ColorMatrix(nc, (*m)), int coords[])
+#else
+rephase_func(int nc, QLA_DN_ColorMatrix(nc, (*m)), int coords[])
+#endif
+#endif
 {
   if(bc_dir>=0) {
     int rshift = (coords[bc_dir] + bc_coord - bc_origin) % bc_coord;
     if(rshift == bc_coord-1) {
+#if QOP_Colors != 'N'
       QLA_ColorMatrix t;
+#else
+#undef QLA_Nc
+#define QLA_Nc nc
+#if QOP_Precision == 'F'
+      QLA_FN_ColorMatrix(nc,t);
+#else
+      QLA_DN_ColorMatrix(nc,t);
+#endif
+#endif
       QLA_M_eq_c_times_M(&t, &bc_phase, m);
       QLA_M_eq_M(m, &t);
     }
@@ -448,6 +466,10 @@ scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
     if(g->sign.signmask) {
       staggered_sign_bits = g->sign.signmask[i];
     }
+#if QOP_Colors == 'N'
+#undef QOP_Nc
+#define QOP_Nc QDP_get_nc(l[i])
+#endif
     QDP_M_eq_func(l[i], rephase_func, QDP_all);
   }
 }

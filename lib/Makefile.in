@@ -32,8 +32,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-@NC2_TRUE@am__append_1 = $(NC2SOURCES)
-@NC3_TRUE@am__append_2 = $(NC3SOURCES)
+@NCN_TRUE@am__append_1 = $(NCNSOURCES)
+@NC2_TRUE@am__append_2 = $(NC2SOURCES)
+@NC3_TRUE@am__append_3 = $(NC3SOURCES)
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,6 +80,13 @@ libqopqdp_a_LIBADD =
 am__libqopqdp_a_SOURCES_DIST = common.c layout_user.c asqtad_dslash.c \
 	asqtad_invert.c asqtad_force.c hisq_links.c hisq_force.c \
 	wilson_dslash.c wilson_invert.c dw_dslash.c dw_invert.c \
+	pcstubs/common_fn.c pcstubs/common_dn.c \
+	pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
+	pcstubs/symanzik_1loop_gauge_action_fn.c \
+	pcstubs/symanzik_1loop_gauge_action_dn.c \
+	pcstubs/symanzik_1loop_gauge_force_fn.c \
+	pcstubs/symanzik_1loop_gauge_force_dn.c \
+	pcstubs/wilson_dslash_fn.c pcstubs/wilson_dslash_dn.c \
 	pcstubs/common_f2.c pcstubs/common_d2.c \
 	pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
 	pcstubs/symanzik_1loop_gauge_action_f2.c \
@@ -150,7 +158,17 @@ am__libqopqdp_a_SOURCES_DIST = common.c layout_user.c asqtad_dslash.c \
 	pcstubs/invert_utilities_vD_f3.c \
 	pcstubs/invert_utilities_vD_d3.c
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = pcstubs/common_f2.$(OBJEXT) \
+am__objects_1 = pcstubs/common_fn.$(OBJEXT) \
+	pcstubs/common_dn.$(OBJEXT) pcstubs/gauge_deriv_dn.$(OBJEXT) \
+	pcstubs/gauge_deriv_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT) \
+	pcstubs/wilson_dslash_fn.$(OBJEXT) \
+	pcstubs/wilson_dslash_dn.$(OBJEXT)
+@NCN_TRUE@am__objects_2 = $(am__objects_1)
+am__objects_3 = pcstubs/common_f2.$(OBJEXT) \
 	pcstubs/common_d2.$(OBJEXT) pcstubs/gauge_deriv_f2.$(OBJEXT) \
 	pcstubs/gauge_deriv_d2.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_action_f2.$(OBJEXT) \
@@ -203,8 +221,8 @@ am__objects_1 = pcstubs/common_f2.$(OBJEXT) \
 	pcstubs/invert_utilities_D_d2.$(OBJEXT) \
 	pcstubs/invert_utilities_vD_f2.$(OBJEXT) \
 	pcstubs/invert_utilities_vD_d2.$(OBJEXT)
-@NC2_TRUE@am__objects_2 = $(am__objects_1)
-am__objects_3 = pcstubs/common_f3.$(OBJEXT) \
+@NC2_TRUE@am__objects_4 = $(am__objects_3)
+am__objects_5 = pcstubs/common_f3.$(OBJEXT) \
 	pcstubs/common_d3.$(OBJEXT) pcstubs/gauge_deriv_d3.$(OBJEXT) \
 	pcstubs/gauge_deriv_f3.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_action_f3.$(OBJEXT) \
@@ -261,13 +279,14 @@ am__objects_3 = pcstubs/common_f3.$(OBJEXT) \
 	pcstubs/invert_utilities_D_d3.$(OBJEXT) \
 	pcstubs/invert_utilities_vD_f3.$(OBJEXT) \
 	pcstubs/invert_utilities_vD_d3.$(OBJEXT)
-@NC3_TRUE@am__objects_4 = $(am__objects_3)
+@NC3_TRUE@am__objects_6 = $(am__objects_5)
 am_libqopqdp_a_OBJECTS = common.$(OBJEXT) layout_user.$(OBJEXT) \
 	asqtad_dslash.$(OBJEXT) asqtad_invert.$(OBJEXT) \
 	asqtad_force.$(OBJEXT) hisq_links.$(OBJEXT) \
 	hisq_force.$(OBJEXT) wilson_dslash.$(OBJEXT) \
 	wilson_invert.$(OBJEXT) dw_dslash.$(OBJEXT) \
-	dw_invert.$(OBJEXT) $(am__objects_2) $(am__objects_4)
+	dw_invert.$(OBJEXT) $(am__objects_2) $(am__objects_4) \
+	$(am__objects_6)
 libqopqdp_a_OBJECTS = $(am_libqopqdp_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -391,7 +410,7 @@ lib_LIBRARIES = libqopqdp.a
 libqopqdp_a_SOURCES = common.c layout_user.c asqtad_dslash.c \
 	asqtad_invert.c asqtad_force.c hisq_links.c hisq_force.c \
 	wilson_dslash.c wilson_invert.c dw_dslash.c dw_invert.c \
-	$(am__append_1) $(am__append_2)
+	$(am__append_1) $(am__append_2) $(am__append_3)
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
   pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
@@ -454,10 +473,18 @@ NC3SOURCES = \
   pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
   pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c
 
+NCNSOURCES = \
+  pcstubs/common_fn.c pcstubs/common_dn.c \
+  pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
+  pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
+  pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
+  pcstubs/wilson_dslash_fn.c pcstubs/wilson_dslash_dn.c
+
 EXTRA_DIST = \
   common_p.c \
   gauge_deriv_p.c \
   symanzik_1loop_gauge_action_p.c \
+  symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
@@ -554,6 +581,26 @@ pcstubs/$(am__dirstamp):
 pcstubs/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) pcstubs/$(DEPDIR)
 	@: > pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/common_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/common_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/gauge_deriv_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/gauge_deriv_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/common_f2.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/common_d2.$(OBJEXT): pcstubs/$(am__dirstamp) \
@@ -815,8 +862,10 @@ mostlyclean-compile:
 	-rm -f pcstubs/asqtad_invert_f3.$(OBJEXT)
 	-rm -f pcstubs/common_d2.$(OBJEXT)
 	-rm -f pcstubs/common_d3.$(OBJEXT)
+	-rm -f pcstubs/common_dn.$(OBJEXT)
 	-rm -f pcstubs/common_f2.$(OBJEXT)
 	-rm -f pcstubs/common_f3.$(OBJEXT)
+	-rm -f pcstubs/common_fn.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_d2.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_d3.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_f2.$(OBJEXT)
@@ -827,8 +876,10 @@ mostlyclean-compile:
 	-rm -f pcstubs/dw_invert_f3.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_d2.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_d3.$(OBJEXT)
+	-rm -f pcstubs/gauge_deriv_dn.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_f2.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_f3.$(OBJEXT)
+	-rm -f pcstubs/gauge_deriv_fn.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_d2.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_d3.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_f2.$(OBJEXT)
@@ -889,16 +940,22 @@ mostlyclean-compile:
 	-rm -f pcstubs/invert_utilities_vD_f3.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_d2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_d3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_f2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_f3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_d2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_d3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_f2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_f3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_d2.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_d3.$(OBJEXT)
+	-rm -f pcstubs/wilson_dslash_dn.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_f2.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_f3.$(OBJEXT)
+	-rm -f pcstubs/wilson_dslash_fn.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_d2.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_d3.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_f2.$(OBJEXT)
@@ -946,8 +1003,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_d3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_dn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_f2.Po@am__quote@
@@ -958,8 +1017,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_d3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_dn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_f2.Po@am__quote@
@@ -1020,16 +1081,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_d3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_dn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_d3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_dn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_d3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_dn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_f2.Po@am__quote@

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for C in 2 3; do
+for C in 2 3 N; do
   c=`echo $C |tr 'A-Z' 'a-z'`
   for P in F D; do
     O=`echo $P |tr 'FD' 'DF'`

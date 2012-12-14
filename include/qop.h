@@ -50,7 +50,6 @@ extern "C" {
 #endif
 
   // allow the user to specify QOP_Colors and/or QOP_Nc
-  // if QOP_Colors=='N' then QOP_Nc must also be given
 #ifndef QOP_Colors
 #  ifndef QOP_Nc
 #    define QOP_Nc 3
@@ -67,21 +66,22 @@ extern "C" {
 #    if QOP_Colors == 2 || QOP_Colors == 3
 #      define QOP_Nc QOP_Colors
 #    elif QOP_Colors == 'N'
-#      error "QDP_Colors='N' with unknown QOP_Nc"
+//#      error "QOP_Colors='N' with unknown QOP_Nc"
+#      define QOP_Nc 3
 #    else
-#      error "bad QDP_Colors"
+#      error "bad QOP_Colors"
 #    endif
 #  else
 #    if QOP_Colors == 2 || QOP_Colors == 3
 #      if QOP_Colors != QOP_Nc
-#        error "inconsistent QDP_Colors and QOP_Nc"
+#        error "inconsistent QOP_Colors and QOP_Nc"
 #      endif
 #    elif QOP_Colors == 'N'
 #      if QOP_Nc <= 0
 #        error "bad QOP_Nc"
 #      endif
 #    else
-#      error "bad QDP_Colors"
+#      error "bad QOP_Colors"
 #    endif
 #  endif
 #endif
