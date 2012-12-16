@@ -3,9 +3,15 @@ F2_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=2 -DQDP_Precision=\'F\' -DQDP_Nc=2 $(A
 D2_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=2 -DQDP_Precision=\'D\' -DQDP_Nc=2 $(ALL_CFLAGS)
 F3_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=3 -DQDP_Precision=\'F\' -DQDP_Nc=3 $(ALL_CFLAGS)
 D3_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=3 -DQDP_Precision=\'D\' -DQDP_Nc=3 $(ALL_CFLAGS)
+FN_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=4 -DQDP_Precision=\'F\' -DQDP_Nc=4 $(ALL_CFLAGS)
+DN_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=4 -DQDP_Precision=\'D\' -DQDP_Nc=4 $(ALL_CFLAGS)
 LIBS = -L$(top_builddir)/lib -lqopqdp @LIBS@
 
 check_PROGRAMS =
+if NCN
+check_PROGRAMS += \
+  imp_gauge_force_bench_fn imp_gauge_force_bench_dn
+endif
 if NC2
 check_PROGRAMS += \
   imp_gauge_force_bench_f2 imp_gauge_force_bench_d2 \
@@ -47,6 +53,12 @@ imp_gauge_force_bench_f3_CFLAGS = $(F3_CFLAGS)
 
 imp_gauge_force_bench_d3_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_d3_CFLAGS = $(D3_CFLAGS)
+
+imp_gauge_force_bench_fn_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_fn_CFLAGS = $(FN_CFLAGS)
+
+imp_gauge_force_bench_dn_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_dn_CFLAGS = $(DN_CFLAGS)
 
 
 asqtad_test_f2_SOURCES = test_common.h test_common.c asqtad_test.c

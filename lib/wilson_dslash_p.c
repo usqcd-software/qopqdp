@@ -58,9 +58,8 @@ and likewise for the second block by adding 2 to all is,js values above.
 */
 
 //#define DO_TRACE
-
 #include <string.h>
-#include <math.h>
+//#include <math.h>
 #include <qop_internal.h>
 
 //#define printf0 QOP_printf0
@@ -89,6 +88,15 @@ static QDP_DiracFermion *dtemp[NTMP][NDTMP];
 static QDP_DiracFermion *tin[NTMP];
 #define tmpnum(eo,n) ((eo)+3*((n)-1))
 #define tmpsub(eo,n) tin[tmpnum(eo,n)]
+
+#if QOP_Colors == 'N'
+static int gnc;
+#define NC gnc
+#define SETNC(x) gnc = x
+#else
+#define SETNC(x) (void)0
+#endif
+#define SETNCF(x) SETNC(QDP_get_nc(x))
 
 #define check_setup(flw) \
 { \
@@ -190,6 +198,7 @@ QDP_DiracFermion *
 QOP_wilson_dslash_get_tmp(QOP_FermionLinksWilson *flw,
 			  QOP_evenodd_t eo, int n)
 {
+  SETNCF(flw->links[0]);
   check_setup(flw);
   if(n>=1 && n<=NTMPSUB) return tmpsub(eo,n);
   else return NULL;
@@ -632,9 +641,14 @@ get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
   flw->clovinvkappa = kappa;
 }
 
+#undef NC
+#define NC int nc
 QOP_FermionLinksWilson *
 QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 {
+#undef NC
+#define NC gnc
+  SETNC(nc);
   QOP_FermionLinksWilson *flw;
   QOP_GaugeField *gf;
 
@@ -694,6 +708,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 			   QOP_wilson_coeffs_t *coeffs,
 			   QOP_GaugeField *gauge)
 { 
+  SETNCF(gauge->links[0]);
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix        *newlinks[4];
   int                    i;
@@ -757,18 +772,16 @@ QOP_wilson_extract_L_to_raw(REAL *links[], REAL *clov,
 void
 QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
 {
-  int i;
-
   WILSON_INVERT_BEGIN;
 
   if(flw->qopgf) {
     QOP_destroy_G(flw->qopgf);
   } else {
-    for(i=0; i<4; i++) QDP_destroy_M(flw->links[i]);
+    for(int i=0; i<4; i++) QDP_destroy_M(flw->links[i]);
   }
   free(flw->links);
   if(flw->dblstored) {
-    for(i=0; i<4; i++) QDP_destroy_M(flw->bcklinks[i]);
+    for(int i=0; i<4; i++) QDP_destroy_M(flw->bcklinks[i]);
   }
   if(flw->qdpclov) {
     QDP_destroy_P(flw->qdpclov);
@@ -778,7 +791,7 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
   free(flw->bcklinks);
   free(flw->dbllinks);
   if(flw->eigcg.u) {
-    for(i=0; i<flw->eigcg.numax; i++) {
+    for(int i=0; i<flw->eigcg.numax; i++) {
       QDP_destroy_D(flw->eigcg.u[i]);
     }
     free(flw->eigcg.u);
@@ -788,10 +801,15 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
   WILSON_INVERT_END;
 }
 
+#undef NC
+#define NC int nc
 QOP_FermionLinksWilson *
 QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov,
 			      QOP_evenodd_t evenodd)
 {
+#undef NC
+#define NC gnc
+  SETNC(nc);
   WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_from_raw unimplemented");
   WILSON_INVERT_END;
@@ -1005,6 +1023,7 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
 		      QOP_evenodd_t eo_out,
 		      QOP_evenodd_t eo_in)
 {
+  SETNCF(flw->links[0]);
   check_setup(flw);
 
   if(eo_in==eo_out) {
@@ -1059,6 +1078,7 @@ QOP_wilson_diaginv_qdp(QOP_info_t *info,
 		       QDP_DiracFermion *in,
 		       QOP_evenodd_t eo)
 {
+  SETNCF(flw->links[0]);
   if(flw->clov==NULL) {
     QLA_Real f = 2*kappa;
     QDP_D_eq_r_times_D(out, &f, in, qdpsub(eo));

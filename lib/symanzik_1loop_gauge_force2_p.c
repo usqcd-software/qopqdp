@@ -11,6 +11,15 @@ static int setcount=0;
 #define set_temps() if(!setcount++) set_temps0()
 #define free_temps() if(!--setcount) free_temps0()
 
+#if QOP_Colors == 'N'
+static int gnc;
+#define NC gnc
+#define SETNC(x) gnc = x
+#else
+#define SETNC(x) (void)0
+#endif
+#define SETNCF(x) SETNC(QDP_get_nc(x))
+
 static void
 set_temps0(void)
 {
@@ -459,6 +468,7 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 				   QOP_gauge_coeffs_t *coeffs,
 				   REAL eps, int doLastScale)
 {
+  SETNCF(gauge->links[0]);
   double dtime = QOP_time();
   double nflops = 0;
 
@@ -708,6 +718,7 @@ QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 				   QDP_ColorMatrix *force[], QOP_gauge_coeffs_t *coeffs,
 				   QLA_Real eps)
 {
+  SETNCF(gauge->links[0]);
   double dtime = QOP_time();
 
   QDP_ColorMatrix *deriv[4];
@@ -719,7 +730,7 @@ QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 
   QDP_ColorMatrix *mtmp = QDP_create_M();
 #ifdef CHKSUM
-  QLA_ColorMatrix qcm;
+  QLA_ColorMatrix(qcm);
   QLA_Complex det, chk;
   QLA_c_eq_r(chk, 0);
 #endif
@@ -727,7 +738,7 @@ QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   for(int mu=0; mu<4; mu++) {
     QDP_M_eq_M_times_Ma(mtmp, G(mu), deriv[mu], QDP_all);
     if(QOP_common.verbosity==QOP_VERB_DEBUG) {
-      QLA_ColorMatrix tm;
+      QLA_ColorMatrix(tm);
       QLA_Real tr;
       QDP_m_eq_sum_M(&tm, mtmp, QDP_all);
       QLA_R_eq_re_trace_M(&tr, &tm);

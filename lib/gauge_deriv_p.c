@@ -21,6 +21,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
 			  QOP_GaugeField *g[], QDP_ColorMatrix **chain[],
 			  int n, int doLastScale)
 {
+#define NC QDP_get_nc(deriv[0])
   int ndim = QDP_ndim();
   int k=0;
   while(k<n && (g[k]->chained==0 || g[k]->nparents==0)) k++;
@@ -111,6 +112,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
       }
     }
   }
+#undef NC
 }
 
 // convert gauge derivative to force (in SU(N) lie algebra)
@@ -119,6 +121,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
 			  QOP_GaugeField *g[], QDP_ColorMatrix **chain[],
 			  int n)
 {
+#define NC QDP_get_nc(f[0])
   int ndim = QDP_ndim();
   QDP_ColorMatrix *d[ndim];
   int cr = 0;
@@ -162,4 +165,5 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
       QDP_destroy_M(d[mu]);
     }
   }
+#undef NC
 }

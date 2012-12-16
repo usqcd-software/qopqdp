@@ -78,6 +78,7 @@ QOP_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 				 QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
 				 REAL eps[], QDP_ColorVector *xin[], int nsrc)
 {
+#define NC QDP_get_nc(xin[0])
   REAL coeff[nsrc];
   REAL OneLink[nsrc], Lepage[nsrc], Naik[nsrc], FiveSt[nsrc], ThreeSt[nsrc], SevenSt[nsrc];
   REAL mNaik[nsrc], mLepage[nsrc], mFiveSt[nsrc], mThreeSt[nsrc], mSevenSt[nsrc];
@@ -466,6 +467,7 @@ QOP_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   info->status = QOP_SUCCESS;
 
   ASQTAD_FORCE_END;
+#undef NC
 }
 
 #undef Pmu          

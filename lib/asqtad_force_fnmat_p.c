@@ -1,611 +1,550 @@
-/**************** fermion_force_fn_qdp.c ******************************/
-/* MIMD version 7 */
-/* General force for any FN-type action.
- * Optimized to transport only one set of SU(3) matrices.
- * D.T. 12/05 Version  3. created for improved fermion RHMC.
- * C.D. 10/06 Converted to QDP (original code in fermion_force_fn_multi.c)
- *      Added multi vector version.	
- */
+//#define DO_TRACE
 #include <qop_internal.h>
-#include <string.h>
-#include <asqtad_action.h>
 
-/** #define DEBUG_FNMAT **/
-
-/********************************************************************/
-/* Construct path table from the action definition above
-   Originally quark_stuff.c                                         */
-/********************************************************************/
-
-typedef struct {
-  int dir[MAX_PATH_LENGTH];	/* directions in path */
-  int length;		/* length of path */
-  REAL coeff;	/* coefficient, including minus sign if backwards */
-  REAL forwback;	/* +1 if in forward Dslash, -1 if in backward */
-} Q_path;
-
-static QDP_Shift shiftdirs[8];
-static QDP_Shift neighbor3[4];
-
-static Q_path q_paths[MAX_NUM];
-static int num_q_paths; /* number of paths in dslash */
-static int num_basic_paths;    /* number of paths before rotation/reflection */
-
-static int qop_is_path_equal( int *path1, int* path2, int length );
-static int qop_add_basic_path( int *vec, int length, REAL coeff );
-
-static void 
-QOP_make_paths_and_dirs(QOP_asqtad_coeffs_t *coef) {
-
-  int i,j;
-  int disp[4] = {0,0,0,0};
-
-  /* table of directions, 1 for each kind of path */
-  /**int path_ind[MAX_BASIC_PATHS][MAX_LENGTH];**/
-  /* table of coefficients in action, for each path */
-  for(i=0; i<4; i++) {
-    disp[i] = 3;
-    neighbor3[i] = QDP_create_shift(disp);
-    disp[i] = 0;
-  }
-
-  for(i=0; i<4; ++i) {
-    shiftdirs[i] = QDP_neighbor[i];
-    shiftdirs[i+4] = neighbor3[i];
-  }
-
-#ifdef DEBUG_FNMAT
-  QOP_printf0("%s\n",QUARK_ACTION_DESCRIPTION);
-#endif
-  num_q_paths = 0;
-  num_basic_paths = 0;
-
-  if(MAX_LENGTH > MAX_PATH_LENGTH){
-    printf("Path length for this action is too long.	Recompile.\n");
-    exit(0);
-  }
-  
-  REAL path_coeff[MAX_BASIC_PATHS] = {coef->one_link, coef->naik, 
-				      coef->three_staple, coef->five_staple,
-				      coef->seven_staple, coef->lepage};  
-  /* add rots. and reflects to table, print out the path coefficients */
-
-  for(j=0;j<quark_action_npaths;j++) {
-    REAL this_coeff;
-    this_coeff = path_coeff[j];
-    //QOP_printf0("this_coeff = %e\n", this_coeff);
-    
-    i = qop_add_basic_path( path_ind[j], path_length_in[j],
-			this_coeff );
-  }
-}
-
-static int 
-qop_get_num_q_paths(){
-  return num_q_paths;
-}
-
-static Q_path *
-qop_get_q_paths(){
-  return q_paths;
-}
-
-
-
-/********************************************************************/
-/* add rotations and reflections of a path to the table.  Return
-   multiplicity of paths added */
-/********************************************************************/
-static int 
-qop_add_basic_path( int *basic_vec, int length, REAL coeff ) {
-
-  int perm[8],pp[8],ir[4];
-  int j,path_num;
-  int vec[MAX_LENGTH];
-  int flag;
-  
-  path_num = 0;
-  /* now fill the long table with all rotations and reflections
-     of the fundamental path.  The path presented to us is for
-     the positive x component of dslash, so if the x coordinate
-     is reflected it will appear with a negative sign. */
-  /* permutations */
-  for(perm[0]=0;perm[0]<4;perm[0]++)
-    for(perm[1]=0;perm[1]<4;perm[1]++)
-      for(perm[2]=0;perm[2]<4;perm[2]++)
-	for(perm[3]=0;perm[3]<4;perm[3]++){
-	  if(perm[0] != perm[1] && perm[0] != perm[2]
-	     && perm[0] != perm[3] && perm[1] != perm[2]
-	     && perm[1] != perm[3] && perm[2] != perm[3] ) {
-	    /* reflections*/
-	    for(ir[0]=0;ir[0]<2;ir[0]++)
-	      for(ir[1]=0;ir[1]<2;ir[1]++)
-		for(ir[2]=0;ir[2]<2;ir[2]++)
-		  for(ir[3]=0;ir[3]<2;ir[3]++){
-		    for(j=0;j<4;j++){
-		      pp[j]=perm[j];
-		      
-		      if(ir[j] == 1) pp[j]=OPP_DIR(pp[j]);
-		      pp[OPP_DIR(j)]=OPP_DIR(pp[j]);
-		    }
-		    /* create new vector*/
-		    for(j=0;j<length;j++) vec[j]=pp[basic_vec[j]];
-		    for(j=length;j<MAX_LENGTH;j++) vec[j]=NODIR;
-		    
-		    flag=0;
-		    /* check if it's a new set: */
-		    for(j=0;j<num_q_paths;j++){
-		      flag = qop_is_path_equal( vec, q_paths[j].dir, MAX_LENGTH );
-		      if(flag==1)break;
-		    }
-		    if(flag == 0 ){
-		      if(num_q_paths>=MAX_NUM){
-			QOP_printf0("OOPS: MAX_NUM too small\n");
-			exit(0);
-		      }
-		      q_paths[num_q_paths].length=length;
-		      for(j=0;j<MAX_LENGTH;j++) q_paths[num_q_paths].dir[j]=vec[j];
-		      /* remember to copy NODIR's, or comparison will get confused */
-		      if(ir[0]==0){
-			q_paths[num_q_paths].coeff =  coeff;
-
-			q_paths[num_q_paths].forwback =	 +1;
-		      }
-		      else{
-			q_paths[num_q_paths].coeff = -coeff;
-			q_paths[num_q_paths].forwback = -1;
-		      }
-		      num_q_paths++;
-		      path_num++;
-		      /**node0_printf("ADD PATH %d:  rx=%d ",num_q_paths-1,ir[0]);
-			 printpath( vec, length );**/
-		    }
-		    
-		  } /* end reflection*/
-	  } /* end permutation if block */
-	} /* end permutation */
-  num_basic_paths++;
-  return(path_num);
-} /* add_basic_path */
-
-static int 
-qop_is_path_equal( int *path1, int* path2, int length ){
-   register int i;
-   for(i=0;i<length;i++)if(path1[i]!=path2[i])return(0);
-   return(1);
-}
-
-
-/**********************************************************************/
-/*   Utilities                                                        */
-/**********************************************************************/
-
-#ifdef DEBUG_FNMAT
-
-static void 
-PrintM(QDP_ColorMatrix * field){
-  QLA_ColorMatrix *mom0;
-  const int x[4] = {0,0,0,0};
-  int ind = QDP_index(x);
-
-  mom0 = QDP_expose_M(field);
-  printf("Field: %e %e %e\n\n", mom0[ind].e[0][0].real,
-	 mom0[ind].e[0][1].real, mom0[ind].e[0][2].real);
-
-  QDP_reset_M(field);
-}
-
-static void 
-PrintV(QDP_ColorVector * field){
-  QLA_ColorVector *mom0;
-  const int x[4] = {0,0,0,0};
-  int ind = QDP_index(x);
-
-  mom0 = QDP_expose_V(field);
-  printf("Field: %e %e %e\n\n", mom0[ind].c[0].real, 
-	 mom0[ind].c[1].real, mom0[ind].c[2].real);
-
-  QDP_reset_V(field);
-}
-
-#endif
-
-
-/* Map netdir to the QDP shift dir */
-
-/* Assumes the ordering
-   XUP, YUP, ZUP, TUP, TDOWN, ZDOWN, YDOWN, XDOWN,
-   X3UP, Y3UP, Z3UP, T3UP, T3DOWN, Z3DOWN, Y3DOWN, X3DOWN
-*/
-
-
-static QDP_Shift 
-fnshift(int netdir){
-  if      (netdir <  4) return shiftdirs[netdir];
-  else if (netdir <  8) return shiftdirs[7-netdir];
-  else if (netdir < 12) return shiftdirs[netdir-4];
-  else                  return shiftdirs[19-netdir];
-}
-
-static QDP_ShiftDir 
-fndir(int netdir){
-  if      (netdir <  4) return QDP_forward;
-  else if (netdir <  8) return QDP_backward;
-  else if (netdir < 12) return QDP_forward;
-  else                  return QDP_backward;
-}
-
-/* special case to transport a "connection" by one link, does both parities */
-static void 
-link_transport_connection_qdp( QDP_ColorMatrix *dest, QDP_ColorMatrix *src,
-			       QDP_ColorMatrix *gf[4], QDP_ColorMatrix *work,
-                               QDP_ColorMatrix *st[8], int dir ){
-  if( GOES_FORWARDS(dir) ) {
-    QDP_M_eq_M(work, src, QDP_all);
-    QDP_M_eq_sM(st[dir], work, QDP_neighbor[dir], QDP_forward, QDP_all);
-    QDP_M_eq_M_times_M(dest, gf[dir], st[dir], QDP_all);
-    QDP_discard_M(st[dir]);
-  }
-  else { /* GOES_BACKWARDS(dir) */
-    QDP_M_eq_Ma_times_M(work, gf[OPP_DIR(dir)], src, QDP_all);
-    QDP_M_eq_sM(st[dir], work, QDP_neighbor[OPP_DIR(dir)], 
-		QDP_backward,QDP_all);
-    QDP_M_eq_M(dest, st[dir], QDP_all);
-    QDP_discard_M(st[dir]);
-  }
-} /* link_transport_connection_qdp */
-
-static int 
-find_backwards_gather( Q_path *path ){
-  int disp[4], i;
-  /* compute total displacement of path */
-  for(i=XUP;i<=TUP;i++)disp[i]=0;
-  for( i=0; i<path->length; i++){
-    if( GOES_FORWARDS(path->dir[i]) )
-      disp[        path->dir[i]  ]++;
-    else
-      disp[OPP_DIR(path->dir[i]) ]--;
-  }
-  
-  // There must be an elegant way??
-  if( disp[XUP]==+1 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]== 0 )return(XDOWN);
-  if( disp[XUP]==-1 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]== 0 )return(XUP);
-  if( disp[XUP]== 0 && disp[YUP]==+1 && disp[ZUP]== 0 && disp[TUP]== 0 )return(YDOWN);
-  if( disp[XUP]== 0 && disp[YUP]==-1 && disp[ZUP]== 0 && disp[TUP]== 0 )return(YUP);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]==+1 && disp[TUP]== 0 )return(ZDOWN);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]==-1 && disp[TUP]== 0 )return(ZUP);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]==+1 )return(TDOWN);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]==-1 )return(TUP);
-  
-  if( disp[XUP]==+3 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]== 0 )return(X3DOWN);
-  if( disp[XUP]==-3 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]== 0 )return(X3UP);
-  if( disp[XUP]== 0 && disp[YUP]==+3 && disp[ZUP]== 0 && disp[TUP]== 0 )return(Y3DOWN);
-  if( disp[XUP]== 0 && disp[YUP]==-3 && disp[ZUP]== 0 && disp[TUP]== 0 )return(Y3UP);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]==+3 && disp[TUP]== 0 )return(Z3DOWN);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]==-3 && disp[TUP]== 0 )return(Z3UP);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]==+3 )return(T3DOWN);
-  if( disp[XUP]== 0 && disp[YUP]== 0 && disp[ZUP]== 0 && disp[TUP]==-3 )return(T3UP);
-  QOP_printf0("OOOPS: NODIR\n"); exit(0);
-  return( NODIR );
-} //find_backwards_gather
-
-
-// Make a new path table.  Sorted principally by total displacement of
-// path.  Below that, sort by direction of first link 
-// Below that, sort by direction of second link - note special case of
-// one link paths
-static int 
-sort_quark_paths( Q_path *src_table, Q_path *dest_table, int npaths ){
-  int netdir,dir0,dir1,dir1tmp,thislength,num_new,i,j;
-  
-  num_new=0; // number of paths in sorted table
-  for( i=0; i<16; i++ ){ // loop over net_back_dirs
-    netdir = net_back_dirs[i]; // table of possible displacements for Fat-Naik
-    for( dir0=0; dir0<=7; dir0++){ // XUP ... TDOWN
-      for( dir1=-1; dir1<=7; dir1++){ // NODIR, XUP ... TDOWN
-	if( dir1==-1 )dir1tmp=NODIR; else dir1tmp=dir1;
-	for( j=0; j<npaths; j++ ){
-	  // pick out paths with right net displacement
-	  thislength = src_table[j].length;
-	  if( find_backwards_gather( &(src_table[j]) ) == netdir && 
-	      src_table[j].dir[0]==dir0 &&
-	      src_table[j].dir[1]==dir1tmp ){
-	    dest_table[num_new] = src_table[j];
-	    num_new++;
-	  }
-	} // loop over paths
-      } //dir1
-    } //dir0
-  }
-  if( num_new!=npaths){ QOP_printf0("OOPS: path table error\n"); exit(0); }
-  return 0;
-}
-
-/**********************************************************************/
-/*   General QOP FN Version for "nterms" sources			*/
-/**********************************************************************/
+static void
+QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+				  QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
 
 void 
-QOPPC(asqtad_force_multi_fnmat)(QOP_info_t *info,  QOP_GaugeField *Gauge,
-				QOP_Force *Force, QOP_asqtad_coeffs_t *asq_coeff,
-				REAL eps[], QDP_ColorVector *x[], int nterms)
+QOP_asqtad_force_multi_fnmat_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				 QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+				 REAL eps[], QDP_ColorVector *x[], int nterms)
 {
-#ifdef DEBUG_FNMAT
-  printf("coeff: %e %e %e\n %e %e %e\n\n", asq_coeff->one_link, asq_coeff->naik,
-	 asq_coeff->three_staple, asq_coeff->five_staple,
-	 asq_coeff->seven_staple, asq_coeff->lepage);
-#endif
-  
-  /* note CG_solution and Dslash * solution are combined in "x" */
-  /* New version 1/21/99.  Use forward part of Dslash to get force */
-  /* see long comment at end */
-  /* For each link we need x transported from both ends of path. */
-  int term;
-  int i,j,k,lastdir=-99,ipath,ilink;
-  int length,dir,odir;
-
-  QDP_ColorMatrix * force[4] =  {Force->force[0], Force->force[1], 
-				 Force->force[2], Force->force[3]};
-#ifdef DEBUG_FNMAT
-  PrintM(force[0]);
-#endif
-
-  QDP_ColorMatrix * gf[4] = {Gauge->links[0], Gauge->links[1], 
-			     Gauge->links[2], Gauge->links[3]};
-#ifdef DEBUG_FNMAT
-  PrintM(gf[0]);
-#endif
-
-#ifdef DEBUG_FNMAT
-  PrintV(x[0]);  
-#endif
-   
-  QDP_ColorMatrix *tmat;
-  REAL coeff;
-
-  QDP_ColorMatrix *mat_tmp0, *stmp[8];
-  QDP_ColorMatrix *oprod_along_path[MAX_PATH_LENGTH+1];
-  QDP_ColorMatrix *mats_along_path[MAX_PATH_LENGTH+1];
-  QDP_ColorMatrix *force_accum[4];  // accumulate force
-  QDP_ColorVector *vec_tmp[2];
-
-  int netbackdir, last_netbackdir;	// backwards direction for entire path
-  //int tempflops = 0; //TEMP
-  // Quark paths sorted by net displacement and last directions
-  static Q_path *q_paths_sorted = NULL; 
-  // table of net path displacements (backwards from usual convention)
-  static int *netbackdir_table = NULL;
-  static int first_force = 1;  // 1 if force hasn't been called yet
-
-  if(first_force == 1) QOP_make_paths_and_dirs(asq_coeff);
-  int num_q_paths = qop_get_num_q_paths();
-  Q_path *q_paths = qop_get_q_paths();
-  Q_path *this_path;	// pointer to current path
-  Q_path *last_path;	// pointer to previous path
-
-  double dtime;
-
-  if( nterms==0 )return;
-
+#define NC QDP_get_nc(x[0])
   ASQTAD_FORCE_BEGIN;
+  if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
 
-  /* Allocate fields */
-  for(i=0;i<=MAX_PATH_LENGTH;i++){
-     oprod_along_path[i] = QDP_create_M();
-  }
-  for(i=1;i<=MAX_PATH_LENGTH;i++){ 
-    // 0 element is never used (it's unit matrix)
-     mats_along_path[i] = QDP_create_M();
-  }
-  for(i=XUP;i<=TUP;i++){
-     force_accum[i] = QDP_create_M();
-  }
-  mat_tmp0   = QDP_create_M();
-  for(i=0; i<8; i++) stmp[i] = QDP_create_M();
-  tmat       = QDP_create_M();
-  vec_tmp[0] = QDP_create_V();
-  vec_tmp[1] = QDP_create_V();
-  if( vec_tmp[1] == NULL ){
-    QOP_printf0("%s NO ROOM\n",__func__); 
-    exit(0);
-  }
-  
-  /* Sort the paths */
-  if( first_force==1 ){
-    if( q_paths_sorted==NULL ) 
-      q_paths_sorted = (Q_path *)malloc( num_q_paths*sizeof(Q_path) );
-    if(netbackdir_table==NULL ) 
-      netbackdir_table = (int *)malloc( num_q_paths*sizeof(int) );
-    else{ QOP_printf0("WARNING: remaking sorted path table\n"); exit(0); }
-    sort_quark_paths( q_paths, q_paths_sorted, num_q_paths );
-    for( ipath=0; ipath<num_q_paths; ipath++ ){
-      netbackdir_table[ipath] = 
-	find_backwards_gather( &(q_paths_sorted[ipath]) );
-      //QOP_printf0 ("sortedpath coeff = %e\n", q_paths_sorted[ipath].coeff);
-    }
-    first_force=0;
-  }
+  double dtime = QOP_time();
+  double nflops = 0;
+  QOP_info_t tinfo;
 
-  dtime=-QOP_time();
+  QDP_ColorMatrix *mid[8];  // 4 fat and 4 naik
+  for(int i=0; i<8; i++) mid[i] = QDP_create_M();
 
-  //  QOP_printf0 ("\n\n sortedpath coeff = %e\n", q_paths_sorted[13].coeff);
-  //  QOP_printf0 (" length = %i\n", q_paths_sorted[13].length);
-  //  QOP_printf0 (" fwdbck = %e\n", q_paths_sorted[13].forwback);
-  //  QOP_printf0 (" dir6 = %i\n", q_paths_sorted[13].dir[6]);
-  //  QOP_printf0 (" netbackdir = %i\n\n", netbackdir_table[13]);
-  // clear force accumulators
-  for(dir=XUP;dir<=TUP;dir++)
-    QDP_M_eq_zero(force_accum[dir], QDP_all);
+  QOP_get_mid(&tinfo, mid, QDP_neighbor, 4, eps, x, nterms);
+  nflops += tinfo.final_flop;
+  QOP_get_mid(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, x, nterms);
+  nflops += tinfo.final_flop;
 
-  /* loop over paths, and loop over links in path */
-  last_netbackdir = NODIR;
-  last_path = NULL;
-  for( ipath=0; ipath<num_q_paths; ipath++ ){
-    this_path = &(q_paths_sorted[ipath]);
-    if(this_path->forwback== -1)continue;	/* skip backwards dslash */
-    
-    length = this_path->length;
-    //QOP_printf0("ipath = %i length = %i\n", ipath, length);
-    // find gather to bring x[term] from "this site" to end of path
-    //netbackdir = find_backwards_gather( &(q_paths_sorted[ipath]) );
-    netbackdir = netbackdir_table[ipath];
-    // and bring x to end - no gauge transformation !!
-    // The resulting outer product matrix has gauge transformation
-    // properties of a connection from start to end of path
-    if( netbackdir != last_netbackdir){ 
-      // don't need to repeat this if same net disp. as last path
-      k=0; // which vec_tmp we are using (0 or 1)
-      QDP_V_eq_sV(vec_tmp[k], x[0], 
-	  fnshift(netbackdir), fndir(netbackdir), QDP_all);
-      //PrintV(vec_tmp[k]);
-      // actually last site in path
-      QDP_M_eq_zero(oprod_along_path[0], QDP_all);
-      
-      for(term=0;term<nterms;term++){
-	if(term<nterms-1){
-	  QDP_V_eq_sV(vec_tmp[1-k], x[term+1], 
-		      fnshift(netbackdir), fndir(netbackdir), QDP_all);
-	}
-	QDP_M_eq_V_times_Va(tmat, x[term], vec_tmp[k], QDP_all);
-	QDP_discard_V(vec_tmp[k]);
-	QDP_M_peq_r_times_M(oprod_along_path[0], &eps[term], tmat, QDP_all);
-	//PrintM(oprod_along_path[0]);
-	k=1-k; // swap 0 and 1
-      } /* end loop over terms in rational function expansion */
-    }
-    //tempflops+=54*nterms;
-    //tempflops+=36*nterms;
+  QOP_asqtad_force_multi_fnmat3_qdp(&tinfo, gauge, force, coef, mid, mid+4);
+  nflops += tinfo.final_flop;
 
-    /* path transport the outer product, or projection matrix, of x[term]
-       (EVEN sites)  and Dslash*x[term] (ODD sites) from far end.
-       
-       maintain a matrix of the outer product transported backwards
-       along the path to all sites on the path.
-       If new "net displacement", need to completely recreate it.
-       Otherwise, use as much of the previous path as possible 
-       
-       Note this array is indexed backwards - the outer product transported
-       to site number n along the path is in oprod_along_path[length-n].
-       This makes reusing it for later paths easier.
-       
-       Sometimes we need this at the start point of the path, and sometimes
-       one link into the path, so don't always have to do the last link. */
-    
-    // figure out how much of the outer products along the path must be
-    // recomputed. j is last one needing recomputation. k is first one.
-    j=length-1; // default is recompute all
-    if( netbackdir == last_netbackdir )
-      while ( j>0 && 
-	      this_path->dir[j] == 
-	      last_path->dir[j+last_path->length-length] ) j--;
-    if( GOES_BACKWARDS(this_path->dir[0]) ) k=1; else k=0;
-    
-    for(ilink=j;ilink>=k;ilink--){
-      link_transport_connection_qdp( oprod_along_path[length-ilink], 
-				     oprod_along_path[length-ilink-1], gf,
-				     mat_tmp0, stmp, this_path->dir[ilink]  );
-      //tempflops+=9*22;
-    }
+  for(int i=0; i<8; i++) QDP_destroy_M(mid[i]);
 
-    /* maintain an array of transports "to this point" along the path.
-       Don't recompute beginning parts of path if same as last path */
-    ilink=0; // first link where new transport is needed
-    if( last_path != NULL )
-      while( this_path->dir[ilink] == last_path->dir[ilink] ) ilink++ ;
-    // Sometimes we don't need the matrix for the last link
-    if( GOES_FORWARDS(this_path->dir[length-1]) ) k=length-1; else k=length;
-    
-    for( ; ilink<k; ilink++ ){
-      if( ilink==0 ){
-        dir = this_path->dir[0];
-	if( GOES_FORWARDS(dir) ){
-	  QDP_M_eq_sM(tmat, gf[dir], QDP_neighbor[dir],
-		      QDP_backward, QDP_all);
-	  QDP_M_eq_Ma(mats_along_path[1], tmat, QDP_all);
-	  QDP_discard_M(tmat);
-	}
-	else{
-	  QDP_M_eq_M(mats_along_path[1], gf[OPP_DIR(dir)], QDP_all); 
-	}
-      }
-      else { // ilink != 0
-        dir = OPP_DIR(this_path->dir[ilink]);
-        link_transport_connection_qdp( mats_along_path[ilink+1], 
-				       mats_along_path[ilink], gf,
-				       mat_tmp0, stmp, dir );
-	//tempflops+=9*22;
-      }
-    } // end loop over links
-
-    /* A path has (length+1) points, counting the ends.  At first
-       point, no "down" direction links have their momenta "at this
-       point". At last, no "up" ... */
-    if( GOES_FORWARDS(this_path->dir[length-1]) ) k=length-1; else k=length;
-    for( ilink=0; ilink<=k; ilink++ ){
-      if(ilink<length)dir = this_path->dir[ilink];
-      else dir=NODIR;
-      coeff = this_path->coeff;
-      if( (ilink%2)==1 )coeff = -coeff;
-      //QOP_printf0("coeff = %e\n", coeff);
-
-      if(ilink==0 && GOES_FORWARDS(dir) ){
-	QDP_M_eq_M(mat_tmp0, oprod_along_path[length],QDP_all); 
-      }
-      else if( ilink>0){
-	QDP_M_eq_M_times_Ma(mat_tmp0, oprod_along_path[length-ilink],  
-			    mats_along_path[ilink], QDP_all);
-      }
-      //if(ilink>0)tempflops+=9*22;
-
-      /* add in contribution to the force */
-      /* Put antihermitian traceless part into momentum */
-      if( ilink<length && GOES_FORWARDS(dir) ){
-	QDP_M_peq_r_times_M(force_accum[dir], &coeff, mat_tmp0, QDP_even);
-	QDP_M_meq_r_times_M(force_accum[dir], &coeff, mat_tmp0, QDP_odd);
-	//tempflops+=36;
-      }
-      if( ilink>0 && GOES_BACKWARDS(lastdir) ){
-	odir = OPP_DIR(lastdir);
-	QDP_M_meq_r_times_M(force_accum[odir], &coeff, mat_tmp0, QDP_even);
-	QDP_M_peq_r_times_M(force_accum[odir], &coeff, mat_tmp0, QDP_odd);
-      }
-      //tempflops+=36;
-      
-      lastdir = dir;
-    } /* end loop over links in path */
-    last_netbackdir = netbackdir;
-    last_path = &(q_paths_sorted[ipath]);
-  } /* end loop over paths */
-
-  // add force to momentum
-  for(dir=XUP; dir<=TUP; dir++){
-    QDP_M_eq_antiherm_M(mat_tmp0, force_accum[dir], QDP_all);
-    QDP_M_peq_M(force[dir], mat_tmp0, QDP_all);
-  }
-  //tempflops+=4*18;
-  //tempflops+=4*18;
-
-  dtime += QOP_time();
-  
-  QDP_destroy_V( vec_tmp[0] );
-  QDP_destroy_V( vec_tmp[1] );
-  QDP_destroy_M( mat_tmp0 );
-  for(i=0; i<8; i++) QDP_destroy_M(stmp[i]);
-  QDP_destroy_M( tmat );
-  for(i=0;i<=MAX_PATH_LENGTH;i++){
-     QDP_destroy_M( oprod_along_path[i] );
-  }
-  for(i=1;i<=MAX_PATH_LENGTH;i++){
-     QDP_destroy_M( mats_along_path[i] );
-  }
-  for(i=XUP;i<=TUP;i++){
-     QDP_destroy_M( force_accum[i] );
-  }
-
-  double nflop = 966456 + 1440*nterms;
-  info->final_sec = dtime;
-  info->final_flop = nflop*QDP_sites_on_node;
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflops;
   info->status = QOP_SUCCESS;
 
   ASQTAD_FORCE_END;
+#undef NC
+}
+
+// gather vectors for mid link
+void 
+QOP_get_mid(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
+	    REAL eps[], QDP_ColorVector *x[], int nterms)
+{
+#define NC QDP_get_nc(x[0])
+  double dtime = QOP_time();
+
+#if 0
+  {
+    for(int i=0; i<nterms; i++) {
+      QLA_Real nrm2;
+      QDP_r_eq_norm2_V(&nrm2, x[i], QDP_all);
+      QOP_printf0("norm2 x[%i] = %g\n", i, nrm2);
+    }
+    int i;
+    QDP_loop_sites(i, QDP_all, {
+	int c[4];
+	QDP_get_coords(c, 0, i);
+	printf(" %i %i %i %i", c[0], c[1], c[2], c[3]);
+	for(int j=0; j<QLA_Nc; j++) {
+	  QLA_ColorVector *v = QDP_site_ptr_readonly_V(x[0], i);
+	  printf(" %10g", QLA_real(QLA_elem_V(*v, j)));
+	  printf(" %10g", QLA_imag(QLA_elem_V(*v, j)));
+	}
+	printf("\n");
+      });
+    exit(0);
+  }
+#endif
+
+  QDP_ColorVector *tsrc[2], *vtmp[2];
+  QDP_ColorMatrix *tmat;
+  for(int i=0; i<2; i++) tsrc[i] = QDP_create_V();
+  for(int i=0; i<2; i++) vtmp[i] = QDP_create_V();
+  tmat = QDP_create_M();
+
+  for(int s=0; s<ns; s++) {
+    QDP_M_eq_zero(mid[s], QDP_all);
+    for(int i=-1; i<nterms; i++) {
+      if(i+1<nterms) {
+	int k = (i+1)%2;
+	QDP_V_eq_V(tsrc[k], x[i+1], QDP_all);
+	QDP_V_eq_sV(vtmp[k], tsrc[k], shifts[s], QDP_forward, QDP_all);
+      }
+      if(i>=0) {
+	int k = i%2;
+	QDP_M_eq_V_times_Va(tmat, tsrc[k], vtmp[k], QDP_all);
+	QDP_discard_V(vtmp[k]);
+	QDP_M_peq_r_times_M(mid[s], &eps[i], tmat, QDP_all);
+      }
+    }
+  }
+
+  for(int i=0; i<2; i++) QDP_destroy_V(tsrc[i]);
+  for(int i=0; i<2; i++) QDP_destroy_V(vtmp[i]);
+  QDP_destroy_M(tmat);
+
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = (54+36)*ns*nterms*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+#undef NC
+}
+
+#define NMTMP 4
+#define NFTMP 3
+#define NBTMP 3
+static QDP_ColorMatrix *mtmp[NMTMP], *ftmp0[NFTMP], *ftmp[NFTMP][4],
+  *btmp0[NBTMP], *btmp[NBTMP][4];
+static int setcount=0;
+#define set_temps() if(!setcount++) set_temps0()
+#define free_temps() if(!--setcount) free_temps0()
+
+#if QOP_Colors == 'N'
+static int gnc;
+#define NC gnc
+#define SETNC(x) gnc = x
+#else
+#define SETNC(x) (void)0
+#endif
+#define SETNCF(x) SETNC(QDP_get_nc(x))
+
+static void
+set_temps0(void)
+{
+  for(int i=0; i<NMTMP; i++) mtmp[i] = QDP_create_M();
+  for(int i=0; i<NFTMP; i++) {
+    ftmp0[i] = QDP_create_M();
+    for(int j=0; j<4; j++) ftmp[i][j] = QDP_create_M();
+  }
+  for(int i=0; i<NBTMP; i++) {
+    btmp0[i] = QDP_create_M();
+    for(int j=0; j<4; j++) btmp[i][j] = QDP_create_M();
+  }
+}
+
+static void
+free_temps0(void)
+{
+  for(int i=0; i<NMTMP; i++) QDP_destroy_M(mtmp[i]);
+  for(int i=0; i<NFTMP; i++) {
+    QDP_destroy_M(ftmp0[i]);
+    for(int j=0; j<4; j++) QDP_destroy_M(ftmp[i][j]);
+  }
+  for(int i=0; i<NBTMP; i++) {
+    QDP_destroy_M(btmp0[i]);
+    for(int j=0; j<4; j++) QDP_destroy_M(btmp[i][j]);
+  }
+}
+
+static void
+staple(QDP_ColorMatrix *out, QDP_ColorMatrix *in0, QDP_ColorMatrix *link0, int mu, int nu)
+{
+#define link     ftmp0[0]
+#define linkmu   ftmp[0][mu]
+#define in       ftmp0[1]
+#define innu     ftmp[1][nu]
+#define linkin   mtmp[0]
+#define back     btmp0[0]
+#define backnu   btmp[0][nu]
+#define linkinnu mtmp[1]
+
+  QDP_M_eq_M(link, link0, QDP_all);
+  QDP_M_eq_sM(linkmu, link, QDP_neighbor[mu], QDP_forward, QDP_all);
+  QDP_M_eq_M(in, in0, QDP_all);
+  QDP_M_eq_sM(innu, in, QDP_neighbor[nu], QDP_forward, QDP_all);
+  QDP_M_eq_Ma_times_M(linkin, link, in, QDP_all);
+  QDP_M_eq_M_times_M(back, linkin, linkmu, QDP_all);
+  QDP_M_eq_sM(backnu, back, QDP_neighbor[nu], QDP_backward, QDP_all);
+  QDP_M_eq_M_times_M(linkinnu, link, innu, QDP_all);
+  QDP_discard_M(innu);
+  QDP_M_peq_M_times_Ma(out, linkinnu, linkmu, QDP_all);
+  QDP_discard_M(linkmu);
+  QDP_M_peq_M(out, backnu, QDP_all);
+  QDP_discard_M(backnu);
+#define STAPLE_FLOPS (3*198+216+18)
+
+#undef link
+#undef linkmu
+#undef in
+#undef innu
+#undef linkin
+#undef back
+#undef backnu
+#undef linkinnu
+}
+
+static void
+side_force(QDP_ColorMatrix *force, QDP_ColorMatrix *bot0, QDP_ColorMatrix *side0,
+	   QDP_ColorMatrix *top0, int mu, int nu, QDP_ColorMatrix *stpl)
+{
+#define side     ftmp0[0]
+#define sidemu   ftmp[0][mu]
+#define top      ftmp0[1]
+#define topnu    ftmp[1][nu]
+#define bot      ftmp0[2]
+#define botnu    ftmp[2][nu]
+#define sidebot  mtmp[0]
+#define sidetop  mtmp[1]
+#define topnusidebot  btmp0[0]
+#define fbmu          btmp[0][mu]
+#define botnusidetop  btmp0[1]
+#define fmbmu         btmp[1][mu]
+#define sidebotsidemu btmp0[2]
+#define stm           btmp[2][nu]
+#define botnusidemu   mtmp[2]
+#define botsidemu     mtmp[3]
+
+  // force += bot * sidemu * topnu+
+  // force -= bot-mu+ * side-mu * topnu-mu
+  // -= top <-> bot
+  // stpl += side * botnu * sidemu+
+  // stpl += side-nu+ * bot-nu * sidemu-nu
+  QDP_M_eq_M(side, side0, QDP_all);
+  QDP_M_eq_sM(sidemu, side, QDP_neighbor[mu], QDP_forward, QDP_all);
+  QDP_M_eq_M(top, top0, QDP_all);
+  QDP_M_eq_sM(topnu, top, QDP_neighbor[nu], QDP_forward, QDP_all);
+  QDP_M_eq_M(bot, bot0, QDP_all);
+  QDP_M_eq_sM(botnu, bot, QDP_neighbor[nu], QDP_forward, QDP_all);
+  QDP_M_eq_Ma_times_M(sidebot, side, bot, QDP_all);
+  QDP_M_eq_Ma_times_M(sidetop, side, top, QDP_all);
+  QDP_M_eq_Ma_times_M(topnusidebot, topnu, sidebot, QDP_all);
+  QDP_M_eq_sM(fbmu, topnusidebot, QDP_neighbor[mu], QDP_backward, QDP_all);
+  QDP_M_eq_Ma_times_M(botnusidetop, botnu, sidetop, QDP_all);
+  QDP_M_eq_sM(fmbmu, botnusidetop, QDP_neighbor[mu], QDP_backward, QDP_all);
+  QDP_M_eq_M_times_M(sidebotsidemu, sidebot, sidemu, QDP_all);
+  QDP_M_eq_sM(stm, sidebotsidemu, QDP_neighbor[nu], QDP_backward, QDP_all);
+  QDP_M_eq_M_times_Ma(botnusidemu, botnu, sidemu, QDP_all);
+  QDP_discard_M(botnu);
+  QDP_M_peq_M_times_M(stpl, side, botnusidemu, QDP_all);
+  QDP_M_meq_M_times_Ma(force, top, botnusidemu, QDP_all);
+  QDP_M_eq_M_times_M(botsidemu, bot, sidemu, QDP_all);
+  QDP_discard_M(sidemu);
+  QDP_M_peq_M_times_Ma(force, botsidemu, topnu, QDP_all);
+  QDP_discard_M(topnu);
+  QDP_M_meq_Ma(force, fbmu, QDP_all);
+  QDP_discard_M(fbmu);
+  QDP_M_peq_Ma(force, fmbmu, QDP_all);
+  QDP_discard_M(fmbmu);
+  QDP_M_peq_M(stpl, stm, QDP_all);
+  QDP_discard_M(stm);
+#define SIDE_FORCE_FLOPS (7*198+3*216+3*18)
+
+#undef side
+#undef sidemu
+#undef top
+#undef topnu
+#undef bot
+#undef botnu
+#undef sidebot
+#undef sidetop
+#undef topnusidebot
+#undef fbmu
+#undef botnusidetop
+#undef fmbmu
+#undef sidebotsidemu
+#undef stm
+#undef botnusidemu
+#undef botsidemu
+}
+
+static void
+QOP_fat_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
+	      QDP_ColorMatrix *deriv[], QOP_asqtad_coeffs_t *coef,
+	      QDP_ColorMatrix *mid[])
+{
+  double dtime = QOP_time();
+  int nflops = 0;
+
+  QLA_Real coef1 = coef->one_link;
+  QLA_Real coef3 = coef->three_staple;
+  QLA_Real coef5 = coef->five_staple;
+  QLA_Real coef7 = coef->seven_staple;
+  QLA_Real coefL = coef->lepage;
+  coef1 -= 6*coefL;
+  int have5 = coef5 || coef7 || coefL;
+  int have3 = coef3 || have5;
+  QDP_ColorMatrix *stpl3[4];
+  QDP_ColorMatrix *mid5[4];
+  QDP_ColorMatrix *stpl5=NULL, *mid3=NULL;
+  if(have3) {
+    if(have5) {
+      for(int mu=0; mu<4; mu++) {
+	stpl3[mu] = QDP_create_M();
+	mid5[mu] = QDP_create_M();
+      }
+    }
+    stpl5 = QDP_create_M();
+    mid3 = QDP_create_M();
+    set_temps();
+  }
+
+  for(int sig=0; sig<4; sig++) {
+    if(have5) {
+      for(int mu=0; mu<4; mu++) {
+	if(mu==sig) continue;
+	QDP_M_eq_zero(stpl3[mu], QDP_all);
+	staple(stpl3[mu], gauge[sig], gauge[mu], sig, mu);
+	QDP_M_eq_zero(mid5[mu], QDP_all);
+	nflops += STAPLE_FLOPS;
+      }
+      for(int rho=0; rho<4; rho++) {
+	if(rho==sig) continue;
+	QDP_M_eq_zero(stpl5, QDP_all);
+
+	if(coef7) {
+	  for(int mu=0; mu<4; mu++) {
+	    if(mu==sig||mu==rho) continue;
+	    for(int nu=0; nu<4; nu++) {
+	      if(nu==sig||nu==rho||nu==mu) continue;
+	      staple(stpl5, stpl3[mu], gauge[nu], sig, nu);
+	      nflops += STAPLE_FLOPS;
+	    }
+	  }
+	  QDP_M_eq_r_times_M(stpl5, &coef7, stpl5, QDP_all);
+	  nflops += 18;
+	}
+
+	QDP_M_eq_zero(mid3, QDP_all);
+	if(coefL) {
+	  QDP_M_peq_r_times_M(stpl5, &coefL, stpl3[rho], QDP_all);
+	  nflops += 36;
+	}
+	if(coefL || coef7) {
+	  side_force(deriv[rho], mid[sig], gauge[rho], stpl5, sig, rho, mid3);
+	  nflops += SIDE_FORCE_FLOPS;
+	}
+	if(coefL) {
+	  QDP_M_peq_r_times_M(mid5[rho], &coefL, mid3, QDP_all);
+	  nflops += 36;
+	}
+
+	QDP_M_eqm_r_times_M(mid3, &coef7, mid3, QDP_all);
+	QDP_M_peq_r_times_M(mid3, &coef5, mid[sig], QDP_all);
+	nflops += 18+36;
+	for(int mu=0; mu<4; mu++) {
+	  if(mu==sig||mu==rho) continue;
+	  for(int nu=0; nu<4; nu++) {
+	    if(nu==sig||nu==rho||nu==mu) continue;
+	    side_force(deriv[mu], mid3, gauge[mu], stpl3[nu], sig, mu, mid5[nu]);
+	    nflops += SIDE_FORCE_FLOPS;
+	  }
+	}
+      }
+    }
+
+    if(have3) {
+      QDP_M_eq_zero(mid3, QDP_all);
+      for(int mu=0; mu<4; mu++) {
+	if(mu==sig) continue;
+	if(have5) {
+	  QDP_M_eq_r_times_M_minus_M(stpl5, &coef3, mid[sig], mid5[mu], QDP_all);
+	  nflops += 36;
+	} else {
+	  QDP_M_eq_r_times_M(stpl5, &coef3, mid[sig], QDP_all);
+	  nflops += 18;
+	}
+	side_force(deriv[mu], stpl5, gauge[mu], gauge[sig], sig, mu, mid3);
+	nflops += SIDE_FORCE_FLOPS;
+      }
+      QDP_M_meq_M(deriv[sig], mid3, QDP_all);
+      nflops += 18;
+    }
+    if(coef1) {
+      QDP_M_peq_r_times_M(deriv[sig], &coef1, mid[sig], QDP_all);
+      nflops += 36;
+    }
+  }
+
+#if 1
+  if(coefL) {
+    // fix up Lepage term
+    QLA_Real fixL = -coefL;
+    for(int mu=0; mu<4; mu++) {
+      QDP_M_eq_zero(ftmp0[0], QDP_all);
+      for(int nu=0; nu<4; nu++) {
+	if(nu==mu) continue;
+	QDP_M_eq_Ma_times_M(btmp0[0], mid[nu], gauge[nu], QDP_all);
+	QDP_M_eq_sM(btmp[0][nu], btmp0[0], QDP_neighbor[nu], QDP_backward, QDP_all);
+	QDP_M_eq_M_times_Ma(stpl5, mid[nu], gauge[nu], QDP_all);
+	QDP_M_meq_M(stpl5, btmp[0][nu], QDP_all);
+	QDP_discard_M(btmp[0][nu]);
+	QDP_M_peq_M(ftmp0[0], stpl5, QDP_all);
+	QDP_M_peq_Ma(ftmp0[0], stpl5, QDP_all);
+      }
+      QDP_M_eq_sM(ftmp[0][mu], ftmp0[0], QDP_neighbor[mu], QDP_forward, QDP_all);
+      QDP_M_eq_M_times_M(stpl5, ftmp0[0], gauge[mu], QDP_all);
+      QDP_M_meq_M_times_M(stpl5, gauge[mu], ftmp[0][mu], QDP_all);
+      QDP_discard_M(ftmp[0][mu]);
+      QDP_M_peq_r_times_M(deriv[mu], &fixL, stpl5, QDP_all);
+    }
+    nflops += 4*(3*(2*198+3*18)+198+216+36);
+  }
+#endif
+
+  if(have3) {
+    if(have5) {
+      for(int mu=0; mu<4; mu++) {
+	QDP_destroy_M(stpl3[mu]);
+	QDP_destroy_M(mid5[mu]);
+      }
+    }
+    QDP_destroy_M(stpl5);
+    QDP_destroy_M(mid3);
+    free_temps();
+  }
+
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflops*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+}
+
+void
+QOP_asqtad_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
+		 QDP_ColorMatrix *deriv[], QOP_asqtad_coeffs_t *coef,
+		 QDP_ColorMatrix *mid_fat[],
+		 QDP_ColorMatrix *mid_naik[])
+{
+  SETNCF(deriv[0]);
+  double dtime = QOP_time();
+  int nflops = 0;
+  QOP_info_t tinfo;
+  set_temps();
+
+#if 0
+  {
+    QLA_Real nrm2=0, t;
+    if(mid_fat) {
+      for(int i=0; i<4; i++) {
+	QDP_r_eq_norm2_M(&t, mid_fat[i], QDP_all);
+	nrm2 += t;
+      }
+      QOP_printf0("norm2 mid_fat: %g\n", nrm2);
+    }
+    if(mid_naik) {
+      nrm2 = 0;
+      for(int i=0; i<4; i++) {
+	QDP_r_eq_norm2_M(&t, mid_naik[i], QDP_all);
+	nrm2 += t;
+      }
+      QOP_printf0("norm2 mid_naik: %g\n", nrm2);
+    }
+  }
+#endif
+
+  // fat
+  if(mid_fat) {
+    QOP_fat_deriv(&tinfo, gauge, deriv, coef, mid_fat);
+    nflops += tinfo.final_flop;
+  }
+
+  // Naik
+  QLA_Real coefN = coef->naik;
+  if(coefN && mid_naik) {
+#define U       gauge[mu]
+#define mid     mid_naik[mu]
+#define Uf      ftmp0[0]
+#define Umu     ftmp[0][mu]
+#define Umid    btmp0[0]
+#define Umidbmu btmp[0][mu]
+#define UmuU    ftmp0[1]
+#define UmuUs   ftmp[1][mu]
+#define f3b     btmp0[1]
+#define f3      btmp[1][mu]
+#define f       mtmp[0]
+    for(int mu=0; mu<4; mu++) {
+      // force += mid * Umumu+ * Umu+
+      // force -= U-mu+ * mid-mu * Umu+
+      // force += U-mu+ * U-mu-mu+ * mid-mu-mu
+      QDP_M_eq_M(Uf, U, QDP_all);
+      QDP_M_eq_sM(Umu, Uf, QDP_neighbor[mu], QDP_forward, QDP_all);
+      QDP_M_eq_Ma_times_M(Umid, Uf, mid, QDP_all);
+      QDP_M_eq_sM(Umidbmu, Umid, QDP_neighbor[mu], QDP_backward, QDP_all);
+      QDP_M_eq_Ma_times_Ma(UmuU, Umu, Uf, QDP_all);
+      QDP_M_eq_sM(UmuUs, UmuU, QDP_neighbor[mu], QDP_forward, QDP_all);
+      QDP_M_eq_Ma_times_M(f3b, Uf, Umidbmu, QDP_all);
+      QDP_M_eq_sM(f3, f3b, QDP_neighbor[mu], QDP_backward, QDP_all);
+      QDP_M_eq_M_times_M(f, mid, UmuUs, QDP_all);
+      QDP_discard_M(UmuUs);
+      QDP_M_meq_M_times_Ma(f, Umidbmu, Umu, QDP_all);
+      QDP_discard_M(Umidbmu);
+      QDP_discard_M(Umu);
+      QDP_M_peq_M(f, f3, QDP_all);
+      QDP_discard_M(f3);
+      QDP_M_peq_r_times_M(deriv[mu], &coefN, f, QDP_all);
+    }
+#undef U
+#undef mid
+#undef Uf
+#undef Umu
+#undef Umid
+#undef Umidbmu
+#undef UmuU
+#undef UmuUs
+#undef f3b
+#undef f3
+#undef f
+    nflops += 4*(4*198+216+18+36)*QDP_sites_on_node;
+  }
+  free_temps();
+
+#if 0
+  {
+    QLA_Real nrm2=0, t;
+    for(int i=0; i<4; i++) {
+      QDP_r_eq_norm2_M(&t, deriv[i], QDP_all);
+      nrm2 += t;
+    }
+    QOP_printf0("norm2 deriv: %g\n", nrm2);
+  }
+#endif
+
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflops;
+  info->status = QOP_SUCCESS;
+}
+
+void
+QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+				  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
+				  QDP_ColorMatrix *mid_fat[],
+				  QDP_ColorMatrix *mid_naik[])
+{
+  SETNCF(force[0]);
+  double dtime = QOP_time();
+  QOP_info_t tinfo;
+  QDP_ColorMatrix *cm, *deriv[4], *gcm[4];
+  cm = QDP_create_M();
+  for(int mu=0; mu<4; mu++) {
+    deriv[mu] = QDP_create_M();
+    QDP_M_eq_zero(deriv[mu], QDP_all);
+    gcm[mu] = gauge->links[mu];
+  }
+  QOP_asqtad_deriv(&tinfo, gcm, deriv, coef, mid_fat, mid_naik);
+  for(int mu=0; mu<4; mu++) {
+    QDP_M_eq_M_times_Ma(cm, gauge->links[mu], deriv[mu], QDP_all);
+    QDP_M_eq_antiherm_M(deriv[mu], cm, QDP_all);
+    QDP_M_peq_M(force[mu], deriv[mu], QDP_even);
+    QDP_M_meq_M(force[mu], deriv[mu], QDP_odd);
+    QDP_destroy_M(deriv[mu]);
+  }
+  QDP_destroy_M(cm);
+
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = tinfo.final_flop;
+  info->final_flop += 4*(198+24+18)*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
 }

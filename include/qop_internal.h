@@ -5,6 +5,43 @@
 #include <qop_qdp.h>
 #include <qop_config.h>
 
+#if QOP_Colors == 'N'
+
+#undef QOP_Nc
+#define QOP_Nc NC
+#undef QDP_Nc
+#define QDP_Nc QOP_Nc
+#undef QLA_Nc
+#define QLA_Nc QOP_Nc
+#define NCPROT int NC,
+#define NCPROTVOID int NC
+#define NCARG NC,
+#define NCARGVOID NC
+
+#ifndef QLA_ColorMatrix
+#if QOP_Precision == 'F'
+#define QLA_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
+#else
+#define QLA_ColorMatrix(x) QLA_DN_ColorMatrix(QLA_Nc,(x))
+#endif
+#define QLA_F_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
+#define QLA_D_ColorMatrix(x) QLA_DN_ColorMatrix(QLA_Nc,(x))
+#endif
+
+#else
+
+#define NCPROT
+#define NCPROTVOID void
+#define NCARG
+#define NCARGVOID
+#ifndef QLA_ColorMatrix
+#define QLA_ColorMatrix(x) QLA_ColorMatrix x
+#define QLA_F_ColorMatrix(x) QLA_F_ColorMatrix x
+#define QLA_D_ColorMatrix(x) QLA_D_ColorMatrix x
+#endif
+
+#endif
+
 #define oppsub(eo) ((4-(eo))%3)
 #define qdpsub(eo) ((eo)==2 ? QDP_all : QDP_even_and_odd[eo])
 

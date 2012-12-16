@@ -67,26 +67,25 @@ det(QLA_ColorMatrix *m)
 {
   QLA_ColorMatrix tm;
   QLA_Complex z1;
-  int i, j, c;
 
-  for(j = 0; j < QDP_Nc; j++)
-    for(i = 0; i < QDP_Nc; i++)
+  for(int j = 0; j < QDP_Nc; j++)
+    for(int i = 0; i < QDP_Nc; i++)
       QLA_elem_M(tm,j,i) = QLA_elem_M(*m,j,i);
 
-  for(j = 0; j < QDP_Nc; j++) {
-    for(i = 0; i <= j; i++) {
+  for(int j = 0; j < QDP_Nc; j++) {
+    for(int i = 0; i <= j; i++) {
       QLA_Complex t2;
-      t2 = QLA_elem_M(tm,j,i);
-      for(c = 0; c < i; c++)
+      QLA_c_eq_c(t2, QLA_elem_M(tm,j,i));
+      for(int c = 0; c < i; c++)
         QLA_c_meq_c_times_c(t2, QLA_elem_M(tm,c,i), QLA_elem_M(tm,j,c));
 
-      QLA_elem_M(tm,j,i) = t2;
+      QLA_c_eq_c(QLA_elem_M(tm,j,i), t2);
     }
 
-    for(i = (j+1); i < QDP_Nc; i++) {
+    for(int i = (j+1); i < QDP_Nc; i++) {
       QLA_Complex t2;
       t2 = QLA_elem_M(tm,j,i);
-      for(c = 0; c < j; c++)
+      for(int c = 0; c < j; c++)
         QLA_c_meq_c_times_c(t2, QLA_elem_M(tm,c,i), QLA_elem_M(tm,j,c));
 
       QLA_c_eq_c_div_c(QLA_elem_M(tm,j,i), t2, QLA_elem_M(tm,j,j));
@@ -95,7 +94,7 @@ det(QLA_ColorMatrix *m)
 
   /* The determinant */
   z1 = QLA_elem_M(tm,0,0);
-  for(c = 1; c < QDP_Nc; c++) {
+  for(int c = 1; c < QDP_Nc; c++) {
     QLA_Complex z;
     QLA_c_eq_c_times_c(z, z1, QLA_elem_M(tm,c,c));
     z1 = z;
@@ -108,17 +107,14 @@ static void
 normalize(QLA_ColorMatrix *m, int r)
 {
   //QLA_Real n, t;
-  QLA_Real n;
-  int c;
-
-  n = 0;
-  for(c=0; c<QDP_Nc; c++) {
+  QLA_Real n = 0;
+  for(int c=0; c<QDP_Nc; c++) {
     //QLA_R_eq_norm2_C(&t, &QLA_elem_M(*m, r, c));
     //n += t;
     n += QLA_norm2_c(QLA_elem_M(*m, r, c));
   }
   n = 1/sqrt(n);
-  for(c=0; c<QDP_Nc; c++) {
+  for(int c=0; c<QDP_Nc; c++) {
     QLA_c_eq_r_times_c(QLA_elem_M(*m,r,c), n, QLA_elem_M(*m,r,c));
   }
 }
@@ -126,39 +122,35 @@ normalize(QLA_ColorMatrix *m, int r)
 static void
 orthogonalize(QLA_ColorMatrix *m, int r1, int r2)
 {
-  QLA_Complex z, t;
-  int c;
-
+  QLA_Complex z;
   QLA_c_eq_r(z, 0);
-  for(c=0; c<QDP_Nc; c++) {
+  for(int c=0; c<QLA_Nc; c++) {
+    QLA_Complex t;
     QLA_c_eq_ca_times_c(t, QLA_elem_M(*m,r1,c), QLA_elem_M(*m,r2,c));
     QLA_c_peq_c(z, t);
   }
-  for(c=0; c<QDP_Nc; c++) {
+  for(int c=0; c<QLA_Nc; c++) {
     QLA_c_meq_c_times_c(QLA_elem_M(*m,r2,c), z, QLA_elem_M(*m,r1,c));
   }
 }
 
 static void
-make_unitary_func(QLA_ColorMatrix *m, int coords[])
+make_unitary_func(NCPROT QLA_ColorMatrix *m, int coords[])
 {
-  QLA_Complex z1, z2;
-  QLA_Real r;
-  int i, j, c;
-
-  for(i=0; i<QDP_Nc; i++) {
-    for(j=0; j<i; j++) {
+  for(int i=0; i<QDP_Nc; i++) {
+    for(int j=0; j<i; j++) {
       orthogonalize(m, j, i);
     }
     normalize(m, i);
   }
 
+  QLA_Complex z1, z2;
   z1 = det(m);
 
-  r = QLA_norm_c(z1);
+  QLA_Real r = QLA_norm_c(z1);
   QLA_c_eq_ca(z2, z1);
   QLA_c_eq_c_div_r(z1, z2, r);
-  for(c = 0; c < QDP_Nc; ++c) {
+  for(int c = 0; c < QDP_Nc; ++c) {
     QLA_Complex z;
     QLA_c_eq_c_times_c(z, QLA_elem_M(*m,c,QDP_Nc-1), z1);
     QLA_elem_M(*m,c,QDP_Nc-1) = z;
@@ -170,9 +162,7 @@ make_unitary_func(QLA_ColorMatrix *m, int coords[])
 void
 make_unitary(QDP_ColorMatrix **m, int n)
 {
-  int i;
-
-  for(i=0; i<n; i++) {
+  for(int i=0; i<n; i++) {
     QDP_M_eq_func(m[i], make_unitary_func, QDP_all);
   }
 }

@@ -6,12 +6,29 @@ n=$3  # new specific type
 o=$4  # old type
 if [ ! -z $o ]; then uo=_$o; fi
 
+makecgen() {
+ sed 's/\([a-zA-Z0-9_][a-zA-Z0-9_]*\)/ \1 /g' |tr ' ' '\n' |\
+ sed -n '/^QOP_'$t'_/{s/^QOP_'$t'_\(.*\)/#define QOP'$uo'_\1 QOP_'$n'_\1/;p}'
+}
+
+makengen() {
+ sed -n '/.*QOP_'$t'_[^(]*(NCPROT/{s/.*QOP_'$t'_\([^(]*\)(NCPROT.*/#define QOP'$uo'_\1(...) QOP_'$n'_\1(QOP_Nc, __VA_ARGS__)/;p}'
+}
+
+makegen() {
+ if ! expr "X$o" : '.*N.*' >/dev/null && expr $n : '.*N.*' >/dev/null; then
+  grep -v NCPROT $f |makecgen
+  grep NCPROT $f |makengen
+ else
+  cat $f |makecgen
+ fi
+}
+
 echo "// DO NOT EDIT"
 echo "// generated from $f"
 echo "#ifndef _QOP_"$n"_"$o"_"$t"_GENERIC_H"
 echo "#define _QOP_"$n"_"$o"_"$t"_GENERIC_H"
 echo
-cat $f |sed 's/\([a-zA-Z0-9_][a-zA-Z0-9_]*\)/ \1 /g' |tr ' ' '\n' |\
-  sed -n '/^QOP_'$t'_/{s/^QOP_'$t'_\(.*\)/#define QOP'$uo'_\1 QOP_'$n'_\1/;p}' |sort -u
+makegen |sort -u
 echo
 echo "#endif //_QOP_"$n"_"$o"_"$t"_GENERIC_H"

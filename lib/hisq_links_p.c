@@ -5,69 +5,15 @@
 
 #include <qop_internal.h>
 
-#ifdef AB_DEBUG_QOP_HISQ
-
-/* Deugging tools */
-
-static void 
-PrintM(QDP_ColorMatrix * field){
-  QLA_ColorMatrix *mom0;
-  const int x[4] = {0,0,0,0};
-  int ind = QDP_index(x);
-
-  mom0 = QDP_expose_M(field);
-  printf("Field: %e %e %e\n", mom0[ind].e[0][0].real,
-	 mom0[ind].e[0][1].real, mom0[ind].e[0][2].real);
-  printf("       %e %e %e\n", mom0[ind].e[1][0].real,
-	 mom0[ind].e[1][1].real, mom0[ind].e[1][2].real);
-  printf("       %e %e %e\n\n", mom0[ind].e[2][0].real,
-	 mom0[ind].e[2][1].real, mom0[ind].e[2][2].real);
-
-  QDP_reset_M(field);
-}
-
-static void 
-PrintMsite(QDP_ColorMatrix * field, int *x){
-  QLA_ColorMatrix *mom0;
-  int ind = QDP_index(x);
-
-  mom0 = QDP_expose_M(field);
-  printf("Field: %e %e %e\n", mom0[ind].e[0][0].real,
-	 mom0[ind].e[0][1].real, mom0[ind].e[0][2].real);
-  printf("       %e %e %e\n", mom0[ind].e[1][0].real,
-	 mom0[ind].e[1][1].real, mom0[ind].e[1][2].real);
-  printf("       %e %e %e\n\n", mom0[ind].e[2][0].real,
-	 mom0[ind].e[2][1].real, mom0[ind].e[2][2].real);
-
-  QDP_reset_M(field);
-}
-
-static void 
-PrintMone(QLA_ColorMatrix m){
-  printf("Field: %e %e %e\n", m.e[0][0].real,
-	 m.e[0][1].real, m.e[0][2].real);
-  printf("       %e %e %e\n", m.e[1][0].real,
-	 m.e[1][1].real, m.e[1][2].real);
-  printf("       %e %e %e\n\n", m.e[2][0].real,
-	 m.e[2][1].real, m.e[2][2].real);
-}
-
-#endif
-
 /* CD: This is now internal to QOP */
+#define NC nc
 static QOP_FermionLinksHisq *
-allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
+allocate_hisq_fermion_links(NCPROT QOP_hisq_coeffs_t *coeffs)
 {
   int n_naiks = coeffs->n_naiks;
   int i;
   QOP_hisq_unitarize_group_t ugroup = coeffs->ugroup;
   QOP_FermionLinksHisq *flh;
-
-#if (QOP_Precision==1)
-//ABprint  printf("Enter QOP_F3_allocate_hisq_fermion_links\n");
-#else
-//ABprint  printf("Enter QOP_D3_allocate_hisq_fermion_links\n");
-#endif
 
   //AB Allocate space for the structure itself
   QOP_malloc( flh, QOP_FermionLinksHisq, 1 );
@@ -81,7 +27,7 @@ allocate_hisq_fermion_links(QOP_hisq_coeffs_t *coeffs)
   QOP_malloc(flh->U_links, QDP_ColorMatrix *, 4); // gauge links
   QOP_malloc(flh->V_links, QDP_ColorMatrix *, 4); // Fat7 smeared
   QOP_malloc(flh->Y_unitlinks, QDP_ColorMatrix *, 4); // projected U(3)
-QOP_malloc(flh->W_unitlinks, QDP_ColorMatrix *, 4); // projected SU(3)
+  QOP_malloc(flh->W_unitlinks, QDP_ColorMatrix *, 4); // projected SU(3)
   for(i=0;i<4;i++) {
     flh->U_links[i]=QDP_create_M();
     flh->V_links[i]=QDP_create_M();
@@ -95,13 +41,8 @@ QOP_malloc(flh->W_unitlinks, QDP_ColorMatrix *, 4); // projected SU(3)
   flh->n_naiks = n_naiks;
   QOP_malloc(flh->fn, QOP_FermionLinksAsqtad *, n_naiks); // Asqtad links
 
-#if (QOP_Precision==1)
-//ABprint  printf("Exit  QOP_F3_allocate_hisq_fermion_links\n");
-#else
-//ABprint  printf("Exit  QOP_D3_allocate_hisq_fermion_links\n");
-#endif
-
   return flh;
+#undef NC
 }
 
 static void
@@ -121,10 +62,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
 			 QOP_hisq_coeffs_t *coeffs,
 			 QOP_GaugeField *gauge)
 {
-#ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-  printf("Enter QOP_hisq_create_L_from_G in hisq_links_p.c\n");
-#endif
-
+#define NC QDP_get_nc(gauge->links[0])
   int n_naiks = coeffs->n_naiks;
   double *eps_naik = coeffs->eps_naik;
   QOP_hisq_unitarize_group_t ugroup = coeffs->ugroup;
@@ -140,16 +78,11 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
 
   HISQ_LINKS_BEGIN;
 
-  flh = allocate_hisq_fermion_links(coeffs);
+  flh = allocate_hisq_fermion_links(NCARG coeffs);
 
   //AB Copy the gauge field in FermionLinksHisq structure
   if(want_aux)
     QOP_extract_G_to_qdp(&(flh->U_links[0]), gauge);
-
-#ifdef AB_DEBUG_QOP_HISQ
-  printf("*** U check in hisq_links_p.c\n");
-  PrintM(flh->U_links[0]);fflush(stdout);
-#endif
 
   // fat7 stage
   // convert hisq style coeffs to asqtad style 
@@ -208,11 +141,6 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
     destroy_4M(flh->V_links);
     flh->V_links = NULL;
   }
-
-#ifdef AB_DEBUG_QOP_HISQ
-  printf("******* matrix after reunit in hisq_links_p.c\n");fflush(stdout);
-  PrintM(flh->Y_unitlinks[0]);fflush(stdout);
-#endif
 
   // SU(3) projection, if requested
 
@@ -301,10 +229,6 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
 
   QOP_destroy_G(qopgf_tmp);
 
-#ifdef AB_DEBUG_ENTRY_EXIT_ROUTINES
-  printf("Exit  QOP_hisq_create_L_from_G in hisq_links_p.c\n");
-#endif
-
   dtime += QOP_time();
   info->final_flop = final_flop;
   info->final_sec = dtime;
@@ -312,6 +236,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
   HISQ_LINKS_END;
 
   return flh;
+#undef NC
 }
 
 void

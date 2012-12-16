@@ -12,6 +12,7 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
 				QDP_ColorVector *x[], 
 				int *n_orders_naik)
 {
+#define NC QDP_get_nc(deriv[0])
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
 
   double dtime = QDP_time();
@@ -171,6 +172,7 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
   info->final_sec = QDP_time() - dtime;
   info->final_flop = totalflops;
   info->status = QOP_SUCCESS;
+#undef NC
 }
 
 void 
@@ -182,6 +184,7 @@ QOP_hisq_force_multi_fnmat2_qdp(QOP_info_t *info,
 				QDP_ColorVector *x[], 
 				int *n_orders_naik)
 {
+#define NC QDP_get_nc(force[0])
   double dtime = QOP_time();
 
   QDP_ColorMatrix *deriv[4];
@@ -210,4 +213,5 @@ QOP_hisq_force_multi_fnmat2_qdp(QOP_info_t *info,
 
   info->final_sec = QOP_time() - dtime;
   //QOP_printf0("HISQ force flops = %g\n", info->final_flop);
+#undef NC
 }

@@ -1,29 +1,16 @@
-#include <math.h>
+//#define DO_TRACE
 #include <qop_internal.h>
 
-#define printf0 QOP_printf0
-//#define printf0(...)
-
 #define LU 1
-#define SDC_DEBUG 0
-
-#define dblstore_style(x) ((x)&1)
-#define shiftd_style(x) ((x)&2)
 
 #define QDP_to_QOP(subset) \
   (subset==QDP_even?QOP_EVEN:(subset==QDP_odd?QOP_ODD:QOP_EVENODD))
-
-// External variables and functions
-extern int QOP_dw_initQ;
-extern int QOP_dw_style;
-extern int dslash_initQ;
 
 // Local globals (for easy passing into the D2 wrapper)
 static QLA_Real gl_mq, gl_M5;
 static int gl_ls;
 static QDP_Subset gl_osubset;
 static QOP_FermionLinksDW *gl_fldw;
-
 
 // -----------------------------------------------------------------
 // Domain-wall inverter
@@ -74,6 +61,7 @@ QOP_dw_invert_qdp(QOP_info_t *info,
 		  QDP_DiracFermion *in[],
 		  int ls)
 {
+#define NC QDP_get_nc(out[0])
   double dtime;
   double nflop;
   QDP_DiracFermion *qdpin[ls], *tin[ls], *tcg[ls];
@@ -131,10 +119,6 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   //printf0("begin cgv\n");
   dtime = -QOP_time();
 #ifdef LU
-#if SDC_DEBUG
-  printf("Using EO decomposition...\n");
-  QOP_common.verbosity = QOP_VERB_DEBUG;
-#endif
   //printf0("max iterations: %d, relmin: %g\n",inv_arg->max_iter,res_arg->relmin);
   QOP_invert_cg_vD(QOP_dw_schur2_wrap, inv_arg, res_arg,
 		   out, qdpin, tcg, subset, ls);
@@ -187,6 +171,7 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   info->status = QOP_SUCCESS;
 
   DW_INVERT_END;
+#undef NC
 }
 
 void

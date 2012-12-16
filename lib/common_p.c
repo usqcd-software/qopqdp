@@ -31,8 +31,11 @@ QOP_new_G(void)
 
 /* raw routines */
 
+#define NC int nc
 QOP_ColorVector *
 QOP_create_V_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_ColorVector *qopcv;
   QOP_malloc(qopcv, QOP_ColorVector, 1);
@@ -41,9 +44,13 @@ QOP_create_V_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
   qopcv->raw = NULL;
   return qopcv;
 }
+#undef NC
 
+#define NC int nc
 QOP_DiracFermion *
 QOP_create_D_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_DiracFermion *qopdf;
   QOP_malloc(qopdf, QOP_DiracFermion, 1);
@@ -52,9 +59,13 @@ QOP_create_D_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
   qopdf->raw = NULL;
   return qopdf;
 }
+#undef NC
 
+#define NC int nc
 QOP_GaugeField *
 QOP_create_G_from_raw(QOP_Real *links[], QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_GaugeField *qopgf = QOP_new_G();
   for(int i=0; i<QOP_common.ndim; i++) {
@@ -63,9 +74,13 @@ QOP_create_G_from_raw(QOP_Real *links[], QOP_evenodd_t evenodd)
   }
   return qopgf;
 }
+#undef NC
 
+#define NC int nc
 QOP_Force *
 QOP_create_F_from_raw(QOP_Real *force[], QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_Force *qopf;
   int i;
@@ -78,6 +93,7 @@ QOP_create_F_from_raw(QOP_Real *force[], QOP_evenodd_t evenodd)
   qopf->raw = NULL;
   return qopf;
 }
+#undef NC
 
 void
 QOP_extract_V_to_raw(QOP_Real *dest, QOP_ColorVector *src,
@@ -148,41 +164,57 @@ QOP_destroy_F(QOP_Force *field)
   free(field);
 }
 
+#define NC int nc
 QOP_ColorVector *
 QOP_convert_V_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_ColorVector *ret =
     QOP_create_V_from_raw(src, evenodd);
   ret->raw = src;
   return ret;
 }
+#undef NC
 
+#define NC int nc
 QOP_DiracFermion *
 QOP_convert_D_from_raw(QOP_Real *src, QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_DiracFermion *ret =
     QOP_create_D_from_raw(src, evenodd);
   ret->raw = src;
   return ret;
 }
+#undef NC
 
+#define NC int nc
 QOP_GaugeField *
 QOP_convert_G_from_raw(QOP_Real *links[], QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_GaugeField *ret =
     QOP_create_G_from_raw(links, evenodd);
   ret->raw = links;
   return ret;
 }
+#undef NC
 
+#define NC int nc
 QOP_Force *
 QOP_convert_F_from_raw(QOP_Real *force[], QOP_evenodd_t evenodd)
+#undef NC
+#define NC nc
 {
   QOP_Force *ret =
     QOP_create_F_from_raw(force, evenodd);
   ret->raw = force;
   return ret;
 }
+#undef NC
 
 QOP_Real *
 QOP_convert_V_to_raw(QOP_ColorVector *src, QOP_evenodd_t evenodd)
@@ -239,6 +271,7 @@ QOP_convert_F_to_raw(QOP_Force *src, QOP_evenodd_t evenodd)
 
 /* qdp routines */
 
+#define NC QDP_get_nc(src)
 QOP_ColorVector *
 QOP_create_V_from_qdp(QDP_ColorVector *src)
 {
@@ -260,7 +293,9 @@ QOP_create_D_from_qdp(QDP_DiracFermion *src)
   qopdf->raw = NULL;
   return qopdf;
 }
+#undef NC
 
+#define NC QDP_get_nc(links[i])
 QOP_GaugeField *
 QOP_create_G_from_qdp(QDP_ColorMatrix *links[])
 {
@@ -271,7 +306,9 @@ QOP_create_G_from_qdp(QDP_ColorMatrix *links[])
   }
   return qopgf;
 }
+#undef NC
 
+#define NC QDP_get_nc(force[i])
 QOP_Force *
 QOP_create_F_from_qdp(QDP_ColorMatrix *force[])
 {
@@ -286,6 +323,7 @@ QOP_create_F_from_qdp(QDP_ColorMatrix *force[])
   qopf->raw = NULL;
   return qopf;
 }
+#undef NC
 
 void
 QOP_extract_V_to_qdp(QDP_ColorVector *dest, QOP_ColorVector *src)
@@ -406,31 +444,14 @@ static int bc_origin;
 static QLA_Complex bc_phase;
 static int staggered_sign_bits;
 
+#define NC nc
 static void
-#if QOP_Colors != 'N'
-rephase_func(QLA_ColorMatrix *m, int coords[])
-#else
-#if QOP_Precision == 'F'
-rephase_func(int nc, QLA_FN_ColorMatrix(nc, (*m)), int coords[])
-#else
-rephase_func(int nc, QLA_DN_ColorMatrix(nc, (*m)), int coords[])
-#endif
-#endif
+rephase_func(NCPROT QLA_ColorMatrix(*m), int coords[])
 {
   if(bc_dir>=0) {
     int rshift = (coords[bc_dir] + bc_coord - bc_origin) % bc_coord;
     if(rshift == bc_coord-1) {
-#if QOP_Colors != 'N'
-      QLA_ColorMatrix t;
-#else
-#undef QLA_Nc
-#define QLA_Nc nc
-#if QOP_Precision == 'F'
-      QLA_FN_ColorMatrix(nc,t);
-#else
-      QLA_DN_ColorMatrix(nc,t);
-#endif
-#endif
+      QLA_ColorMatrix(t);
       QLA_M_eq_c_times_M(&t, &bc_phase, m);
       QLA_M_eq_M(m, &t);
     }
@@ -443,6 +464,7 @@ rephase_func(int nc, QLA_DN_ColorMatrix(nc, (*m)), int coords[])
     }
   }
 }
+#undef NC
 
 static void
 scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
@@ -466,10 +488,6 @@ scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
     if(g->sign.signmask) {
       staggered_sign_bits = g->sign.signmask[i];
     }
-#if QOP_Colors == 'N'
-#undef QOP_Nc
-#define QOP_Nc QDP_get_nc(l[i])
-#endif
     QDP_M_eq_func(l[i], rephase_func, QDP_all);
   }
 }

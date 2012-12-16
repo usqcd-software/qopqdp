@@ -6,6 +6,7 @@ void
 QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
 				REAL *acts, REAL *actt, QOP_gauge_coeffs_t *coeffs)
 {
+#define NC QDP_get_nc(gauge->links[0])
   double dtime = QOP_time();
   double nflops = 0;
 
@@ -197,4 +198,5 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   info->final_sec = QOP_time() - dtime;
   info->final_flop = nflops*QDP_sites_on_node; 
   info->status = QOP_SUCCESS;
+#undef NC
 }

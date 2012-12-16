@@ -161,6 +161,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
 		      QDP_ColorVector *out,
 		      QDP_ColorVector *in)
 {
+#define NC QDP_get_nc(in)
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
   double dtime = 0;
@@ -307,6 +308,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   //dumpvec(out, insub);
 
   ASQTAD_INVERT_END;
+#undef NC
 }
 
 void
@@ -344,6 +346,7 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
 			    QDP_ColorVector *in_pt[],
 			    int nsrc)
 {
+#define NC QDP_get_nc(in_pt[0])
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
   double dtime;
@@ -486,4 +489,5 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
   //dumpvec(out_pt[0][0], insub);
 
   ASQTAD_INVERT_END;
+#undef NC
 }

@@ -82,7 +82,20 @@ NCNSOURCES = \
   pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
   pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
   pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
-  pcstubs/wilson_dslash_fn.c pcstubs/wilson_dslash_dn.c
+  pcstubs/asqtad_dslash_fn.c pcstubs/asqtad_dslash_dn.c \
+  pcstubs/asqtad_invert_fn.c pcstubs/asqtad_invert_dn.c \
+  pcstubs/asqtad_force_fn.c pcstubs/asqtad_force_dn.c \
+  pcstubs/asqtad_force_asvec_fn.c pcstubs/asqtad_force_asvec_dn.c \
+  pcstubs/asqtad_force_fnmat_fn.c pcstubs/asqtad_force_fnmat_dn.c \
+  pcstubs/hisq_links_fn.c pcstubs/hisq_links_dn.c \
+  pcstubs/hisq_reunit_fn.c pcstubs/hisq_reunit_dn.c \
+  pcstubs/hisq_force_fn.c pcstubs/hisq_force_dn.c \
+  pcstubs/hisq_force_fnmat_fn.c pcstubs/hisq_force_fnmat_dn.c \
+  pcstubs/wilson_dslash_fn.c pcstubs/wilson_dslash_dn.c \
+  pcstubs/wilson_invert_fn.c pcstubs/wilson_invert_dn.c \
+  pcstubs/wilson_force_fn.c pcstubs/wilson_force_dn.c \
+  pcstubs/dw_dslash_fn.c pcstubs/dw_dslash_dn.c \
+  pcstubs/dw_invert_fn.c pcstubs/dw_invert_dn.c
 
 EXTRA_DIST = \
   common_p.c \

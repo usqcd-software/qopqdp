@@ -42,9 +42,8 @@ D^-1 (x) = ( A^-1 z                )
 with z = Ca^-1 [ x - D_ab Cb^-1 y ].
 ***************************************************************************/
 
-
 //#define DO_TRACE
-#include <string.h>
+//#include <string.h>
 #include <qop_internal.h>
 
 //#define printf0 QOP_printf0
@@ -202,6 +201,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
 		      QDP_DiracFermion *out,
 		      QDP_DiracFermion *in)
 {
+#define NC QDP_get_nc(flw->links[0])
   double dtime=0;
   double nflop;
   double rsqminold, relminold;
@@ -415,6 +415,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   info->status = QOP_SUCCESS;
 
   WILSON_INVERT_END;
+#undef NC
 }
 
 void

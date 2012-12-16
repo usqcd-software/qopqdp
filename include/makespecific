@@ -16,6 +16,9 @@ pc=`echo $PC |tr 'A-Z' 'a-z'`
 poc=`echo $POC |tr 'A-Z' 'a-z'`
 opc=`echo $OPC |tr 'A-Z' 'a-z'`
 dfc=`echo $DFC |tr 'A-Z' 'a-z'`
+if [ $C = N ]; then
+  NCPROT="int nc,"
+fi
 
 echo "// DO NOT EDIT"
 echo "// generated from $f"
@@ -33,4 +36,5 @@ cat $f |sed '
   s/QDP_P_/QDP_'$P'_/g;
   s/QLA_PC_/QLA_'$PC'_/g;
   s/QLA_P_/QLA_'$P'_/g;
+  s/NCPROT/'"$NCPROT"'/g;
 '

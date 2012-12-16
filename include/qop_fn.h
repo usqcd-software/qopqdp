@@ -49,10 +49,10 @@ typedef struct QOP_FN_FermionLinksDW_struct      QOP_FN_FermionLinksDW;
 #define QOP_FN_raw_get_G(re, im, raw, evenodd, i, ic, jc) QOP_FN_set(M, re, im, raw, i, ic, jc)
 
 /* create a QOP field with a copy of the raw source field */
-QOP_FN_ColorVector  *QOP_FN_create_V_from_raw(QOP_F_Real *src, QOP_evenodd_t evenodd);
-QOP_FN_DiracFermion *QOP_FN_create_D_from_raw(QOP_F_Real *src, QOP_evenodd_t evenodd);
-QOP_FN_GaugeField   *QOP_FN_create_G_from_raw(QOP_F_Real *links[], QOP_evenodd_t evenodd);
-QOP_FN_Force        *QOP_FN_create_F_from_raw(QOP_F_Real *force[], QOP_evenodd_t evenodd);
+QOP_FN_ColorVector  *QOP_FN_create_V_from_raw(int nc, QOP_F_Real *src, QOP_evenodd_t evenodd);
+QOP_FN_DiracFermion *QOP_FN_create_D_from_raw(int nc, QOP_F_Real *src, QOP_evenodd_t evenodd);
+QOP_FN_GaugeField   *QOP_FN_create_G_from_raw(int nc, QOP_F_Real *links[], QOP_evenodd_t evenodd);
+QOP_FN_Force        *QOP_FN_create_F_from_raw(int nc, QOP_F_Real *force[], QOP_evenodd_t evenodd);
 
 /* copy QOP field into a raw field */
 void QOP_FN_extract_V_to_raw(QOP_F_Real *dest, QOP_FN_ColorVector *src, QOP_evenodd_t evenodd);
@@ -71,10 +71,10 @@ void QOP_FN_destroy_F(QOP_FN_Force *field);
 /* create a QOP field using the raw source field */
 /* the raw source is not freed and the user must not change or free it until
    the QOP field has been converted back to raw or destroyed */
-QOP_FN_ColorVector  *QOP_FN_convert_V_from_raw(QOP_F_Real *src, QOP_evenodd_t evenodd);
-QOP_FN_DiracFermion *QOP_FN_convert_D_from_raw(QOP_F_Real *src, QOP_evenodd_t evenodd);
-QOP_FN_GaugeField   *QOP_FN_convert_G_from_raw(QOP_F_Real *links[], QOP_evenodd_t evenodd);
-QOP_FN_Force        *QOP_FN_convert_F_from_raw(QOP_F_Real *force[], QOP_evenodd_t evenodd);
+QOP_FN_ColorVector  *QOP_FN_convert_V_from_raw(int nc, QOP_F_Real *src, QOP_evenodd_t evenodd);
+QOP_FN_DiracFermion *QOP_FN_convert_D_from_raw(int nc, QOP_F_Real *src, QOP_evenodd_t evenodd);
+QOP_FN_GaugeField   *QOP_FN_convert_G_from_raw(int nc, QOP_F_Real *links[], QOP_evenodd_t evenodd);
+QOP_FN_Force        *QOP_FN_convert_F_from_raw(int nc, QOP_F_Real *force[], QOP_evenodd_t evenodd);
 
 /* create a raw field from the data in the QOP field and destroy it */
 /* if the QOP field was created with a convert from raw function then
@@ -164,7 +164,7 @@ void QOP_FN_symanzik_1loop_gauge_force(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_FN_FermionLinksAsqtad *
-  QOP_FN_asqtad_create_L_from_raw(QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
+  QOP_FN_asqtad_create_L_from_raw(int nc, QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
 				  QOP_evenodd_t evenodd);
 
 QOP_FN_FermionLinksAsqtad *
@@ -179,7 +179,7 @@ void QOP_FN_asqtad_extract_L_to_raw(QOP_F_Real *fatlinks[], QOP_F_Real *longlink
 void QOP_FN_asqtad_destroy_L(QOP_FN_FermionLinksAsqtad *field);
 
 QOP_FN_FermionLinksAsqtad *
-  QOP_FN_asqtad_convert_L_from_raw(QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
+  QOP_FN_asqtad_convert_L_from_raw(int nc, QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
 				   QOP_evenodd_t evenodd);
 
 void QOP_FN_asqtad_convert_L_to_raw(QOP_F_Real ***fatlinks, QOP_F_Real ***longlinks,
@@ -416,7 +416,7 @@ void QOP_FN_hisq_force_multi_qdp(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_FN_FermionLinksWilson *
-  QOP_FN_wilson_create_L_from_raw(QOP_F_Real *links[], QOP_F_Real *clov,
+  QOP_FN_wilson_create_L_from_raw(int nc, QOP_F_Real *links[], QOP_F_Real *clov,
 				  QOP_evenodd_t evenodd);
 
 QOP_FN_FermionLinksWilson *
@@ -431,7 +431,7 @@ void QOP_FN_wilson_extract_L_to_raw(QOP_F_Real *links[], QOP_F_Real *clov,
 void QOP_FN_wilson_destroy_L(QOP_FN_FermionLinksWilson *field);
 
 QOP_FN_FermionLinksWilson *
-  QOP_FN_wilson_convert_L_from_raw(QOP_F_Real *links[], QOP_F_Real *clov,
+  QOP_FN_wilson_convert_L_from_raw(int nc, QOP_F_Real *links[], QOP_F_Real *clov,
 				   QOP_evenodd_t evenodd);
 
 void QOP_FN_wilson_convert_L_to_raw(QOP_F_Real ***links, QOP_F_Real **clov,
@@ -627,7 +627,7 @@ void QOP_FN_wilson_ifla_dslash_qdp(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_FN_FermionLinksDW *
-  QOP_FN_dw_create_L_from_raw(QOP_F_Real *links[], QOP_evenodd_t evenodd);
+  QOP_FN_dw_create_L_from_raw(int nc, QOP_F_Real *links[], QOP_evenodd_t evenodd);
 
 QOP_FN_FermionLinksDW *
   QOP_FN_dw_create_L_from_G(QOP_info_t *info,
@@ -641,7 +641,7 @@ void QOP_FN_dw_extract_L_to_raw(QOP_F_Real *links[],
 void QOP_FN_dw_destroy_L(QOP_FN_FermionLinksDW *field);
 
 QOP_FN_FermionLinksDW *
-  QOP_FN_dw_convert_L_from_raw(QOP_F_Real *links[], QOP_evenodd_t evenodd);
+  QOP_FN_dw_convert_L_from_raw(int nc, QOP_F_Real *links[], QOP_evenodd_t evenodd);
 
 void QOP_FN_dw_convert_L_to_raw(QOP_F_Real ***links,
 				QOP_FN_FermionLinksDW *src,

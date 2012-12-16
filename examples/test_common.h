@@ -4,6 +4,32 @@
 #include <qop_qdp.h>
 #include <qmp.h>
 
+#if QOP_Colors == 'N'
+
+#define NCPROT int nc,
+#define NCARG QLA_Nc,
+#ifndef QLA_ColorMatrix
+#if QOP_Precision == 'F'
+#define QLA_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
+#else
+#define QLA_ColorMatrix(x) QLA_DN_ColorMatrix(QLA_Nc,(x))
+#endif
+#define QLA_F_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
+#define QLA_D_ColorMatrix(x) QLA_DN_ColorMatrix(QLA_Nc,(x))
+#endif
+
+#else
+
+#define NCPROT
+#define NCARG
+#ifndef QLA_ColorMatrix
+#define QLA_ColorMatrix(x) QLA_ColorMatrix x
+#define QLA_F_ColorMatrix(x) QLA_F_ColorMatrix x
+#define QLA_D_ColorMatrix(x) QLA_D_ColorMatrix x
+#endif
+
+#endif
+
 #define printf0 if(QDP_this_node==0) printf
 
 extern QDP_RandomState *rs;

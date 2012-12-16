@@ -13,35 +13,41 @@
 #include <qla_dfn.h>
 #endif
 
+#define NC NCVAR
+
 static void
-u3reunit_site_d(QLA_D_ColorMatrix *Ur, QLA_D_ColorMatrix *U)
+u3reunit_site_d(NCPROT QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
 {
-  QLA_D_ColorMatrix M1, M2;
+  QLA_D_ColorMatrix(M1);
+  QLA_D_ColorMatrix(M2);
   QLA_D_M_eq_Ma_times_M(&M1, U, U);
   QLA_D_M_eq_invsqrt_M(&M2, &M1);
   QLA_D_M_eq_M_times_M(Ur, U, &M2);
 }
 
 static void
-u3reunit_site(QLA_ColorMatrix *Ur, int i, void *args)
+u3reunit_site(NCPROT QLA_ColorMatrix(*Ur), int i, void *args)
 {
-  QLA_ColorMatrix *U = &((QLA_ColorMatrix *)args)[i];
+  QLA_ColorMatrix(*U) = &((QLA_ColorMatrix(*))args)[i];
 #if QLA_Precision == 'F'
-  QLA_D_ColorMatrix Ud, Urd;
+  QLA_D_ColorMatrix(Ud);
+  QLA_D_ColorMatrix(Urd);
   QLA_DF_M_eq_M(&Ud, U);
-  u3reunit_site_d(&Urd, &Ud);
+  u3reunit_site_d(NCARG &Urd, &Ud);
   QLA_FD_M_eq_M(Ur, &Urd);
 #else
-  u3reunit_site_d(Ur, U);
+  u3reunit_site_d(NCARG Ur, U);
 #endif
 }
+#undef NC
 
 // requires QLA >= 1.7.0 and QDP >= 1.9.0
 void
 QOP_u3reunit(QOP_info_t *info, QDP_ColorMatrix *U, QDP_ColorMatrix *Ur)
 {
+#define NC QDP_get_nc(U)
   double dtime = -QOP_time();
-  QLA_ColorMatrix *Uq = QDP_expose_M(U);
+  QLA_ColorMatrix(*Uq) = QDP_expose_M(U);
   QDP_M_eq_funcia(Ur, u3reunit_site, (void *)Uq, QDP_all);
   QDP_reset_M(U);
   dtime += QOP_time();

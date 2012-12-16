@@ -4,27 +4,30 @@
 static void
 project2(QDP_DiracFermion *xx2, QDP_DiracFermion *yy2, QDP_DiracFermion *xx, QDP_DiracFermion *yy, int mu)
 {
+#define NC QDP_get_nc(xx)
   int i;
   QDP_loop_sites(i, QDP_all, {
-      QLA_DiracFermion *x2 = QDP_site_ptr_readwrite_D(xx2, i);
-      QLA_DiracFermion *y2 = QDP_site_ptr_readwrite_D(yy2, i);
-      QLA_DiracFermion *x = QDP_site_ptr_readonly_D(xx, i);
-      QLA_DiracFermion *y = QDP_site_ptr_readonly_D(yy, i);
+      QLA_DiracFermion(*x2) = QDP_site_ptr_readwrite_D(xx2, i);
+      QLA_DiracFermion(*y2) = QDP_site_ptr_readwrite_D(yy2, i);
+      QLA_DiracFermion(*x) = QDP_site_ptr_readonly_D(xx, i);
+      QLA_DiracFermion(*y) = QDP_site_ptr_readonly_D(yy, i);
       QLA_D_eq_spproj_D(y2, y, mu, -1);
       QLA_D_peq_spproj_D(y2, x, mu, 1);
       QLA_D_eq_spproj_D(x2, x, mu, -1);
       QLA_D_peq_spproj_D(x2, y, mu, 1);
     });
+#undef NC
 }
 
 static void
 add_force(QDP_ColorMatrix *ff, QDP_DiracFermion *xx, QDP_DiracFermion *yy, QLA_Real eps)
 {
+#define NC QDP_get_nc(xx)
   int i;
   QDP_loop_sites(i, QDP_all, {
-      QLA_ColorMatrix *f = QDP_site_ptr_readwrite_M(ff, i);
-      QLA_DiracFermion *x = QDP_site_ptr_readonly_D(xx, i);
-      QLA_DiracFermion *y = QDP_site_ptr_readonly_D(yy, i);
+      QLA_ColorMatrix(*f) = QDP_site_ptr_readwrite_M(ff, i);
+      QLA_DiracFermion(*x) = QDP_site_ptr_readonly_D(xx, i);
+      QLA_DiracFermion(*y) = QDP_site_ptr_readonly_D(yy, i);
       for(int ic=0; ic<QLA_Nc; ic++) {
 	for(int jc=0; jc<QLA_Nc; jc++) {
 	  QLA_Complex z;
@@ -36,6 +39,7 @@ add_force(QDP_ColorMatrix *ff, QDP_DiracFermion *xx, QDP_DiracFermion *yy, QLA_R
 	}
       }
     });
+#undef NC
 }
 
 static void
@@ -47,6 +51,7 @@ wilson_deriv_multi_qdp(QOP_info_t *info,
 		       QDP_DiracFermion *y[],
 		       int n)
 {
+#define NC QDP_get_nc(flw->links[0])
   QDP_DiracFermion *x2[4], *y2[4], *ys[4];
   for(int mu=0; mu<4; mu++) {
     x2[mu] = QDP_create_D();
@@ -71,6 +76,7 @@ wilson_deriv_multi_qdp(QOP_info_t *info,
     QDP_destroy_D(y2[mu]);
     QDP_destroy_D(ys[mu]);
   }
+#undef NC
 }
 
 
@@ -84,6 +90,7 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
 			   QDP_DiracFermion *y[],
 			   int n)
 {
+#if 0
   QDP_ColorMatrix *d[4];
   if(0) {
     //if(flw->gauge && flw->gauge->chained &&
@@ -97,9 +104,11 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
       d[mu] = deriv[mu];
     }
   }
+#endif
 
   wilson_deriv_multi_qdp(info, flw, deriv, eps, x, y, n);
 
+#if 0
   if(0) {
     //if(flw->gauge && flw->gauge->chained &&
     //(flw->gauge->nparents || doLastScale)) { // apply chain rule
@@ -110,6 +119,7 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
       QDP_destroy_M(d[mu]);
     }
   }
+#endif
 }
 
 // antiherm x^+ [U(d/dU) D] y + y^+ [U(d/dU) D^+] x
@@ -122,6 +132,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
 			   QDP_DiracFermion *y[],
 			   int n)
 {
+#define NC QDP_get_nc(flw->links[0])
   QDP_ColorMatrix *deriv[4];
   for(int mu=0; mu<4; mu++) {
     deriv[mu] = QDP_create_M();
@@ -151,6 +162,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
   }
   info->final_flop += (4.*(198+24+18))*QDP_sites_on_node; 
   QDP_destroy_M(t);
+#undef NC
 }
 
 
