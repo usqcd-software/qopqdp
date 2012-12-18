@@ -1,8 +1,11 @@
-#define QDP_Precision 'D'
-#define QDP_Nc 2
 #define QOP_Precision 'D'
+#define QOP_Colors 2
 #define QOP_Nc 2
-#include <qop_internal.h>
-#include <generic_V.h>
+#define QDP_Precision 'D'
+#define QDP_Colors 2
+#define QDP_Nc 2
+#define QLA_Precision 'D'
+#define QLA_Colors 2
+#define QLA_Nc 2
 
-#include "invert_eigcg_p.c"
+#include "invert_eigcg_V_p.c"

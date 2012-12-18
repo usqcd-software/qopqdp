@@ -17,7 +17,8 @@
 
 #define insert_packed_V(r,a,s)  QDP_insert_packed_D(r,(QLA_DiracFermion*)(a),s)
 #define extract_packed_V(r,a,s) QDP_extract_packed_D((QLA_DiracFermion*)(r),a,s)
-#define csize_V                 12
+#define csize_V                 (4*QLA_Nc)
+#define first_qdp_object(x)     (x)
 
 #define V_eq_zero		QDP_D_eq_zero
 #define V_eq_V			QDP_D_eq_D

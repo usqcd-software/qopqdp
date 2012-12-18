@@ -89,19 +89,10 @@ static QDP_DiracFermion *tin[NTMP];
 #define tmpnum(eo,n) ((eo)+3*((n)-1))
 #define tmpsub(eo,n) tin[tmpnum(eo,n)]
 
-#if QOP_Colors == 'N'
-static int gnc;
-#define NC gnc
-#define SETNC(x) gnc = x
-#else
-#define SETNC(x) (void)0
-#endif
-#define SETNCF(x) SETNC(QDP_get_nc(x))
-
 #define check_setup(flw) \
 { \
   if( (!dslash_setup) || (QOP_wilson_optnum != old_optnum) ) { \
-    reset_temps(); \
+    reset_temps(NCARGVOID); \
   } \
   if( flw->dblstored != dblstore_style(QOP_wilson_style) ) { \
     double_store(flw); \
@@ -112,21 +103,18 @@ static void
 free_temps(void)
 {
   if(dslash_setup) {
-    int i, j;
-
-    for(i=0; i<NTMP; i++) {
+    for(int i=0; i<NTMP; i++) {
       QDP_destroy_D(tin[i]);
     }
-
     if(shiftd_style(old_style)) {
-      for(i=0; i<NTMP; i++) {
-	for(j=0; j<NDTMP; j++) {
+      for(int i=0; i<NTMP; i++) {
+	for(int j=0; j<NDTMP; j++) {
 	  QDP_destroy_D(dtemp[i][j]);
 	}
       }
     } else {
-      for(i=0; i<NTMP; i++) {
-	for(j=0; j<NHTMP; j++) {
+      for(int i=0; i<NTMP; i++) {
+	for(int j=0; j<NHTMP; j++) {
 	  QDP_destroy_H(htemp[i][j]);
 	}
       }
@@ -135,26 +123,23 @@ free_temps(void)
   dslash_setup = 0;
 }
 
+#define NC nc
 static void
-reset_temps(void)
+reset_temps(NCPROTVOID)
 {
-  int i, j;
-
   free_temps();
-
-  for(i=0; i<NTMP; i++) {
+  for(int i=0; i<NTMP; i++) {
     tin[i] = QDP_create_D();
   }
-
   if(shiftd_style(QOP_wilson_style)) {
-    for(i=0; i<NTMP; i++) {
-      for(j=0; j<NDTMP; j++) {
+    for(int i=0; i<NTMP; i++) {
+      for(int j=0; j<NDTMP; j++) {
 	dtemp[i][j] = QDP_create_D();
       }
     }
   } else {
-    for(i=0; i<NTMP; i++) {
-      for(j=0; j<NHTMP; j++) {
+    for(int i=0; i<NTMP; i++) {
+      for(int j=0; j<NHTMP; j++) {
 	htemp[i][j] = QDP_create_H();
       }
     }
@@ -163,45 +148,46 @@ reset_temps(void)
   old_style = QOP_wilson_style;
   old_optnum = QOP_wilson_optnum;
 }
+#undef NC
 
 static void
 double_store(QOP_FermionLinksWilson *flw)
 {
-  int i;
-
+#define NC QDP_get_nc(flw->links[0])
   if(flw->dblstored) {
-    for(i=0; i<4; i++) {
+    for(int i=0; i<4; i++) {
       QDP_destroy_M(flw->bcklinks[i]);
     }
     flw->dblstored = 0;
   }
-
   if(dblstore_style(QOP_wilson_style)) {
-    for(i=0; i<4; i++) {
+    for(int i=0; i<4; i++) {
       flw->bcklinks[i] = QDP_create_M();
     }
-    for(i=0; i<4; i++) {
+    for(int i=0; i<4; i++) {
       flw->dbllinks[2*i] = flw->links[i];
       flw->dbllinks[2*i+1] = flw->bcklinks[i];
     }
     QDP_ColorMatrix *m = QDP_create_M();
-    for(i=0; i<4; i++) {
+    for(int i=0; i<4; i++) {
       QDP_M_eq_sM(m, flw->links[i], QDP_neighbor[i], QDP_backward, QDP_all);
       QDP_M_eq_Ma(flw->bcklinks[i], m, QDP_all);
     }
     QDP_destroy_M(m);
     flw->dblstored = dblstore_style(QOP_wilson_style);
   }
+#undef NC
 }
 
 QDP_DiracFermion *
 QOP_wilson_dslash_get_tmp(QOP_FermionLinksWilson *flw,
 			  QOP_evenodd_t eo, int n)
 {
-  SETNCF(flw->links[0]);
+#define NC QDP_get_nc(flw->links[0])
   check_setup(flw);
   if(n>=1 && n<=NTMPSUB) return tmpsub(eo,n);
   else return NULL;
+#undef NC
 }
 
 /* ---------------------------------------------------------------- */
@@ -211,6 +197,7 @@ QOP_wilson_dslash_get_tmp(QOP_FermionLinksWilson *flw,
 static void
 f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, int nu)
 {
+#define NC QDP_get_nc(fmn)
   int order_flag;
 
   QDP_ColorMatrix *temp1,*temp2,*temp3,*temp4,*tmat4;
@@ -331,6 +318,7 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, i
   QDP_destroy_M(pqt2);
   QDP_destroy_M(pqt3);
   QDP_destroy_M(pqt4);
+#undef NC
 }
 
 /* -------------------------------------------------------- */
@@ -339,6 +327,7 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, i
 static void
 get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
 {
+#define NC QDP_get_nc(link[0])
   /* Fist I create A[0],A[1],B[0] and B[1] matrices */
   QDP_ColorMatrix *a[2],*b[2];
   QDP_ColorMatrix *f_mn;
@@ -363,25 +352,23 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   QDP_M_eq_i_M(a[1], ym, QDP_all);       /* a[1] = i(cs*F_{01}+ct*F_{23}) */
 
   /* PART 1 and PART 2 */
-  QLA_ColorMatrix *A[2];
+  QLA_ColorMatrix(*A[2]);
   A[0] = QDP_expose_M(a[0]);
   A[1] = QDP_expose_M(a[1]);
 
   for(int i=0; i<QDP_sites_on_node; i++) {
-    for(int j=0; j<3; j++) {
+    for(int j=0; j<QLA_Nc; j++) {
       /* diagoal elements numbered from 00 to 05 for the matrix X */
       /* c(0,0, 0,0) = clov[0]  c(1,1, 1,1) = clov[3]             */
       /* c(0,1, 0,1) = clov[1]  c(2,0, 2,0) = clov[4]             */
       /* c(1,0, 1,0) = clov[2]  c(2,1, 2,1) = clov[5]             */
-      //clov[(72*i)+(j   )] = QLA_real(QLA_elem_M(A[0][i],j,j));
-      //clov[(72*i)+(j+3 )] = -QLA_real(QLA_elem_M(A[0][i],j,j));
-      clov[(72*i)+(2*j  )] = QLA_real(QLA_elem_M(A[0][i],j,j));
+      clov[(72*i)+(2*j  )] =  QLA_real(QLA_elem_M(A[0][i],j,j));
       clov[(72*i)+(2*j+1)] = -QLA_real(QLA_elem_M(A[0][i],j,j));
       /* diagoal elements numbered from 36 to 41 for the matrix Y */
       /* c(0,2, 0,2) = clov[36]  c(1,3, 1,3) = clov[39]           */
       /* c(0,3, 0,3) = clov[37]  c(2,2, 2,2) = clov[40]           */
       /* c(1,2, 1,2) = clov[38]  c(2,3, 2,3) = clov[41]           */
-      clov[(72*i)+(2*j+36)] = QLA_real(QLA_elem_M(A[1][i],j,j));
+      clov[(72*i)+(2*j+36)] =  QLA_real(QLA_elem_M(A[1][i],j,j));
       clov[(72*i)+(2*j+37)] = -QLA_real(QLA_elem_M(A[1][i],j,j));
       /* -------------------------------------------------------- */
       /* 12 real number are assigned to the array clov            */
@@ -455,13 +442,13 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   /*  b[0] = i(cs*F_{12}-ct*F_{03})-(cs*F_{02}+ct*F_{13})    */
   /*  b[1] = i(cs*F_{12}+ct*F_{03})-(cs*F_{02}-ct*F_{13})    */
 
-  QLA_ColorMatrix *B[2];
+  QLA_ColorMatrix(*B[2]);
   B[0] = QDP_expose_M(b[0]);
   B[1] = QDP_expose_M(b[1]);
   for(int i=0; i<QDP_sites_on_node; i++) {
 #if 1
-    for(int j=0; j<3; j++) {
-      for(int k=0; k<3; k++) {
+    for(int j=0; j<QLA_Nc; j++) {
+      for(int k=0; k<QLA_Nc; k++) {
 	if(j<k) {
 	  /* c(0,1, 1,0)* = clov[16]+i*clov[17] */
 	  /* c(0,1, 2,0)* = clov[20]+i*clov[21] */
@@ -518,6 +505,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
 
   /* 2*(3x3)=2*(18 real) = 36 real numbers are assiged to array clov  */
   /* ---------------------------------------------------------------- */
+#undef NC
 }
 
 /* ---------------------------------------------------------------------- */
@@ -641,14 +629,12 @@ get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
   flw->clovinvkappa = kappa;
 }
 
-#undef NC
 #define NC int nc
 QOP_FermionLinksWilson *
 QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
-{
 #undef NC
-#define NC gnc
-  SETNC(nc);
+{
+#define NC nc
   QOP_FermionLinksWilson *flw;
   QOP_GaugeField *gf;
 
@@ -669,6 +655,7 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 
   WILSON_INVERT_END;
   return flw;
+#undef NC
 }
 /* --------------------------------------------------- */
 /* This part is added by Bugra ----------------------- */
@@ -708,10 +695,9 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 			   QOP_wilson_coeffs_t *coeffs,
 			   QOP_GaugeField *gauge)
 { 
-  SETNCF(gauge->links[0]);
+#define NC QDP_get_nc(gauge->links[0])
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix        *newlinks[4];
-  int                    i;
 
   WILSON_INVERT_BEGIN;
 
@@ -719,7 +705,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   flw = QOP_wilson_initialize_gauge_L();
 
   /* First create QDP Color Matrices */
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     newlinks[i] = QDP_create_M();
     QDP_M_eq_M(newlinks[i], gauge->links[i], QDP_all);
   }
@@ -733,21 +719,21 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   }
 
   /* Check the anisotropy -------------------------------  */
-  if(coeffs->aniso != 0.) {
-    for(i=0; i<3; i++) {
+  if(coeffs->aniso != 0. && coeffs->aniso != 1.) {
+    for(int i=0; i<3; i++) {
       QLA_Real f = coeffs->aniso;
       QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], QDP_all);
     }
   }
 
   /* Scale the links ------------------------------------- */
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     QLA_Real f    = -0.5;
     QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], QDP_all);
   }
 
   /* newlinks go to flw->links --------------------------- */
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     flw->links[i] = newlinks[i];
   }
 
@@ -755,6 +741,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 
   WILSON_INVERT_END;
   return flw;
+#undef NC
 }
 
 /* --------------------------------------------------------- */
@@ -801,19 +788,17 @@ QOP_wilson_destroy_L(QOP_FermionLinksWilson *flw)
   WILSON_INVERT_END;
 }
 
-#undef NC
 #define NC int nc
 QOP_FermionLinksWilson *
-QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov,
-			      QOP_evenodd_t evenodd)
-{
+QOP_wilson_convert_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 #undef NC
-#define NC gnc
-  SETNC(nc);
+{
+#define NC nc
   WILSON_INVERT_BEGIN;
   QOP_error("QOP_wilson_convert_L_from_raw unimplemented");
   WILSON_INVERT_END;
   return NULL;
+#undef NC
 }
 
 void
@@ -848,13 +833,13 @@ QOP_FermionLinksWilson *
 QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[],
 			     QDP_DiracPropagator *clov)
 {
+#define NC QDP_get_nc(links[0])
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix *newlinks[4];
-  int i;
 
   WILSON_INVERT_BEGIN;
 
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     newlinks[i] = QDP_create_M();
     QDP_M_eq_M(newlinks[i], links[i], QDP_all);
   }
@@ -863,6 +848,7 @@ QOP_wilson_create_L_from_qdp(QDP_ColorMatrix *links[],
 
   WILSON_INVERT_END;
   return flw;
+#undef NC
 }
 
 void
@@ -879,18 +865,14 @@ QOP_FermionLinksWilson *
 QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 			      QDP_DiracPropagator *clov)
 {
-  QOP_FermionLinksWilson *flw;
-  int i;
-
   WILSON_INVERT_BEGIN;
-
-  flw = QOP_wilson_initialize_gauge_L();
+  QOP_FermionLinksWilson *flw = QOP_wilson_initialize_gauge_L();
 
   if(clov!=NULL) {
     int size = QDP_sites_on_node*CLOV_REALS;
     QOP_malloc(flw->clov, REAL, size);
     {
-      QLA_DiracPropagator *dp;
+      QLA_DiracPropagator(*dp);
       int x, b, i, ic, j, jc, is, js, k=0;
       dp = QDP_expose_P(clov);
       for(x=0; x<QDP_sites_on_node; x++) {
@@ -928,11 +910,11 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   flw->clovinv = NULL;
 
   flw->dblstored = 0;
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     flw->links[i] = links[i];
   }
   // scale links
-  for(i=0; i<4; i++) {
+  for(int i=0; i<4; i++) {
     QLA_Real f = -0.5;
     QDP_M_eq_r_times_M(flw->links[i], &f, flw->links[i], QDP_all);
   }
@@ -1023,7 +1005,7 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
 		      QOP_evenodd_t eo_out,
 		      QOP_evenodd_t eo_in)
 {
-  SETNCF(flw->links[0]);
+#define NC QDP_get_nc(flw->links[0])
   check_setup(flw);
 
   if(eo_in==eo_out) {
@@ -1057,6 +1039,7 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
       }
     }
   }
+#undef NC
 }
 
 void
@@ -1078,7 +1061,7 @@ QOP_wilson_diaginv_qdp(QOP_info_t *info,
 		       QDP_DiracFermion *in,
 		       QOP_evenodd_t eo)
 {
-  SETNCF(flw->links[0]);
+#define NC QDP_get_nc(flw->links[0])
   if(flw->clov==NULL) {
     QLA_Real f = 2*kappa;
     QDP_D_eq_r_times_D(out, &f, in, qdpsub(eo));
@@ -1089,6 +1072,7 @@ QOP_wilson_diaginv_qdp(QOP_info_t *info,
     QDP_D_eq_zero(out, qdpsub(eo));
     apply_clov(flw->clovinv, 0, out, in, qdpsub(eo));
   }
+#undef NC
 }
 
 #define cmplx(x) (*((QLA_Complex *)(&(x))))
@@ -1113,8 +1097,8 @@ apply_clov_qla(REAL *clov, QLA_Real m4, QLA_DiracFermion *restrict clov_out,
 
 #define clov_diag(i) clov[xb+i]
 #define clov_offd(i) cmplx(clov[xb+6+2*i])
-#define src(i) QLA_elem_D(clov_in[x],i/2,2*b+i%2)
-#define dest(i) QLA_elem_D(clov_out[x],i/2,2*b+i%2)
+#define src(i) QLA_elem_D(clov_in[x],i/2,2*b+(i&1))
+#define dest(i) QLA_elem_D(clov_out[x],i/2,2*b+(i&1))
 	//flops = 6*44 = 264; bytes = 4*(36+12+12) = 240
 #if 0
 	{

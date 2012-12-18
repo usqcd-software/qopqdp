@@ -95,7 +95,17 @@ NCNSOURCES = \
   pcstubs/wilson_invert_fn.c pcstubs/wilson_invert_dn.c \
   pcstubs/wilson_force_fn.c pcstubs/wilson_force_dn.c \
   pcstubs/dw_dslash_fn.c pcstubs/dw_dslash_dn.c \
-  pcstubs/dw_invert_fn.c pcstubs/dw_invert_dn.c
+  pcstubs/dw_invert_fn.c pcstubs/dw_invert_dn.c \
+  pcstubs/invert_cg_V_fn.c pcstubs/invert_cg_V_dn.c \
+  pcstubs/invert_cg_D_fn.c pcstubs/invert_cg_D_dn.c \
+  pcstubs/invert_cg_vD_fn.c pcstubs/invert_cg_vD_dn.c \
+  pcstubs/invert_bicgstab_D_fn.c pcstubs/invert_bicgstab_D_dn.c \
+  pcstubs/invert_eigcg_V_fn.c pcstubs/invert_eigcg_V_dn.c \
+  pcstubs/invert_eigcg_D_fn.c pcstubs/invert_eigcg_D_dn.c \
+  pcstubs/invert_gmres2_D_fn.c pcstubs/invert_gmres2_D_dn.c \
+  pcstubs/invert_utilities_V_fn.c pcstubs/invert_utilities_V_dn.c \
+  pcstubs/invert_utilities_D_fn.c pcstubs/invert_utilities_D_dn.c \
+  pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -107,12 +117,15 @@ EXTRA_DIST = \
   asqtad_invert_p.c \
   asqtad_force_p.c \
   asqtad_force_asvec_p.c \
+  asqtad_force_fnmat_p.c \
   asqtad_force_fnmat3_p.c \
+  hisq_force_fnmat_p.c \
   hisq_force_fnmat2_p.c \
   hisq_force_p.c \
   hisq_links_p.c \
   hisq_reunit_p.c \
-  hisq_reunit_p2.c \
+  hisq_reunit1_p.c \
+  hisq_reunit2_p.c \
   hisq_reunit_utilities_p.c \
   wilson_dslash_p.c \
   wilson_ifla_invert_p.c \

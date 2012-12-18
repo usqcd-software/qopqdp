@@ -8,6 +8,10 @@ static Vector *Avec[NMAX];
 static QLA_D_Real Avn[NMAX];
 static QLA_D_Complex alpha[NMAX];
 static QLA_D_Complex *beta[NMAX];
+#if QOP_Colors == 'N'
+static int gnc;
+#define NC gnc
+#endif
 
 static void
 init(void)
@@ -126,6 +130,9 @@ QOPPCV(invert_gmres2)(QOPPCV(linop_t) *linop,
   int max_iterations=inv_arg->max_iter;
   int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
+#if QOP_Colors == 'N'
+  gnc = QDP_get_nc(first_qdp_object(in));
+#endif
 
   /* Default output values unless reassigned */
   res_arg->final_rsq = 0;

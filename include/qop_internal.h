@@ -20,12 +20,20 @@
 
 #ifndef QLA_ColorMatrix
 #if QOP_Precision == 'F'
-#define QLA_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
+#define QLA_ColorVector(x)  QLA_FN_ColorVector (QLA_Nc,(x))
+#define QLA_ColorMatrix(x)  QLA_FN_ColorMatrix (QLA_Nc,(x))
+#define QLA_DiracFermion(x) QLA_FN_DiracFermion(QLA_Nc,(x))
 #else
-#define QLA_ColorMatrix(x) QLA_DN_ColorMatrix(QLA_Nc,(x))
+#define QLA_ColorVector(x)  QLA_DN_ColorVector (QLA_Nc,(x))
+#define QLA_ColorMatrix(x)  QLA_DN_ColorMatrix (QLA_Nc,(x))
+#define QLA_DiracFermion(x) QLA_DN_DiracFermion(QLA_Nc,(x))
 #endif
-#define QLA_F_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
-#define QLA_D_ColorMatrix(x) QLA_DN_ColorMatrix(QLA_Nc,(x))
+#define QLA_F_ColorVector(x)  QLA_FN_ColorVector (QLA_Nc,(x))
+#define QLA_F_ColorMatrix(x)  QLA_FN_ColorMatrix (QLA_Nc,(x))
+#define QLA_F_DiracFermion(x) QLA_FN_DiracFermion(QLA_Nc,(x))
+#define QLA_D_ColorVector(x)  QLA_DN_ColorVector (QLA_Nc,(x))
+#define QLA_D_ColorMatrix(x)  QLA_DN_ColorMatrix (QLA_Nc,(x))
+#define QLA_D_DiracFermion(x) QLA_DN_DiracFermion(QLA_Nc,(x))
 #endif
 
 #else

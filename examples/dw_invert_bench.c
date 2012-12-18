@@ -98,11 +98,16 @@ start(void)
 
   in = (QDP_DiracFermion **) malloc(Ls*sizeof(QDP_DiracFermion *));
   out = (QDP_DiracFermion **) malloc(Ls*sizeof(QDP_DiracFermion *));
+  QLA_Real innrm2 = 0;
   for(i=0; i<Ls; i++) {
     in[i] = QDP_create_D();
     out[i] = QDP_create_D();
     QDP_D_eq_gaussian_S(in[i], rs, QDP_all);
+    QLA_Real rt;
+    QDP_r_eq_norm2_D(&rt, in[i], QDP_all);
+    innrm2 += rt;
   }
+  if(QDP_this_node==0) printf("innrm2 = %g\n", innrm2);
 
   QOP_layout_t qoplayout;
   qoplayout.latdim = ndim;

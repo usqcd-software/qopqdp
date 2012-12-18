@@ -9,6 +9,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 		  QDP_Subset subset
 		  vIndexDef)
 {
+#define NC QDP_get_nc(first_qdp_object(in))
   QLA_D_Real a, b;
   QLA_D_Real rsq, oldrsq, pkp, relnorm2;
   QLA_D_Real insq;
@@ -127,6 +128,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   res_arg->final_restart = nrestart;
 
   return QOP_SUCCESS;
+#undef NC
 }
 
 /* multi-shift CG */
@@ -142,6 +144,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 		    QDP_Subset subset
 		    vIndexDef)
 {
+#define NC QDP_get_nc(first_qdp_object(in))
   QLA_D_Real a[nshifts], b[nshifts];
   QLA_D_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
   QLA_D_Real rsq, oldrsq, pkp, relnorm2;
@@ -286,4 +289,5 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
   VERB(LOW, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
 
   return QOP_SUCCESS;
+#undef NC
 }

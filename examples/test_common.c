@@ -336,7 +336,7 @@ load_fermion(QDP_DiracFermion *df, char *fn)
 void
 point_source_V(QDP_ColorVector *v, int *x, int c)
 {
-  QLA_ColorVector *q;
+  QLA_ColorVector(*q);
   int n, i;
   QDP_V_eq_zero(v, QDP_all);
   q = QDP_expose_V(v);

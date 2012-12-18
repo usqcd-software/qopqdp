@@ -1,12 +1,11 @@
-#define QDP_Precision 'D'
-#define QDP_Nc 2
 #define QOP_Precision 'D'
+#define QOP_Colors 2
 #define QOP_Nc 2
-#include <qop_internal.h>
-#include <generic_V.h>
+#define QDP_Precision 'D'
+#define QDP_Colors 2
+#define QDP_Nc 2
+#define QLA_Precision 'D'
+#define QLA_Colors 2
+#define QLA_Nc 2
 
-#ifdef HAVE_BLAS
-#include "invert_cg_blas_p.c"
-#else
-#include "invert_cg_p.c"
-#endif
+#include "invert_cg_V_p.c"

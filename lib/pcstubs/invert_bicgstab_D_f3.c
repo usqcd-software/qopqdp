@@ -1,8 +1,11 @@
-#define QDP_Precision 'F'
-#define QDP_Nc 3
 #define QOP_Precision 'F'
+#define QOP_Colors 3
 #define QOP_Nc 3
-#include <qop_internal.h>
-#include <generic_D.h>
+#define QDP_Precision 'F'
+#define QDP_Colors 3
+#define QDP_Nc 3
+#define QLA_Precision 'F'
+#define QLA_Colors 3
+#define QLA_Nc 3
 
-#include "invert_bicgstab_p.c"
+#include "invert_bicgstab_D_p.c"

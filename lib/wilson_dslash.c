@@ -123,4 +123,3 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   return flw_single;
 }
-

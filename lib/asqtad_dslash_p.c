@@ -60,8 +60,8 @@ reset_temps(NCPROTVOID)
   dslash_setup = 1;
   old_style = QOP_asqtad.style;
   old_optnum = QOP_asqtad.optnum;
-#undef NC
 }
+#undef NC
 
 static void
 double_store(QOP_FermionLinksAsqtad *fla)

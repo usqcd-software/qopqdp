@@ -17,7 +17,8 @@
 
 #define insert_packed_V(r,a,s)  QDP_insert_packed_V(r,(QLA_ColorVector*)(a),s)
 #define extract_packed_V(r,a,s) QDP_extract_packed_V((QLA_ColorVector*)(r),a,s)
-#define csize_V                 3
+#define csize_V                 QLA_Nc
+#define first_qdp_object(x)     (x)
 
 #define V_eq_zero		QDP_V_eq_zero
 #define V_eq_V			QDP_V_eq_V

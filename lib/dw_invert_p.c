@@ -12,6 +12,22 @@ static int gl_ls;
 static QDP_Subset gl_osubset;
 static QOP_FermionLinksDW *gl_fldw;
 
+#if 0
+static void
+printnrm2(QDP_DiracFermion *x[], int ls, QDP_Subset sub)
+{
+  QLA_Real nrm2 = 0;
+  for(int s=0; s<ls; s++) {
+    QLA_Real t;
+    QDP_r_eq_norm2_D(&t, x[s], sub);
+    nrm2 += t;
+  }
+  if(QDP_this_node==0) printf("nrm2 = %g\n", nrm2);
+}
+#else
+#define printnrm2(...) (void)0
+#endif
+
 // -----------------------------------------------------------------
 // Domain-wall inverter
 
@@ -66,7 +82,6 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   double nflop;
   QDP_DiracFermion *qdpin[ls], *tin[ls], *tcg[ls];
   QDP_Subset subset, osubset;
-  int s;
 
   DW_INVERT_BEGIN;
 
@@ -92,15 +107,18 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   gl_ls = ls;
   gl_fldw = fldw;
 
-  for (s=0; s<ls; s++) {
+  for (int s=0; s<ls; s++) {
     tin[s]  = QDP_create_D();
     tcg[s]  = QDP_create_D();
     qdpin[s] = QDP_create_D();
   }
 
+  printnrm2(in, ls, QDP_all);
+
 // Even-odd precondition the input
 #ifdef LU
   QOP_dw_EO_project(fldw, tin, in, M5, mq, ls, QDP_to_QOP(subset));
+  printnrm2(tin, ls, subset);
 #endif
 
 // Prepare the source for inversion using the normal equations
@@ -114,6 +132,7 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   QOP_dw_dslash_qdp(info, fldw, M5, mq, -1, qdpin, in, ls,
 		    QDP_to_QOP(osubset), QDP_to_QOP(subset));
 #endif
+  printnrm2(qdpin, ls, subset);
 
 // Invoke the CG inverter on the normal equation
   //printf0("begin cgv\n");
@@ -148,7 +167,7 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   //		QOP_EVENODD, QOP_EVENODD);
   //#endif
   QLA_Real rsq=0, rsqin=0;
-  for (s=0; s<ls; s++) {
+  for (int s=0; s<ls; s++) {
     QLA_Real t;
     QDP_D_eq_D_minus_D(tcg[s], in[s], tcg[s], QDP_all);
     QDP_r_eq_norm2_D(&t, tcg[s], QDP_all);
@@ -160,7 +179,7 @@ QOP_dw_invert_qdp(QOP_info_t *info,
   printf0("final rsq = %g/%g = %g  (%g)\n", rsq, rsqin, res_arg->final_rsq, res_arg->rsqmin);
 #endif
 
-  for (s=0; s<ls; s++) {
+  for (int s=0; s<ls; s++) {
     QDP_destroy_D(tin[s]);
     QDP_destroy_D(tcg[s]);
     QDP_destroy_D(qdpin[s]);

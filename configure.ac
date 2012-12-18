@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.18.3, [osborn at alcf.anl.gov])
+AC_INIT(qopqdp, 0.18.4, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 #AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])
@@ -13,14 +13,17 @@ AC_ARG_ENABLE(
   AC_HELP_STRING([--enable-nc],
     [make just the libraries necessary for the given color]),
   AC_SUBST(NC, [$enableval]),
-  AC_SUBST(NC, [all])
+  AC_SUBST(NC, [3])
 )
+if test "X$NC" = X; then NC="all"; fi 
+#for n in `echo $NC |tr , ' '`; do
 if test "X$NC" = Xn -o "X$NC" = X1; then NC="N"; fi
 if test `expr $NC : '[0-9]*$' \& $NC \> 3` -ne 0; then NC="N"; fi
 if test "X$NC" != X2 -a "X$NC" != X3 -a "X$NC" != XN; then NC="all"; fi 
 AM_CONDITIONAL(NC2, [test "X$NC" = "X2" -o "X$NC" = "Xall"])
 AM_CONDITIONAL(NC3, [test "X$NC" = "X3" -o "X$NC" = "Xall"])
 AM_CONDITIONAL(NCN, [test "X$NC" = "XN" -o "X$NC" = "Xall"])
+#done
 
 dnl --enable-blas
 AC_ARG_ENABLE(

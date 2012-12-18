@@ -11,6 +11,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 			QDP_Subset subset
 			vIndexDef)
 {
+#define NC QDP_get_nc(first_qdp_object(in))
   QLA_D_Complex rho0, rho1;
   QLA_D_Complex alpha, beta, omega;
   QLA_D_Complex ctmp1, ctmp2;
@@ -182,4 +183,5 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
   res_arg->final_iter = iteration;
 
   return QOP_SUCCESS;
+#undef NC
 }

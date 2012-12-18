@@ -15,11 +15,9 @@ int QOP_wilson_eigcg_nev = 3;
 QOP_status_t
 QOP_wilson_invert_set_opts(QOP_opt_t opts[], int nopts)
 {
-  int i;
-
   WILSON_INVERT_BEGIN;
 
-  for(i=0; i<nopts; i++) {
+  for(int i=0; i<nopts; i++) {
     char *tag = opts[i].tag;
     double value = opts[i].value;
 
