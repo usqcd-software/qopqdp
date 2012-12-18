@@ -12,10 +12,18 @@ qop_d3_generic.h \
 qop_d3_internal.h \
 qop_d3_internal_generic.h \
 qop_d3_precision_generic.h \
+qop_dn.h \
+qop_dn_color_generic.h \
+qop_dn_generic.h \
+qop_dn_internal.h \
+qop_dn_internal_generic.h \
+qop_dn_precision_generic.h \
 qop_df2.h \
 qop_df2_color_generic.h \
 qop_df3.h \
 qop_df3_color_generic.h \
+qop_dfn.h \
+qop_dfn_color_generic.h \
 qop_f2.h \
 qop_f2_color_generic.h \
 qop_f2_generic.h \
@@ -28,6 +36,12 @@ qop_f3_generic.h \
 qop_f3_internal.h \
 qop_f3_internal_generic.h \
 qop_f3_precision_generic.h \
+qop_fn.h \
+qop_fn_color_generic.h \
+qop_fn_generic.h \
+qop_fn_internal.h \
+qop_fn_internal_generic.h \
+qop_fn_precision_generic.h \
 qop_int.h \
 qop_internal.h \
 qop_qdp.h
