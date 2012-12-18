@@ -134,11 +134,21 @@ EXTRA_DIST = \
   dw_dslash_p.c \
   dw_invert_p.c \
   invert_cg_p.c \
+  invert_cg_V_p.c \
+  invert_cg_D_p.c \
+  invert_cg_vD_p.c \
   invert_cg_blas_p.c \
   invert_bicgstab_p.c \
+  invert_bicgstab_D_p.c \
   invert_eigcg_p.c \
+  invert_eigcg_V_p.c \
+  invert_eigcg_D_p.c \
   invert_gmres2_p.c \
+  invert_gmres2_D_p.c \
   invert_utilities_p.c \
+  invert_utilities_V_p.c \
+  invert_utilities_D_p.c \
+  invert_utilities_vD_p.c \
   linalg.h
 
 if NCN
