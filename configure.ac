@@ -13,7 +13,7 @@ AC_ARG_ENABLE(
   AC_HELP_STRING([--enable-nc],
     [make just the libraries necessary for the given color]),
   AC_SUBST(NC, [$enableval]),
-  AC_SUBST(NC, [3])
+  AC_SUBST(NC, [all])
 )
 if test "X$NC" = X; then NC="all"; fi 
 #for n in `echo $NC |tr , ' '`; do
