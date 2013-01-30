@@ -65,6 +65,11 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
     QOP_get_mid(&tinfo, force_accum_0_naik, QOP_common.neighbor3, 4,
 		residues+n_naik_shift, x+n_naik_shift, n_orders_naik_current);
     totalflops += tinfo.final_flop;
+    // compensate for -1 on odd sites here instead of at end
+    for(int dir=0; dir<4; dir++) {
+      QDP_M_eqm_M(force_accum_0[dir], force_accum_0[dir], QDP_odd);
+      QDP_M_eqm_M(force_accum_0_naik[dir], force_accum_0_naik[dir], QDP_odd);
+    }
 
     // smearing level 0
     for(int i=0; i<4; i++) QDP_M_eq_zero(force_accum_1[i], QDP_all);
@@ -153,8 +158,9 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
   // eps multiplication done outside QOP 
   for(int dir=0; dir<4; dir++) {
     QLA_Real treal = 2;
-    QDP_M_peq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_even);
-    QDP_M_meq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_odd);
+    //QDP_M_peq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_even);
+    //QDP_M_meq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_odd);
+    QDP_M_peq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_all);
   }
   siteflops += 4*36;
 

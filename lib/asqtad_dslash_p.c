@@ -5,6 +5,15 @@
 
 extern QOP_asqtad_t QOP_asqtad;
 
+#if 0
+typedef struct QOP_asqtad_temps {
+  int old_style;
+  int old_optnum;
+  int dslash_setup;
+  QDP_ColorVector *tin[NTMP];
+  QDP_ColorVector *vtemp[NTMP][NVTMP];
+#endif
+
 static int old_style=-1;
 static int old_optnum=-1;
 

@@ -70,6 +70,7 @@ struct QOP_DN_FermionLinksAsqtad_struct {
   QDP_Shift shifts[8];
   QDP_Shift shifts_dbl[16];
   QDP_ShiftDir shiftdirs_dbl[16];
+  //QOP_FN_FermionLinksAsqtad *ofla;
 };
 
   /* HISQ datatypes */

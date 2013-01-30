@@ -26,6 +26,11 @@ QOP_asqtad_force_multi_fnmat_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   nflops += tinfo.final_flop;
   QOP_get_mid(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, x, nterms);
   nflops += tinfo.final_flop;
+  // compensate for -1 on odd sites here instead of at end
+  for(int dir=0; dir<4; dir++) {
+    QDP_M_eqm_M(mid[dir], mid[dir], QDP_odd);
+    QDP_M_eqm_M(mid[4+dir], mid[4+dir], QDP_odd);
+  }
 
   QOP_asqtad_force_multi_fnmat3_qdp(&tinfo, gauge, force, coef, mid, mid+4);
   nflops += tinfo.final_flop;
@@ -230,12 +235,14 @@ side_force(QDP_ColorMatrix *force, QDP_ColorMatrix *bot0, QDP_ColorMatrix *side0
   QDP_M_eq_M_times_Ma(botnusidemu, botnu, sidemu, QDP_all);
   QDP_discard_M(botnu);
   QDP_M_peq_M_times_M(stpl, side, botnusidemu, QDP_all);
-  QDP_M_meq_M_times_Ma(force, top, botnusidemu, QDP_all);
+  //QDP_M_meq_M_times_Ma(force, top, botnusidemu, QDP_all);
+  QDP_M_peq_M_times_Ma(force, top, botnusidemu, QDP_all);
   QDP_M_eq_M_times_M(botsidemu, bot, sidemu, QDP_all);
   QDP_discard_M(sidemu);
   QDP_M_peq_M_times_Ma(force, botsidemu, topnu, QDP_all);
   QDP_discard_M(topnu);
-  QDP_M_meq_Ma(force, fbmu, QDP_all);
+  //QDP_M_meq_Ma(force, fbmu, QDP_all);
+  QDP_M_peq_Ma(force, fbmu, QDP_all);
   QDP_discard_M(fbmu);
   QDP_M_peq_Ma(force, fmbmu, QDP_all);
   QDP_discard_M(fmbmu);
@@ -332,7 +339,8 @@ QOP_fat_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 	  nflops += 36;
 	}
 
-	QDP_M_eqm_r_times_M(mid3, &coef7, mid3, QDP_all);
+	//QDP_M_eqm_r_times_M(mid3, &coef7, mid3, QDP_all);
+	QDP_M_eq_r_times_M(mid3, &coef7, mid3, QDP_all);
 	QDP_M_peq_r_times_M(mid3, &coef5, mid[sig], QDP_all);
 	nflops += 18+36;
 	for(int mu=0; mu<4; mu++) {
@@ -351,7 +359,8 @@ QOP_fat_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
       for(int mu=0; mu<4; mu++) {
 	if(mu==sig) continue;
 	if(have5) {
-	  QDP_M_eq_r_times_M_minus_M(stpl5, &coef3, mid[sig], mid5[mu], QDP_all);
+	  //QDP_M_eq_r_times_M_minus_M(stpl5, &coef3, mid[sig], mid5[mu], QDP_all);
+	  QDP_M_eq_r_times_M_plus_M(stpl5, &coef3, mid[sig], mid5[mu], QDP_all);
 	  nflops += 36;
 	} else {
 	  QDP_M_eq_r_times_M(stpl5, &coef3, mid[sig], QDP_all);
@@ -360,7 +369,8 @@ QOP_fat_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 	side_force(deriv[mu], stpl5, gauge[mu], gauge[sig], sig, mu, mid3);
 	nflops += SIDE_FORCE_FLOPS;
       }
-      QDP_M_meq_M(deriv[sig], mid3, QDP_all);
+      //QDP_M_meq_M(deriv[sig], mid3, QDP_all);
+      QDP_M_peq_M(deriv[sig], mid3, QDP_all);
       nflops += 18;
     }
     if(coef1) {
@@ -479,7 +489,8 @@ QOP_asqtad_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
       QDP_M_eq_sM(f3, f3b, QDP_neighbor[mu], QDP_backward, QDP_all);
       QDP_M_eq_M_times_M(f, mid, UmuUs, QDP_all);
       QDP_discard_M(UmuUs);
-      QDP_M_meq_M_times_Ma(f, Umidbmu, Umu, QDP_all);
+      //QDP_M_meq_M_times_Ma(f, Umidbmu, Umu, QDP_all);
+      QDP_M_peq_M_times_Ma(f, Umidbmu, Umu, QDP_all);
       QDP_discard_M(Umidbmu);
       QDP_discard_M(Umu);
       QDP_M_peq_M(f, f3, QDP_all);
@@ -537,8 +548,9 @@ QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   for(int mu=0; mu<4; mu++) {
     QDP_M_eq_M_times_Ma(cm, gauge->links[mu], deriv[mu], QDP_all);
     QDP_M_eq_antiherm_M(deriv[mu], cm, QDP_all);
-    QDP_M_peq_M(force[mu], deriv[mu], QDP_even);
-    QDP_M_meq_M(force[mu], deriv[mu], QDP_odd);
+    //QDP_M_peq_M(force[mu], deriv[mu], QDP_even);
+    //QDP_M_meq_M(force[mu], deriv[mu], QDP_odd);
+    QDP_M_peq_M(force[mu], deriv[mu], QDP_all);
     QDP_destroy_M(deriv[mu]);
   }
   QDP_destroy_M(cm);

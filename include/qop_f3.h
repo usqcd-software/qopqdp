@@ -156,6 +156,16 @@ void QOP_F3_symanzik_1loop_gauge_force(QOP_info_t *info,
 				       QOP_gauge_coeffs_t *coeffs,
 				       QOP_F_Real eps);
 
+void QOP_F3_projectU_qdp(QOP_info_t *info,
+			 QDP_F3_ColorMatrix *pU,
+			 QDP_F3_ColorMatrix *U);
+
+void QOP_F3_projectU_deriv_qdp(QOP_info_t *info,
+			       QDP_F3_ColorMatrix *f,
+			       QDP_F3_ColorMatrix *pU,
+			       QDP_F3_ColorMatrix *U,
+			       QDP_F3_ColorMatrix *chain);
+
 
   /*********************/
   /*  Asqtad routines  */
