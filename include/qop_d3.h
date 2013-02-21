@@ -166,6 +166,23 @@ void QOP_D3_projectU_deriv_qdp(QOP_info_t *info,
 			       QDP_D3_ColorMatrix *U,
 			       QDP_D3_ColorMatrix *chain);
 
+void QOP_D3_u3reunit(QOP_info_t *info, QDP_D3_ColorMatrix *U, QDP_D3_ColorMatrix *V);
+
+void QOP_D3_su3reunit(QOP_info_t *info, QDP_D3_ColorMatrix *U, QDP_D3_ColorMatrix *Ur);
+
+void QOP_D3_hisq_force_multi_reunit(QOP_info_t *info,
+				    QDP_D3_ColorMatrix *gf[4],
+				    QDP_D3_ColorMatrix *force_accum[4],
+				    QDP_D3_ColorMatrix *force_accum_old[4]);
+
+void QOP_D3_staples(int nout, int nin, QDP_D3_ColorMatrix *out[], QDP_D3_ColorMatrix *in[],
+		    int nstaples[], int *topdir[], int *sidedir[],
+		    int *toplinknum[], int *sidelinknum[], QOP_D_Real *coef[]);
+
+void QOP_D3_staples_deriv(int nout, int nin, QDP_D3_ColorMatrix *deriv[],
+			  QDP_D3_ColorMatrix *chain[], QDP_D3_ColorMatrix *in[],
+			  int nstaples[], int *topdir[], int *sidedir[],
+			  int *toplinknum[], int *sidelinknum[], QOP_D_Real *coef[]);
 
   /*********************/
   /*  Asqtad routines  */
@@ -365,7 +382,15 @@ void QOP_D3_asqtad_force_multi(QOP_info_t *info,
 			       int nsrc);
 
 void QOP_D3_asqtad_force_multi_qdp(QOP_info_t *info,
-				   QOP_D3_GaugeField *gauge,
+				   QDP_D3_ColorMatrix *links[],
+				   QDP_D3_ColorMatrix *force[],
+				   QOP_asqtad_coeffs_t *coef,
+				   QOP_D_Real eps[],
+				   QDP_D3_ColorVector *in_pt[],
+				   int nsrc);
+
+void QOP_D3_asqtad_deriv_multi_qdp(QOP_info_t *info,
+				   QDP_D3_ColorMatrix *links[],
 				   QDP_D3_ColorMatrix *force[],
 				   QOP_asqtad_coeffs_t *coef,
 				   QOP_D_Real eps[],

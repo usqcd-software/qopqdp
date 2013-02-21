@@ -36,7 +36,7 @@ QOP_wilson_invert_difla(QDP_DiracFermion *out, QDP_DiracFermion *in,
   /* #endif */
 }
 
-static int count = 1;
+//static int count = 1; // unused so comment out for now
 	
 void
 QOP_wilson_ifla_invert(QOP_info_t *info,

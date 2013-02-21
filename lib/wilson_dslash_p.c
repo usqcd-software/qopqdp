@@ -661,7 +661,7 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 /* This part is added by Bugra ----------------------- */
 
 QOP_FermionLinksWilson *
-QOP_wilson_initialize_gauge_L()
+QOP_wilson_initialize_gauge_L(void)
 {
   QOP_FermionLinksWilson *flw;
 
@@ -1578,7 +1578,7 @@ wilson_okaction_full_testtadpole(QOP_FermionLinksWilson *flw,
   /* -------------------------- */
   QLA_Real tpf      = 1.0/(coeffs->u0);
   //warning: unused variable 'sff' ??
-  QLA_Real sff      = 1e10;
+  //QLA_Real sff      = 1e10; // comment out for now to avoid warnings
 
   //printf("Tadpole Factor u0 = %e\n",tpf);
   /* Coefficients ------------- */
@@ -1611,7 +1611,7 @@ wilson_okaction_full_testtadpole(QOP_FermionLinksWilson *flw,
   /* Gamma Matrix Indices in QDP ============================ */
 
   //warning: variable 'bidx' set but not used ??
-  QLA_Int gidx[4],aidx[4],bidx[4];
+  QLA_Int gidx[4],aidx[4]/*,bidx[4]*/;  // comment out for now
 
   gidx[0] = 1;  /* gamma[X]   = QDP_Gamma[1]   */
   gidx[1] = 2;  /* gamma[Y]   = QDP_Gamma[2]   */
@@ -1622,9 +1622,11 @@ wilson_okaction_full_testtadpole(QOP_FermionLinksWilson *flw,
   aidx[1] = 10; /* alpha[1]   = -QDP_Gamma[10] */
   aidx[2] = 12; /* alpha[2]   = -QDP_Gamma[12] */
 
+#if 0 // comment out unused variables
   bidx[0] = 3;  /* i*Sigma[0] = QDP_Gamma[3]   */
   bidx[1] = 5;  /* i*Sigma[1] = QDP_Gamma[5]   */
   bidx[2] = 6;  /* i*Simga[2] = QDP_Gamma[6]   */
+#endif
   /* --------------------------------------------------------- */
 
   /* DUMMY FIELDS ============================================ */

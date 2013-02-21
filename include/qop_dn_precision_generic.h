@@ -19,6 +19,7 @@
 #define QOP_N_asqtad_create_L_from_qdp QOP_DN_asqtad_create_L_from_qdp
 #define QOP_N_asqtad_create_L_from_raw QOP_DN_asqtad_create_L_from_raw
 #define QOP_N_asqtad_deriv QOP_DN_asqtad_deriv
+#define QOP_N_asqtad_deriv_multi_qdp QOP_DN_asqtad_deriv_multi_qdp
 #define QOP_N_asqtad_destroy_L QOP_DN_asqtad_destroy_L
 #define QOP_N_asqtad_diaginv QOP_DN_asqtad_diaginv
 #define QOP_N_asqtad_diaginv_qdp QOP_DN_asqtad_diaginv_qdp
@@ -116,6 +117,7 @@
 #define QOP_N_hisq_destroy_L QOP_DN_hisq_destroy_L
 #define QOP_N_hisq_force_multi QOP_DN_hisq_force_multi
 #define QOP_N_hisq_force_multi_qdp QOP_DN_hisq_force_multi_qdp
+#define QOP_N_hisq_force_multi_reunit QOP_DN_hisq_force_multi_reunit
 #define QOP_N_projectU_deriv_qdp QOP_DN_projectU_deriv_qdp
 #define QOP_N_projectU_qdp QOP_DN_projectU_qdp
 #define QOP_N_qla_type_ QOP_DN_qla_type_
@@ -139,10 +141,14 @@
 #define QOP_N_rephase_G_qdp QOP_DN_rephase_G_qdp
 #define QOP_N_set QOP_DN_set
 #define QOP_N_smear_fat7l_qdp QOP_DN_smear_fat7l_qdp
+#define QOP_N_staples QOP_DN_staples
+#define QOP_N_staples_deriv QOP_DN_staples_deriv
+#define QOP_N_su3reunit QOP_DN_su3reunit
 #define QOP_N_symanzik_1loop_gauge_action QOP_DN_symanzik_1loop_gauge_action
 #define QOP_N_symanzik_1loop_gauge_deriv_qdp QOP_DN_symanzik_1loop_gauge_deriv_qdp
 #define QOP_N_symanzik_1loop_gauge_force QOP_DN_symanzik_1loop_gauge_force
 #define QOP_N_symanzik_1loop_gauge_force_qdp QOP_DN_symanzik_1loop_gauge_force_qdp
+#define QOP_N_u3reunit QOP_DN_u3reunit
 #define QOP_N_wilson_convert_L_from_G QOP_DN_wilson_convert_L_from_G
 #define QOP_N_wilson_convert_L_from_qdp QOP_DN_wilson_convert_L_from_qdp
 #define QOP_N_wilson_convert_L_from_raw QOP_DN_wilson_convert_L_from_raw

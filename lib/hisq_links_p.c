@@ -131,11 +131,16 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
   // projection stage 
   // project gauge fields to SU3 or U3
 
-  if(ugroup == QOP_UNITARIZE_U3)
-    for (i=0;i<4;i++){
-      QOP_u3reunit(info, flh->V_links[i],flh->Y_unitlinks[i]);
+  if(ugroup == QOP_UNITARIZE_U3) {
+    for (i=0; i<4; i++) {
+#if QOP_Colors == 3
+      QOP_u3reunit(info, flh->V_links[i], flh->Y_unitlinks[i]);
+#else
+      QOP_projectU_qdp(info, flh->Y_unitlinks[i], flh->V_links[i]);
+#endif
       final_flop += info->final_flop;
     }
+  }
 
   if(!want_aux){
     destroy_4M(flh->V_links);
@@ -187,7 +192,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
     for( inaik = 1; inaik < n_naiks; inaik++ ) {
       QLA_Real rr;
       rr = eps_naik[inaik];
-      flh->fn[inaik] = QOP_asqtad_create_L_from_r_times_L(&rr, flh->fn[0]);
+      flh->fn[inaik] = QOP_asqtad_create_L_from_r_times_L(rr, flh->fn[0]);
       if(flh->fn[inaik]->longlinks)
 	final_flop += 8*18*QDP_sites_on_node*(n_naiks-1);
       else

@@ -5,7 +5,6 @@ lib_LIBRARIES = libqopqdp.a
 libqopqdp_a_SOURCES = \
   common.c \
   layout_user.c \
-  asqtad_dslash.c \
   asqtad_invert.c \
   asqtad_force.c \
   hisq_links.c \
@@ -17,6 +16,7 @@ libqopqdp_a_SOURCES = \
 
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
+  pcstubs/staples_f2.c pcstubs/staples_d2.c \
   pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
   pcstubs/symanzik_1loop_gauge_action_f2.c pcstubs/symanzik_1loop_gauge_action_d2.c \
   pcstubs/symanzik_1loop_gauge_force_f2.c pcstubs/symanzik_1loop_gauge_force_d2.c \
@@ -47,6 +47,7 @@ NC2SOURCES = \
 
 NC3SOURCES = \
   pcstubs/common_f3.c pcstubs/common_d3.c \
+  pcstubs/staples_f3.c pcstubs/staples_d3.c \
   pcstubs/gauge_deriv_d3.c pcstubs/gauge_deriv_f3.c \
   pcstubs/symanzik_1loop_gauge_action_f3.c pcstubs/symanzik_1loop_gauge_action_d3.c \
   pcstubs/symanzik_1loop_gauge_force_f3.c pcstubs/symanzik_1loop_gauge_force_d3.c \
@@ -79,6 +80,7 @@ NC3SOURCES = \
 
 NCNSOURCES = \
   pcstubs/common_fn.c pcstubs/common_dn.c \
+  pcstubs/staples_fn.c pcstubs/staples_dn.c \
   pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
   pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
   pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
@@ -109,6 +111,7 @@ NCNSOURCES = \
 
 EXTRA_DIST = \
   common_p.c \
+  staples_p.c \
   gauge_deriv_p.c \
   symanzik_1loop_gauge_action_p.c \
   symanzik_1loop_gauge_force_p.c \

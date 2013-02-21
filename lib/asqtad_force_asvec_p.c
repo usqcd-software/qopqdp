@@ -74,7 +74,7 @@ static QDP_ShiftDir fbshiftdir[8];
 static QDP_ColorVector **tv;
 
 void
-QOP_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+QOP_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QDP_ColorMatrix *links[],
 				 QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
 				 REAL eps[], QDP_ColorVector *xin[], int nsrc)
 {
@@ -120,7 +120,7 @@ QOP_asqtad_force_multi_asvec_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   for(i=0; i<QOP_common.ndim; i++) {
     fbshift[i] = QDP_neighbor[i];
     fbshiftdir[i] = QDP_forward;
-    fblink[i] = gauge->links[i];
+    fblink[i] = links[i];
     fbshift[OPP_DIR(i)] = QDP_neighbor[i];
     fbshiftdir[OPP_DIR(i)] = QDP_backward;
     fblink[OPP_DIR(i)] = QDP_create_M();

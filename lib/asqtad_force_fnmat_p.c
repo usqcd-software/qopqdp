@@ -1,80 +1,13 @@
 //#define DO_TRACE
 #include <qop_internal.h>
 
-static void
-QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
-				  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
-				  QDP_ColorMatrix *mid_fat[], QDP_ColorMatrix *mid_naik[]);
-
-void 
-QOP_asqtad_force_multi_fnmat_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
-				 QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
-				 REAL eps[], QDP_ColorVector *x[], int nterms)
-{
-#define NC QDP_get_nc(x[0])
-  ASQTAD_FORCE_BEGIN;
-  if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
-
-  double dtime = QOP_time();
-  double nflops = 0;
-  QOP_info_t tinfo;
-
-  QDP_ColorMatrix *mid[8];  // 4 fat and 4 naik
-  for(int i=0; i<8; i++) mid[i] = QDP_create_M();
-
-  QOP_get_mid(&tinfo, mid, QDP_neighbor, 4, eps, x, nterms);
-  nflops += tinfo.final_flop;
-  QOP_get_mid(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, x, nterms);
-  nflops += tinfo.final_flop;
-  // compensate for -1 on odd sites here instead of at end
-  for(int dir=0; dir<4; dir++) {
-    QDP_M_eqm_M(mid[dir], mid[dir], QDP_odd);
-    QDP_M_eqm_M(mid[4+dir], mid[4+dir], QDP_odd);
-  }
-
-  QOP_asqtad_force_multi_fnmat3_qdp(&tinfo, gauge, force, coef, mid, mid+4);
-  nflops += tinfo.final_flop;
-
-  for(int i=0; i<8; i++) QDP_destroy_M(mid[i]);
-
-  info->final_sec = QOP_time() - dtime;
-  info->final_flop = nflops;
-  info->status = QOP_SUCCESS;
-
-  ASQTAD_FORCE_END;
-#undef NC
-}
-
 // gather vectors for mid link
 void 
-QOP_get_mid(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns,
-	    REAL eps[], QDP_ColorVector *x[], int nterms)
+QOP_get_mid(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[],
+	    int ns, REAL eps[], REAL scale, QDP_ColorVector *x[], int nterms)
 {
 #define NC QDP_get_nc(x[0])
   double dtime = QOP_time();
-
-#if 0
-  {
-    for(int i=0; i<nterms; i++) {
-      QLA_Real nrm2;
-      QDP_r_eq_norm2_V(&nrm2, x[i], QDP_all);
-      QOP_printf0("norm2 x[%i] = %g\n", i, nrm2);
-    }
-    int i;
-    QDP_loop_sites(i, QDP_all, {
-	int c[4];
-	QDP_get_coords(c, 0, i);
-	printf(" %i %i %i %i", c[0], c[1], c[2], c[3]);
-	for(int j=0; j<QLA_Nc; j++) {
-	  QLA_ColorVector *v = QDP_site_ptr_readonly_V(x[0], i);
-	  printf(" %10g", QLA_real(QLA_elem_V(*v, j)));
-	  printf(" %10g", QLA_imag(QLA_elem_V(*v, j)));
-	}
-	printf("\n");
-      });
-    exit(0);
-  }
-#endif
 
   QDP_ColorVector *tsrc[2], *vtmp[2];
   QDP_ColorMatrix *tmat;
@@ -94,7 +27,8 @@ QOP_get_mid(QOP_info_t *info, QDP_ColorMatrix *mid[], QDP_Shift shifts[], int ns
 	int k = i%2;
 	QDP_M_eq_V_times_Va(tmat, tsrc[k], vtmp[k], QDP_all);
 	QDP_discard_V(vtmp[k]);
-	QDP_M_peq_r_times_M(mid[s], &eps[i], tmat, QDP_all);
+	QLA_Real t = scale*eps[i];
+	QDP_M_peq_r_times_M(mid[s], &t, tmat, QDP_all);
       }
     }
   }
@@ -274,7 +208,7 @@ QOP_fat_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 	      QDP_ColorMatrix *mid[])
 {
   double dtime = QOP_time();
-  int nflops = 0;
+  double nflops = 0;
 
   QLA_Real coef1 = coef->one_link;
   QLA_Real coef3 = coef->three_staple;
@@ -430,7 +364,7 @@ QOP_asqtad_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
 {
   SETNCF(deriv[0]);
   double dtime = QOP_time();
-  int nflops = 0;
+  double nflops = 0;
   QOP_info_t tinfo;
   set_temps();
 
@@ -528,35 +462,85 @@ QOP_asqtad_deriv(QOP_info_t *info, QDP_ColorMatrix *gauge[],
   info->status = QOP_SUCCESS;
 }
 
-void
-QOP_asqtad_force_multi_fnmat3_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
-				  QDP_ColorMatrix *force[], QOP_asqtad_coeffs_t *coef,
-				  QDP_ColorMatrix *mid_fat[],
-				  QDP_ColorMatrix *mid_naik[])
+void 
+QOP_asqtad_deriv_multi_fnmat_qdp(QOP_info_t *info,
+				 QDP_ColorMatrix *links[],
+				 QDP_ColorMatrix *deriv[],
+				 QOP_asqtad_coeffs_t *coef,
+				 REAL eps[],
+				 QDP_ColorVector *x[],
+				 int nterms)
 {
-  SETNCF(force[0]);
+  SETNCF(deriv[0]);
+  ASQTAD_FORCE_BEGIN;
+  if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
+
   double dtime = QOP_time();
+  double nflops = 0;
   QOP_info_t tinfo;
-  QDP_ColorMatrix *cm, *deriv[4], *gcm[4];
-  cm = QDP_create_M();
+
+  //// put extra factor of 2 in mid
+  // put extra factor of -1 in mid
+  QDP_ColorMatrix *mid[8];  // 4 fat and 4 naik
+  for(int i=0; i<4; i++) mid[i] = QDP_create_M();
+  QOP_get_mid(&tinfo, mid, QDP_neighbor, 4, eps, -1, x, nterms);
+  nflops += tinfo.final_flop;
+  if(coef->naik) {
+    for(int i=4; i<8; i++) mid[i] = QDP_create_M();
+    QOP_get_mid(&tinfo, mid+4, QOP_common.neighbor3, 4, eps, -1, x, nterms);
+    nflops += tinfo.final_flop;
+  }
+  // compensate for -1 on odd sites here instead of at end
+  for(int dir=0; dir<4; dir++) {
+    QDP_M_eqm_M(mid[dir], mid[dir], QDP_odd);
+    if(coef->naik) QDP_M_eqm_M(mid[4+dir], mid[4+dir], QDP_odd);
+  }
+
+  QOP_asqtad_deriv(&tinfo, links, deriv, coef, mid, mid+4);
+  nflops += tinfo.final_flop;
+
+  for(int i=0; i<4; i++) QDP_destroy_M(mid[i]);
+  if(coef->naik) for(int i=4; i<8; i++) QDP_destroy_M(mid[i]);
+
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflops;
+  info->status = QOP_SUCCESS;
+
+  ASQTAD_FORCE_END;
+#undef NC
+}
+
+void 
+QOP_asqtad_force_multi_fnmat_qdp(QOP_info_t *info,
+				 QDP_ColorMatrix *links[],
+				 QDP_ColorMatrix *force[],
+				 QOP_asqtad_coeffs_t *coef,
+				 REAL eps[],
+				 QDP_ColorVector *x[],
+				 int nterms)
+{
+#define NC QDP_get_nc(force[0])
+  double dtime = QOP_time();
+
+  QDP_ColorMatrix *deriv[4];
   for(int mu=0; mu<4; mu++) {
     deriv[mu] = QDP_create_M();
     QDP_M_eq_zero(deriv[mu], QDP_all);
-    gcm[mu] = gauge->links[mu];
   }
-  QOP_asqtad_deriv(&tinfo, gcm, deriv, coef, mid_fat, mid_naik);
-  for(int mu=0; mu<4; mu++) {
-    QDP_M_eq_M_times_Ma(cm, gauge->links[mu], deriv[mu], QDP_all);
-    QDP_M_eq_antiherm_M(deriv[mu], cm, QDP_all);
-    //QDP_M_peq_M(force[mu], deriv[mu], QDP_even);
-    //QDP_M_meq_M(force[mu], deriv[mu], QDP_odd);
-    QDP_M_peq_M(force[mu], deriv[mu], QDP_all);
-    QDP_destroy_M(deriv[mu]);
-  }
-  QDP_destroy_M(cm);
+  QOP_asqtad_deriv_multi_fnmat_qdp(info, links, deriv, coef, eps, x, nterms);
 
+  QDP_ColorMatrix *mtmp = QDP_create_M();
+  for(int dir=0; dir<4; dir++) {
+    QDP_M_eq_M_times_Ma(mtmp, links[dir], deriv[dir], QDP_all);
+    QDP_M_eq_antiherm_M(deriv[dir], mtmp, QDP_all);
+    //QDP_M_peq_M(force[dir], deriv[dir], QDP_all);
+    QLA_Real m2 = -2;
+    QDP_M_peq_r_times_M(force[dir], &m2, deriv[dir], QDP_all);
+    QDP_destroy_M(deriv[dir]);
+  }
+  QDP_destroy_M(mtmp);
+  info->final_flop += (4.*(198+24+18))*QDP_sites_on_node; 
   info->final_sec = QOP_time() - dtime;
-  info->final_flop = tinfo.final_flop;
-  info->final_flop += 4*(198+24+18)*QDP_sites_on_node;
-  info->status = QOP_SUCCESS;
+  //QOP_printf0("Asqtad force flops = %g\n", info->final_flop);
+#undef NC
 }

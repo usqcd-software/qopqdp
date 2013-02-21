@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
   // allow the user to specify QOP_Precision and/or QOP_PrecisionInt
+  // default to single precision
 #ifndef QOP_Precision
 #  ifndef QOP_PrecisionInt
 #    define QOP_PrecisionInt 1
@@ -34,15 +35,13 @@ extern "C" {
 #    if QOP_Precision == 'F'
 #      if QOP_PrecisionInt != 1
 #        error "inconsistent QOP_Precision='F' and QOP_PrecisionInt"
-#      else
-#        define QOP_PrecisionLetter F
 #      endif
+#      define QOP_PrecisionLetter F
 #    elif QOP_Precision == 'D'
 #      if QOP_PrecisionInt != 2
 #        error "inconsistent QOP_Precision='D' and QOP_PrecisionInt"
-#      else
-#        define QOP_PrecisionLetter D
 #      endif
+#      define QOP_PrecisionLetter D
 #    else
 #      error "bad QOP_Precision"
 #    endif
@@ -50,6 +49,7 @@ extern "C" {
 #endif
 
   // allow the user to specify QOP_Colors and/or QOP_Nc
+  // default to Nc=3
 #ifndef QOP_Colors
 #  ifndef QOP_Nc
 #    define QOP_Nc 3
@@ -66,7 +66,6 @@ extern "C" {
 #    if QOP_Colors == 2 || QOP_Colors == 3
 #      define QOP_Nc QOP_Colors
 #    elif QOP_Colors == 'N'
-//#      error "QOP_Colors='N' with unknown QOP_Nc"
 #      define QOP_Nc 3
 #    else
 #      error "bad QOP_Colors"

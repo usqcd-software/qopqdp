@@ -87,6 +87,7 @@ double_store(QOP_FermionLinksAsqtad *fla)
   }
   TRACE;
   if(dblstore_style(QOP_asqtad.style)) {
+    fla->dblstored = dblstore_style(QOP_asqtad.style);
     for(int i=0; i<nl2; i++) {
       fla->bcklinks[i] = QDP_create_M();
     }
@@ -122,7 +123,6 @@ double_store(QOP_FermionLinksAsqtad *fla)
     }
     QDP_destroy_M(m);
     //QDP_thread_barrier();
-    fla->dblstored = dblstore_style(QOP_asqtad.style);
   }
   TRACE;
 #undef NC
@@ -414,7 +414,7 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
 
 static void
 make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
-	       QOP_asqtad_coeffs_t *coeffs, QDP_ColorMatrix *gf[])
+	       QOP_asqtad_coeffs_t *coef, QDP_ColorMatrix *gf[])
 {
 #define NC QDP_get_nc(gf[0])
   QDP_ColorMatrix *staple=NULL, *tempmat1=NULL, *t1=NULL, *t2=NULL, *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
@@ -434,7 +434,17 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   }
 #endif
 
-  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple || coeffs->naik) {
+  QLA_Real coef1 = coef->one_link;
+  QLA_Real coef3 = coef->three_staple;
+  QLA_Real coef5 = coef->five_staple;
+  QLA_Real coef7 = coef->seven_staple;
+  QLA_Real coefL = coef->lepage;
+  /* to fix up the Lepage term, included by a trick below */
+  coef1 -= 6*coefL;
+  int have5 = coef5 || coef7 || coefL;
+  int have3 = coef3 || have5;
+
+  if(have3 || coef->naik) {
     nflop = 61632;
     staple = QDP_create_M();
     tempmat1 = QDP_create_M();
@@ -456,30 +466,25 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
 
   dtime = -QOP_time();
 
-  /* to fix up the Lepage term, included by a trick below */
-  QLA_Real one_link = coeffs->one_link - 6.0*coeffs->lepage;
-
   for(int dir=0; dir<4; dir++) {
-    QDP_M_eq_r_times_M(fl[dir], &one_link, gf[dir], QDP_all);
-    if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple) {
+    QDP_M_eq_r_times_M(fl[dir], &coef1, gf[dir], QDP_all);
+    if(have3) {
       for(int nu=0; nu<4; nu++) if(nu!=dir) {
-	  if(coeffs->three_staple) {
-	    compute_gen_staple(staple, dir, nu, gf[dir], coeffs->three_staple,
-			       gf, fl, tsg[dir][nu], tsg[nu][dir], t1, t2, ts2[nu]);
-	  }
-	  if(coeffs->lepage) {
-	    compute_gen_staple(NULL, dir, nu, staple, coeffs->lepage, gf, fl,
+	  compute_gen_staple(staple, dir, nu, gf[dir], coef3, gf, fl,
+			     tsg[dir][nu], tsg[nu][dir], t1, t2, ts2[nu]);
+	  if(coefL) {
+	    compute_gen_staple(NULL, dir, nu, staple, coefL, gf, fl,
 			       tsl[nu], tsg[nu][dir], t1, t2, ts2[nu]);
 	  }
-	  if(coeffs->five_staple || coeffs->seven_staple) {
+	  if(coef5 || coef7) {
 	    for(int rho=0; rho<4; rho++) if((rho!=dir)&&(rho!=nu)) {
-		compute_gen_staple(tempmat1, dir, rho, staple, coeffs->five_staple,
-				   gf, fl, tsl[rho], tsg[rho][dir], t1, t2, ts2[rho]);
-		if(coeffs->seven_staple) {
+		compute_gen_staple(tempmat1, dir, rho, staple, coef5, gf, fl,
+				   tsl[rho], tsg[rho][dir], t1, t2, ts2[rho]);
+		if(coef7) {
 		  for(int sig=0; sig<4; sig++) {
 		    if((sig!=dir)&&(sig!=nu)&&(sig!=rho)) {
-		      compute_gen_staple(NULL, dir, sig, tempmat1, coeffs->seven_staple,
-					 gf, fl, ts1[sig], tsg[sig][dir],t1,t2,ts2[sig]);
+		      compute_gen_staple(NULL, dir, sig, tempmat1, coef7,gf,fl,
+					 ts1[sig],tsg[sig][dir],t1,t2,ts2[sig]);
 		    }
 		  } /* sig */
 		}
@@ -491,7 +496,7 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
 
   /* long links */
   if(ll) {
-    QLA_Real naik = coeffs->naik;
+    QLA_Real naik = coef->naik;
     for(int dir=0; dir<4; dir++) {
       QDP_M_eq_sM(staple, gf[dir], QDP_neighbor[dir], QDP_forward, QDP_all);
       QDP_M_eq_M_times_M(tempmat1, gf[dir], staple, QDP_all);
@@ -501,7 +506,7 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
     }
   }
 
-  if(coeffs->three_staple || coeffs->lepage || coeffs->five_staple || coeffs->seven_staple || coeffs->naik) {
+  if(have3 || coef->naik) {
     QDP_destroy_M(staple);
     QDP_destroy_M(tempmat1);
     QDP_destroy_M(t1);
@@ -559,7 +564,7 @@ QOP_asqtad_create_L_from_G(QOP_info_t *info,
 }
 
 QOP_FermionLinksAsqtad *
-QOP_asqtad_create_L_from_r_times_L(QLA_Real *s,
+QOP_asqtad_create_L_from_r_times_L(QLA_D_Real s,
 				   QOP_FermionLinksAsqtad *fla_src)
 {
 #define NC QDP_get_nc(fla_src->fwdlinks[0])
@@ -571,7 +576,7 @@ QOP_asqtad_create_L_from_r_times_L(QLA_Real *s,
 
   /* Copy and multiply.  Correct for the 1/2 in source */
   for(int i=0; i<4; i++) {
-    QLA_Real two_s = 2.0 * (*s);
+    QLA_Real two_s = 2.0 * s;
     fl_dst[i] = QDP_create_M();
     QDP_M_eq_r_times_M(fl_dst[i], &two_s, fl_src[i], QDP_all);
     if(ll_src) {
@@ -596,15 +601,114 @@ QOP_FermionLinksAsqtad *
 QOP_asqtad_create_L_from_L(QOP_FermionLinksAsqtad *fla_src)
 {
   QOP_FermionLinksAsqtad *fla;
-  QLA_Real one = 1.0;
   ASQTAD_DSLASH_BEGIN;
 
   /* Copy the source links */
-  fla = QOP_asqtad_create_L_from_r_times_L(&one, fla_src);
+  fla = QOP_asqtad_create_L_from_r_times_L(1, fla_src);
 
   ASQTAD_DSLASH_END;
   return fla;
 }
+
+#if QOP_Precision == 'D'
+
+/* Copy with multiplication from double to single precision */
+
+static QOP_F_FermionLinksAsqtad *
+QOP_FD_asqtad_create_L_from_r_times_L(QLA_D_Real s,
+				      QOP_D_FermionLinksAsqtad *fla_src)
+{
+#define NC QDP_get_nc(fla_src->fwdlinks[0])
+  QOP_F_FermionLinksAsqtad *fla;
+  QDP_D_ColorMatrix **fl_src = fla_src->fatlinks;
+  QDP_D_ColorMatrix **ll_src = fla_src->longlinks;
+  QDP_F_ColorMatrix *fl_dst[4], *ll_dst[4];
+  ASQTAD_DSLASH_BEGIN;
+
+  /* Copy and multiply. */
+  for(int i=0; i<4; i++) {
+    QLA_F_Real two_s = 2.0 * s; /* Correct for the 1/2 in source */
+    fl_dst[i] = QDP_F_create_M();
+    QDP_FD_M_eq_M(fl_dst[i], fl_src[i], QDP_all);
+    QDP_F_M_eq_r_times_M(fl_dst[i], &two_s, fl_dst[i], QDP_all);
+    if(ll_src) {
+      ll_dst[i] = QDP_F_create_M();
+      QDP_FD_M_eq_M(ll_dst[i], ll_src[i], QDP_all);
+      QDP_F_M_eq_r_times_M(ll_dst[i], &two_s, ll_dst[i], QDP_all);
+    }
+  }
+
+  /* Hand over the QDP fields to the links structure */
+  if(ll_src)
+    fla = QOP_F_asqtad_convert_L_from_qdp(fl_dst, ll_dst);
+  else
+    fla = QOP_F_asqtad_convert_L_from_qdp(fl_dst, NULL);
+
+  ASQTAD_DSLASH_END;
+  return fla;
+#undef NC
+}
+
+/* Copy from double to single precision */
+
+QOP_F_FermionLinksAsqtad *
+QOP_FD_asqtad_create_L_from_L(QOP_D_FermionLinksAsqtad *fla_src)
+{
+  ASQTAD_DSLASH_BEGIN;
+  QOP_F_FermionLinksAsqtad *fla = QOP_FD_asqtad_create_L_from_r_times_L(1, fla_src);
+  ASQTAD_DSLASH_END;
+  return fla;
+}
+
+/* Copy with multiplication from single to double precision */
+
+static QOP_D_FermionLinksAsqtad *
+QOP_DF_asqtad_create_L_from_r_times_L(QLA_D_Real s,
+				      QOP_F_FermionLinksAsqtad *fla_src)
+{
+#define NC QDP_get_nc(fla_src->fwdlinks[0])
+  QOP_D_FermionLinksAsqtad *fla;
+  QDP_F_ColorMatrix **fl_src = fla_src->fatlinks;
+  QDP_F_ColorMatrix **ll_src = fla_src->longlinks;
+  QDP_D_ColorMatrix *fl_dst[4], *ll_dst[4];
+  ASQTAD_DSLASH_BEGIN;
+
+  /* Copy and multiply. */
+  for(int i=0; i<4; i++) {
+    QLA_D_Real two_s = 2.0 * s; /* Correct for the 1/2 in source */
+    fl_dst[i] = QDP_D_create_M();
+    QDP_DF_M_eq_M(fl_dst[i], fl_src[i], QDP_all);
+    QDP_D_M_eq_r_times_M(fl_dst[i], &two_s, fl_dst[i], QDP_all);
+    if(ll_src) {
+      ll_dst[i] = QDP_D_create_M();
+      QDP_DF_M_eq_M(ll_dst[i], ll_src[i], QDP_all);
+      QDP_D_M_eq_r_times_M(ll_dst[i], &two_s, ll_dst[i], QDP_all);
+    }
+  }
+
+  /* Hand over the QDP fields to the links structure */
+  if(ll_src)
+    fla = QOP_D_asqtad_convert_L_from_qdp(fl_dst, ll_dst);
+  else
+    fla = QOP_D_asqtad_convert_L_from_qdp(fl_dst, NULL);
+
+  ASQTAD_DSLASH_END;
+  return fla;
+#undef NC
+}
+
+/* Copy from double to single precision */
+
+QOP_D_FermionLinksAsqtad *
+QOP_DF_asqtad_create_L_from_L(QOP_F_FermionLinksAsqtad *fla_src)
+{
+  ASQTAD_DSLASH_BEGIN;
+  QOP_D_FermionLinksAsqtad *fla = QOP_DF_asqtad_create_L_from_r_times_L(1, fla_src);
+  ASQTAD_DSLASH_END;
+  return fla;
+}
+
+#endif // QOP_Precision == 'D'
 
 void
 QOP_asqtad_L_peq_L(QOP_FermionLinksAsqtad *fla,

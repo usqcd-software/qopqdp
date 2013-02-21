@@ -164,6 +164,7 @@ start(void)
 	  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
 	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
 		  ns, nm, bs, res_arg.final_iter, info.final_sec, mf);
+	  fflush(stdout);
 	  if(mf>best_mf) {
 	    best_mf = mf;
 	    best_st = st;

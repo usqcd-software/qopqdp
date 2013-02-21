@@ -59,11 +59,12 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
       n_orders_naik_current = n_orders_naik[inaik];
     }
 
-    QOP_get_mid(&tinfo, force_accum_0, QDP_neighbor, 4,
-		residues+n_naik_shift, x+n_naik_shift, n_orders_naik_current);
+    QOP_get_mid(&tinfo, force_accum_0, QDP_neighbor, 4, residues+n_naik_shift,
+		1, x+n_naik_shift, n_orders_naik_current);
     totalflops += tinfo.final_flop;
     QOP_get_mid(&tinfo, force_accum_0_naik, QOP_common.neighbor3, 4,
-		residues+n_naik_shift, x+n_naik_shift, n_orders_naik_current);
+		residues+n_naik_shift, 1, x+n_naik_shift,
+		n_orders_naik_current);
     totalflops += tinfo.final_flop;
     // compensate for -1 on odd sites here instead of at end
     for(int dir=0; dir<4; dir++) {
@@ -138,7 +139,13 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
 
     for(int mu=0; mu<4; mu++) QDP_M_eq_Ma(force_accum_1u[mu], force_accum_2[mu], QDP_all);
     // reunitarization
+#if QOP_Colors == 3
     QOP_hisq_force_multi_reunit(&tinfo, Vgf, force_accum_2, force_accum_1u);
+#else
+    for(int mu=0; mu<4; mu++) {
+      QOP_projectU_deriv_qdp(&tinfo, force_accum_2[mu], Wgf[mu], Vgf[mu], force_accum_1u[mu]);
+    }
+#endif
     //QOP_printf0("reunit flops = %g\n", tinfo.final_flop);
     for(int mu=0; mu<4; mu++) QDP_M_eq_Ma(force_accum_1u[mu], force_accum_2[mu], QDP_all);
     totalflops += tinfo.final_flop;
@@ -156,6 +163,7 @@ QOP_hisq_deriv_multi_fnmat2_qdp(QOP_info_t *info,
 
   // take into account even/odd parity (it is NOT done in "smearing" routine)
   // eps multiplication done outside QOP 
+  // extra factor of 2
   for(int dir=0; dir<4; dir++) {
     QLA_Real treal = 2;
     //QDP_M_peq_r_times_M(deriv[dir], &treal, force_accum_1[dir], QDP_even);

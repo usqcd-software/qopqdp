@@ -137,6 +137,9 @@ start(void)
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
   QDP_profcontrol(1);
+  int bslinks = (int)sqrt((double)bsmin*(double)bsmax);
+  if(QDP_this_node==0) { printf("setting block size = %i\n", bslinks); fflush(stdout); }
+  QDP_set_block_size(bslinks);
   flh = QOP_hisq_create_L_from_G(&info, &coeffs, gf);
   fla = QOP_get_asqtad_links_from_hisq(flh)[0];
   QDP_profcontrol(0);
@@ -174,6 +177,7 @@ start(void)
 	  mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
 	  printf0("CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n", st,
 		  ns, nm, bs, res_arg.final_iter, info.final_sec, mf);
+	  fflush(stdout);
 	  if(mf>best_mf) {
 	    best_mf = mf;
 	    best_st = st;

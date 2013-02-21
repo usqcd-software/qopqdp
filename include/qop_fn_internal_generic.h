@@ -14,6 +14,7 @@
 #define QOP_asqtad_L_peq_L QOP_FN_asqtad_L_peq_L
 #define QOP_asqtad_create_L_from_L QOP_FN_asqtad_create_L_from_L
 #define QOP_asqtad_create_L_from_r_times_L QOP_FN_asqtad_create_L_from_r_times_L
+#define QOP_asqtad_deriv_multi_fnmat_qdp QOP_FN_asqtad_deriv_multi_fnmat_qdp
 #define QOP_asqtad_dslash_get_tmp QOP_FN_asqtad_dslash_get_tmp
 #define QOP_asqtad_force_multi_asvec_qdp QOP_FN_asqtad_force_multi_asvec_qdp
 #define QOP_asqtad_force_multi_fnmat_qdp QOP_FN_asqtad_force_multi_fnmat_qdp
@@ -28,7 +29,6 @@
 #define QOP_get_mid QOP_FN_get_mid
 #define QOP_hisq_deriv_multi_fnmat2_qdp QOP_FN_hisq_deriv_multi_fnmat2_qdp
 #define QOP_hisq_force_multi_fnmat2_qdp QOP_FN_hisq_force_multi_fnmat2_qdp
-#define QOP_hisq_force_multi_reunit QOP_FN_hisq_force_multi_reunit
 #define QOP_hisq_force_multi_wrapper_fnmat QOP_FN_hisq_force_multi_wrapper_fnmat
 #define QOP_invert_bicgstab_D QOP_FN_invert_bicgstab_D
 #define QOP_invert_cg_D QOP_FN_invert_cg_D
@@ -47,8 +47,6 @@
 #define QOP_qdpM_eq_raw QOP_FN_qdpM_eq_raw
 #define QOP_relnorm2_D QOP_FN_relnorm2_D
 #define QOP_relnorm2_V QOP_FN_relnorm2_V
-#define QOP_su3reunit QOP_FN_su3reunit
-#define QOP_u3reunit QOP_FN_u3reunit
 #define QOP_wilson_dslash_get_tmp QOP_FN_wilson_dslash_get_tmp
 #define QOP_wilson_initialize_gauge_L QOP_FN_wilson_initialize_gauge_L
 

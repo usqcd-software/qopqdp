@@ -5,7 +5,7 @@ AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_CONFIG_SRCDIR(include/qop.h)
 AC_CONFIG_SRCDIR(lib/common.c)
-AM_CONFIG_HEADER(include/qop_config.h)
+AC_CONFIG_HEADER(include/qop_config.h)
 
 dnl --enable-nc=<ColorLib>
 AC_ARG_ENABLE(
