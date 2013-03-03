@@ -1,3 +1,6 @@
+2013-03-02:	James Osborn
+	Fixed crash in staples deriv.
+
 2013-02-21:	James Osborn
 	Added generic staples routine and derivative.
 

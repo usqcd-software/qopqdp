@@ -2,7 +2,7 @@
 
 #define getU(tn, mu, nu) cacheshift(&ftmps[tn][nu], in[tn], nu, QDP_forward, 0)
 #define getC(nu) cacheshift(&ctmps[nu], tc, nu, QDP_forward, !(ctn[nu]++))
-#define shiftb(in, mu) cacheshift(&b ## in[mu], in, mu, QDP_backward, 1)
+#define shiftb(x, mu) cacheshift(&b ## x[mu], x, mu, QDP_backward, 1)
 static QDP_ColorMatrix *
 cacheshift(QDP_ColorMatrix **tmp, QDP_ColorMatrix *in, int mu, QDP_ShiftDir dir, int redo)
 {
@@ -72,7 +72,7 @@ QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
 	QDP_M_eq_Ma_times_M(t2, in[sn], t1, QDP_all);
 	QDP_ColorMatrix *tb = shiftb(t2, nu);
 	if(c==1) {
-	    QDP_M_peq_M(out[io], tb, QDP_all);
+	  QDP_M_peq_M(out[io], tb, QDP_all);
 	} else {
 	  QDP_M_peq_r_times_M(out[io], &c, tb, QDP_all);
 	}
@@ -116,7 +116,7 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
   // process in reverse in case calculated staples used as input for others
   for(int io=nout-1; io>=0; io--) {
     for(int i=0; i<nd; i++) {
-      QDP_discard_M(ctmps[i]);
+      if(ctmps[i]) QDP_discard_M(ctmps[i]);
       ctn[i] = 0;
     }
     QDP_M_eq_M(tc, chain[io], QDP_all);
@@ -124,6 +124,7 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
       QLA_Real c = coef[io][s];
       int tn = toplinknum[io][s];
       int sdir = sidedir[io][s];
+      //QOP_printf0("io: %i  s: %i  sdir: %i  tn: %i  c: %g\n", io, s, sdir, tn, c);
       if(sdir==0) {
 	if(c==1) {
 	  QDP_M_peq_M(deriv[tn], tc, QDP_all);
@@ -134,13 +135,14 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
 	int nu = sdir-1;
 	int mu = topdir[io][s]-1;
 	int sn = sidelinknum[io][s];
+	//QOP_printf0("  mu: %i  nu: %i  sn: %i\n", mu, nu, sn);
 	QDP_ColorMatrix *Umunu = getU(tn, mu, nu);
 	QDP_ColorMatrix *Unumu = getU(sn, nu, mu);
-	QDP_M_eq_M_times_M(t1, in[nu], Umunu, QDP_all);
+	QDP_M_eq_M_times_M(t1, in[sn], Umunu, QDP_all);
 	QDP_M_eq_Ma_times_M(t2, tc, t1, QDP_all);
 	QDP_ColorMatrix *tb2 = shiftb(t2, mu);
 	QDP_M_eq_M_times_M(t1, tc, Unumu, QDP_all);
-	QDP_M_eq_Ma_times_M(t3, in[nu], t1, QDP_all);
+	QDP_M_eq_Ma_times_M(t3, in[sn], t1, QDP_all);
 	QDP_ColorMatrix *tb3 = shiftb(t3, nu);
 	if(c==1) {
 	  QDP_M_peq_M_times_Ma(deriv[sn], t1, Umunu, QDP_all);
@@ -160,10 +162,10 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
 	int sn = sidelinknum[io][s];
 	QDP_ColorMatrix *Cmunu = getC(nu);
 	QDP_ColorMatrix *Unumu = getU(sn, nu, mu);
-	QDP_M_eq_M_times_M(t1, in[nu], Cmunu, QDP_all);
-	QDP_M_eq_Ma_times_M(t2, in[mu], t1, QDP_all);
+	QDP_M_eq_M_times_M(t1, in[sn], Cmunu, QDP_all);
+	QDP_M_eq_Ma_times_M(t2, in[tn], t1, QDP_all);
 	QDP_ColorMatrix *tb2 = shiftb(t2, mu);
-	QDP_M_eq_M_times_M(t3, in[mu], Unumu, QDP_all);
+	QDP_M_eq_M_times_M(t3, in[tn], Unumu, QDP_all);
 	if(c==1) {
 	  QDP_M_peq_M_times_Ma(deriv[tn], t1, Unumu, QDP_all);
 	  QDP_M_peq_M_times_Ma(deriv[sn], t3, Cmunu, QDP_all);
