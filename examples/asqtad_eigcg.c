@@ -103,7 +103,7 @@ start(void)
     QDP_M_eq_M(longlinks[i], u[i], QDP_all);
   }
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -112,7 +112,7 @@ start(void)
   qoplayout.machdim = -1;
 
   QOP_GaugeField *gf;
-  QOP_asqtad_coeffs_t coeffs;
+  QOP_asqtad_coeffs_t coeffs = QOP_ASQTAD_COEFFS_ZERO;
   {
     double u2, u4;
     u2 = 1.0/(u0*u0);
@@ -133,9 +133,9 @@ start(void)
 #undef cp
   }
 
-  QOP_info_t info;
-  QOP_invert_arg_t inv_arg;
-  QOP_resid_arg_t res_arg;
+  QOP_info_t info = QOP_INFO_ZERO;
+  QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
+  QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
   res_arg.rsqmin = rsqmin;
   inv_arg.max_iter = nrestart*restart;
   inv_arg.restart = restart;

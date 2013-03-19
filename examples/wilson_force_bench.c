@@ -82,7 +82,7 @@ start(void)
   QDP_ColorMatrix *u[ndim];
   QDP_DiracFermion *x[nsrcmax], *y[nsrcmax];
   QOP_GaugeField *gf;
-  QOP_wilson_coeffs_t coeffs;
+  QOP_wilson_coeffs_t coeffs = QOP_WILSON_COEFFS_ZERO;
   QOP_FermionLinksWilson *flw;
   int best_bs, best_nsrc;
 
@@ -116,7 +116,7 @@ start(void)
     QDP_D_eq_gaussian_S(y[i], rs, QDP_all);
   }
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(int i=0; i<ndim; i++) {
@@ -124,7 +124,7 @@ start(void)
   }
   qoplayout.machdim = -1;
 
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   QOP_verbose(verb);

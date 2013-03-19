@@ -88,7 +88,7 @@ start(void)
   in = QDP_create_D();
   QDP_D_eq_gaussian_S(in, rs, QDP_all);
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -96,7 +96,7 @@ start(void)
   }
   qoplayout.machdim = -1;
 
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
   QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
   res_arg.rsqmin = rsqmin;

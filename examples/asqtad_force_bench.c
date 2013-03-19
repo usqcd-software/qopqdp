@@ -27,7 +27,7 @@ bench_force(QOP_asqtad_coeffs_t *asqcoef,
   double sec=0, flop=0, mf=0;
   QOP_ColorVector *qopin[nsrc];
   QLA_Real eps[nsrc], sumeps;
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
 
   for(int i=0; i<ndim; i++) {
     QDP_M_eq_zero(cm[i], QDP_all);
@@ -96,7 +96,7 @@ start(void)
   in = QDP_create_V();
   QDP_V_eq_gaussian_S(in, rs, QDP_all);
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -115,7 +115,7 @@ start(void)
     QDP_M_eq_zero(cm[i], QDP_all);
   }
 
-  QOP_asqtad_coeffs_t asqcoef;
+  QOP_asqtad_coeffs_t asqcoef = QOP_ASQTAD_COEFFS_ZERO;
   asqcoef.one_link = 1;
   asqcoef.three_staple = 0.3;
   asqcoef.five_staple = 0.1;

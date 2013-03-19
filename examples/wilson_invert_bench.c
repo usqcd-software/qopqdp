@@ -85,7 +85,7 @@ start(void)
   //QDP_DiracPropagator *clov;
   QDP_DiracFermion *out, *in;
   QOP_GaugeField *gf;
-  QOP_wilson_coeffs_t coeffs;
+  QOP_wilson_coeffs_t coeffs = QOP_WILSON_COEFFS_ZERO;
   int i, st, ns, nm, bs, sti, nsi, nmi, bsi,
     best_st, best_ns, best_nm, best_bs;
 
@@ -111,7 +111,7 @@ start(void)
   in = QDP_create_D();
   QDP_D_eq_gaussian_S(in, rs, QDP_all);
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -119,7 +119,7 @@ start(void)
   }
   qoplayout.machdim = -1;
 
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
   QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
   res_arg.rsqmin = rsqmin;

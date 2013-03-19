@@ -27,7 +27,7 @@ bench_force(QOP_FermionLinksHisq *flh, QOP_hisq_coeffs_t *coeffs,
   double sec=0, flop=0, mf=0;
   QOP_ColorVector *qopin[nsrc];
   QLA_Real eps[nsrc], sumeps;
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
 
   for(int i=0; i<ndim; i++) {
     QDP_M_eq_zero(cm[i], QDP_all);
@@ -96,7 +96,7 @@ start(void)
   in = QDP_create_V();
   QDP_V_eq_gaussian_S(in, rs, QDP_all);
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -115,7 +115,7 @@ start(void)
     QDP_M_eq_zero(cm[i], QDP_all);
   }
 
-  QOP_hisq_coeffs_t coeffs;
+  QOP_hisq_coeffs_t coeffs = QOP_HISQ_COEFFS_ZERO;
   coeffs.n_naiks = 1;
   coeffs.eps_naik[0] = 0;
   //coeffs.eps_naik[1] = 0.1;
@@ -144,7 +144,7 @@ start(void)
   //coeffs.asqtad_naik = 0;
 #endif
 
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
   QOP_FermionLinksHisq *flh;
   //QOP_verbose(verb);
   //if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }

@@ -105,7 +105,7 @@ start(void)
   }
   QDP_V_eq_gaussian_S(in, rs, QDP_all);
 
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -114,7 +114,7 @@ start(void)
   qoplayout.machdim = -1;
 
   QOP_GaugeField *gf;
-  QOP_asqtad_coeffs_t coeffs;
+  QOP_asqtad_coeffs_t coeffs = QOP_ASQTAD_COEFFS_ZERO;
   coeffs.one_link = 1;
   coeffs.three_staple = 0.1;
   coeffs.five_staple = 0.1;
@@ -122,7 +122,7 @@ start(void)
   coeffs.lepage = 0.1;
   coeffs.naik = 0.1;
 
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
   QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
   res_arg.rsqmin = 1e-4;

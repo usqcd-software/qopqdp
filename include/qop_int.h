@@ -15,6 +15,7 @@ extern "C" {
 /* Maximum number of Naik terms */
 /* Must match MAX_NAIK in MILC code */
 #define QOP_MAX_NAIK 10
+#define QOP_EPS_NAIK_ZERO {0,0,0,0,0,0,0,0,0,0}
 
 typedef enum {
   QOP_SUCCESS = 0,
@@ -59,6 +60,7 @@ typedef struct {
   int this_node;                          /* lexicographic node number */
   int sites_on_node;
 } QOP_layout_t;
+#define QOP_LAYOUT_ZERO ((QOP_layout_t){NULL,NULL,0,NULL,0,NULL,0,0})
 
 typedef struct {
   double re;
@@ -91,6 +93,28 @@ typedef struct {
   QOP_status_t status;     /* (out) error status */
   int count1, count2;      /* (out) generic counters */
 } QOP_info_t;
+#define QOP_INFO_ZERO ((QOP_info_t){0,0,QOP_SUCCESS,0,0})
+#define QOP_info_zero(a) do { \
+ (a).final_sec = 0; \
+ (a).final_flop = 0; \
+ (a).status = QOP_SUCCESS; \
+ (a).count1 = 0; \
+ (a).count2 = 0; \
+} while(0)
+#define QOP_info_copy(a,b) do { \
+ (a).final_sec = (b).final_sec; \
+ (a).final_flop = (b).final_flop; \
+ (a).status = (b).status; \
+ (a).count1 = (b).count1; \
+ (a).count2 = (b).count2; \
+} while(0)
+#define QOP_info_addfrom(a,b) do { \
+ (a).final_sec += (b).final_sec; \
+ (a).final_flop += (b).final_flop; \
+ if((b).status>(a).status) (a).status = (b).status; \
+ (a).count1 += (b).count1; \
+ (a).count2 += (b).count2; \
+} while(0)
   /* QOP_info_t counters as they are used in HISQ routines */
   /* The user must initialize them and reset them */
 #define QOP_info_hisq_svd_counter(info) ((info)->count1)
@@ -122,7 +146,9 @@ typedef struct {
    double plaquette;
    double rectangle;
    double parallelogram;
+   double adjoint_plaquette;
 } QOP_gauge_coeffs_t;
+#define QOP_GAUGE_COEFFS_ZERO ((QOP_gauge_coeffs_t){0,0,0,0})
 
   /* Asqtad datatypes */
   /* to follow the convetion defined in Orginos, et al (PRD 60, 045403) */
@@ -134,6 +160,7 @@ typedef struct {
   double lepage;
   double naik;
 } QOP_asqtad_coeffs_t;
+#define QOP_ASQTAD_COEFFS_ZERO ((QOP_asqtad_coeffs_t){0,0,0,0,0,0})
 
   /* HISQ datatypes*/
 typedef struct {
@@ -155,6 +182,9 @@ typedef struct {
   double difference_one_link;
   double difference_naik;
 } QOP_hisq_coeffs_t;
+#define QOP_HISQ_COEFFS_ZERO \
+  ((QOP_hisq_coeffs_t){1, QOP_EPS_NAIK_ZERO, QOP_UNITARIZE_U3, \
+      QOP_UNITARIZE_RATIONAL, 0,0,0,0,0, 0,0,0,0,0,0, 0,0})
 
   /* Wilson datatypes */
 typedef struct {
@@ -162,6 +192,7 @@ typedef struct {
   double clov_t;
   double aniso;
 } QOP_wilson_coeffs_t;
+#define QOP_WILSON_COEFFS_ZERO ((QOP_wilson_coeffs_t){0,0,1})
 
   /* Oktay-Kronfeld OK action datatypes */
 typedef struct {
@@ -181,12 +212,15 @@ typedef struct {
   double c_EE    ; 
   double u0      ;
 } QOP_wilson_ifla_coeffs_t;
+#define QOP_WILSON_IFLA_COEFFS_ZERO \
+  ((QOP_wilson_ifla_coeffs_t){0,0,0, 0,0, 0, 0,0,0,0,0,0,0,0, 0})
 
   /* Domain Wall datatypes */
 typedef struct {
   // need to add Mobius parameters here
   double dummy;
 } QOP_dw_coeffs_t;
+#define QOP_DW_COEFFS_ZERO ((QOP_dw_coeffs_t){0})
 
 
   /**********************/

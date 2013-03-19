@@ -27,7 +27,7 @@ bench_action(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
 {
   double sec=0, flop=0, mf=0;
   QLA_Real acts, actt;
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
 
   for(int i=0; i<=nit; i++) {
     QOP_symanzik_1loop_gauge_action(&info, gauge, &acts, &actt, coeffs);
@@ -65,7 +65,7 @@ bench_force(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
   double sec=0, flop=0, mf=0;
 
   QLA_Real eps=0.1;
-  QOP_info_t info;
+  QOP_info_t info = QOP_INFO_ZERO;
 
   for(int i=0; i<=nit; i++) {
     QOP_symanzik_1loop_gauge_force(&info, gauge, out, coeffs, eps);
@@ -96,7 +96,7 @@ start(void)
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
   
-  QOP_layout_t qoplayout;
+  QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
@@ -117,7 +117,7 @@ start(void)
     QDP_M_eq_zero(cm[i], QDP_all);
   }
 
-  QOP_gauge_coeffs_t gcoeffs;
+  QOP_gauge_coeffs_t gcoeffs = QOP_GAUGE_COEFFS_ZERO;
   gcoeffs.plaquette  = 0.2;
   gcoeffs.rectangle  = 0.2;
   gcoeffs.parallelogram   = 0.2;
