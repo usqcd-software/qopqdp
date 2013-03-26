@@ -14,9 +14,11 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QLA_Real plaq = fac*coeffs->plaquette;
   QLA_Real rect = fac*coeffs->rectangle;
   QLA_Real pgm  = fac*coeffs->parallelogram;
+  QLA_Real adpl = fac*fac*coeffs->adjoint_plaquette;
   QLA_Real plaqs=0, plaqt=0;
   QLA_Real rects=0, rectt=0;
   QLA_Real pgms=0, pgmt=0;
+  QLA_Real adpls=0, adplt=0;
 
   QDP_ColorMatrix *U[4], *Uf[4][4];
   for(int mu=0; mu<4; mu++) {
@@ -70,6 +72,26 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
       QDP_M_eq_M_times_M(UUf[mu][nu], U[mu], Uf[nu][mu], QDP_all);
       QDP_M_eq_M_times_M(UUf[nu][mu], U[nu], Uf[mu][nu], QDP_all);
       nflops += 2*198;
+      if(adpl) {
+	QDP_Complex *tc = QDP_create_C();
+	QDP_C_eq_M_dot_M(tc, UUf[mu][nu], UUf[nu][mu], QDP_all);
+	QLA_Complex z;
+	if(plaq) QDP_c_eq_sum_C(&z, tc, QDP_all);
+	else QLA_c_eq_r(z, 0);
+	QLA_Real r;
+	QDP_r_eq_norm2_C(&r, tc, QDP_all);
+	nflops += 70+2+4;
+	if(mu==3) {
+	  plaqt += QLA_real(z);
+	  adplt += r;
+	} else {
+	  plaqs += QLA_real(z);
+	  adpls += r;
+	}
+	QDP_destroy_C(tc);
+	//QOP_printf0("adpl[%i][%i] = %g\n", mu, nu, r);
+	//QOP_printf0("adpls: %g  adplt: %g\n", adpls, adplt);
+      } else
       if(plaq) {
 	QLA_Real t;
 	QDP_r_eq_re_M_dot_M(&t, UUf[mu][nu], UUf[nu][mu], QDP_all);
@@ -163,8 +185,8 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
     combineb2(pgmt,2,3,0,1);
   }
 
-  *acts = plaq*plaqs + rect*rects + pgm*pgms;
-  *actt = plaq*plaqt + rect*rectt + pgm*pgmt;
+  *acts = plaq*plaqs + rect*rects + pgm*pgms + adpl*adpls;
+  *actt = plaq*plaqt + rect*rectt + pgm*pgmt + adpl*adplt;
 
   for(int mu=0; mu<4; mu++) {
     for(int nu=0; nu<4; nu++) {

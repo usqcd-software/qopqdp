@@ -476,19 +476,21 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   QLA_Real plaq = fac*coeffs->plaquette;
   QLA_Real rect = fac*coeffs->rectangle;
   QLA_Real pgm  = fac*coeffs->parallelogram;
+  QLA_Real adpl = 2*(fac/QLA_Nc)*coeffs->adjoint_plaquette;
 
-  QDP_ColorMatrix *tforce[4], *stplf[4][4], *stplb[4][4], *tmat[4];
-  for(int mu=0; mu<4; mu++) {
+  const int ndim = 4; // won't work for other ndim yet
+  QDP_ColorMatrix *tforce[ndim], *stplf[ndim][ndim], *stplb[ndim][ndim], *tmat[ndim];
+  for(int mu=0; mu<ndim; mu++) {
     tforce[mu] = QDP_create_M();
     QDP_M_eq_zero(tforce[mu], QDP_all);
   }
   if(rect||pgm) {
-    for(int mu=0; mu<4; mu++) {
+    for(int mu=0; mu<ndim; mu++) {
       tmat[mu] = QDP_create_M();
     }
   }
   set_temps();
-  for(int mu=1; mu<4; mu++) {
+  for(int mu=1; mu<ndim; mu++) {
     for(int nu=0; nu<mu; nu++) {
       stplf[mu][nu] = QDP_create_M();
       stplb[mu][nu] = QDP_create_M();
@@ -497,27 +499,49 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
       staple2fb(stplf[mu][nu], stplb[mu][nu], stplf[nu][mu], stplb[nu][mu],
 		G(mu), G(nu), mu, nu);
       nflops += STAPLE2FB_FLOPS;
+      if(adpl) {
+	QDP_Complex *tc = QDP_create_C();
+	QLA_Complex z;
+	QLA_c_eq_r(z, plaq/adpl);
+
+	QDP_C_eq_c(tc, &z, QDP_all);
+	QDP_C_peq_M_dot_M(tc, stplf[mu][nu], G(mu), QDP_all);
+	QDP_C_eq_r_times_C(tc, &adpl, tc, QDP_all);
+	QDP_M_peq_C_times_M(tforce[mu], tc, stplf[mu][nu], QDP_all);
+
+	QDP_C_eq_c(tc, &z, QDP_all);
+	QDP_C_peq_M_dot_M(tc, stplb[mu][nu], G(mu), QDP_all);
+	QDP_C_eq_r_times_C(tc, &adpl, tc, QDP_all);
+	QDP_M_peq_C_times_M(tforce[mu], tc, stplb[mu][nu], QDP_all);
+
+	QDP_C_eq_c(tc, &z, QDP_all);
+	QDP_C_peq_M_dot_M(tc, stplf[nu][mu], G(nu), QDP_all);
+	QDP_C_eq_r_times_C(tc, &adpl, tc, QDP_all);
+	QDP_M_peq_C_times_M(tforce[nu], tc, stplf[nu][mu], QDP_all);
+
+	QDP_C_eq_c(tc, &z, QDP_all);
+	QDP_C_peq_M_dot_M(tc, stplb[nu][mu], G(nu), QDP_all);
+	QDP_C_eq_r_times_C(tc, &adpl, tc, QDP_all);
+	QDP_M_peq_C_times_M(tforce[nu], tc, stplb[nu][mu], QDP_all);
+
+	QDP_destroy_C(tc);
+	nflops += 4*(38+18+72);
+      } else
       if(plaq) {
-	QDP_M_peq_M(tforce[mu], stplf[mu][nu], QDP_all);
-	QDP_M_peq_M(tforce[mu], stplb[mu][nu], QDP_all);
-	QDP_M_peq_M(tforce[nu], stplf[nu][mu], QDP_all);
-	QDP_M_peq_M(tforce[nu], stplb[nu][mu], QDP_all);
-	nflops += 4*18;
+	QDP_M_peq_r_times_M(tforce[mu], &plaq, stplf[mu][nu], QDP_all);
+	QDP_M_peq_r_times_M(tforce[mu], &plaq, stplb[mu][nu], QDP_all);
+	QDP_M_peq_r_times_M(tforce[nu], &plaq, stplf[nu][mu], QDP_all);
+	QDP_M_peq_r_times_M(tforce[nu], &plaq, stplb[nu][mu], QDP_all);
+	nflops += 4*36;
       }
     }
   }
-  if(plaq) {
-    for(int mu=0; mu<4; mu++) {
-      QDP_M_eq_r_times_M(tforce[mu], &plaq, tforce[mu], QDP_all);
-    }
-    nflops += 4*18;
-  }
 
   if(rect) {
-    for(int mu=0; mu<4; mu++) {
+    for(int mu=0; mu<ndim; mu++) {
       QDP_M_eq_zero(tmat[mu], QDP_all);
     }
-    for(int mu=1; mu<4; mu++) {
+    for(int mu=1; mu<ndim; mu++) {
       for(int nu=0; nu<mu; nu++) {
 	//if(nu==mu) continue;
 	//staples(tmat[mu], G(mu), G(mu), stplb[nu][mu], G(nu), mu, nu);
@@ -528,19 +552,19 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 	nflops += STAPLER_FLOPS;
       }
     }
-    for(int mu=0; mu<4; mu++) {
+    for(int mu=0; mu<ndim; mu++) {
       QDP_M_peq_r_times_M(tforce[mu], &rect, tmat[mu], QDP_all);
     }
-    nflops += 4*36;
+    nflops += ndim*36;
   }
 
   if(pgm) {
 #if 0
-    for(int mu=0; mu<4; mu++) {
+    for(int mu=0; mu<ndim; mu++) {
       QDP_M_eq_zero(tmat[0], QDP_all);
-      for(int nu=0; nu<4; nu++) {
+      for(int nu=0; nu<ndim; nu++) {
 	if(nu==mu) continue;
-	for(int rho=nu+1; rho<4; rho++) {
+	for(int rho=nu+1; rho<ndim; rho++) {
 	  if(rho==mu||rho==nu) continue;
 	  staples(tmat[0], stplf[mu][rho], stplf[mu][rho], stplf[nu][rho], G(nu), mu, nu);
 	  staples(tmat[0], stplf[mu][rho], stplf[mu][rho], G(nu), stplf[nu][rho], mu, nu);
@@ -553,7 +577,7 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
       nflops += 36;
     }
 #else
-    for(int mu=0; mu<4; mu++) {
+    for(int mu=0; mu<ndim; mu++) {
       QDP_M_eq_zero(tmat[mu], QDP_all);
     }
     {

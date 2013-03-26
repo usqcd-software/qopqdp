@@ -45,6 +45,7 @@ bench_action(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
   coeffs->plaquette /= 4;
   coeffs->rectangle /= 6;
   coeffs->parallelogram /= 6;
+  coeffs->adjoint_plaquette /= 8;
   QLA_Real eps=1;
   QOP_verbose(QOP_VERB_DEBUG);
   QOP_symanzik_1loop_gauge_force(&info, gauge, out, coeffs, eps);
@@ -52,6 +53,7 @@ bench_action(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
   coeffs->plaquette *= 4;
   coeffs->rectangle *= 6;
   coeffs->parallelogram *= 6;
+  coeffs->adjoint_plaquette *= 8;
 #endif
 
   secs = sec/nit;
@@ -118,12 +120,10 @@ start(void)
   }
 
   QOP_gauge_coeffs_t gcoeffs = QOP_GAUGE_COEFFS_ZERO;
-  gcoeffs.plaquette  = 0.2;
-  gcoeffs.rectangle  = 0.2;
-  gcoeffs.parallelogram   = 0.2;
-  //gcoeffs.plaquette  = 0.;
-  //gcoeffs.rectangle  = 0.;
-  //gcoeffs.parallelogram   = 0.;
+  //gcoeffs.plaquette  = 0.2;
+  //gcoeffs.rectangle  = 0.2;
+  //gcoeffs.parallelogram   = 0.2;
+  gcoeffs.adjoint_plaquette = 0.2;
 
   force = QOP_create_F_from_qdp(cm);
   mf = bench_action(&gcoeffs, force);
