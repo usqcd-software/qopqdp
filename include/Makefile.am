@@ -44,7 +44,8 @@ qop_fn_internal_generic.h \
 qop_fn_precision_generic.h \
 qop_int.h \
 qop_internal.h \
-qop_qdp.h
+qop_qdp.h \
+qop_mg.h
 
 EXTRA_DIST = \
 qop_pc.h qop_poc.h qop_pc_internal.h \

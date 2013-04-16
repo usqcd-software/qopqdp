@@ -23,6 +23,9 @@ if test "X$NC" != X2 -a "X$NC" != X3 -a "X$NC" != XN; then NC="all"; fi
 AM_CONDITIONAL(NC2, [test "X$NC" = "X2" -o "X$NC" = "Xall"])
 AM_CONDITIONAL(NC3, [test "X$NC" = "X3" -o "X$NC" = "Xall"])
 AM_CONDITIONAL(NCN, [test "X$NC" = "XN" -o "X$NC" = "Xall"])
+if test "X$NC" = "XN" -o "X$NC" = "Xall"; then
+  AC_DEFINE(USE_MG, [], [use multigrid])
+fi
 #done
 
 dnl --enable-blas

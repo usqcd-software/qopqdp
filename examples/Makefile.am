@@ -36,6 +36,7 @@ check_PROGRAMS += \
 endif
 if NC3
 check_PROGRAMS += \
+  wilson_mg_test_f3 wilson_mg_test_d3 \
   imp_gauge_force_bench_f3 imp_gauge_force_bench_d3 \
   asqtad_test_f3 asqtad_test_d3 \
   asqtad_invert_bench_f3 asqtad_invert_bench_d3 \
@@ -208,6 +209,11 @@ wilson_invert_bench_fn_CFLAGS = $(FN_CFLAGS)
 wilson_invert_bench_dn_SOURCES = test_common.h test_common.c wilson_invert_bench.c
 wilson_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
 
+wilson_mg_test_f3_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_f3_CFLAGS = $(F3_CFLAGS)
+
+wilson_mg_test_d3_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_d3_CFLAGS = $(D3_CFLAGS)
 
 wilson_force_bench_f2_SOURCES = test_common.h test_common.c wilson_force_bench.c
 wilson_force_bench_f2_CFLAGS = $(F2_CFLAGS)

@@ -236,6 +236,7 @@ QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 #elif QOP_Colors == 3
 #include <qop_f3_internal.h>
 #include <qop_d3_internal.h>
+#include <qop_mg_internal.h>
 #elif QOP_Colors == 'N'
 #include <qop_fn_internal.h>
 #include <qop_dn_internal.h>

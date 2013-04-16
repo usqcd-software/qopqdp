@@ -30,6 +30,9 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* use multigrid */
+#undef USE_MG
+
 /* use underscores */
 #undef USE_UNDERSCORES
 

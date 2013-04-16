@@ -164,8 +164,9 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
 #define NC QDP_get_nc(in)
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
+  /* MdagM without naik -> 2*(66+72*7)+12 = 1152 flops/site */
   double dtime = 0;
-  double nflop = 0.5 * 2364;
+  double nflop = 0.5 * (60+2*72*fla->nlinks);
   double rsqminold,relminold;
   QLA_Real rsq, rsqstop, relnorm2, insq;
   QDP_ColorVector *qdpin, *qdpout;
@@ -349,8 +350,9 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
 #define NC QDP_get_nc(in_pt[0])
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
+  /* MdagM without naik -> 2*(66+72*7)+12 = 1152 flops/site */
   double dtime;
-  double nflop = 0.5 * 2364;
+  double nflop = 0.5 * (60+2*72*fla->nlinks);
   double nflopm = 0.5 * 30; /* per extra mass */
   QDP_ColorVector *cgp, *cgr;
   QDP_Subset cgsub;

@@ -12,7 +12,8 @@ libqopqdp_a_SOURCES = \
   wilson_dslash.c \
   wilson_invert.c \
   dw_dslash.c \
-  dw_invert.c
+  dw_invert.c \
+  mg/mg.c
 
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
@@ -65,6 +66,8 @@ NC3SOURCES = \
   pcstubs/wilson_ifla_invert_f3.c pcstubs/wilson_ifla_invert_d3.c \
   pcstubs/wilson_invert_f3.c pcstubs/wilson_invert_d3.c \
   pcstubs/wilson_force_f3.c pcstubs/wilson_force_d3.c \
+  pcstubs/wilson_mg_f3.c pcstubs/wilson_mg_d3.c \
+  pcstubs/wilson_ops_f3.c pcstubs/wilson_ops_d3.c \
   pcstubs/dw_dslash_f3.c pcstubs/dw_dslash_d3.c \
   pcstubs/dw_invert_f3.c pcstubs/dw_invert_d3.c \
   pcstubs/invert_cg_V_f3.c pcstubs/invert_cg_V_d3.c \
@@ -74,9 +77,15 @@ NC3SOURCES = \
   pcstubs/invert_eigcg_V_f3.c pcstubs/invert_eigcg_V_d3.c \
   pcstubs/invert_eigcg_D_f3.c pcstubs/invert_eigcg_D_d3.c \
   pcstubs/invert_gmres2_D_f3.c pcstubs/invert_gmres2_D_d3.c \
+  pcstubs/invert_bicgstab_f3.c pcstubs/invert_bicgstab_d3.c \
+  pcstubs/invert_cgls_f3.c pcstubs/invert_cgls_d3.c \
+  pcstubs/invert_gcr_f3.c pcstubs/invert_gcr_d3.c \
   pcstubs/invert_utilities_V_f3.c pcstubs/invert_utilities_V_d3.c \
   pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
-  pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c
+  pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c \
+  pcstubs/mg_f3.c pcstubs/mg_d3.c \
+  pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c \
+  pcstubs/vcycle_f3.c pcstubs/vcycle_d3.c
 
 NCNSOURCES = \
   pcstubs/common_fn.c pcstubs/common_dn.c \
@@ -152,7 +161,8 @@ EXTRA_DIST = \
   invert_utilities_V_p.c \
   invert_utilities_D_p.c \
   invert_utilities_vD_p.c \
-  linalg.h
+  linalg.h \
+  mg
 
 if NCN
   libqopqdp_a_SOURCES += $(NCNSOURCES)
