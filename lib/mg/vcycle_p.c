@@ -35,7 +35,7 @@ QCDP(mgVcycle)(QDPN(ColorVector) **out, QDPN(ColorVector) **in, int sign, void *
   QDPN(ColorVector) **p = vc->p;
   QDPN(ColorVector) **Ap = vc->Ap;
 
-  QLA_D_Real innrm, nrm;
+  QLA_D_Real innrm=0, nrm;
   if(vc->verbose>0) {
     r_eq_norm2_V(&innrm, in);
     printf0("%*sVcycle in2 = %g\n", vc->indent, "", innrm);

@@ -327,6 +327,7 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, i
 static void
 get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
 {
+#if QOP_Colors != 'N'  // doesn't work for Nc!=3
 #define NC QDP_get_nc(link[0])
   /* Fist I create A[0],A[1],B[0] and B[1] matrices */
   QDP_ColorMatrix *a[2],*b[2];
@@ -506,6 +507,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   /* 2*(3x3)=2*(18 real) = 36 real numbers are assiged to array clov  */
   /* ---------------------------------------------------------------- */
 #undef NC
+#endif // QOP_Colors != 'N'
 }
 
 /* ---------------------------------------------------------------------- */

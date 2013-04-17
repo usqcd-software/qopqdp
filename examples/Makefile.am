@@ -8,21 +8,8 @@ DN_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=4 -DQOP_Colors=\'N\' -DQDP_Precision=\
 LIBS = -L$(top_builddir)/lib -lqopqdp @LIBS@
 
 check_PROGRAMS =
-if NCN
-check_PROGRAMS += \
-  imp_gauge_force_bench_fn imp_gauge_force_bench_dn \
-  asqtad_test_fn asqtad_test_dn \
-  asqtad_invert_bench_fn asqtad_invert_bench_dn \
-  asqtad_force_bench_fn asqtad_force_bench_dn \
-  hisq_invert_bench_fn hisq_invert_bench_dn \
-  hisq_force_bench_fn hisq_force_bench_dn \
-  wilson_test_fn wilson_test_dn \
-  wilson_invert_bench_fn wilson_invert_bench_dn \
-  wilson_force_bench_fn wilson_force_bench_dn \
-  dw_invert_bench_fn dw_invert_bench_dn
-endif
 if NC2
-check_PROGRAMS += \
+  check_PROGRAMS += \
   imp_gauge_force_bench_f2 imp_gauge_force_bench_d2 \
   asqtad_test_f2 asqtad_test_d2 \
   asqtad_invert_bench_f2 asqtad_invert_bench_d2 \
@@ -35,8 +22,7 @@ check_PROGRAMS += \
   dw_invert_bench_f2 dw_invert_bench_d2
 endif
 if NC3
-check_PROGRAMS += \
-  wilson_mg_test_f3 wilson_mg_test_d3 \
+  check_PROGRAMS += \
   imp_gauge_force_bench_f3 imp_gauge_force_bench_d3 \
   asqtad_test_f3 asqtad_test_d3 \
   asqtad_invert_bench_f3 asqtad_invert_bench_d3 \
@@ -49,6 +35,23 @@ check_PROGRAMS += \
   wilson_force_bench_f3 wilson_force_bench_d3 \
   dw_invert_bench_f3 dw_invert_bench_d3 \
   test_reunit_utils_f3 test_reunit_utils_d3
+if NCN
+  check_PROGRAMS += \
+  wilson_mg_test_f3 wilson_mg_test_d3
+endif
+endif
+if NCN
+  check_PROGRAMS += \
+  imp_gauge_force_bench_fn imp_gauge_force_bench_dn \
+  asqtad_test_fn asqtad_test_dn \
+  asqtad_invert_bench_fn asqtad_invert_bench_dn \
+  asqtad_force_bench_fn asqtad_force_bench_dn \
+  hisq_invert_bench_fn hisq_invert_bench_dn \
+  hisq_force_bench_fn hisq_force_bench_dn \
+  wilson_test_fn wilson_test_dn \
+  wilson_invert_bench_fn wilson_invert_bench_dn \
+  wilson_force_bench_fn wilson_force_bench_dn \
+  dw_invert_bench_fn dw_invert_bench_dn
 endif
 
 imp_gauge_force_bench_f2_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
