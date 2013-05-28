@@ -31,21 +31,23 @@ printnrm2(QDP_DiracFermion *x[], int ls, QDP_Subset sub)
 // -----------------------------------------------------------------
 // Domain-wall inverter
 
-void
+#ifndef LU
+static void
 QOP_dw_dslash2_wrap(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 		    QDP_Subset subset)
 {
   QOP_dw_dslash2_qdp(NULL, gl_fldw, gl_M5, gl_mq, out, in, gl_ls,
 		     QDP_to_QOP(gl_osubset),QDP_to_QOP(subset));
 }
-
-void
+#else
+static void
 QOP_dw_schur2_wrap(QDP_DiracFermion *out[], QDP_DiracFermion *in[],
 		   QDP_Subset subset)
 {
   QOP_dw_schur2_qdp(NULL, gl_fldw, gl_M5, gl_mq, out, in, gl_ls,
 		    QDP_to_QOP(subset));
 }
+#endif
 
 void
 QOP_dw_invert(QOP_info_t *info,

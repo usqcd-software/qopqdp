@@ -126,12 +126,15 @@ void QOP_F3_smear_fat7l_qdp(QOP_info_t *info, QDP_F3_ColorMatrix *sg[],
 			    QDP_F3_ColorMatrix *g[],
 			    QOP_asqtad_coeffs_t *coeffs);
 
-void QOP_F3_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_F3_ColorMatrix *deriv[],
-				  QOP_F3_GaugeField *g[], QDP_F3_ColorMatrix **chain[],
+void QOP_F3_gauge_deriv_multi_qdp(QOP_info_t *info,
+				  QDP_F3_ColorMatrix *deriv[],
+				  QOP_F3_GaugeField *g[],
+				  QDP_F3_ColorMatrix **chain[],
 				  int n, int doLastScale);
 
 void QOP_F3_gauge_force_multi_qdp(QOP_info_t *info, QDP_F3_ColorMatrix *f[],
-				  QOP_F3_GaugeField *g[], QDP_F3_ColorMatrix **chain[], int n);
+				  QOP_F3_GaugeField *g[],
+				  QDP_F3_ColorMatrix **chain[], int n);
 
 void QOP_F3_symanzik_1loop_gauge_action(QOP_info_t *info,
 					QOP_F3_GaugeField *gauge,
@@ -166,23 +169,29 @@ void QOP_F3_projectU_deriv_qdp(QOP_info_t *info,
 			       QDP_F3_ColorMatrix *U,
 			       QDP_F3_ColorMatrix *chain);
 
-void QOP_F3_u3reunit(QOP_info_t *info, QDP_F3_ColorMatrix *U, QDP_F3_ColorMatrix *V);
+void QOP_F3_u3reunit(QOP_info_t *info, QDP_F3_ColorMatrix *U,
+		     QDP_F3_ColorMatrix *V);
 
-void QOP_F3_su3reunit(QOP_info_t *info, QDP_F3_ColorMatrix *U, QDP_F3_ColorMatrix *Ur);
+void QOP_F3_su3reunit(QOP_info_t *info, QDP_F3_ColorMatrix *U,
+		      QDP_F3_ColorMatrix *Ur);
 
 void QOP_F3_hisq_force_multi_reunit(QOP_info_t *info,
 				    QDP_F3_ColorMatrix *gf[4],
 				    QDP_F3_ColorMatrix *force_accum[4],
 				    QDP_F3_ColorMatrix *force_accum_old[4]);
 
-void QOP_F3_staples(int nout, int nin, QDP_F3_ColorMatrix *out[], QDP_F3_ColorMatrix *in[],
+void QOP_F3_staples(QOP_info_t *info, int nout, int nin,
+		    QDP_F3_ColorMatrix *out[], QDP_F3_ColorMatrix *in[],
 		    int nstaples[], int *topdir[], int *sidedir[],
 		    int *toplinknum[], int *sidelinknum[], QOP_F_Real *coef[]);
 
-void QOP_F3_staples_deriv(int nout, int nin, QDP_F3_ColorMatrix *deriv[],
-			  QDP_F3_ColorMatrix *chain[], QDP_F3_ColorMatrix *in[],
+void QOP_F3_staples_deriv(QOP_info_t *info, int nout, int nin,
+			  QDP_F3_ColorMatrix *deriv[],
+			  QDP_F3_ColorMatrix *chain[],
+			  QDP_F3_ColorMatrix *in[],
 			  int nstaples[], int *topdir[], int *sidedir[],
-			  int *toplinknum[], int *sidelinknum[], QOP_F_Real *coef[]);
+			  int *toplinknum[], int *sidelinknum[],
+			  QOP_F_Real *coef[]);
 
   /*********************/
   /*  Asqtad routines  */
@@ -191,7 +200,8 @@ void QOP_F3_staples_deriv(int nout, int nin, QDP_F3_ColorMatrix *deriv[],
   /* fermion matrix link routines */
 
 QOP_F3_FermionLinksAsqtad *
-  QOP_F3_asqtad_create_L_from_raw( QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
+  QOP_F3_asqtad_create_L_from_raw( QOP_F_Real *fatlinks[],
+				  QOP_F_Real *longlinks[],
 				  QOP_evenodd_t evenodd);
 
 QOP_F3_FermionLinksAsqtad *
@@ -199,22 +209,26 @@ QOP_F3_FermionLinksAsqtad *
 				QOP_asqtad_coeffs_t *coeffs,
 				QOP_F3_GaugeField *gauge);
 
-void QOP_F3_asqtad_extract_L_to_raw(QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
+void QOP_F3_asqtad_extract_L_to_raw(QOP_F_Real *fatlinks[],
+				    QOP_F_Real *longlinks[],
 				    QOP_F3_FermionLinksAsqtad *src,
 				    QOP_evenodd_t evenodd);
 
 void QOP_F3_asqtad_destroy_L(QOP_F3_FermionLinksAsqtad *field);
 
 QOP_F3_FermionLinksAsqtad *
-  QOP_F3_asqtad_convert_L_from_raw( QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
+  QOP_F3_asqtad_convert_L_from_raw( QOP_F_Real *fatlinks[],
+				   QOP_F_Real *longlinks[],
 				   QOP_evenodd_t evenodd);
 
-void QOP_F3_asqtad_convert_L_to_raw(QOP_F_Real ***fatlinks, QOP_F_Real ***longlinks,
+void QOP_F3_asqtad_convert_L_to_raw(QOP_F_Real ***fatlinks,
+				    QOP_F_Real ***longlinks,
 				    QOP_F3_FermionLinksAsqtad *,
 				    QOP_evenodd_t evenodd);
 
 void QOP_F3_asqtad_load_L_from_raw(QOP_F3_FermionLinksAsqtad *asqtad,
-				   QOP_F_Real *fatlinks[], QOP_F_Real *longlinks[],
+				   QOP_F_Real *fatlinks[],
+				   QOP_F_Real *longlinks[],
 				   QOP_evenodd_t evenodd);
 
 void QOP_F3_asqtad_load_L_from_G(QOP_info_t *info,
@@ -466,7 +480,8 @@ void QOP_F3_wilson_extract_L_to_raw(QOP_F_Real *links[], QOP_F_Real *clov,
 void QOP_F3_wilson_destroy_L(QOP_F3_FermionLinksWilson *field);
 
 QOP_F3_FermionLinksWilson *
-  QOP_F3_wilson_convert_L_from_raw( QOP_F_Real *links[], QOP_F_Real *clov,
+  QOP_F3_wilson_convert_L_from_raw( QOP_F_Real *links[],
+				   QOP_F_Real *clov,
 				   QOP_evenodd_t evenodd);
 
 void QOP_F3_wilson_convert_L_to_raw(QOP_F_Real ***links, QOP_F_Real **clov,
@@ -662,7 +677,8 @@ void QOP_F3_wilson_ifla_dslash_qdp(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_F3_FermionLinksDW *
-  QOP_F3_dw_create_L_from_raw( QOP_F_Real *links[], QOP_evenodd_t evenodd);
+  QOP_F3_dw_create_L_from_raw( QOP_F_Real *links[],
+			      QOP_evenodd_t evenodd);
 
 QOP_F3_FermionLinksDW *
   QOP_F3_dw_create_L_from_G(QOP_info_t *info,
@@ -676,7 +692,8 @@ void QOP_F3_dw_extract_L_to_raw(QOP_F_Real *links[],
 void QOP_F3_dw_destroy_L(QOP_F3_FermionLinksDW *field);
 
 QOP_F3_FermionLinksDW *
-  QOP_F3_dw_convert_L_from_raw( QOP_F_Real *links[], QOP_evenodd_t evenodd);
+  QOP_F3_dw_convert_L_from_raw( QOP_F_Real *links[],
+			       QOP_evenodd_t evenodd);
 
 void QOP_F3_dw_convert_L_to_raw(QOP_F_Real ***links,
 				QOP_F3_FermionLinksDW *src,

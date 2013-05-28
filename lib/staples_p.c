@@ -1,5 +1,9 @@
 #include <qop_internal.h>
 
+#define PEQM (2*QLA_Nc*QLA_Nc)
+#define EQMTM (QLA_Nc*QLA_Nc*(8*QLA_Nc-2))
+#define PEQMTM (QLA_Nc*QLA_Nc*(8*QLA_Nc))
+
 #define getU(tn, mu, nu) cacheshift(&ftmps[tn][nu], in[tn], nu, QDP_forward, 0)
 #define getC(nu) cacheshift(&ctmps[nu], tc, nu, QDP_forward, !(ctn[nu]++))
 #define shiftb(x, mu) cacheshift(&b ## x[mu], x, mu, QDP_backward, 1)
@@ -23,11 +27,14 @@ cacheshift(QDP_ColorMatrix **tmp, QDP_ColorMatrix *in, int mu, QDP_ShiftDir dir,
 // sidedir = -nd..nd
 // toplinknum,sidelinknum = 0..nin-1
 void
-QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
+QOP_staples(QOP_info_t *info, int nout, int nin,
+	    QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
 	    int nstaples[], int *topdir[], int *sidedir[],
 	    int *toplinknum[], int *sidelinknum[], QLA_Real *coef[])
 {
 #define NC QDP_get_nc(in[0])
+  double dtime = QOP_time();
+  double nflops = 0;
   int nd = QDP_ndim();
   QDP_ColorMatrix *ftmps[nin][nd], *t1, *t2, *bt2[nd];
   for(int i=0; i<nin; i++)
@@ -47,8 +54,10 @@ QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
       if(sdir==0) {
 	if(c==1) {
 	  QDP_M_peq_M(out[io], in[tn], QDP_all);
+	  nflops += PEQM;
 	} else {
 	  QDP_M_peq_r_times_M(out[io], &c, in[tn], QDP_all);
+	  nflops += 2*PEQM;
 	}
       } else if(sdir>0) {
 	int nu = sdir-1;
@@ -59,9 +68,11 @@ QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
 	QDP_M_eq_M_times_M(t1, in[sn], Umunu, QDP_all);
 	if(c==1) {
 	  QDP_M_peq_M_times_Ma(out[io], t1, Unumu, QDP_all);
+	  nflops += EQMTM+PEQMTM;
 	} else {
 	  QDP_M_eq_M_times_Ma(t2, t1, Unumu, QDP_all);
 	  QDP_M_peq_r_times_M(out[io], &c, t2, QDP_all);
+	  nflops += 2*EQMTM+2*PEQM;
 	}
       } else {
 	int nu = -sdir-1;
@@ -73,8 +84,10 @@ QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
 	QDP_ColorMatrix *tb = shiftb(t2, nu);
 	if(c==1) {
 	  QDP_M_peq_M(out[io], tb, QDP_all);
+	  nflops += 2*EQMTM+PEQM;
 	} else {
 	  QDP_M_peq_r_times_M(out[io], &c, tb, QDP_all);
+	  nflops += 2*EQMTM+2*PEQM;
 	}
 	QDP_discard_M(tb);
       }
@@ -87,6 +100,9 @@ QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
   for(int i=0; i<nd; i++) if(bt2[i]!=NULL) QDP_destroy_M(bt2[i]);
   QDP_destroy_M(t1);
   QDP_destroy_M(t2);
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflops*QDP_sites_on_node; 
+  info->status = QOP_SUCCESS;
 #undef NC
 }
 
@@ -94,12 +110,15 @@ QOP_staples(int nout, int nin, QDP_ColorMatrix *out[], QDP_ColorMatrix *in[],
 // sidedir = -nd..nd
 // toplinknum,sidelinknum = 0..nin-1
 void
-QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
-		  QDP_ColorMatrix *chain[], QDP_ColorMatrix *in[],
+QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
+		  QDP_ColorMatrix *deriv[], QDP_ColorMatrix *chain[],
+		  QDP_ColorMatrix *in[],
 		  int nstaples[], int *topdir[], int *sidedir[],
 		  int *toplinknum[], int *sidelinknum[], QLA_Real *coef[])
 {
 #define NC QDP_get_nc(in[0])
+  double dtime = QOP_time();
+  double nflops = 0;
   int nd = QDP_ndim();
   QDP_ColorMatrix *ftmps[nin][nd], *t1, *t2, *t3, *t4, *tc, *bt2[nd], *bt3[nd], *ctmps[nd];
   int ctn[nd];
@@ -128,8 +147,10 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
       if(sdir==0) {
 	if(c==1) {
 	  QDP_M_peq_M(deriv[tn], tc, QDP_all);
+	  nflops += PEQM;
 	} else {
 	  QDP_M_peq_r_times_M(deriv[tn], &c, tc, QDP_all);
+	  nflops += 2*PEQM;
 	}
       } else if(sdir>0) {
 	int nu = sdir-1;
@@ -148,11 +169,13 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
 	  QDP_M_peq_M_times_Ma(deriv[sn], t1, Umunu, QDP_all);
 	  QDP_M_peq_M(deriv[sn], tb2, QDP_all);
 	  QDP_M_peq_M(deriv[tn], tb3, QDP_all);
+	  nflops += 4*EQMTM+PEQMTM+2*PEQM;
 	} else {
 	  QDP_M_eq_M_times_Ma(t4, t1, Umunu, QDP_all);
 	  QDP_M_peq_r_times_M(deriv[sn], &c, t4, QDP_all);
 	  QDP_M_peq_r_times_M(deriv[sn], &c, tb2, QDP_all);
 	  QDP_M_peq_r_times_M(deriv[tn], &c, tb3, QDP_all);
+	  nflops += 5*EQMTM+6*PEQM;
 	}
 	QDP_discard_M(tb2);
 	QDP_discard_M(tb3);
@@ -170,12 +193,14 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
 	  QDP_M_peq_M_times_Ma(deriv[tn], t1, Unumu, QDP_all);
 	  QDP_M_peq_M_times_Ma(deriv[sn], t3, Cmunu, QDP_all);
 	  QDP_M_peq_M(deriv[sn], tb2, QDP_all);
+	  nflops += 3*EQMTM+2*PEQMTM+PEQM;
 	} else {
 	  QDP_M_eq_M_times_Ma(t4, t1, Unumu, QDP_all);
 	  QDP_M_peq_r_times_M(deriv[tn], &c, t4, QDP_all);
 	  QDP_M_eq_M_times_Ma(t4, t3, Cmunu, QDP_all);
 	  QDP_M_peq_r_times_M(deriv[sn], &c, t4, QDP_all);
 	  QDP_M_peq_r_times_M(deriv[sn], &c, tb2, QDP_all);
+	  nflops += 5*EQMTM+6*PEQM;
 	}
 	QDP_discard_M(tb2);
       }
@@ -195,5 +220,8 @@ QOP_staples_deriv(int nout, int nin, QDP_ColorMatrix *deriv[],
   QDP_destroy_M(t3);
   QDP_destroy_M(t4);
   QDP_destroy_M(tc);
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflops*QDP_sites_on_node; 
+  info->status = QOP_SUCCESS;
 #undef NC
 }

@@ -1,3 +1,8 @@
+2013-05-27:	James Osborn
+	Increased QOP_MAX_NAIK to 20.
+	Fixed Wilson and gauge flop counts for arbitrary Nc.
+	Added QOP_info_t to QOP_staples and _deriv.
+
 ===========================================================================
 2013-04-16      version 0.19.0
 ===========================================================================

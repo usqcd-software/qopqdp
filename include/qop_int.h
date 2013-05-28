@@ -12,11 +12,6 @@ extern "C" {
 #define QOP_VERB_HI     3
 #define QOP_VERB_DEBUG  4
 
-/* Maximum number of Naik terms */
-/* Must match MAX_NAIK in MILC code */
-#define QOP_MAX_NAIK 10
-#define QOP_EPS_NAIK_ZERO {0,0,0,0,0,0,0,0,0,0}
-
 typedef enum {
   QOP_SUCCESS = 0,
   QOP_FAIL = 1,
@@ -131,12 +126,12 @@ typedef struct {
 
   /* these are quantities that vary for each mass in the multi inverter */
 typedef struct {
-  double rsqmin;           /* (in) desired squared residual. Ignored if 0. */
-  double final_rsq;        /* (out) actual squared residual */
-  double relmin;           /* (in) desired squared relative norm Ignored if 0. */
-  double final_rel;        /* (out) actual squared relative norm. */
-  int final_iter;          /* (out) number of iterations done */
-  int final_restart;       /* (out) number of restarts done */
+  double rsqmin;         /* (in) desired squared residual. Ignored if 0 */
+  double final_rsq;      /* (out) actual squared residual */
+  double relmin;         /* (in) desired squared relative norm. Ignored if 0 */
+  double final_rel;      /* (out) actual squared relative norm */
+  int final_iter;        /* (out) number of iterations done */
+  int final_restart;     /* (out) number of restarts done */
 } QOP_resid_arg_t;
 #define QOP_RESID_ARG_DEFAULT ((QOP_resid_arg_t){1e-6,0,0,0,0,0})
 
@@ -161,6 +156,10 @@ typedef struct {
   double naik;
 } QOP_asqtad_coeffs_t;
 #define QOP_ASQTAD_COEFFS_ZERO ((QOP_asqtad_coeffs_t){0,0,0,0,0,0})
+
+/* Maximum number of Naik terms */
+#define QOP_MAX_NAIK 20
+#define QOP_EPS_NAIK_ZERO {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 
   /* HISQ datatypes*/
 typedef struct {

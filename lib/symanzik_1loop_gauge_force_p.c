@@ -16,9 +16,14 @@ static int gnc;
 #define NC gnc
 #define SETNC(x) gnc = x
 #else
+#define NC QOP_Nc
 #define SETNC(x) (void)0
 #endif
 #define SETNCF(x) SETNC(QDP_get_nc(x))
+
+#define PEQM (2*NC*NC)
+#define EQMTM (NC*NC*(8*NC-2))
+#define PEQMTM (NC*NC*(8*NC))
 
 static void
 set_temps0(void)
@@ -77,7 +82,7 @@ staplefb(QDP_ColorMatrix *outf, QDP_ColorMatrix *outb, QDP_ColorMatrix *in0,
   QDP_discard_M(linkmu);
   QDP_M_eq_M(outb, backnu, QDP_all);
   QDP_discard_M(backnu);
-#define STAPLEFB_FLOPS (4*198)
+#define STAPLEFB_FLOPS (4*EQMTM)
 
 #undef link
 #undef linkmu
@@ -115,7 +120,7 @@ staples(QDP_ColorMatrix *out, QDP_ColorMatrix *top0, QDP_ColorMatrix *bot,
   QDP_discard_M(rightmu);
   QDP_M_peq_M(out, backnu, QDP_all);
   QDP_discard_M(backnu);
-#define STAPLES_FLOPS (3*198+216+18)
+#define STAPLES_FLOPS (3*EQMTM+PEQMTM+PEQM)
 
 #undef right
 #undef rightmu
@@ -166,7 +171,7 @@ staple2fb(QDP_ColorMatrix *outmuf, QDP_ColorMatrix *outmub,
   QDP_discard_M(backmubnu);
   QDP_M_eq_M(outnub, backnubmu, QDP_all);
   QDP_discard_M(backnubmu);
-#define STAPLE2FB_FLOPS (6*198)
+#define STAPLE2FB_FLOPS (6*EQMTM)
 
 #undef Unu
 #undef Unufmu
@@ -264,7 +269,7 @@ stapler(QDP_ColorMatrix *outmu, QDP_ColorMatrix *outnu,
   QDP_discard_M(backnubmu);
   //#define STAPLER_FLOPS (8*198+10*216+2*18)
   //#define STAPLER_FLOPS (8*198+8*216+4*18)
-#define STAPLER_FLOPS (6*198+8*216+2*18)
+#define STAPLER_FLOPS (6*EQMTM+8*PEQMTM+2*PEQM)
 
 #undef Unu
 #undef Unufmu
@@ -362,7 +367,7 @@ staplep(QDP_ColorMatrix *outmu, QDP_ColorMatrix *outnu,
   QDP_discard_M(Unufmu);
   QDP_discard_M(backmubnu);
   QDP_discard_M(backnubmu);
-#define STAPLEP_FLOPS(n) (2*198+(6*n+6)*216+2*18)
+#define STAPLEP_FLOPS(n) (2*EQMTM+(6*n+6)*PEQMTM+2*PEQM)
 
 #undef XXnumu
 #undef XXmunu
@@ -443,7 +448,7 @@ staplep2(QDP_ColorMatrix *outmu, QDP_ColorMatrix *Unu0,
   QDP_discard_M(Unufmu);
   QDP_discard_M(backmubnu);
   //#define STAPLEP2_FLOPS(n) (198+(4*n+3)*216+18)
-#define STAPLEP2_FLOPS(n) (5*198+(4*(n-1)+3)*216+18)
+#define STAPLEP2_FLOPS(n) (5*EQMTM+(4*(n-1)+3)*PEQMTM+PEQM)
 
 #undef XXnumu
 #undef XXmunu
@@ -525,14 +530,14 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 	QDP_M_peq_C_times_M(tforce[nu], tc, stplb[nu][mu], QDP_all);
 
 	QDP_destroy_C(tc);
-	nflops += 4*(38+18+72);
+	nflops += 4*(16*NC*NC+2);
       } else
       if(plaq) {
 	QDP_M_peq_r_times_M(tforce[mu], &plaq, stplf[mu][nu], QDP_all);
 	QDP_M_peq_r_times_M(tforce[mu], &plaq, stplb[mu][nu], QDP_all);
 	QDP_M_peq_r_times_M(tforce[nu], &plaq, stplf[nu][mu], QDP_all);
 	QDP_M_peq_r_times_M(tforce[nu], &plaq, stplb[nu][mu], QDP_all);
-	nflops += 4*36;
+	nflops += 4*4*NC*NC;
       }
     }
   }
@@ -555,7 +560,7 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
     for(int mu=0; mu<ndim; mu++) {
       QDP_M_peq_r_times_M(tforce[mu], &rect, tmat[mu], QDP_all);
     }
-    nflops += ndim*36;
+    nflops += ndim*4*NC*NC;
   }
 
   if(pgm) {
@@ -574,7 +579,7 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 	}
       }
       QDP_M_peq_r_times_M(tforce[mu], &pgm, tmat[0], QDP_all);
-      nflops += 36;
+      nflops += 4*NC*NC;
     }
 #else
     for(int mu=0; mu<ndim; mu++) {
@@ -706,14 +711,14 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
     for(int mu=0; mu<4; mu++) {
       QDP_M_peq_r_times_M(tforce[mu], &pgm, tmat[mu], QDP_all);
     }
-    nflops += 4*36;
+    nflops += 4*4*NC*NC;
 #endif
   }
 
   for(int mu=0; mu<4; mu++) {
     QDP_M_peq_M(deriv[mu], tforce[mu], QDP_all);
   }
-  nflops += 4*18;
+  nflops += 4*PEQM;
 
   if(rect||pgm) {
     for(int mu=0; mu<4; mu++) {
@@ -782,7 +787,7 @@ QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
   if(QOP_common.verbosity==QOP_VERB_DEBUG) {
     QOP_printf0("re trace: %g\n", trace);
   }
-  info->final_flop += 4*(198+24+18)*QDP_sites_on_node; 
+  info->final_flop += 4*(EQMTM+2*NC*NC+PEQM)*QDP_sites_on_node; 
 
   QDP_destroy_M(mtmp);
   for(int mu=0; mu<4; mu++) {

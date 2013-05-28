@@ -70,7 +70,7 @@ wilson_deriv_multi_qdp(QOP_info_t *info,
       QDP_discard_D(ys[mu]);
     }
   }
-  info->final_flop = (4.*n*(60+126))*QDP_sites_on_node; 
+  info->final_flop = (4.*n*(32*QLA_Nc+34*QLA_Nc*QLA_Nc))*QDP_sites_on_node; 
   for(int mu=0; mu<4; mu++) {
     QDP_destroy_D(x2[mu]);
     QDP_destroy_D(y2[mu]);
@@ -160,7 +160,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
     QDP_M_peq_M(force[mu], deriv[mu], QDP_all);
     QDP_destroy_M(deriv[mu]);
   }
-  info->final_flop += (4.*(198+24+18))*QDP_sites_on_node; 
+  info->final_flop += (4.*(QLA_Nc*QLA_Nc*(8*QLA_Nc+2)))*QDP_sites_on_node; 
   QDP_destroy_M(t);
 #undef NC
 }
@@ -181,6 +181,7 @@ QOP_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
 				QDP_DiracFermion *y[],
 				int n)
 {
+#define NC QDP_get_nc(flw->links[0])
   double dtime = QOP_time();
 
   QLA_Real teps[n];
@@ -191,8 +192,11 @@ QOP_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
   }
   QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n);
 
-  info->final_flop += ((144+168*7)+48)*n*QDP_sites_on_node; 
+  double nflop = 8*(16*QLA_Nc+9)*QLA_Nc;
+  //if(flw->clov!=NULL) nflop += 32*(2*QLA_Nc-1)*QLA_Nc;
+  info->final_flop += nflop*n*QDP_sites_on_node; 
   info->final_sec = QOP_time() - dtime;
+#undef NC
 }
 
 // antiherm U(d/dU) [ x^+ A y + y^+ A^+ x ]
@@ -207,6 +211,7 @@ QOP_wilson_force_prec_multi_qdp(QOP_info_t *info,
 				QDP_DiracFermion *y[],
 				int n)
 {
+#define NC QDP_get_nc(flw->links[0])
   double dtime = QOP_time();
 
   QLA_Real teps[n];
@@ -217,6 +222,9 @@ QOP_wilson_force_prec_multi_qdp(QOP_info_t *info,
   }
   QOP_wilson_force_multi_qdp(info, flw, force, teps, x, y, n);
 
-  info->final_flop += ((144+168*7)+48)*n*QDP_sites_on_node; 
+  double nflop = 8*(16*QLA_Nc+9)*QLA_Nc;
+  //if(flw->clov!=NULL) nflop += 32*(2*QLA_Nc-1)*QLA_Nc;
+  info->final_flop += nflop*n*QDP_sites_on_node; 
   info->final_sec = QOP_time() - dtime;
+#undef NC
 }

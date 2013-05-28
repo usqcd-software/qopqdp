@@ -171,11 +171,12 @@ QOP_wilson_invert_ne_qdp(QOP_info_t *info,
 			 QDP_DiracFermion *out,
 			 QDP_DiracFermion *in)
 {
+#define NC QDP_get_nc(flw->links[0])
+  WILSON_INVERT_BEGIN;
   QDP_DiracFermion *cgp;
   QDP_Subset cgsub;
   QOP_evenodd_t cgeo = QOP_EVEN;
-
-  WILSON_INVERT_BEGIN;
+  double dtime = QOP_time();
 
   gl_flw = flw;
   gl_kappa = kappa;
@@ -189,7 +190,16 @@ QOP_wilson_invert_ne_qdp(QOP_info_t *info,
   QOP_invert_cg_D(QOP_wilson_invert_d2ne, inv_arg, res_arg,
 		  out, in, cgp, cgsub);
 
+  double nflop = 256*(2*QLA_Nc+1)*QLA_Nc + 80*QLA_Nc;
+  if(flw->clov!=NULL) nflop += 16*(16*QLA_Nc-7)*QLA_Nc;
+
+  //res_arg->final_rsq = rsq/insq;
+  info->final_sec = QOP_time() - dtime;
+  info->final_flop = nflop*res_arg->final_iter*QDP_subset_len(cgsub);
+  info->status = QOP_SUCCESS;
+
   WILSON_INVERT_END;
+#undef NC
 }
 
 void
@@ -235,30 +245,24 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   gl_flw = flw;
   gl_kappa = kappa;
 
-  /* cg has 5 * 48 = 240 flops/site/it */
-  /* bicg has 9*4*24 = 864 flops/site/it */
+  /* cg has 5*16*NC = 80*NC flops/site/it */
+  /* bicg has 9*4*8*NC = 288*NC flops/site/it */
 #ifdef LU
-  /* MdagM(no clov) -> 2*(2*(144+168*7)+48) = 5376 flops/site */
-  /* MdagM(clov)    -> 2*(2*(144+168*7+12*42)+24) = 7344 flops/site */
-  if(flw->clov==NULL) {
-    nflop = 5376;
-  } else {
-    nflop = 7344;
-  }
-  if(QOP_wilson_cgtype==1) {
-    nflop += 864;
-  } else {
-    nflop += 240;
-  }
+  /* MdagM(no clov) -> 2(2(4+2(8NC-2)+7(4+2(8NC-2)+8))+16)NC
+     = 256(2NC+1)NC flops/site */
+  /* + clov ->  2(2(4(2+(2NC-1)8))-8)NC = 16(16NC-7)NC flops/site */
+  nflop = 256*(2*QLA_Nc+1)*QLA_Nc + 80*QLA_Nc;
+  if(flw->clov!=NULL) nflop += 16*(16*QLA_Nc-7)*QLA_Nc;
+  if(QOP_wilson_cgtype==1) nflop += 208*QLA_Nc;
   nflop *= 0.5; /* half for half of the sites */
   cgeo = ineo;
   if(ineo==QOP_EVENODD) cgeo = QOP_EVEN;
 #else
-  /* MdagM -> 2*((144+168*7)+48) = 2736 flops/site */
-  /* clov -> 2*(12*(42-2)) = 960 flops/site */
-  nflop = 2736 + 240;
-  if(QOP_wilson_cgtype==1) nflop += (864-240);
-  if(flw->clov!=NULL) nflop += 960;
+  /* MdagM -> 2(4+2(8NC-2)+7(4+2(8NC-2)+8)+16)NC = 16(16NC+9)NC flops/site */
+  /* clov -> 2(4(2+(2NC-1)8)-8)NC = 64(2NC-1)NC flops/site */
+  nflop = 16*(16*QLA_Nc+9)*QLA_Nc + 80*QLA_Nc;
+  if(flw->clov!=NULL) nflop += 64*(2*QLA_Nc-1)*QLA_Nc;
+  if(QOP_wilson_cgtype==1) nflop += 208*QLA_Nc;
   cgeo = QOP_EVENODD;
 #endif
   cgsub = qdpsub(cgeo);

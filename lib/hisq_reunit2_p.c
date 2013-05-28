@@ -21,7 +21,8 @@ projectU_site_d(NCPROT QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
   QLA_D_ColorMatrix(M1);
   QLA_D_ColorMatrix(M2);
   QLA_D_M_eq_Ma_times_M(&M1, U, U);
-  QLA_D_M_eq_invsqrt_M(&M2, &M1);
+  //QLA_D_M_eq_invsqrt_M(&M2, &M1);
+  QLA_D_M_eq_invsqrtPH_M(&M2, &M1);
   QLA_D_M_eq_M_times_M(Ur, U, &M2);
 }
 

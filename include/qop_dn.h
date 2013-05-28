@@ -126,12 +126,15 @@ void QOP_DN_smear_fat7l_qdp(QOP_info_t *info, QDP_DN_ColorMatrix *sg[],
 			    QDP_DN_ColorMatrix *g[],
 			    QOP_asqtad_coeffs_t *coeffs);
 
-void QOP_DN_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_DN_ColorMatrix *deriv[],
-				  QOP_DN_GaugeField *g[], QDP_DN_ColorMatrix **chain[],
+void QOP_DN_gauge_deriv_multi_qdp(QOP_info_t *info,
+				  QDP_DN_ColorMatrix *deriv[],
+				  QOP_DN_GaugeField *g[],
+				  QDP_DN_ColorMatrix **chain[],
 				  int n, int doLastScale);
 
 void QOP_DN_gauge_force_multi_qdp(QOP_info_t *info, QDP_DN_ColorMatrix *f[],
-				  QOP_DN_GaugeField *g[], QDP_DN_ColorMatrix **chain[], int n);
+				  QOP_DN_GaugeField *g[],
+				  QDP_DN_ColorMatrix **chain[], int n);
 
 void QOP_DN_symanzik_1loop_gauge_action(QOP_info_t *info,
 					QOP_DN_GaugeField *gauge,
@@ -166,23 +169,29 @@ void QOP_DN_projectU_deriv_qdp(QOP_info_t *info,
 			       QDP_DN_ColorMatrix *U,
 			       QDP_DN_ColorMatrix *chain);
 
-void QOP_DN_u3reunit(QOP_info_t *info, QDP_DN_ColorMatrix *U, QDP_DN_ColorMatrix *V);
+void QOP_DN_u3reunit(QOP_info_t *info, QDP_DN_ColorMatrix *U,
+		     QDP_DN_ColorMatrix *V);
 
-void QOP_DN_su3reunit(QOP_info_t *info, QDP_DN_ColorMatrix *U, QDP_DN_ColorMatrix *Ur);
+void QOP_DN_su3reunit(QOP_info_t *info, QDP_DN_ColorMatrix *U,
+		      QDP_DN_ColorMatrix *Ur);
 
 void QOP_DN_hisq_force_multi_reunit(QOP_info_t *info,
 				    QDP_DN_ColorMatrix *gf[4],
 				    QDP_DN_ColorMatrix *force_accum[4],
 				    QDP_DN_ColorMatrix *force_accum_old[4]);
 
-void QOP_DN_staples(int nout, int nin, QDP_DN_ColorMatrix *out[], QDP_DN_ColorMatrix *in[],
+void QOP_DN_staples(QOP_info_t *info, int nout, int nin,
+		    QDP_DN_ColorMatrix *out[], QDP_DN_ColorMatrix *in[],
 		    int nstaples[], int *topdir[], int *sidedir[],
 		    int *toplinknum[], int *sidelinknum[], QOP_D_Real *coef[]);
 
-void QOP_DN_staples_deriv(int nout, int nin, QDP_DN_ColorMatrix *deriv[],
-			  QDP_DN_ColorMatrix *chain[], QDP_DN_ColorMatrix *in[],
+void QOP_DN_staples_deriv(QOP_info_t *info, int nout, int nin,
+			  QDP_DN_ColorMatrix *deriv[],
+			  QDP_DN_ColorMatrix *chain[],
+			  QDP_DN_ColorMatrix *in[],
 			  int nstaples[], int *topdir[], int *sidedir[],
-			  int *toplinknum[], int *sidelinknum[], QOP_D_Real *coef[]);
+			  int *toplinknum[], int *sidelinknum[],
+			  QOP_D_Real *coef[]);
 
   /*********************/
   /*  Asqtad routines  */
@@ -191,7 +200,8 @@ void QOP_DN_staples_deriv(int nout, int nin, QDP_DN_ColorMatrix *deriv[],
   /* fermion matrix link routines */
 
 QOP_DN_FermionLinksAsqtad *
-  QOP_DN_asqtad_create_L_from_raw(int nc, QOP_D_Real *fatlinks[], QOP_D_Real *longlinks[],
+  QOP_DN_asqtad_create_L_from_raw(int nc, QOP_D_Real *fatlinks[],
+				  QOP_D_Real *longlinks[],
 				  QOP_evenodd_t evenodd);
 
 QOP_DN_FermionLinksAsqtad *
@@ -199,22 +209,26 @@ QOP_DN_FermionLinksAsqtad *
 				QOP_asqtad_coeffs_t *coeffs,
 				QOP_DN_GaugeField *gauge);
 
-void QOP_DN_asqtad_extract_L_to_raw(QOP_D_Real *fatlinks[], QOP_D_Real *longlinks[],
+void QOP_DN_asqtad_extract_L_to_raw(QOP_D_Real *fatlinks[],
+				    QOP_D_Real *longlinks[],
 				    QOP_DN_FermionLinksAsqtad *src,
 				    QOP_evenodd_t evenodd);
 
 void QOP_DN_asqtad_destroy_L(QOP_DN_FermionLinksAsqtad *field);
 
 QOP_DN_FermionLinksAsqtad *
-  QOP_DN_asqtad_convert_L_from_raw(int nc, QOP_D_Real *fatlinks[], QOP_D_Real *longlinks[],
+  QOP_DN_asqtad_convert_L_from_raw(int nc, QOP_D_Real *fatlinks[],
+				   QOP_D_Real *longlinks[],
 				   QOP_evenodd_t evenodd);
 
-void QOP_DN_asqtad_convert_L_to_raw(QOP_D_Real ***fatlinks, QOP_D_Real ***longlinks,
+void QOP_DN_asqtad_convert_L_to_raw(QOP_D_Real ***fatlinks,
+				    QOP_D_Real ***longlinks,
 				    QOP_DN_FermionLinksAsqtad *,
 				    QOP_evenodd_t evenodd);
 
 void QOP_DN_asqtad_load_L_from_raw(QOP_DN_FermionLinksAsqtad *asqtad,
-				   QOP_D_Real *fatlinks[], QOP_D_Real *longlinks[],
+				   QOP_D_Real *fatlinks[],
+				   QOP_D_Real *longlinks[],
 				   QOP_evenodd_t evenodd);
 
 void QOP_DN_asqtad_load_L_from_G(QOP_info_t *info,
@@ -466,7 +480,8 @@ void QOP_DN_wilson_extract_L_to_raw(QOP_D_Real *links[], QOP_D_Real *clov,
 void QOP_DN_wilson_destroy_L(QOP_DN_FermionLinksWilson *field);
 
 QOP_DN_FermionLinksWilson *
-  QOP_DN_wilson_convert_L_from_raw(int nc, QOP_D_Real *links[], QOP_D_Real *clov,
+  QOP_DN_wilson_convert_L_from_raw(int nc, QOP_D_Real *links[],
+				   QOP_D_Real *clov,
 				   QOP_evenodd_t evenodd);
 
 void QOP_DN_wilson_convert_L_to_raw(QOP_D_Real ***links, QOP_D_Real **clov,
@@ -662,7 +677,8 @@ void QOP_DN_wilson_ifla_dslash_qdp(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_DN_FermionLinksDW *
-  QOP_DN_dw_create_L_from_raw(int nc, QOP_D_Real *links[], QOP_evenodd_t evenodd);
+  QOP_DN_dw_create_L_from_raw(int nc, QOP_D_Real *links[],
+			      QOP_evenodd_t evenodd);
 
 QOP_DN_FermionLinksDW *
   QOP_DN_dw_create_L_from_G(QOP_info_t *info,
@@ -676,7 +692,8 @@ void QOP_DN_dw_extract_L_to_raw(QOP_D_Real *links[],
 void QOP_DN_dw_destroy_L(QOP_DN_FermionLinksDW *field);
 
 QOP_DN_FermionLinksDW *
-  QOP_DN_dw_convert_L_from_raw(int nc, QOP_D_Real *links[], QOP_evenodd_t evenodd);
+  QOP_DN_dw_convert_L_from_raw(int nc, QOP_D_Real *links[],
+			       QOP_evenodd_t evenodd);
 
 void QOP_DN_dw_convert_L_to_raw(QOP_D_Real ***links,
 				QOP_DN_FermionLinksDW *src,

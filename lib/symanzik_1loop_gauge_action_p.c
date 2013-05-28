@@ -2,6 +2,9 @@
 
 #include <qop_internal.h>
 
+#define EQMTM (QLA_Nc*QLA_Nc*(8*QLA_Nc-2))
+#define PEQMTM (QLA_Nc*QLA_Nc*(8*QLA_Nc))
+
 void 
 QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
 				REAL *acts, REAL *actt, QOP_gauge_coeffs_t *coeffs)
@@ -71,7 +74,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
       }
       QDP_M_eq_M_times_M(UUf[mu][nu], U[mu], Uf[nu][mu], QDP_all);
       QDP_M_eq_M_times_M(UUf[nu][mu], U[nu], Uf[mu][nu], QDP_all);
-      nflops += 2*198;
+      nflops += 2*EQMTM;
       if(adpl) {
 	QDP_Complex *tc = QDP_create_C();
 	QDP_C_eq_M_dot_M(tc, UUf[mu][nu], UUf[nu][mu], QDP_all);
@@ -80,7 +83,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
 	else QLA_c_eq_r(z, 0);
 	QLA_Real r;
 	QDP_r_eq_norm2_C(&r, tc, QDP_all);
-	nflops += 70+2+4;
+	nflops += 8*QLA_Nc*QLA_Nc-2 +2 +4;
 	if(mu==3) {
 	  plaqt += QLA_real(z);
 	  adplt += r;
@@ -95,7 +98,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
       if(plaq) {
 	QLA_Real t;
 	QDP_r_eq_re_M_dot_M(&t, UUf[mu][nu], UUf[nu][mu], QDP_all);
-	nflops += 36;
+	nflops += 4*QLA_Nc*QLA_Nc;
 	if(mu==3) {
 	  plaqt += t;
 	} else {
@@ -109,14 +112,14 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
 	QDP_M_eq_sM(bstpl[nu][mu], bstpl0[nu][mu], QDP_neighbor[mu],QDP_backward,QDP_all);
 	QDP_M_eq_M_times_Ma(fstpl[mu][nu], UUf[nu][mu], Uf[nu][mu], QDP_all);
 	QDP_M_eq_M_times_Ma(fstpl[nu][mu], UUf[mu][nu], Uf[mu][nu], QDP_all);
-	nflops += 4*198;
+	nflops += 4*EQMTM;
 	if(rect) {
 	  QLA_Real t, tr=0;
 	  QDP_r_eq_re_M_dot_M(&t, bstpl[mu][nu], fstpl[mu][nu], QDP_all);
 	  tr += t;
 	  QDP_r_eq_re_M_dot_M(&t, bstpl[nu][mu], fstpl[nu][mu], QDP_all);
 	  tr += t;
-	  nflops += 2*36;
+	  nflops += 2*4*QLA_Nc*QLA_Nc;
 	  if(mu==3) {
 	    rectt += tr;
 	  } else {
@@ -133,7 +136,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_M_eq_M_times_M(UUf[1][0], UUf[0][1], Uf[a][b], QDP_all); \
   QDP_r_eq_re_M_dot_M(&t, Uf[b][a], UUf[1][0], QDP_all); \
   x += t; \
-  nflops += 2*198+36; \
+  nflops += 2*EQMTM+4*QLA_Nc*QLA_Nc; \
 }
 #define combineb2(x,a,b,c,d) {			\
   QLA_Real t; \
@@ -142,7 +145,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_M_eq_M_times_M(UUf[1][0], UUf[0][1], Uf[a][b], QDP_all); \
   QDP_r_eq_re_M_dot_M(&t, Uf[b][a], UUf[1][0], QDP_all); \
   x += t; \
-  nflops += 2*198+216+36; \
+  nflops += 2*EQMTM+PEQMTM+4*QLA_Nc*QLA_Nc; \
 }
 #define combinefb(x,a,b,c) {			\
   QLA_Real t; \
@@ -151,7 +154,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_M_eq_M_times_M(UUf[1][0], UUf[0][1], Uf[a][b], QDP_all); \
   QDP_r_eq_re_M_dot_M(&t, Uf[b][a], UUf[1][0], QDP_all); \
   x += t; \
-  nflops += 2*198+216+36; \
+  nflops += 2*EQMTM+PEQMTM+4*QLA_Nc*QLA_Nc; \
 }
 #define combinefb2(x,a,b,c,d) {			\
   QLA_Real t; \
@@ -162,7 +165,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_M_eq_M_times_M(UUf[1][0], UUf[0][1], Uf[a][b], QDP_all); \
   QDP_r_eq_re_M_dot_M(&t, Uf[b][a], UUf[1][0], QDP_all); \
   x += t; \
-  nflops += 2*198+3*216+36; \
+  nflops += 2*EQMTM+3*PEQMTM+4*QLA_Nc*QLA_Nc; \
 }
   if(pgm) {
     // 0,1,2
