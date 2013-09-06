@@ -1,3 +1,9 @@
+===========================================================================
+2013-09-06      version 0.19.1
+===========================================================================
+2013-09-02:	James Osborn
+	Fixed wilson force declarations.
+
 2013-05-27:	James Osborn
 	Increased QOP_MAX_NAIK to 20.
 	Fixed Wilson and gauge flop counts for arbitrary Nc.

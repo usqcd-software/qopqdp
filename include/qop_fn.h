@@ -606,13 +606,6 @@ void QOP_FN_wilson_invert_ne_qdp(QOP_info_t *info,
 
   /* fermion force routines */
 
-void QOP_FN_wilson_force(QOP_info_t *info,
-			 QOP_FN_GaugeField *gauge,
-			 QOP_FN_Force *force,
-			 QOP_wilson_coeffs_t *coeffs,
-			 QOP_F_Real eps,
-			 QOP_FN_DiracFermion *in_pt);
-
 void QOP_FN_wilson_deriv_multi_qdp(QOP_info_t *info,
 				   QOP_FN_FermionLinksWilson *flw,
 				   QDP_FN_ColorMatrix *deriv[],
@@ -621,13 +614,13 @@ void QOP_FN_wilson_deriv_multi_qdp(QOP_info_t *info,
 				   QDP_FN_DiracFermion *y[],
 				   int n);
 
-void QOP_FN_wilson_force_multi(QOP_info_t *info,
-			       QOP_FN_GaugeField *gauge,
-			       QOP_FN_Force *force,
-			       QOP_wilson_coeffs_t *coef,
-			       QOP_F_Real eps[],
-			       QOP_FN_DiracFermion *in_pt[],
-			       int nsrc);
+void QOP_FN_wilson_force_multi_qdp(QOP_info_t *info,
+				   QOP_FN_FermionLinksWilson *flw,
+				   QDP_FN_ColorMatrix *force[],
+				   QOP_F_Real eps[],
+				   QDP_FN_DiracFermion *x[],
+				   QDP_FN_DiracFermion *y[],
+				   int n);
 
 void QOP_FN_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
 					QOP_FN_FermionLinksWilson *flw,
