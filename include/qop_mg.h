@@ -6,6 +6,7 @@ void QOP_wilsonMgSet(QOP_WilsonMg *wmg, int l, char *s, double val);
 void QOP_wilsonMgSetArray(QOP_WilsonMg *wmg, int l, char *s, double *vals, int nval);
 void QOP_wilsonMgSetLinks(QOP_WilsonMg *wmg, QOP_F3_FermionLinksWilson *wil);
 void QOP_wilsonMgSetup(QOP_WilsonMg *wmg);
+
 void QOP_F3_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
 			  QOP_F3_FermionLinksWilson *flw,
 			  QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,

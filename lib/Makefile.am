@@ -15,12 +15,45 @@ libqopqdp_a_SOURCES = \
   dw_invert.c \
   mg/mg.c
 
+NC1SOURCES = \
+  pcstubs/common_f1.c pcstubs/common_d1.c \
+  pcstubs/staples_f1.c pcstubs/staples_d1.c \
+  pcstubs/gauge_deriv_f1.c pcstubs/gauge_deriv_d1.c \
+  pcstubs/symanzik_1loop_gauge_action_f1.c pcstubs/symanzik_1loop_gauge_action_d1.c \
+  pcstubs/symanzik_1loop_gauge_force_f1.c pcstubs/symanzik_1loop_gauge_force_d1.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_f1.c pcstubs/symanzik_1loop_gauge_heatbath_d1.c \
+  pcstubs/asqtad_dslash_f1.c pcstubs/asqtad_dslash_d1.c \
+  pcstubs/asqtad_invert_f1.c pcstubs/asqtad_invert_d1.c \
+  pcstubs/asqtad_force_f1.c pcstubs/asqtad_force_d1.c \
+  pcstubs/asqtad_force_asvec_f1.c pcstubs/asqtad_force_asvec_d1.c \
+  pcstubs/asqtad_force_fnmat_f1.c pcstubs/asqtad_force_fnmat_d1.c \
+  pcstubs/hisq_links_f1.c pcstubs/hisq_links_d1.c \
+  pcstubs/hisq_reunit_f1.c pcstubs/hisq_reunit_d1.c \
+  pcstubs/hisq_force_f1.c pcstubs/hisq_force_d1.c \
+  pcstubs/hisq_force_fnmat_f1.c pcstubs/hisq_force_fnmat_d1.c \
+  pcstubs/wilson_dslash_f1.c pcstubs/wilson_dslash_d1.c \
+  pcstubs/wilson_invert_f1.c pcstubs/wilson_invert_d1.c \
+  pcstubs/wilson_force_f1.c pcstubs/wilson_force_d1.c \
+  pcstubs/dw_dslash_f1.c pcstubs/dw_dslash_d1.c \
+  pcstubs/dw_invert_f1.c pcstubs/dw_invert_d1.c \
+  pcstubs/invert_cg_V_f1.c pcstubs/invert_cg_V_d1.c \
+  pcstubs/invert_cg_D_f1.c pcstubs/invert_cg_D_d1.c \
+  pcstubs/invert_cg_vD_f1.c pcstubs/invert_cg_vD_d1.c \
+  pcstubs/invert_bicgstab_D_f1.c pcstubs/invert_bicgstab_D_d1.c \
+  pcstubs/invert_eigcg_V_f1.c pcstubs/invert_eigcg_V_d1.c \
+  pcstubs/invert_eigcg_D_f1.c pcstubs/invert_eigcg_D_d1.c \
+  pcstubs/invert_gmres2_D_f1.c pcstubs/invert_gmres2_D_d1.c \
+  pcstubs/invert_utilities_V_f1.c pcstubs/invert_utilities_V_d1.c \
+  pcstubs/invert_utilities_D_f1.c pcstubs/invert_utilities_D_d1.c \
+  pcstubs/invert_utilities_vD_f1.c pcstubs/invert_utilities_vD_d1.c
+
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
   pcstubs/staples_f2.c pcstubs/staples_d2.c \
   pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
   pcstubs/symanzik_1loop_gauge_action_f2.c pcstubs/symanzik_1loop_gauge_action_d2.c \
   pcstubs/symanzik_1loop_gauge_force_f2.c pcstubs/symanzik_1loop_gauge_force_d2.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_f2.c pcstubs/symanzik_1loop_gauge_heatbath_d2.c \
   pcstubs/asqtad_dslash_f2.c pcstubs/asqtad_dslash_d2.c \
   pcstubs/asqtad_invert_f2.c pcstubs/asqtad_invert_d2.c \
   pcstubs/asqtad_force_f2.c pcstubs/asqtad_force_d2.c \
@@ -52,6 +85,7 @@ NC3SOURCES = \
   pcstubs/gauge_deriv_d3.c pcstubs/gauge_deriv_f3.c \
   pcstubs/symanzik_1loop_gauge_action_f3.c pcstubs/symanzik_1loop_gauge_action_d3.c \
   pcstubs/symanzik_1loop_gauge_force_f3.c pcstubs/symanzik_1loop_gauge_force_d3.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_f3.c pcstubs/symanzik_1loop_gauge_heatbath_d3.c \
   pcstubs/asqtad_dslash_f3.c pcstubs/asqtad_dslash_d3.c \
   pcstubs/asqtad_invert_f3.c pcstubs/asqtad_invert_d3.c \
   pcstubs/asqtad_force_f3.c pcstubs/asqtad_force_d3.c \
@@ -84,8 +118,7 @@ NC3SOURCES = \
   pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
   pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c \
   pcstubs/mg_f3.c pcstubs/mg_d3.c \
-  pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c \
-  pcstubs/vcycle_f3.c pcstubs/vcycle_d3.c
+  pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c
 
 NCNSOURCES = \
   pcstubs/common_fn.c pcstubs/common_dn.c \
@@ -93,6 +126,7 @@ NCNSOURCES = \
   pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
   pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
   pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_fn.c pcstubs/symanzik_1loop_gauge_heatbath_dn.c \
   pcstubs/asqtad_dslash_fn.c pcstubs/asqtad_dslash_dn.c \
   pcstubs/asqtad_invert_fn.c pcstubs/asqtad_invert_dn.c \
   pcstubs/asqtad_force_fn.c pcstubs/asqtad_force_dn.c \
@@ -116,7 +150,8 @@ NCNSOURCES = \
   pcstubs/invert_gmres2_D_fn.c pcstubs/invert_gmres2_D_dn.c \
   pcstubs/invert_utilities_V_fn.c pcstubs/invert_utilities_V_dn.c \
   pcstubs/invert_utilities_D_fn.c pcstubs/invert_utilities_D_dn.c \
-  pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c
+  pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c \
+  pcstubs/vcycle_fn.c pcstubs/vcycle_dn.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -125,6 +160,7 @@ EXTRA_DIST = \
   symanzik_1loop_gauge_action_p.c \
   symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
+  symanzik_1loop_gauge_heatbath_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \
@@ -164,12 +200,15 @@ EXTRA_DIST = \
   linalg.h \
   mg
 
-if NCN
-  libqopqdp_a_SOURCES += $(NCNSOURCES)
+if NC1
+  libqopqdp_a_SOURCES += $(NC1SOURCES)
 endif
 if NC2
   libqopqdp_a_SOURCES += $(NC2SOURCES)
 endif
 if NC3
   libqopqdp_a_SOURCES += $(NC3SOURCES)
+endif
+if NCN
+  libqopqdp_a_SOURCES += $(NCNSOURCES)
 endif

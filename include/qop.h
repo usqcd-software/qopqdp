@@ -54,7 +54,7 @@ extern "C" {
 #  ifndef QOP_Nc
 #    define QOP_Nc 3
 #  endif
-#  if QOP_Nc == 2 || QOP_Nc == 3
+#  if QOP_Nc == 1 || QOP_Nc == 2 || QOP_Nc == 3
 #    define QOP_Colors QOP_Nc
 #  elif QOP_Nc > 0
 #    define QOP_Colors 'N'
@@ -63,7 +63,7 @@ extern "C" {
 #  endif
 #else
 #  ifndef QOP_Nc
-#    if QOP_Colors == 2 || QOP_Colors == 3
+#    if QOP_Colors == 1 || QOP_Colors == 2 || QOP_Colors == 3
 #      define QOP_Nc QOP_Colors
 #    elif QOP_Colors == 'N'
 #      define QOP_Nc 3
@@ -71,7 +71,7 @@ extern "C" {
 #      error "bad QOP_Colors"
 #    endif
 #  else
-#    if QOP_Colors == 2 || QOP_Colors == 3
+#    if QOP_Colors == 1 || QOP_Colors == 2 || QOP_Colors == 3
 #      if QOP_Colors != QOP_Nc
 #        error "inconsistent QOP_Colors and QOP_Nc"
 #      endif
@@ -87,7 +87,11 @@ extern "C" {
 
 #include <qop_int.h>
 
-#if QOP_Colors == 2
+#if QOP_Colors == 1
+#  include <qop_f1.h>
+#  include <qop_d1.h>
+#  include <qop_df1.h>
+#elif QOP_Colors == 2
 #  include <qop_f2.h>
 #  include <qop_d2.h>
 #  include <qop_df2.h>

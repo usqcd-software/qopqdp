@@ -1,7 +1,5 @@
 //#define DO_TRACE
 #include <qop_internal.h>
-#include <qdp_fn.h>
-#include <qdp_dn.h>
 
 #if QOP_Precision == 'F'
 #define QCDPC(x) QOP_F3_##x
@@ -14,6 +12,7 @@
 //#define printf0 QOP_printf0
 #define printf0(...)
 
+// FIXME: avoid globals
 static QDP_DiracFermion *glv=NULL, *glv2=NULL/*, *et1=NULL, *et2=NULL*/;
 
 #define check_glv if(glv==NULL) { glv = QDP_create_D(); glv2 = QDP_create_D(); }
@@ -102,53 +101,6 @@ QOP_wilsonDslashEOH(QDP_DiracFermion *out, QDP_DiracFermion *in,
   QDP_D_eq_gamma_times_D(out, out, 15, sub);
 }
 
-#if 0
-void
-QOP_wilsonDslashVec(vec *out, vec *in, QOP_FermionLinksWilson *wil,
-		    QLA_Real kappa, int sign, QOP_evenodd_t pout, QOP_evenodd_t pin)
-{
-  check_et;
-  QDP_Subset sout = (pout==QOP_EVEN) ? QDP_even : (pout==QOP_ALL) ? QDP_all : QDP_odd;
-  QDP_Subset sin = (pin==QOP_EVEN) ? QDP_even : (pin==QOP_ALL) ? QDP_all : QDP_odd;
-  QDP_insert_packed_D(et1, (QLA_DiracFermion *)(in->data), sin);
-  QOP_wilson_dslash_qdp(NULL, wil, kappa, sign, et2, et1, pout, pin);
-  QDP_extract_packed_D((QLA_DiracFermion *)(out->data), et2, sout);
-}
-
-void
-QOP_wilsonDslashEOVec(vec *out, vec *in, QOP_FermionLinksWilson *wil,
-		      QLA_Real kappa, int sign, QOP_evenodd_t par)
-{
-  check_et;
-  QDP_Subset sub = (par==QOP_EVEN) ? QDP_even : QDP_odd;
-  QDP_insert_packed_D(et1, (QLA_DiracFermion *)(in->data), sub);
-  QOP_wilsonDslashEO(et2, et1, wil, kappa, sign, par);
-  QDP_extract_packed_D((QLA_DiracFermion *)(out->data), et2, sub);
-}
-
-void
-QOP_wilsonDslashEOSVec(vec *out, vec *in, QOP_FermionLinksWilson *wil,
-		       QLA_Real kappa, int sign, QOP_evenodd_t par)
-{
-  check_et;
-  QDP_Subset sub = (par==QOP_EVEN) ? QDP_even : QDP_odd;
-  QDP_insert_packed_D(et1, (QLA_DiracFermion *)(in->data), sub);
-  QOP_wilsonDslashEOS(et2, et1, wil, kappa, sign, par);
-  QDP_extract_packed_D((QLA_DiracFermion *)(out->data), et2, sub);
-}
-
-void
-QOP_wilsonDslashEOHVec(vec *out, vec *in, QOP_FermionLinksWilson *wil,
-		       QLA_Real kappa, int sign, QOP_evenodd_t par)
-{
-  check_et;
-  QDP_Subset sub = (par==QOP_EVEN) ? QDP_even : QDP_odd;
-  QDP_insert_packed_D(et1, (QLA_DiracFermion *)(in->data), sub);
-  QOP_wilsonDslashEOH(et2, et1, wil, kappa, sign, par);
-  QDP_extract_packed_D((QLA_DiracFermion *)(out->data), et2, sub);
-}
-#endif
-
 static int h2func(int x[], void *args)
 {
   int k=0;
@@ -190,6 +142,56 @@ QOP_getDiagEOS(QDP_DiracPropagator *p, QOP_FermionLinksWilson *wil,
 }
 
 // MG operators
+
+#define SETUP if(din==NULL) setup_temps()
+
+// FIXME: avoid globals
+static QDP_DiracFermion *din=NULL, *dout=NULL;
+
+static void
+setup_temps()
+{
+  din = QDP_create_D();
+  dout = QDP_create_D();
+}
+
+void
+QCDPC(wilEoProjectD)(QDPPC(DiracFermion) *ineo, QDPPC(DiracFermion) *in, QCDPC(WilArgs) *w)
+{
+  SETUP;
+#if 0
+  QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
+  QOP_wilsonDslash(dout, din, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
+  QDP_D_eq_D_minus_D(dout, in, dout, QDP_even);
+  QOP_wilsonDiaginv(ineo, dout, w->wil, w->kappa, QOP_EVEN);
+#else
+  QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
+  QOP_wilsonDslash(ineo, din, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
+  QDP_D_eq_D_minus_D(ineo, in, ineo, QDP_even);
+#endif
+}
+
+void
+QCDPC(wilEoReconstructD)(QDPPC(DiracFermion) *out, QDPPC(DiracFermion) *outeo,
+			 QDPPC(DiracFermion) *in, QCDPC(WilArgs) *w)
+{
+  SETUP;
+#if 0
+  QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
+  QDP_D_eq_D_minus_D(dout, in, dout, QDP_odd);
+  QOP_wilsonDiaginv(out, dout, w->wil, w->kappa, QOP_ODD);
+#else
+  QOP_wilsonDiaginv(out, outeo, w->wil, w->kappa, QOP_EVEN);
+  QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
+  QDP_D_eq_D_minus_D(dout, in, dout, QDP_odd);
+  QOP_wilsonDiaginv(out, dout, w->wil, w->kappa, QOP_ODD);
+#endif
+}
+
+#ifdef HAVE_NCN
+
+#include <qdp_fn.h>
+#include <qdp_dn.h>
 
 void
 QCDPC(V1eqD)(QDPN(ColorVector) *v[1], QDP_DiracFermion *d, QDP_Subset sub)
@@ -257,17 +259,6 @@ QCDPC(DeqV2g5)(QDP_DiracFermion *d, QDPN(ColorVector) *v[2], QDP_Subset sub)
   //QDP_D_veq_sprecon_H(d2, (QDP_HalfFermion **)v, g5, pm, QDP_all, 2);
   QDP_D_eq_sprecon_H(d, (QDP_HalfFermion *)v[0], 4, 1, sub);
   QDP_D_meq_sprecon_H(d, (QDP_HalfFermion *)v[1], 4, -1, sub);
-}
-
-#define SETUP if(din==NULL) setup_temps()
-
-static QDP_DiracFermion *din=NULL, *dout=NULL;
-
-static void
-setup_temps()
-{
-  din = QDP_create_D();
-  dout = QDP_create_D();
 }
 
 void
@@ -375,39 +366,6 @@ QCDPC(wilEoV2)(QDPN(ColorVector) *out[2], QDPN(ColorVector) *in[2], int sign, vo
 }
 
 void
-QCDPC(wilEoProjectD)(QDPPC(DiracFermion) *ineo, QDPPC(DiracFermion) *in, QCDPC(WilArgs) *w)
-{
-  SETUP;
-#if 0
-  QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
-  QOP_wilsonDslash(dout, din, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
-  QDP_D_eq_D_minus_D(dout, in, dout, QDP_even);
-  QOP_wilsonDiaginv(ineo, dout, w->wil, w->kappa, QOP_EVEN);
-#else
-  QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
-  QOP_wilsonDslash(ineo, din, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
-  QDP_D_eq_D_minus_D(ineo, in, ineo, QDP_even);
-#endif
-}
-
-void
-QCDPC(wilEoReconstructD)(QDPPC(DiracFermion) *out, QDPPC(DiracFermion) *outeo,
-			 QDPPC(DiracFermion) *in, QCDPC(WilArgs) *w)
-{
-  SETUP;
-#if 0
-  QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
-  QDP_D_eq_D_minus_D(dout, in, dout, QDP_odd);
-  QOP_wilsonDiaginv(out, dout, w->wil, w->kappa, QOP_ODD);
-#else
-  QOP_wilsonDiaginv(out, outeo, w->wil, w->kappa, QOP_EVEN);
-  QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
-  QDP_D_eq_D_minus_D(dout, in, dout, QDP_odd);
-  QOP_wilsonDiaginv(out, dout, w->wil, w->kappa, QOP_ODD);
-#endif
-}
-
-void
 QCDPC(wilEoProjectV1)(QDPN(ColorVector) *ineo[1], QDPN(ColorVector) *in[1],
 		      void *args)
 {
@@ -496,3 +454,5 @@ QCDPC(wilEoReconstructPV2)(QDPN(ColorVector) *out[2],
   QDP_D_eq_D_minus_D(dout, din, dout, QDP_odd);
   QCDPC(V2eqD)(out, dout, allVN(out[0]));
 }
+
+#endif // HAVE_NCN

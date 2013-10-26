@@ -6,7 +6,7 @@ static QLA_Real *g_r;
 
 #define NC nc
 static void
-relnorm_func(NCPROT vector(*x), int i)
+relnorm_func(NCPROT1 vector(*x), int i)
 {
   vector(*r) = (vector(*)) g_r;
   QLA_Real xnrm2;

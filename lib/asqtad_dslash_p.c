@@ -1227,7 +1227,7 @@ set_staggered_phases(NCPROT QLA_ColorMatrix(*m), int coords[])
 
 #define NC nc
 static void
-rephase_fat_bdry_func(NCPROT QLA_ColorMatrix(*m), int coords[])
+rephase_fat_bdry_func(NCPROT1 QLA_ColorMatrix(*m), int coords[])
 {
   if(bc_dir>=0) {
     int rshift = (coords[bc_dir] + bc_coord - bc_r0[bc_dir]) % bc_coord;
@@ -1244,7 +1244,7 @@ rephase_fat_bdry_func(NCPROT QLA_ColorMatrix(*m), int coords[])
 
 #define NC nc
 static void
-rephase_long_bdry_func(NCPROT QLA_ColorMatrix(*m), int coords[])
+rephase_long_bdry_func(NCPROT1 QLA_ColorMatrix(*m), int coords[])
 {
   if(bc_dir>=0) {
     /* Apply the phase to three long links from nd-3 to nd-1 */

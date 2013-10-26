@@ -49,9 +49,10 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-@NCN_TRUE@am__append_1 = $(NCNSOURCES)
+@NC1_TRUE@am__append_1 = $(NC1SOURCES)
 @NC2_TRUE@am__append_2 = $(NC2SOURCES)
 @NC3_TRUE@am__append_3 = $(NC3SOURCES)
+@NCN_TRUE@am__append_4 = $(NCNSOURCES)
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -97,47 +98,51 @@ libqopqdp_a_LIBADD =
 am__libqopqdp_a_SOURCES_DIST = common.c layout_user.c asqtad_invert.c \
 	asqtad_force.c hisq_links.c hisq_force.c wilson_dslash.c \
 	wilson_invert.c dw_dslash.c dw_invert.c mg/mg.c \
-	pcstubs/common_fn.c pcstubs/common_dn.c pcstubs/staples_fn.c \
-	pcstubs/staples_dn.c pcstubs/gauge_deriv_dn.c \
-	pcstubs/gauge_deriv_fn.c \
-	pcstubs/symanzik_1loop_gauge_action_fn.c \
-	pcstubs/symanzik_1loop_gauge_action_dn.c \
-	pcstubs/symanzik_1loop_gauge_force_fn.c \
-	pcstubs/symanzik_1loop_gauge_force_dn.c \
-	pcstubs/asqtad_dslash_fn.c pcstubs/asqtad_dslash_dn.c \
-	pcstubs/asqtad_invert_fn.c pcstubs/asqtad_invert_dn.c \
-	pcstubs/asqtad_force_fn.c pcstubs/asqtad_force_dn.c \
-	pcstubs/asqtad_force_asvec_fn.c \
-	pcstubs/asqtad_force_asvec_dn.c \
-	pcstubs/asqtad_force_fnmat_fn.c \
-	pcstubs/asqtad_force_fnmat_dn.c pcstubs/hisq_links_fn.c \
-	pcstubs/hisq_links_dn.c pcstubs/hisq_reunit_fn.c \
-	pcstubs/hisq_reunit_dn.c pcstubs/hisq_force_fn.c \
-	pcstubs/hisq_force_dn.c pcstubs/hisq_force_fnmat_fn.c \
-	pcstubs/hisq_force_fnmat_dn.c pcstubs/wilson_dslash_fn.c \
-	pcstubs/wilson_dslash_dn.c pcstubs/wilson_invert_fn.c \
-	pcstubs/wilson_invert_dn.c pcstubs/wilson_force_fn.c \
-	pcstubs/wilson_force_dn.c pcstubs/dw_dslash_fn.c \
-	pcstubs/dw_dslash_dn.c pcstubs/dw_invert_fn.c \
-	pcstubs/dw_invert_dn.c pcstubs/invert_cg_V_fn.c \
-	pcstubs/invert_cg_V_dn.c pcstubs/invert_cg_D_fn.c \
-	pcstubs/invert_cg_D_dn.c pcstubs/invert_cg_vD_fn.c \
-	pcstubs/invert_cg_vD_dn.c pcstubs/invert_bicgstab_D_fn.c \
-	pcstubs/invert_bicgstab_D_dn.c pcstubs/invert_eigcg_V_fn.c \
-	pcstubs/invert_eigcg_V_dn.c pcstubs/invert_eigcg_D_fn.c \
-	pcstubs/invert_eigcg_D_dn.c pcstubs/invert_gmres2_D_fn.c \
-	pcstubs/invert_gmres2_D_dn.c pcstubs/invert_utilities_V_fn.c \
-	pcstubs/invert_utilities_V_dn.c \
-	pcstubs/invert_utilities_D_fn.c \
-	pcstubs/invert_utilities_D_dn.c \
-	pcstubs/invert_utilities_vD_fn.c \
-	pcstubs/invert_utilities_vD_dn.c pcstubs/common_f2.c \
+	pcstubs/common_f1.c pcstubs/common_d1.c pcstubs/staples_f1.c \
+	pcstubs/staples_d1.c pcstubs/gauge_deriv_f1.c \
+	pcstubs/gauge_deriv_d1.c \
+	pcstubs/symanzik_1loop_gauge_action_f1.c \
+	pcstubs/symanzik_1loop_gauge_action_d1.c \
+	pcstubs/symanzik_1loop_gauge_force_f1.c \
+	pcstubs/symanzik_1loop_gauge_force_d1.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_f1.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_d1.c \
+	pcstubs/asqtad_dslash_f1.c pcstubs/asqtad_dslash_d1.c \
+	pcstubs/asqtad_invert_f1.c pcstubs/asqtad_invert_d1.c \
+	pcstubs/asqtad_force_f1.c pcstubs/asqtad_force_d1.c \
+	pcstubs/asqtad_force_asvec_f1.c \
+	pcstubs/asqtad_force_asvec_d1.c \
+	pcstubs/asqtad_force_fnmat_f1.c \
+	pcstubs/asqtad_force_fnmat_d1.c pcstubs/hisq_links_f1.c \
+	pcstubs/hisq_links_d1.c pcstubs/hisq_reunit_f1.c \
+	pcstubs/hisq_reunit_d1.c pcstubs/hisq_force_f1.c \
+	pcstubs/hisq_force_d1.c pcstubs/hisq_force_fnmat_f1.c \
+	pcstubs/hisq_force_fnmat_d1.c pcstubs/wilson_dslash_f1.c \
+	pcstubs/wilson_dslash_d1.c pcstubs/wilson_invert_f1.c \
+	pcstubs/wilson_invert_d1.c pcstubs/wilson_force_f1.c \
+	pcstubs/wilson_force_d1.c pcstubs/dw_dslash_f1.c \
+	pcstubs/dw_dslash_d1.c pcstubs/dw_invert_f1.c \
+	pcstubs/dw_invert_d1.c pcstubs/invert_cg_V_f1.c \
+	pcstubs/invert_cg_V_d1.c pcstubs/invert_cg_D_f1.c \
+	pcstubs/invert_cg_D_d1.c pcstubs/invert_cg_vD_f1.c \
+	pcstubs/invert_cg_vD_d1.c pcstubs/invert_bicgstab_D_f1.c \
+	pcstubs/invert_bicgstab_D_d1.c pcstubs/invert_eigcg_V_f1.c \
+	pcstubs/invert_eigcg_V_d1.c pcstubs/invert_eigcg_D_f1.c \
+	pcstubs/invert_eigcg_D_d1.c pcstubs/invert_gmres2_D_f1.c \
+	pcstubs/invert_gmres2_D_d1.c pcstubs/invert_utilities_V_f1.c \
+	pcstubs/invert_utilities_V_d1.c \
+	pcstubs/invert_utilities_D_f1.c \
+	pcstubs/invert_utilities_D_d1.c \
+	pcstubs/invert_utilities_vD_f1.c \
+	pcstubs/invert_utilities_vD_d1.c pcstubs/common_f2.c \
 	pcstubs/common_d2.c pcstubs/staples_f2.c pcstubs/staples_d2.c \
 	pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
 	pcstubs/symanzik_1loop_gauge_action_f2.c \
 	pcstubs/symanzik_1loop_gauge_action_d2.c \
 	pcstubs/symanzik_1loop_gauge_force_f2.c \
 	pcstubs/symanzik_1loop_gauge_force_d2.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_f2.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_d2.c \
 	pcstubs/asqtad_dslash_f2.c pcstubs/asqtad_dslash_d2.c \
 	pcstubs/asqtad_invert_f2.c pcstubs/asqtad_invert_d2.c \
 	pcstubs/asqtad_force_f2.c pcstubs/asqtad_force_d2.c \
@@ -172,6 +177,8 @@ am__libqopqdp_a_SOURCES_DIST = common.c layout_user.c asqtad_invert.c \
 	pcstubs/symanzik_1loop_gauge_action_d3.c \
 	pcstubs/symanzik_1loop_gauge_force_f3.c \
 	pcstubs/symanzik_1loop_gauge_force_d3.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_f3.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_d3.c \
 	pcstubs/asqtad_dslash_f3.c pcstubs/asqtad_dslash_d3.c \
 	pcstubs/asqtad_invert_f3.c pcstubs/asqtad_invert_d3.c \
 	pcstubs/asqtad_force_f3.c pcstubs/asqtad_force_d3.c \
@@ -208,63 +215,102 @@ am__libqopqdp_a_SOURCES_DIST = common.c layout_user.c asqtad_invert.c \
 	pcstubs/invert_utilities_vD_f3.c \
 	pcstubs/invert_utilities_vD_d3.c pcstubs/mg_f3.c \
 	pcstubs/mg_d3.c pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c \
-	pcstubs/vcycle_f3.c pcstubs/vcycle_d3.c
+	pcstubs/common_fn.c pcstubs/common_dn.c pcstubs/staples_fn.c \
+	pcstubs/staples_dn.c pcstubs/gauge_deriv_dn.c \
+	pcstubs/gauge_deriv_fn.c \
+	pcstubs/symanzik_1loop_gauge_action_fn.c \
+	pcstubs/symanzik_1loop_gauge_action_dn.c \
+	pcstubs/symanzik_1loop_gauge_force_fn.c \
+	pcstubs/symanzik_1loop_gauge_force_dn.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_fn.c \
+	pcstubs/symanzik_1loop_gauge_heatbath_dn.c \
+	pcstubs/asqtad_dslash_fn.c pcstubs/asqtad_dslash_dn.c \
+	pcstubs/asqtad_invert_fn.c pcstubs/asqtad_invert_dn.c \
+	pcstubs/asqtad_force_fn.c pcstubs/asqtad_force_dn.c \
+	pcstubs/asqtad_force_asvec_fn.c \
+	pcstubs/asqtad_force_asvec_dn.c \
+	pcstubs/asqtad_force_fnmat_fn.c \
+	pcstubs/asqtad_force_fnmat_dn.c pcstubs/hisq_links_fn.c \
+	pcstubs/hisq_links_dn.c pcstubs/hisq_reunit_fn.c \
+	pcstubs/hisq_reunit_dn.c pcstubs/hisq_force_fn.c \
+	pcstubs/hisq_force_dn.c pcstubs/hisq_force_fnmat_fn.c \
+	pcstubs/hisq_force_fnmat_dn.c pcstubs/wilson_dslash_fn.c \
+	pcstubs/wilson_dslash_dn.c pcstubs/wilson_invert_fn.c \
+	pcstubs/wilson_invert_dn.c pcstubs/wilson_force_fn.c \
+	pcstubs/wilson_force_dn.c pcstubs/dw_dslash_fn.c \
+	pcstubs/dw_dslash_dn.c pcstubs/dw_invert_fn.c \
+	pcstubs/dw_invert_dn.c pcstubs/invert_cg_V_fn.c \
+	pcstubs/invert_cg_V_dn.c pcstubs/invert_cg_D_fn.c \
+	pcstubs/invert_cg_D_dn.c pcstubs/invert_cg_vD_fn.c \
+	pcstubs/invert_cg_vD_dn.c pcstubs/invert_bicgstab_D_fn.c \
+	pcstubs/invert_bicgstab_D_dn.c pcstubs/invert_eigcg_V_fn.c \
+	pcstubs/invert_eigcg_V_dn.c pcstubs/invert_eigcg_D_fn.c \
+	pcstubs/invert_eigcg_D_dn.c pcstubs/invert_gmres2_D_fn.c \
+	pcstubs/invert_gmres2_D_dn.c pcstubs/invert_utilities_V_fn.c \
+	pcstubs/invert_utilities_V_dn.c \
+	pcstubs/invert_utilities_D_fn.c \
+	pcstubs/invert_utilities_D_dn.c \
+	pcstubs/invert_utilities_vD_fn.c \
+	pcstubs/invert_utilities_vD_dn.c pcstubs/vcycle_fn.c \
+	pcstubs/vcycle_dn.c
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = pcstubs/common_fn.$(OBJEXT) \
-	pcstubs/common_dn.$(OBJEXT) pcstubs/staples_fn.$(OBJEXT) \
-	pcstubs/staples_dn.$(OBJEXT) pcstubs/gauge_deriv_dn.$(OBJEXT) \
-	pcstubs/gauge_deriv_fn.$(OBJEXT) \
-	pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT) \
-	pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT) \
-	pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT) \
-	pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT) \
-	pcstubs/asqtad_dslash_fn.$(OBJEXT) \
-	pcstubs/asqtad_dslash_dn.$(OBJEXT) \
-	pcstubs/asqtad_invert_fn.$(OBJEXT) \
-	pcstubs/asqtad_invert_dn.$(OBJEXT) \
-	pcstubs/asqtad_force_fn.$(OBJEXT) \
-	pcstubs/asqtad_force_dn.$(OBJEXT) \
-	pcstubs/asqtad_force_asvec_fn.$(OBJEXT) \
-	pcstubs/asqtad_force_asvec_dn.$(OBJEXT) \
-	pcstubs/asqtad_force_fnmat_fn.$(OBJEXT) \
-	pcstubs/asqtad_force_fnmat_dn.$(OBJEXT) \
-	pcstubs/hisq_links_fn.$(OBJEXT) \
-	pcstubs/hisq_links_dn.$(OBJEXT) \
-	pcstubs/hisq_reunit_fn.$(OBJEXT) \
-	pcstubs/hisq_reunit_dn.$(OBJEXT) \
-	pcstubs/hisq_force_fn.$(OBJEXT) \
-	pcstubs/hisq_force_dn.$(OBJEXT) \
-	pcstubs/hisq_force_fnmat_fn.$(OBJEXT) \
-	pcstubs/hisq_force_fnmat_dn.$(OBJEXT) \
-	pcstubs/wilson_dslash_fn.$(OBJEXT) \
-	pcstubs/wilson_dslash_dn.$(OBJEXT) \
-	pcstubs/wilson_invert_fn.$(OBJEXT) \
-	pcstubs/wilson_invert_dn.$(OBJEXT) \
-	pcstubs/wilson_force_fn.$(OBJEXT) \
-	pcstubs/wilson_force_dn.$(OBJEXT) \
-	pcstubs/dw_dslash_fn.$(OBJEXT) pcstubs/dw_dslash_dn.$(OBJEXT) \
-	pcstubs/dw_invert_fn.$(OBJEXT) pcstubs/dw_invert_dn.$(OBJEXT) \
-	pcstubs/invert_cg_V_fn.$(OBJEXT) \
-	pcstubs/invert_cg_V_dn.$(OBJEXT) \
-	pcstubs/invert_cg_D_fn.$(OBJEXT) \
-	pcstubs/invert_cg_D_dn.$(OBJEXT) \
-	pcstubs/invert_cg_vD_fn.$(OBJEXT) \
-	pcstubs/invert_cg_vD_dn.$(OBJEXT) \
-	pcstubs/invert_bicgstab_D_fn.$(OBJEXT) \
-	pcstubs/invert_bicgstab_D_dn.$(OBJEXT) \
-	pcstubs/invert_eigcg_V_fn.$(OBJEXT) \
-	pcstubs/invert_eigcg_V_dn.$(OBJEXT) \
-	pcstubs/invert_eigcg_D_fn.$(OBJEXT) \
-	pcstubs/invert_eigcg_D_dn.$(OBJEXT) \
-	pcstubs/invert_gmres2_D_fn.$(OBJEXT) \
-	pcstubs/invert_gmres2_D_dn.$(OBJEXT) \
-	pcstubs/invert_utilities_V_fn.$(OBJEXT) \
-	pcstubs/invert_utilities_V_dn.$(OBJEXT) \
-	pcstubs/invert_utilities_D_fn.$(OBJEXT) \
-	pcstubs/invert_utilities_D_dn.$(OBJEXT) \
-	pcstubs/invert_utilities_vD_fn.$(OBJEXT) \
-	pcstubs/invert_utilities_vD_dn.$(OBJEXT)
-@NCN_TRUE@am__objects_2 = $(am__objects_1)
+am__objects_1 = pcstubs/common_f1.$(OBJEXT) \
+	pcstubs/common_d1.$(OBJEXT) pcstubs/staples_f1.$(OBJEXT) \
+	pcstubs/staples_d1.$(OBJEXT) pcstubs/gauge_deriv_f1.$(OBJEXT) \
+	pcstubs/gauge_deriv_d1.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_action_f1.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_action_d1.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_force_f1.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_force_d1.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_f1.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_d1.$(OBJEXT) \
+	pcstubs/asqtad_dslash_f1.$(OBJEXT) \
+	pcstubs/asqtad_dslash_d1.$(OBJEXT) \
+	pcstubs/asqtad_invert_f1.$(OBJEXT) \
+	pcstubs/asqtad_invert_d1.$(OBJEXT) \
+	pcstubs/asqtad_force_f1.$(OBJEXT) \
+	pcstubs/asqtad_force_d1.$(OBJEXT) \
+	pcstubs/asqtad_force_asvec_f1.$(OBJEXT) \
+	pcstubs/asqtad_force_asvec_d1.$(OBJEXT) \
+	pcstubs/asqtad_force_fnmat_f1.$(OBJEXT) \
+	pcstubs/asqtad_force_fnmat_d1.$(OBJEXT) \
+	pcstubs/hisq_links_f1.$(OBJEXT) \
+	pcstubs/hisq_links_d1.$(OBJEXT) \
+	pcstubs/hisq_reunit_f1.$(OBJEXT) \
+	pcstubs/hisq_reunit_d1.$(OBJEXT) \
+	pcstubs/hisq_force_f1.$(OBJEXT) \
+	pcstubs/hisq_force_d1.$(OBJEXT) \
+	pcstubs/hisq_force_fnmat_f1.$(OBJEXT) \
+	pcstubs/hisq_force_fnmat_d1.$(OBJEXT) \
+	pcstubs/wilson_dslash_f1.$(OBJEXT) \
+	pcstubs/wilson_dslash_d1.$(OBJEXT) \
+	pcstubs/wilson_invert_f1.$(OBJEXT) \
+	pcstubs/wilson_invert_d1.$(OBJEXT) \
+	pcstubs/wilson_force_f1.$(OBJEXT) \
+	pcstubs/wilson_force_d1.$(OBJEXT) \
+	pcstubs/dw_dslash_f1.$(OBJEXT) pcstubs/dw_dslash_d1.$(OBJEXT) \
+	pcstubs/dw_invert_f1.$(OBJEXT) pcstubs/dw_invert_d1.$(OBJEXT) \
+	pcstubs/invert_cg_V_f1.$(OBJEXT) \
+	pcstubs/invert_cg_V_d1.$(OBJEXT) \
+	pcstubs/invert_cg_D_f1.$(OBJEXT) \
+	pcstubs/invert_cg_D_d1.$(OBJEXT) \
+	pcstubs/invert_cg_vD_f1.$(OBJEXT) \
+	pcstubs/invert_cg_vD_d1.$(OBJEXT) \
+	pcstubs/invert_bicgstab_D_f1.$(OBJEXT) \
+	pcstubs/invert_bicgstab_D_d1.$(OBJEXT) \
+	pcstubs/invert_eigcg_V_f1.$(OBJEXT) \
+	pcstubs/invert_eigcg_V_d1.$(OBJEXT) \
+	pcstubs/invert_eigcg_D_f1.$(OBJEXT) \
+	pcstubs/invert_eigcg_D_d1.$(OBJEXT) \
+	pcstubs/invert_gmres2_D_f1.$(OBJEXT) \
+	pcstubs/invert_gmres2_D_d1.$(OBJEXT) \
+	pcstubs/invert_utilities_V_f1.$(OBJEXT) \
+	pcstubs/invert_utilities_V_d1.$(OBJEXT) \
+	pcstubs/invert_utilities_D_f1.$(OBJEXT) \
+	pcstubs/invert_utilities_D_d1.$(OBJEXT) \
+	pcstubs/invert_utilities_vD_f1.$(OBJEXT) \
+	pcstubs/invert_utilities_vD_d1.$(OBJEXT)
+@NC1_TRUE@am__objects_2 = $(am__objects_1)
 am__objects_3 = pcstubs/common_f2.$(OBJEXT) \
 	pcstubs/common_d2.$(OBJEXT) pcstubs/staples_f2.$(OBJEXT) \
 	pcstubs/staples_d2.$(OBJEXT) pcstubs/gauge_deriv_f2.$(OBJEXT) \
@@ -273,6 +319,8 @@ am__objects_3 = pcstubs/common_f2.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_action_d2.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_force_f2.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_force_d2.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_f2.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_d2.$(OBJEXT) \
 	pcstubs/asqtad_dslash_f2.$(OBJEXT) \
 	pcstubs/asqtad_dslash_d2.$(OBJEXT) \
 	pcstubs/asqtad_invert_f2.$(OBJEXT) \
@@ -328,6 +376,8 @@ am__objects_5 = pcstubs/common_f3.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_action_d3.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_force_f3.$(OBJEXT) \
 	pcstubs/symanzik_1loop_gauge_force_d3.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_f3.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_d3.$(OBJEXT) \
 	pcstubs/asqtad_dslash_f3.$(OBJEXT) \
 	pcstubs/asqtad_dslash_d3.$(OBJEXT) \
 	pcstubs/asqtad_invert_f3.$(OBJEXT) \
@@ -388,15 +438,73 @@ am__objects_5 = pcstubs/common_f3.$(OBJEXT) \
 	pcstubs/invert_utilities_vD_f3.$(OBJEXT) \
 	pcstubs/invert_utilities_vD_d3.$(OBJEXT) \
 	pcstubs/mg_f3.$(OBJEXT) pcstubs/mg_d3.$(OBJEXT) \
-	pcstubs/mg_dslash_f3.$(OBJEXT) pcstubs/mg_dslash_d3.$(OBJEXT) \
-	pcstubs/vcycle_f3.$(OBJEXT) pcstubs/vcycle_d3.$(OBJEXT)
+	pcstubs/mg_dslash_f3.$(OBJEXT) pcstubs/mg_dslash_d3.$(OBJEXT)
 @NC3_TRUE@am__objects_6 = $(am__objects_5)
+am__objects_7 = pcstubs/common_fn.$(OBJEXT) \
+	pcstubs/common_dn.$(OBJEXT) pcstubs/staples_fn.$(OBJEXT) \
+	pcstubs/staples_dn.$(OBJEXT) pcstubs/gauge_deriv_dn.$(OBJEXT) \
+	pcstubs/gauge_deriv_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_fn.$(OBJEXT) \
+	pcstubs/symanzik_1loop_gauge_heatbath_dn.$(OBJEXT) \
+	pcstubs/asqtad_dslash_fn.$(OBJEXT) \
+	pcstubs/asqtad_dslash_dn.$(OBJEXT) \
+	pcstubs/asqtad_invert_fn.$(OBJEXT) \
+	pcstubs/asqtad_invert_dn.$(OBJEXT) \
+	pcstubs/asqtad_force_fn.$(OBJEXT) \
+	pcstubs/asqtad_force_dn.$(OBJEXT) \
+	pcstubs/asqtad_force_asvec_fn.$(OBJEXT) \
+	pcstubs/asqtad_force_asvec_dn.$(OBJEXT) \
+	pcstubs/asqtad_force_fnmat_fn.$(OBJEXT) \
+	pcstubs/asqtad_force_fnmat_dn.$(OBJEXT) \
+	pcstubs/hisq_links_fn.$(OBJEXT) \
+	pcstubs/hisq_links_dn.$(OBJEXT) \
+	pcstubs/hisq_reunit_fn.$(OBJEXT) \
+	pcstubs/hisq_reunit_dn.$(OBJEXT) \
+	pcstubs/hisq_force_fn.$(OBJEXT) \
+	pcstubs/hisq_force_dn.$(OBJEXT) \
+	pcstubs/hisq_force_fnmat_fn.$(OBJEXT) \
+	pcstubs/hisq_force_fnmat_dn.$(OBJEXT) \
+	pcstubs/wilson_dslash_fn.$(OBJEXT) \
+	pcstubs/wilson_dslash_dn.$(OBJEXT) \
+	pcstubs/wilson_invert_fn.$(OBJEXT) \
+	pcstubs/wilson_invert_dn.$(OBJEXT) \
+	pcstubs/wilson_force_fn.$(OBJEXT) \
+	pcstubs/wilson_force_dn.$(OBJEXT) \
+	pcstubs/dw_dslash_fn.$(OBJEXT) pcstubs/dw_dslash_dn.$(OBJEXT) \
+	pcstubs/dw_invert_fn.$(OBJEXT) pcstubs/dw_invert_dn.$(OBJEXT) \
+	pcstubs/invert_cg_V_fn.$(OBJEXT) \
+	pcstubs/invert_cg_V_dn.$(OBJEXT) \
+	pcstubs/invert_cg_D_fn.$(OBJEXT) \
+	pcstubs/invert_cg_D_dn.$(OBJEXT) \
+	pcstubs/invert_cg_vD_fn.$(OBJEXT) \
+	pcstubs/invert_cg_vD_dn.$(OBJEXT) \
+	pcstubs/invert_bicgstab_D_fn.$(OBJEXT) \
+	pcstubs/invert_bicgstab_D_dn.$(OBJEXT) \
+	pcstubs/invert_eigcg_V_fn.$(OBJEXT) \
+	pcstubs/invert_eigcg_V_dn.$(OBJEXT) \
+	pcstubs/invert_eigcg_D_fn.$(OBJEXT) \
+	pcstubs/invert_eigcg_D_dn.$(OBJEXT) \
+	pcstubs/invert_gmres2_D_fn.$(OBJEXT) \
+	pcstubs/invert_gmres2_D_dn.$(OBJEXT) \
+	pcstubs/invert_utilities_V_fn.$(OBJEXT) \
+	pcstubs/invert_utilities_V_dn.$(OBJEXT) \
+	pcstubs/invert_utilities_D_fn.$(OBJEXT) \
+	pcstubs/invert_utilities_D_dn.$(OBJEXT) \
+	pcstubs/invert_utilities_vD_fn.$(OBJEXT) \
+	pcstubs/invert_utilities_vD_dn.$(OBJEXT) \
+	pcstubs/vcycle_fn.$(OBJEXT) pcstubs/vcycle_dn.$(OBJEXT)
+@NCN_TRUE@am__objects_8 = $(am__objects_7)
 am_libqopqdp_a_OBJECTS = common.$(OBJEXT) layout_user.$(OBJEXT) \
 	asqtad_invert.$(OBJEXT) asqtad_force.$(OBJEXT) \
 	hisq_links.$(OBJEXT) hisq_force.$(OBJEXT) \
 	wilson_dslash.$(OBJEXT) wilson_invert.$(OBJEXT) \
 	dw_dslash.$(OBJEXT) dw_invert.$(OBJEXT) mg/mg.$(OBJEXT) \
-	$(am__objects_2) $(am__objects_4) $(am__objects_6)
+	$(am__objects_2) $(am__objects_4) $(am__objects_6) \
+	$(am__objects_8)
 libqopqdp_a_OBJECTS = $(am_libqopqdp_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -525,13 +633,47 @@ lib_LIBRARIES = libqopqdp.a
 libqopqdp_a_SOURCES = common.c layout_user.c asqtad_invert.c \
 	asqtad_force.c hisq_links.c hisq_force.c wilson_dslash.c \
 	wilson_invert.c dw_dslash.c dw_invert.c mg/mg.c \
-	$(am__append_1) $(am__append_2) $(am__append_3)
+	$(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
+NC1SOURCES = \
+  pcstubs/common_f1.c pcstubs/common_d1.c \
+  pcstubs/staples_f1.c pcstubs/staples_d1.c \
+  pcstubs/gauge_deriv_f1.c pcstubs/gauge_deriv_d1.c \
+  pcstubs/symanzik_1loop_gauge_action_f1.c pcstubs/symanzik_1loop_gauge_action_d1.c \
+  pcstubs/symanzik_1loop_gauge_force_f1.c pcstubs/symanzik_1loop_gauge_force_d1.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_f1.c pcstubs/symanzik_1loop_gauge_heatbath_d1.c \
+  pcstubs/asqtad_dslash_f1.c pcstubs/asqtad_dslash_d1.c \
+  pcstubs/asqtad_invert_f1.c pcstubs/asqtad_invert_d1.c \
+  pcstubs/asqtad_force_f1.c pcstubs/asqtad_force_d1.c \
+  pcstubs/asqtad_force_asvec_f1.c pcstubs/asqtad_force_asvec_d1.c \
+  pcstubs/asqtad_force_fnmat_f1.c pcstubs/asqtad_force_fnmat_d1.c \
+  pcstubs/hisq_links_f1.c pcstubs/hisq_links_d1.c \
+  pcstubs/hisq_reunit_f1.c pcstubs/hisq_reunit_d1.c \
+  pcstubs/hisq_force_f1.c pcstubs/hisq_force_d1.c \
+  pcstubs/hisq_force_fnmat_f1.c pcstubs/hisq_force_fnmat_d1.c \
+  pcstubs/wilson_dslash_f1.c pcstubs/wilson_dslash_d1.c \
+  pcstubs/wilson_invert_f1.c pcstubs/wilson_invert_d1.c \
+  pcstubs/wilson_force_f1.c pcstubs/wilson_force_d1.c \
+  pcstubs/dw_dslash_f1.c pcstubs/dw_dslash_d1.c \
+  pcstubs/dw_invert_f1.c pcstubs/dw_invert_d1.c \
+  pcstubs/invert_cg_V_f1.c pcstubs/invert_cg_V_d1.c \
+  pcstubs/invert_cg_D_f1.c pcstubs/invert_cg_D_d1.c \
+  pcstubs/invert_cg_vD_f1.c pcstubs/invert_cg_vD_d1.c \
+  pcstubs/invert_bicgstab_D_f1.c pcstubs/invert_bicgstab_D_d1.c \
+  pcstubs/invert_eigcg_V_f1.c pcstubs/invert_eigcg_V_d1.c \
+  pcstubs/invert_eigcg_D_f1.c pcstubs/invert_eigcg_D_d1.c \
+  pcstubs/invert_gmres2_D_f1.c pcstubs/invert_gmres2_D_d1.c \
+  pcstubs/invert_utilities_V_f1.c pcstubs/invert_utilities_V_d1.c \
+  pcstubs/invert_utilities_D_f1.c pcstubs/invert_utilities_D_d1.c \
+  pcstubs/invert_utilities_vD_f1.c pcstubs/invert_utilities_vD_d1.c
+
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
   pcstubs/staples_f2.c pcstubs/staples_d2.c \
   pcstubs/gauge_deriv_f2.c pcstubs/gauge_deriv_d2.c \
   pcstubs/symanzik_1loop_gauge_action_f2.c pcstubs/symanzik_1loop_gauge_action_d2.c \
   pcstubs/symanzik_1loop_gauge_force_f2.c pcstubs/symanzik_1loop_gauge_force_d2.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_f2.c pcstubs/symanzik_1loop_gauge_heatbath_d2.c \
   pcstubs/asqtad_dslash_f2.c pcstubs/asqtad_dslash_d2.c \
   pcstubs/asqtad_invert_f2.c pcstubs/asqtad_invert_d2.c \
   pcstubs/asqtad_force_f2.c pcstubs/asqtad_force_d2.c \
@@ -563,6 +705,7 @@ NC3SOURCES = \
   pcstubs/gauge_deriv_d3.c pcstubs/gauge_deriv_f3.c \
   pcstubs/symanzik_1loop_gauge_action_f3.c pcstubs/symanzik_1loop_gauge_action_d3.c \
   pcstubs/symanzik_1loop_gauge_force_f3.c pcstubs/symanzik_1loop_gauge_force_d3.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_f3.c pcstubs/symanzik_1loop_gauge_heatbath_d3.c \
   pcstubs/asqtad_dslash_f3.c pcstubs/asqtad_dslash_d3.c \
   pcstubs/asqtad_invert_f3.c pcstubs/asqtad_invert_d3.c \
   pcstubs/asqtad_force_f3.c pcstubs/asqtad_force_d3.c \
@@ -595,8 +738,7 @@ NC3SOURCES = \
   pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
   pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c \
   pcstubs/mg_f3.c pcstubs/mg_d3.c \
-  pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c \
-  pcstubs/vcycle_f3.c pcstubs/vcycle_d3.c
+  pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c
 
 NCNSOURCES = \
   pcstubs/common_fn.c pcstubs/common_dn.c \
@@ -604,6 +746,7 @@ NCNSOURCES = \
   pcstubs/gauge_deriv_dn.c pcstubs/gauge_deriv_fn.c \
   pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
   pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
+  pcstubs/symanzik_1loop_gauge_heatbath_fn.c pcstubs/symanzik_1loop_gauge_heatbath_dn.c \
   pcstubs/asqtad_dslash_fn.c pcstubs/asqtad_dslash_dn.c \
   pcstubs/asqtad_invert_fn.c pcstubs/asqtad_invert_dn.c \
   pcstubs/asqtad_force_fn.c pcstubs/asqtad_force_dn.c \
@@ -627,7 +770,8 @@ NCNSOURCES = \
   pcstubs/invert_gmres2_D_fn.c pcstubs/invert_gmres2_D_dn.c \
   pcstubs/invert_utilities_V_fn.c pcstubs/invert_utilities_V_dn.c \
   pcstubs/invert_utilities_D_fn.c pcstubs/invert_utilities_D_dn.c \
-  pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c
+  pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c \
+  pcstubs/vcycle_fn.c pcstubs/vcycle_dn.c
 
 EXTRA_DIST = \
   common_p.c \
@@ -636,6 +780,7 @@ EXTRA_DIST = \
   symanzik_1loop_gauge_action_p.c \
   symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
+  symanzik_1loop_gauge_heatbath_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \
@@ -753,121 +898,125 @@ pcstubs/$(am__dirstamp):
 pcstubs/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) pcstubs/$(DEPDIR)
 	@: > pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/common_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/common_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/common_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/common_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/staples_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/staples_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/staples_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/staples_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/gauge_deriv_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/gauge_deriv_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/gauge_deriv_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/gauge_deriv_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT):  \
+pcstubs/symanzik_1loop_gauge_action_f1.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT):  \
+pcstubs/symanzik_1loop_gauge_action_d1.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT):  \
+pcstubs/symanzik_1loop_gauge_force_f1.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT):  \
+pcstubs/symanzik_1loop_gauge_force_d1.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/symanzik_1loop_gauge_heatbath_f1.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_d1.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_dslash_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_dslash_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_invert_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_invert_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_invert_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_invert_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_force_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_force_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_force_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_force_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_force_asvec_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_force_asvec_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_force_asvec_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_force_asvec_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_force_fnmat_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_force_fnmat_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/asqtad_force_fnmat_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/asqtad_force_fnmat_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_links_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_links_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_links_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_links_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_reunit_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_reunit_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_reunit_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_reunit_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_force_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_force_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_force_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_force_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_force_fnmat_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_force_fnmat_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/hisq_force_fnmat_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/hisq_force_fnmat_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/wilson_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/wilson_dslash_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/wilson_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/wilson_dslash_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/wilson_invert_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/wilson_invert_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/wilson_invert_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/wilson_invert_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/wilson_force_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/wilson_force_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/wilson_force_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/wilson_force_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/dw_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/dw_dslash_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/dw_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/dw_dslash_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/dw_invert_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/dw_invert_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/dw_invert_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/dw_invert_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_cg_V_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_cg_V_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_cg_V_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_cg_V_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_cg_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_cg_D_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_cg_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_cg_D_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_cg_vD_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_cg_vD_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_cg_vD_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_cg_vD_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_bicgstab_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_bicgstab_D_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_bicgstab_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_bicgstab_D_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_eigcg_V_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_eigcg_V_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_eigcg_V_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_eigcg_V_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_eigcg_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_eigcg_D_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_eigcg_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_eigcg_D_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_gmres2_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_gmres2_D_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_gmres2_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_gmres2_D_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_utilities_V_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_utilities_V_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_utilities_V_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_utilities_V_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_utilities_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_utilities_D_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_utilities_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_utilities_D_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_utilities_vD_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_utilities_vD_f1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/invert_utilities_vD_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/invert_utilities_vD_d1.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/common_f2.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
@@ -888,6 +1037,10 @@ pcstubs/symanzik_1loop_gauge_action_d2.$(OBJEXT):  \
 pcstubs/symanzik_1loop_gauge_force_f2.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/symanzik_1loop_gauge_force_d2.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_f2.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_d2.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/asqtad_dslash_f2.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
@@ -1004,6 +1157,10 @@ pcstubs/symanzik_1loop_gauge_action_d3.$(OBJEXT):  \
 pcstubs/symanzik_1loop_gauge_force_f3.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/symanzik_1loop_gauge_force_d3.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_f3.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_d3.$(OBJEXT):  \
 	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/asqtad_dslash_f3.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
@@ -1137,9 +1294,129 @@ pcstubs/mg_dslash_f3.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
 pcstubs/mg_dslash_d3.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/vcycle_f3.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/common_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
-pcstubs/vcycle_d3.$(OBJEXT): pcstubs/$(am__dirstamp) \
+pcstubs/common_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/staples_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/staples_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/gauge_deriv_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/gauge_deriv_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_fn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/symanzik_1loop_gauge_heatbath_dn.$(OBJEXT):  \
+	pcstubs/$(am__dirstamp) pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_invert_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_invert_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_force_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_force_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_force_asvec_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_force_asvec_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_force_fnmat_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/asqtad_force_fnmat_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_links_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_links_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_reunit_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_reunit_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_force_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_force_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_force_fnmat_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/hisq_force_fnmat_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_invert_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_invert_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_force_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/wilson_force_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/dw_dslash_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/dw_dslash_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/dw_invert_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/dw_invert_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_cg_V_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_cg_V_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_cg_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_cg_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_cg_vD_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_cg_vD_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_bicgstab_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_bicgstab_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_eigcg_V_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_eigcg_V_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_eigcg_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_eigcg_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_gmres2_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_gmres2_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_utilities_V_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_utilities_V_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_utilities_D_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_utilities_D_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_utilities_vD_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/invert_utilities_vD_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/vcycle_fn.$(OBJEXT): pcstubs/$(am__dirstamp) \
+	pcstubs/$(DEPDIR)/$(am__dirstamp)
+pcstubs/vcycle_dn.$(OBJEXT): pcstubs/$(am__dirstamp) \
 	pcstubs/$(DEPDIR)/$(am__dirstamp)
 libqopqdp.a: $(libqopqdp_a_OBJECTS) $(libqopqdp_a_DEPENDENCIES) $(EXTRA_libqopqdp_a_DEPENDENCIES) 
 	-rm -f libqopqdp.a
@@ -1149,149 +1426,195 @@ libqopqdp.a: $(libqopqdp_a_OBJECTS) $(libqopqdp_a_DEPENDENCIES) $(EXTRA_libqopqd
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f mg/mg.$(OBJEXT)
+	-rm -f pcstubs/asqtad_dslash_d1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_dslash_d2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_dslash_d3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_dslash_dn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_dslash_f1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_dslash_f2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_dslash_f3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_dslash_fn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_force_asvec_d1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_asvec_d2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_asvec_d3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_asvec_dn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_force_asvec_f1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_asvec_f2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_asvec_f3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_asvec_fn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_force_d1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_d2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_d3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_dn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_force_f1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_f2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_f3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_force_fnmat_d1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fnmat_d2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fnmat_d3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fnmat_dn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_force_fnmat_f1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fnmat_f2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fnmat_f3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_force_fnmat_fn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_invert_d1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_invert_d2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_invert_d3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_invert_dn.$(OBJEXT)
+	-rm -f pcstubs/asqtad_invert_f1.$(OBJEXT)
 	-rm -f pcstubs/asqtad_invert_f2.$(OBJEXT)
 	-rm -f pcstubs/asqtad_invert_f3.$(OBJEXT)
 	-rm -f pcstubs/asqtad_invert_fn.$(OBJEXT)
+	-rm -f pcstubs/common_d1.$(OBJEXT)
 	-rm -f pcstubs/common_d2.$(OBJEXT)
 	-rm -f pcstubs/common_d3.$(OBJEXT)
 	-rm -f pcstubs/common_dn.$(OBJEXT)
+	-rm -f pcstubs/common_f1.$(OBJEXT)
 	-rm -f pcstubs/common_f2.$(OBJEXT)
 	-rm -f pcstubs/common_f3.$(OBJEXT)
 	-rm -f pcstubs/common_fn.$(OBJEXT)
+	-rm -f pcstubs/dw_dslash_d1.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_d2.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_d3.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_dn.$(OBJEXT)
+	-rm -f pcstubs/dw_dslash_f1.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_f2.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_f3.$(OBJEXT)
 	-rm -f pcstubs/dw_dslash_fn.$(OBJEXT)
+	-rm -f pcstubs/dw_invert_d1.$(OBJEXT)
 	-rm -f pcstubs/dw_invert_d2.$(OBJEXT)
 	-rm -f pcstubs/dw_invert_d3.$(OBJEXT)
 	-rm -f pcstubs/dw_invert_dn.$(OBJEXT)
+	-rm -f pcstubs/dw_invert_f1.$(OBJEXT)
 	-rm -f pcstubs/dw_invert_f2.$(OBJEXT)
 	-rm -f pcstubs/dw_invert_f3.$(OBJEXT)
 	-rm -f pcstubs/dw_invert_fn.$(OBJEXT)
+	-rm -f pcstubs/gauge_deriv_d1.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_d2.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_d3.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_dn.$(OBJEXT)
+	-rm -f pcstubs/gauge_deriv_f1.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_f2.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_f3.$(OBJEXT)
 	-rm -f pcstubs/gauge_deriv_fn.$(OBJEXT)
+	-rm -f pcstubs/hisq_force_d1.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_d2.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_d3.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_dn.$(OBJEXT)
+	-rm -f pcstubs/hisq_force_f1.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_f2.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_f3.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fn.$(OBJEXT)
+	-rm -f pcstubs/hisq_force_fnmat_d1.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fnmat_d2.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fnmat_d3.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fnmat_dn.$(OBJEXT)
+	-rm -f pcstubs/hisq_force_fnmat_f1.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fnmat_f2.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fnmat_f3.$(OBJEXT)
 	-rm -f pcstubs/hisq_force_fnmat_fn.$(OBJEXT)
+	-rm -f pcstubs/hisq_links_d1.$(OBJEXT)
 	-rm -f pcstubs/hisq_links_d2.$(OBJEXT)
 	-rm -f pcstubs/hisq_links_d3.$(OBJEXT)
 	-rm -f pcstubs/hisq_links_dn.$(OBJEXT)
+	-rm -f pcstubs/hisq_links_f1.$(OBJEXT)
 	-rm -f pcstubs/hisq_links_f2.$(OBJEXT)
 	-rm -f pcstubs/hisq_links_f3.$(OBJEXT)
 	-rm -f pcstubs/hisq_links_fn.$(OBJEXT)
+	-rm -f pcstubs/hisq_reunit_d1.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_d2.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_d3.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_dn.$(OBJEXT)
+	-rm -f pcstubs/hisq_reunit_f1.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_f2.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_f3.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_fn.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_utilities_d3.$(OBJEXT)
 	-rm -f pcstubs/hisq_reunit_utilities_f3.$(OBJEXT)
+	-rm -f pcstubs/invert_bicgstab_D_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_D_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_D_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_D_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_bicgstab_D_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_D_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_D_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_D_fn.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_bicgstab_f3.$(OBJEXT)
+	-rm -f pcstubs/invert_cg_D_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_D_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_D_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_D_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_cg_D_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_D_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_D_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_D_fn.$(OBJEXT)
+	-rm -f pcstubs/invert_cg_V_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_V_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_V_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_V_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_cg_V_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_V_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_V_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_V_fn.$(OBJEXT)
+	-rm -f pcstubs/invert_cg_vD_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_vD_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_vD_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_vD_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_cg_vD_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_vD_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_vD_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_cg_vD_fn.$(OBJEXT)
 	-rm -f pcstubs/invert_cgls_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_cgls_f3.$(OBJEXT)
+	-rm -f pcstubs/invert_eigcg_D_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_D_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_D_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_D_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_eigcg_D_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_D_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_D_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_D_fn.$(OBJEXT)
+	-rm -f pcstubs/invert_eigcg_V_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_V_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_V_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_V_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_eigcg_V_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_V_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_V_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_eigcg_V_fn.$(OBJEXT)
 	-rm -f pcstubs/invert_gcr_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_gcr_f3.$(OBJEXT)
+	-rm -f pcstubs/invert_gmres2_D_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_gmres2_D_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_gmres2_D_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_gmres2_D_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_gmres2_D_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_gmres2_D_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_gmres2_D_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_gmres2_D_fn.$(OBJEXT)
+	-rm -f pcstubs/invert_utilities_D_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_D_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_D_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_D_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_utilities_D_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_D_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_D_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_D_fn.$(OBJEXT)
+	-rm -f pcstubs/invert_utilities_V_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_V_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_V_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_V_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_utilities_V_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_V_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_V_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_V_fn.$(OBJEXT)
+	-rm -f pcstubs/invert_utilities_vD_d1.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_vD_d2.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_vD_d3.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_vD_dn.$(OBJEXT)
+	-rm -f pcstubs/invert_utilities_vD_f1.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_vD_f2.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_vD_f3.$(OBJEXT)
 	-rm -f pcstubs/invert_utilities_vD_fn.$(OBJEXT)
@@ -1299,43 +1622,63 @@ mostlyclean-compile:
 	-rm -f pcstubs/mg_dslash_d3.$(OBJEXT)
 	-rm -f pcstubs/mg_dslash_f3.$(OBJEXT)
 	-rm -f pcstubs/mg_f3.$(OBJEXT)
+	-rm -f pcstubs/staples_d1.$(OBJEXT)
 	-rm -f pcstubs/staples_d2.$(OBJEXT)
 	-rm -f pcstubs/staples_d3.$(OBJEXT)
 	-rm -f pcstubs/staples_dn.$(OBJEXT)
+	-rm -f pcstubs/staples_f1.$(OBJEXT)
 	-rm -f pcstubs/staples_f2.$(OBJEXT)
 	-rm -f pcstubs/staples_f3.$(OBJEXT)
 	-rm -f pcstubs/staples_fn.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_action_d1.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_d2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_d3.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_dn.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_action_f1.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_f2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_f3.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_action_fn.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_force_d1.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_d2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_d3.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_dn.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_force_f1.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_f2.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_f3.$(OBJEXT)
 	-rm -f pcstubs/symanzik_1loop_gauge_force_fn.$(OBJEXT)
-	-rm -f pcstubs/vcycle_d3.$(OBJEXT)
-	-rm -f pcstubs/vcycle_f3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_d1.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_d2.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_d3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_dn.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_f1.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_f2.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_f3.$(OBJEXT)
+	-rm -f pcstubs/symanzik_1loop_gauge_heatbath_fn.$(OBJEXT)
+	-rm -f pcstubs/vcycle_dn.$(OBJEXT)
+	-rm -f pcstubs/vcycle_fn.$(OBJEXT)
+	-rm -f pcstubs/wilson_dslash_d1.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_d2.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_d3.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_dn.$(OBJEXT)
+	-rm -f pcstubs/wilson_dslash_f1.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_f2.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_f3.$(OBJEXT)
 	-rm -f pcstubs/wilson_dslash_fn.$(OBJEXT)
+	-rm -f pcstubs/wilson_force_d1.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_d2.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_d3.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_dn.$(OBJEXT)
+	-rm -f pcstubs/wilson_force_f1.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_f2.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_f3.$(OBJEXT)
 	-rm -f pcstubs/wilson_force_fn.$(OBJEXT)
 	-rm -f pcstubs/wilson_ifla_invert_d3.$(OBJEXT)
 	-rm -f pcstubs/wilson_ifla_invert_f3.$(OBJEXT)
+	-rm -f pcstubs/wilson_invert_d1.$(OBJEXT)
 	-rm -f pcstubs/wilson_invert_d2.$(OBJEXT)
 	-rm -f pcstubs/wilson_invert_d3.$(OBJEXT)
 	-rm -f pcstubs/wilson_invert_dn.$(OBJEXT)
+	-rm -f pcstubs/wilson_invert_f1.$(OBJEXT)
 	-rm -f pcstubs/wilson_invert_f2.$(OBJEXT)
 	-rm -f pcstubs/wilson_invert_f3.$(OBJEXT)
 	-rm -f pcstubs/wilson_invert_fn.$(OBJEXT)
@@ -1358,149 +1701,195 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_dslash.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mg/$(DEPDIR)/mg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_dslash_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_asvec_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_force_fnmat_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/asqtad_invert_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/common_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_dslash_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/dw_invert_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/gauge_deriv_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_force_fnmat_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_links_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_utilities_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/hisq_reunit_utilities_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_D_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_bicgstab_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_D_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_V_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cg_vD_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cgls_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_cgls_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_D_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_eigcg_V_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gcr_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gcr_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_gmres2_D_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_D_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_V_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/invert_utilities_vD_fn.Po@am__quote@
@@ -1508,43 +1897,63 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/mg_dslash_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/mg_dslash_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/mg_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/staples_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_action_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_force_fn.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/vcycle_d3.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/vcycle_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_d1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_d2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_d3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_f1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_f2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/symanzik_1loop_gauge_heatbath_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/vcycle_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/vcycle_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_dslash_fn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_force_fn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_ifla_invert_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_ifla_invert_f3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_d1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_d3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_dn.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_f1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_f2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_f3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pcstubs/$(DEPDIR)/wilson_invert_fn.Po@am__quote@

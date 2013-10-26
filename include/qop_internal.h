@@ -14,8 +14,10 @@
 #undef QLA_Nc
 #define QLA_Nc QOP_Nc
 #define NCPROT int NC,
+#define NCPROT1 int NC,
 #define NCPROTVOID int NC
 #define NCARG NC,
+#define NCARG1 NC,
 #define NCARGVOID NC
 
 #ifndef QLA_ColorMatrix
@@ -39,13 +41,22 @@
 #else
 
 #define NCPROT
+#define NCPROT1
 #define NCPROTVOID void
 #define NCARG
+#define NCARG1
 #define NCARGVOID
 #ifndef QLA_ColorMatrix
 #define QLA_ColorMatrix(x) QLA_ColorMatrix x
 #define QLA_F_ColorMatrix(x) QLA_F_ColorMatrix x
 #define QLA_D_ColorMatrix(x) QLA_D_ColorMatrix x
+#endif
+
+#if QOP_Colors == 1
+#undef NCPROT1
+#define NCPROT1 int NC,
+#undef NCARG1
+#define NCARG1 NC,
 #endif
 
 #endif
@@ -101,9 +112,11 @@
 #define TRACE
 #endif
 
-#define QOP_error(str) \
-  fprintf(stderr, "QOP error: %s\n", str); \
-  QDP_abort(1);
+#define QOP_error(...) do { \
+    printf("QOP error: %s %s %i\n", __FILE__, __func__, __LINE__); \
+    fprintf(stderr, __VA_ARGS__); \
+    QDP_abort(1); \
+  } while(0)
 
 #define QLATYPE_V QLA_ColorVector
 #define QLATYPE_D QLA_DiracFermion
@@ -230,7 +243,10 @@ QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 #define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
 #define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
 
-#if QOP_Colors == 2
+#if QOP_Colors == 1
+#include <qop_f1_internal.h>
+#include <qop_d1_internal.h>
+#elif QOP_Colors == 2
 #include <qop_f2_internal.h>
 #include <qop_d2_internal.h>
 #elif QOP_Colors == 3

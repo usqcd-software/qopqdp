@@ -135,7 +135,7 @@ orthogonalize(QLA_ColorMatrix *m, int r1, int r2)
 }
 
 static void
-make_unitary_func(NCPROT QLA_ColorMatrix *m, int coords[])
+make_unitary_func(NCPROT1 QLA_ColorMatrix *m, int coords[])
 {
   for(int i=0; i<QDP_Nc; i++) {
     for(int j=0; j<i; j++) {

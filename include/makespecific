@@ -1,22 +1,26 @@
 #!/bin/sh
 
 f=$1
-PC=$2
+#PC=$2
+P=$2
+C=$3
 
-P=`echo $PC |sed 's/\(.*\)./\1/'`
+PC=$P$C
+#P=`echo $PC |sed 's/.$//'`
 O=`echo $P |tr 'FD' 'DF'`
-OC=`echo $PC |sed 's/^./'$O'/'`
+#OC=`echo $PC |sed 's/^./'$O'/'`
+OC="$O$C"
 POC=$P$OC
 OPC=$O$PC
 QPQ="\'$P\'"
-C=`echo $PC |sed 's/.*\(.\)/\1/'`
+#C=`echo $PC |sed 's/.*\(.\)/\1/'`
 QCQ=`echo $C |sed "s/N/'N'/"`
 DFC="DF$C"
 pc=`echo $PC |tr 'A-Z' 'a-z'`
 poc=`echo $POC |tr 'A-Z' 'a-z'`
 opc=`echo $OPC |tr 'A-Z' 'a-z'`
 dfc=`echo $DFC |tr 'A-Z' 'a-z'`
-if [ $C = N ]; then
+if [ X$C = XN ]; then
   NCPROT="int nc,"
 fi
 
@@ -30,8 +34,9 @@ cat $f |sed '
   s/QOP_PC_/QOP_'$PC'_/g;
   s/QOP_OC_/QOP_'$OC'_/g;
   s/QOP_P_/QOP_'$P'_/g;
-  s/qop_dfc_/qop_'$dfc'_/g;
+  s/qop_p_/qop_'$p'_/g;
   s/qop_pc_/qop_'$pc'_/g;
+  s/qop_dfc_/qop_'$dfc'_/g;
   s/QDP_PC_/QDP_'$PC'_/g;
   s/QDP_P_/QDP_'$P'_/g;
   s/QLA_PC_/QLA_'$PC'_/g;

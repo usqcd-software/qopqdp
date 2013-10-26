@@ -1,13 +1,32 @@
 ALL_CFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include $(CFLAGS)
+
+F1_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=1 -DQDP_Precision=\'F\' -DQDP_Nc=1 $(ALL_CFLAGS)
+D1_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=1 -DQDP_Precision=\'D\' -DQDP_Nc=1 $(ALL_CFLAGS)
+
 F2_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=2 -DQDP_Precision=\'F\' -DQDP_Nc=2 $(ALL_CFLAGS)
 D2_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=2 -DQDP_Precision=\'D\' -DQDP_Nc=2 $(ALL_CFLAGS)
+
 F3_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=3 -DQDP_Precision=\'F\' -DQDP_Nc=3 $(ALL_CFLAGS)
 D3_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=3 -DQDP_Precision=\'D\' -DQDP_Nc=3 $(ALL_CFLAGS)
+
 FN_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=4 -DQOP_Colors=\'N\' -DQDP_Precision=\'F\' -DQDP_Nc=4 -DQDP_Colors=\'N\' $(ALL_CFLAGS)
 DN_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=4 -DQOP_Colors=\'N\' -DQDP_Precision=\'D\' -DQDP_Nc=4 -DQDP_Colors=\'N\' $(ALL_CFLAGS)
 LIBS = -L$(top_builddir)/lib -lqopqdp @LIBS@
 
 check_PROGRAMS =
+if NCN
+  check_PROGRAMS += \
+  imp_gauge_force_bench_f1 imp_gauge_force_bench_d1 \
+  asqtad_test_f1 asqtad_test_d1 \
+  asqtad_invert_bench_f1 asqtad_invert_bench_d1 \
+  asqtad_force_bench_f1 asqtad_force_bench_d1 \
+  hisq_invert_bench_f1 hisq_invert_bench_d1 \
+  hisq_force_bench_f1 hisq_force_bench_d1 \
+  wilson_test_f1 wilson_test_d1 \
+  wilson_invert_bench_f1 wilson_invert_bench_d1 \
+  wilson_force_bench_f1 wilson_force_bench_d1 \
+  dw_invert_bench_f1 dw_invert_bench_d1
+endif
 if NC2
   check_PROGRAMS += \
   imp_gauge_force_bench_f2 imp_gauge_force_bench_d2 \
@@ -54,6 +73,12 @@ if NCN
   dw_invert_bench_fn dw_invert_bench_dn
 endif
 
+imp_gauge_force_bench_f1_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+imp_gauge_force_bench_d1_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_d1_CFLAGS = $(D1_CFLAGS)
+
 imp_gauge_force_bench_f2_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_f2_CFLAGS = $(F2_CFLAGS)
 
@@ -72,6 +97,12 @@ imp_gauge_force_bench_fn_CFLAGS = $(FN_CFLAGS)
 imp_gauge_force_bench_dn_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_dn_CFLAGS = $(DN_CFLAGS)
 
+
+asqtad_test_f1_SOURCES = test_common.h test_common.c asqtad_test.c
+asqtad_test_f1_CFLAGS = $(F1_CFLAGS)
+
+asqtad_test_d1_SOURCES = test_common.h test_common.c asqtad_test.c
+asqtad_test_d1_CFLAGS = $(D1_CFLAGS)
 
 asqtad_test_f2_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f2_CFLAGS = $(F2_CFLAGS)
@@ -92,6 +123,12 @@ asqtad_test_dn_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_dn_CFLAGS = $(DN_CFLAGS)
 
 
+asqtad_invert_bench_f1_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
+asqtad_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+asqtad_invert_bench_d1_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
+asqtad_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
+
 asqtad_invert_bench_f2_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
 asqtad_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 
@@ -110,6 +147,12 @@ asqtad_invert_bench_fn_CFLAGS = $(FN_CFLAGS)
 asqtad_invert_bench_dn_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
 asqtad_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
 
+
+asqtad_force_bench_f1_SOURCES = test_common.h test_common.c asqtad_force_bench.c
+asqtad_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+asqtad_force_bench_d1_SOURCES = test_common.h test_common.c asqtad_force_bench.c
+asqtad_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 
 asqtad_force_bench_f2_SOURCES = test_common.h test_common.c asqtad_force_bench.c
 asqtad_force_bench_f2_CFLAGS = $(F2_CFLAGS)
@@ -137,6 +180,12 @@ asqtad_eigcg_d3_SOURCES = test_common.h test_common.c asqtad_eigcg.c
 asqtad_eigcg_d3_CFLAGS = $(D3_CFLAGS)
 
 
+hisq_invert_bench_f1_SOURCES = test_common.h test_common.c hisq_invert_bench.c
+hisq_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+hisq_invert_bench_d1_SOURCES = test_common.h test_common.c hisq_invert_bench.c
+hisq_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
+
 hisq_invert_bench_f2_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 
@@ -155,6 +204,12 @@ hisq_invert_bench_fn_CFLAGS = $(FN_CFLAGS)
 hisq_invert_bench_dn_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
 
+
+hisq_force_bench_f1_SOURCES = test_common.h test_common.c hisq_force_bench.c
+hisq_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+hisq_force_bench_d1_SOURCES = test_common.h test_common.c hisq_force_bench.c
+hisq_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 
 hisq_force_bench_f2_SOURCES = test_common.h test_common.c hisq_force_bench.c
 hisq_force_bench_f2_CFLAGS = $(F2_CFLAGS)
@@ -175,6 +230,12 @@ hisq_force_bench_dn_SOURCES = test_common.h test_common.c hisq_force_bench.c
 hisq_force_bench_dn_CFLAGS = $(DN_CFLAGS)
 
 
+wilson_test_f1_SOURCES = test_common.h test_common.c wilson_test.c
+wilson_test_f1_CFLAGS = $(F1_CFLAGS)
+
+wilson_test_d1_SOURCES = test_common.h test_common.c wilson_test.c
+wilson_test_d1_CFLAGS = $(D1_CFLAGS)
+
 wilson_test_f2_SOURCES = test_common.h test_common.c wilson_test.c
 wilson_test_f2_CFLAGS = $(F2_CFLAGS)
 
@@ -194,6 +255,12 @@ wilson_test_dn_SOURCES = test_common.h test_common.c wilson_test.c
 wilson_test_dn_CFLAGS = $(DN_CFLAGS)
 
 
+wilson_invert_bench_f1_SOURCES = test_common.h test_common.c wilson_invert_bench.c
+wilson_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+wilson_invert_bench_d1_SOURCES = test_common.h test_common.c wilson_invert_bench.c
+wilson_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
+
 wilson_invert_bench_f2_SOURCES = test_common.h test_common.c wilson_invert_bench.c
 wilson_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 
@@ -212,11 +279,19 @@ wilson_invert_bench_fn_CFLAGS = $(FN_CFLAGS)
 wilson_invert_bench_dn_SOURCES = test_common.h test_common.c wilson_invert_bench.c
 wilson_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
 
+
 wilson_mg_test_f3_SOURCES = test_common.h test_common.c wilson_mg_test.c
 wilson_mg_test_f3_CFLAGS = $(F3_CFLAGS)
 
 wilson_mg_test_d3_SOURCES = test_common.h test_common.c wilson_mg_test.c
 wilson_mg_test_d3_CFLAGS = $(D3_CFLAGS)
+
+
+wilson_force_bench_f1_SOURCES = test_common.h test_common.c wilson_force_bench.c
+wilson_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+wilson_force_bench_d1_SOURCES = test_common.h test_common.c wilson_force_bench.c
+wilson_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 
 wilson_force_bench_f2_SOURCES = test_common.h test_common.c wilson_force_bench.c
 wilson_force_bench_f2_CFLAGS = $(F2_CFLAGS)
@@ -236,6 +311,12 @@ wilson_force_bench_fn_CFLAGS = $(FN_CFLAGS)
 wilson_force_bench_dn_SOURCES = test_common.h test_common.c wilson_force_bench.c
 wilson_force_bench_dn_CFLAGS = $(DN_CFLAGS)
 
+
+dw_invert_bench_f1_SOURCES = test_common.h test_common.c dw_invert_bench.c
+dw_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+dw_invert_bench_d1_SOURCES = test_common.h test_common.c dw_invert_bench.c
+dw_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
 
 dw_invert_bench_f2_SOURCES = test_common.h test_common.c dw_invert_bench.c
 dw_invert_bench_f2_CFLAGS = $(F2_CFLAGS)

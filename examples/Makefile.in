@@ -49,8 +49,20 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4)
-@NC2_TRUE@am__append_1 = \
+	$(am__EXEEXT_4) $(am__EXEEXT_5)
+@NCN_TRUE@am__append_1 = \
+@NCN_TRUE@  imp_gauge_force_bench_f1 imp_gauge_force_bench_d1 \
+@NCN_TRUE@  asqtad_test_f1 asqtad_test_d1 \
+@NCN_TRUE@  asqtad_invert_bench_f1 asqtad_invert_bench_d1 \
+@NCN_TRUE@  asqtad_force_bench_f1 asqtad_force_bench_d1 \
+@NCN_TRUE@  hisq_invert_bench_f1 hisq_invert_bench_d1 \
+@NCN_TRUE@  hisq_force_bench_f1 hisq_force_bench_d1 \
+@NCN_TRUE@  wilson_test_f1 wilson_test_d1 \
+@NCN_TRUE@  wilson_invert_bench_f1 wilson_invert_bench_d1 \
+@NCN_TRUE@  wilson_force_bench_f1 wilson_force_bench_d1 \
+@NCN_TRUE@  dw_invert_bench_f1 dw_invert_bench_d1
+
+@NC2_TRUE@am__append_2 = \
 @NC2_TRUE@  imp_gauge_force_bench_f2 imp_gauge_force_bench_d2 \
 @NC2_TRUE@  asqtad_test_f2 asqtad_test_d2 \
 @NC2_TRUE@  asqtad_invert_bench_f2 asqtad_invert_bench_d2 \
@@ -62,7 +74,7 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @NC2_TRUE@  wilson_force_bench_f2 wilson_force_bench_d2 \
 @NC2_TRUE@  dw_invert_bench_f2 dw_invert_bench_d2
 
-@NC3_TRUE@am__append_2 = \
+@NC3_TRUE@am__append_3 = \
 @NC3_TRUE@  imp_gauge_force_bench_f3 imp_gauge_force_bench_d3 \
 @NC3_TRUE@  asqtad_test_f3 asqtad_test_d3 \
 @NC3_TRUE@  asqtad_invert_bench_f3 asqtad_invert_bench_d3 \
@@ -76,10 +88,10 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @NC3_TRUE@  dw_invert_bench_f3 dw_invert_bench_d3 \
 @NC3_TRUE@  test_reunit_utils_f3 test_reunit_utils_d3
 
-@NC3_TRUE@@NCN_TRUE@am__append_3 = \
+@NC3_TRUE@@NCN_TRUE@am__append_4 = \
 @NC3_TRUE@@NCN_TRUE@  wilson_mg_test_f3 wilson_mg_test_d3
 
-@NCN_TRUE@am__append_4 = \
+@NCN_TRUE@am__append_5 = \
 @NCN_TRUE@  imp_gauge_force_bench_fn imp_gauge_force_bench_dn \
 @NCN_TRUE@  asqtad_test_fn asqtad_test_dn \
 @NCN_TRUE@  asqtad_invert_bench_fn asqtad_invert_bench_dn \
@@ -101,7 +113,25 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/qop_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@NC2_TRUE@am__EXEEXT_1 = imp_gauge_force_bench_f2$(EXEEXT) \
+@NCN_TRUE@am__EXEEXT_1 = imp_gauge_force_bench_f1$(EXEEXT) \
+@NCN_TRUE@	imp_gauge_force_bench_d1$(EXEEXT) \
+@NCN_TRUE@	asqtad_test_f1$(EXEEXT) asqtad_test_d1$(EXEEXT) \
+@NCN_TRUE@	asqtad_invert_bench_f1$(EXEEXT) \
+@NCN_TRUE@	asqtad_invert_bench_d1$(EXEEXT) \
+@NCN_TRUE@	asqtad_force_bench_f1$(EXEEXT) \
+@NCN_TRUE@	asqtad_force_bench_d1$(EXEEXT) \
+@NCN_TRUE@	hisq_invert_bench_f1$(EXEEXT) \
+@NCN_TRUE@	hisq_invert_bench_d1$(EXEEXT) \
+@NCN_TRUE@	hisq_force_bench_f1$(EXEEXT) \
+@NCN_TRUE@	hisq_force_bench_d1$(EXEEXT) wilson_test_f1$(EXEEXT) \
+@NCN_TRUE@	wilson_test_d1$(EXEEXT) \
+@NCN_TRUE@	wilson_invert_bench_f1$(EXEEXT) \
+@NCN_TRUE@	wilson_invert_bench_d1$(EXEEXT) \
+@NCN_TRUE@	wilson_force_bench_f1$(EXEEXT) \
+@NCN_TRUE@	wilson_force_bench_d1$(EXEEXT) \
+@NCN_TRUE@	dw_invert_bench_f1$(EXEEXT) \
+@NCN_TRUE@	dw_invert_bench_d1$(EXEEXT)
+@NC2_TRUE@am__EXEEXT_2 = imp_gauge_force_bench_f2$(EXEEXT) \
 @NC2_TRUE@	imp_gauge_force_bench_d2$(EXEEXT) \
 @NC2_TRUE@	asqtad_test_f2$(EXEEXT) asqtad_test_d2$(EXEEXT) \
 @NC2_TRUE@	asqtad_invert_bench_f2$(EXEEXT) \
@@ -119,7 +149,7 @@ CONFIG_CLEAN_VPATH_FILES =
 @NC2_TRUE@	wilson_force_bench_d2$(EXEEXT) \
 @NC2_TRUE@	dw_invert_bench_f2$(EXEEXT) \
 @NC2_TRUE@	dw_invert_bench_d2$(EXEEXT)
-@NC3_TRUE@am__EXEEXT_2 = imp_gauge_force_bench_f3$(EXEEXT) \
+@NC3_TRUE@am__EXEEXT_3 = imp_gauge_force_bench_f3$(EXEEXT) \
 @NC3_TRUE@	imp_gauge_force_bench_d3$(EXEEXT) \
 @NC3_TRUE@	asqtad_test_f3$(EXEEXT) asqtad_test_d3$(EXEEXT) \
 @NC3_TRUE@	asqtad_invert_bench_f3$(EXEEXT) \
@@ -140,9 +170,9 @@ CONFIG_CLEAN_VPATH_FILES =
 @NC3_TRUE@	dw_invert_bench_d3$(EXEEXT) \
 @NC3_TRUE@	test_reunit_utils_f3$(EXEEXT) \
 @NC3_TRUE@	test_reunit_utils_d3$(EXEEXT)
-@NC3_TRUE@@NCN_TRUE@am__EXEEXT_3 = wilson_mg_test_f3$(EXEEXT) \
+@NC3_TRUE@@NCN_TRUE@am__EXEEXT_4 = wilson_mg_test_f3$(EXEEXT) \
 @NC3_TRUE@@NCN_TRUE@	wilson_mg_test_d3$(EXEEXT)
-@NCN_TRUE@am__EXEEXT_4 = imp_gauge_force_bench_fn$(EXEEXT) \
+@NCN_TRUE@am__EXEEXT_5 = imp_gauge_force_bench_fn$(EXEEXT) \
 @NCN_TRUE@	imp_gauge_force_bench_dn$(EXEEXT) \
 @NCN_TRUE@	asqtad_test_fn$(EXEEXT) asqtad_test_dn$(EXEEXT) \
 @NCN_TRUE@	asqtad_invert_bench_fn$(EXEEXT) \
@@ -172,6 +202,13 @@ asqtad_eigcg_f3_OBJECTS = $(am_asqtad_eigcg_f3_OBJECTS)
 asqtad_eigcg_f3_LDADD = $(LDADD)
 asqtad_eigcg_f3_LINK = $(CCLD) $(asqtad_eigcg_f3_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_asqtad_force_bench_d1_OBJECTS =  \
+	asqtad_force_bench_d1-test_common.$(OBJEXT) \
+	asqtad_force_bench_d1-asqtad_force_bench.$(OBJEXT)
+asqtad_force_bench_d1_OBJECTS = $(am_asqtad_force_bench_d1_OBJECTS)
+asqtad_force_bench_d1_LDADD = $(LDADD)
+asqtad_force_bench_d1_LINK = $(CCLD) $(asqtad_force_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_asqtad_force_bench_d2_OBJECTS =  \
 	asqtad_force_bench_d2-test_common.$(OBJEXT) \
 	asqtad_force_bench_d2-asqtad_force_bench.$(OBJEXT)
@@ -192,6 +229,13 @@ am_asqtad_force_bench_dn_OBJECTS =  \
 asqtad_force_bench_dn_OBJECTS = $(am_asqtad_force_bench_dn_OBJECTS)
 asqtad_force_bench_dn_LDADD = $(LDADD)
 asqtad_force_bench_dn_LINK = $(CCLD) $(asqtad_force_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_asqtad_force_bench_f1_OBJECTS =  \
+	asqtad_force_bench_f1-test_common.$(OBJEXT) \
+	asqtad_force_bench_f1-asqtad_force_bench.$(OBJEXT)
+asqtad_force_bench_f1_OBJECTS = $(am_asqtad_force_bench_f1_OBJECTS)
+asqtad_force_bench_f1_LDADD = $(LDADD)
+asqtad_force_bench_f1_LINK = $(CCLD) $(asqtad_force_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_asqtad_force_bench_f2_OBJECTS =  \
 	asqtad_force_bench_f2-test_common.$(OBJEXT) \
@@ -214,6 +258,13 @@ asqtad_force_bench_fn_OBJECTS = $(am_asqtad_force_bench_fn_OBJECTS)
 asqtad_force_bench_fn_LDADD = $(LDADD)
 asqtad_force_bench_fn_LINK = $(CCLD) $(asqtad_force_bench_fn_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_asqtad_invert_bench_d1_OBJECTS =  \
+	asqtad_invert_bench_d1-test_common.$(OBJEXT) \
+	asqtad_invert_bench_d1-asqtad_invert_bench.$(OBJEXT)
+asqtad_invert_bench_d1_OBJECTS = $(am_asqtad_invert_bench_d1_OBJECTS)
+asqtad_invert_bench_d1_LDADD = $(LDADD)
+asqtad_invert_bench_d1_LINK = $(CCLD) $(asqtad_invert_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_asqtad_invert_bench_d2_OBJECTS =  \
 	asqtad_invert_bench_d2-test_common.$(OBJEXT) \
 	asqtad_invert_bench_d2-asqtad_invert_bench.$(OBJEXT)
@@ -234,6 +285,13 @@ am_asqtad_invert_bench_dn_OBJECTS =  \
 asqtad_invert_bench_dn_OBJECTS = $(am_asqtad_invert_bench_dn_OBJECTS)
 asqtad_invert_bench_dn_LDADD = $(LDADD)
 asqtad_invert_bench_dn_LINK = $(CCLD) $(asqtad_invert_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_asqtad_invert_bench_f1_OBJECTS =  \
+	asqtad_invert_bench_f1-test_common.$(OBJEXT) \
+	asqtad_invert_bench_f1-asqtad_invert_bench.$(OBJEXT)
+asqtad_invert_bench_f1_OBJECTS = $(am_asqtad_invert_bench_f1_OBJECTS)
+asqtad_invert_bench_f1_LDADD = $(LDADD)
+asqtad_invert_bench_f1_LINK = $(CCLD) $(asqtad_invert_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_asqtad_invert_bench_f2_OBJECTS =  \
 	asqtad_invert_bench_f2-test_common.$(OBJEXT) \
@@ -256,6 +314,12 @@ asqtad_invert_bench_fn_OBJECTS = $(am_asqtad_invert_bench_fn_OBJECTS)
 asqtad_invert_bench_fn_LDADD = $(LDADD)
 asqtad_invert_bench_fn_LINK = $(CCLD) $(asqtad_invert_bench_fn_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_asqtad_test_d1_OBJECTS = asqtad_test_d1-test_common.$(OBJEXT) \
+	asqtad_test_d1-asqtad_test.$(OBJEXT)
+asqtad_test_d1_OBJECTS = $(am_asqtad_test_d1_OBJECTS)
+asqtad_test_d1_LDADD = $(LDADD)
+asqtad_test_d1_LINK = $(CCLD) $(asqtad_test_d1_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_asqtad_test_d2_OBJECTS = asqtad_test_d2-test_common.$(OBJEXT) \
 	asqtad_test_d2-asqtad_test.$(OBJEXT)
 asqtad_test_d2_OBJECTS = $(am_asqtad_test_d2_OBJECTS)
@@ -273,6 +337,12 @@ am_asqtad_test_dn_OBJECTS = asqtad_test_dn-test_common.$(OBJEXT) \
 asqtad_test_dn_OBJECTS = $(am_asqtad_test_dn_OBJECTS)
 asqtad_test_dn_LDADD = $(LDADD)
 asqtad_test_dn_LINK = $(CCLD) $(asqtad_test_dn_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_asqtad_test_f1_OBJECTS = asqtad_test_f1-test_common.$(OBJEXT) \
+	asqtad_test_f1-asqtad_test.$(OBJEXT)
+asqtad_test_f1_OBJECTS = $(am_asqtad_test_f1_OBJECTS)
+asqtad_test_f1_LDADD = $(LDADD)
+asqtad_test_f1_LINK = $(CCLD) $(asqtad_test_f1_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_asqtad_test_f2_OBJECTS = asqtad_test_f2-test_common.$(OBJEXT) \
 	asqtad_test_f2-asqtad_test.$(OBJEXT)
@@ -292,6 +362,13 @@ asqtad_test_fn_OBJECTS = $(am_asqtad_test_fn_OBJECTS)
 asqtad_test_fn_LDADD = $(LDADD)
 asqtad_test_fn_LINK = $(CCLD) $(asqtad_test_fn_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_dw_invert_bench_d1_OBJECTS =  \
+	dw_invert_bench_d1-test_common.$(OBJEXT) \
+	dw_invert_bench_d1-dw_invert_bench.$(OBJEXT)
+dw_invert_bench_d1_OBJECTS = $(am_dw_invert_bench_d1_OBJECTS)
+dw_invert_bench_d1_LDADD = $(LDADD)
+dw_invert_bench_d1_LINK = $(CCLD) $(dw_invert_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_dw_invert_bench_d2_OBJECTS =  \
 	dw_invert_bench_d2-test_common.$(OBJEXT) \
 	dw_invert_bench_d2-dw_invert_bench.$(OBJEXT)
@@ -312,6 +389,13 @@ am_dw_invert_bench_dn_OBJECTS =  \
 dw_invert_bench_dn_OBJECTS = $(am_dw_invert_bench_dn_OBJECTS)
 dw_invert_bench_dn_LDADD = $(LDADD)
 dw_invert_bench_dn_LINK = $(CCLD) $(dw_invert_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_dw_invert_bench_f1_OBJECTS =  \
+	dw_invert_bench_f1-test_common.$(OBJEXT) \
+	dw_invert_bench_f1-dw_invert_bench.$(OBJEXT)
+dw_invert_bench_f1_OBJECTS = $(am_dw_invert_bench_f1_OBJECTS)
+dw_invert_bench_f1_LDADD = $(LDADD)
+dw_invert_bench_f1_LINK = $(CCLD) $(dw_invert_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_dw_invert_bench_f2_OBJECTS =  \
 	dw_invert_bench_f2-test_common.$(OBJEXT) \
@@ -334,6 +418,13 @@ dw_invert_bench_fn_OBJECTS = $(am_dw_invert_bench_fn_OBJECTS)
 dw_invert_bench_fn_LDADD = $(LDADD)
 dw_invert_bench_fn_LINK = $(CCLD) $(dw_invert_bench_fn_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_hisq_force_bench_d1_OBJECTS =  \
+	hisq_force_bench_d1-test_common.$(OBJEXT) \
+	hisq_force_bench_d1-hisq_force_bench.$(OBJEXT)
+hisq_force_bench_d1_OBJECTS = $(am_hisq_force_bench_d1_OBJECTS)
+hisq_force_bench_d1_LDADD = $(LDADD)
+hisq_force_bench_d1_LINK = $(CCLD) $(hisq_force_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_hisq_force_bench_d2_OBJECTS =  \
 	hisq_force_bench_d2-test_common.$(OBJEXT) \
 	hisq_force_bench_d2-hisq_force_bench.$(OBJEXT)
@@ -354,6 +445,13 @@ am_hisq_force_bench_dn_OBJECTS =  \
 hisq_force_bench_dn_OBJECTS = $(am_hisq_force_bench_dn_OBJECTS)
 hisq_force_bench_dn_LDADD = $(LDADD)
 hisq_force_bench_dn_LINK = $(CCLD) $(hisq_force_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_hisq_force_bench_f1_OBJECTS =  \
+	hisq_force_bench_f1-test_common.$(OBJEXT) \
+	hisq_force_bench_f1-hisq_force_bench.$(OBJEXT)
+hisq_force_bench_f1_OBJECTS = $(am_hisq_force_bench_f1_OBJECTS)
+hisq_force_bench_f1_LDADD = $(LDADD)
+hisq_force_bench_f1_LINK = $(CCLD) $(hisq_force_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_hisq_force_bench_f2_OBJECTS =  \
 	hisq_force_bench_f2-test_common.$(OBJEXT) \
@@ -376,6 +474,13 @@ hisq_force_bench_fn_OBJECTS = $(am_hisq_force_bench_fn_OBJECTS)
 hisq_force_bench_fn_LDADD = $(LDADD)
 hisq_force_bench_fn_LINK = $(CCLD) $(hisq_force_bench_fn_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_hisq_invert_bench_d1_OBJECTS =  \
+	hisq_invert_bench_d1-test_common.$(OBJEXT) \
+	hisq_invert_bench_d1-hisq_invert_bench.$(OBJEXT)
+hisq_invert_bench_d1_OBJECTS = $(am_hisq_invert_bench_d1_OBJECTS)
+hisq_invert_bench_d1_LDADD = $(LDADD)
+hisq_invert_bench_d1_LINK = $(CCLD) $(hisq_invert_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_hisq_invert_bench_d2_OBJECTS =  \
 	hisq_invert_bench_d2-test_common.$(OBJEXT) \
 	hisq_invert_bench_d2-hisq_invert_bench.$(OBJEXT)
@@ -396,6 +501,13 @@ am_hisq_invert_bench_dn_OBJECTS =  \
 hisq_invert_bench_dn_OBJECTS = $(am_hisq_invert_bench_dn_OBJECTS)
 hisq_invert_bench_dn_LDADD = $(LDADD)
 hisq_invert_bench_dn_LINK = $(CCLD) $(hisq_invert_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_hisq_invert_bench_f1_OBJECTS =  \
+	hisq_invert_bench_f1-test_common.$(OBJEXT) \
+	hisq_invert_bench_f1-hisq_invert_bench.$(OBJEXT)
+hisq_invert_bench_f1_OBJECTS = $(am_hisq_invert_bench_f1_OBJECTS)
+hisq_invert_bench_f1_LDADD = $(LDADD)
+hisq_invert_bench_f1_LINK = $(CCLD) $(hisq_invert_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_hisq_invert_bench_f2_OBJECTS =  \
 	hisq_invert_bench_f2-test_common.$(OBJEXT) \
@@ -418,6 +530,15 @@ hisq_invert_bench_fn_OBJECTS = $(am_hisq_invert_bench_fn_OBJECTS)
 hisq_invert_bench_fn_LDADD = $(LDADD)
 hisq_invert_bench_fn_LINK = $(CCLD) $(hisq_invert_bench_fn_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_imp_gauge_force_bench_d1_OBJECTS =  \
+	imp_gauge_force_bench_d1-test_common.$(OBJEXT) \
+	imp_gauge_force_bench_d1-imp_gauge_force_bench.$(OBJEXT)
+imp_gauge_force_bench_d1_OBJECTS =  \
+	$(am_imp_gauge_force_bench_d1_OBJECTS)
+imp_gauge_force_bench_d1_LDADD = $(LDADD)
+imp_gauge_force_bench_d1_LINK = $(CCLD) \
+	$(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_imp_gauge_force_bench_d2_OBJECTS =  \
 	imp_gauge_force_bench_d2-test_common.$(OBJEXT) \
 	imp_gauge_force_bench_d2-imp_gauge_force_bench.$(OBJEXT)
@@ -444,6 +565,15 @@ imp_gauge_force_bench_dn_OBJECTS =  \
 imp_gauge_force_bench_dn_LDADD = $(LDADD)
 imp_gauge_force_bench_dn_LINK = $(CCLD) \
 	$(imp_gauge_force_bench_dn_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am_imp_gauge_force_bench_f1_OBJECTS =  \
+	imp_gauge_force_bench_f1-test_common.$(OBJEXT) \
+	imp_gauge_force_bench_f1-imp_gauge_force_bench.$(OBJEXT)
+imp_gauge_force_bench_f1_OBJECTS =  \
+	$(am_imp_gauge_force_bench_f1_OBJECTS)
+imp_gauge_force_bench_f1_LDADD = $(LDADD)
+imp_gauge_force_bench_f1_LINK = $(CCLD) \
+	$(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am_imp_gauge_force_bench_f2_OBJECTS =  \
 	imp_gauge_force_bench_f2-test_common.$(OBJEXT) \
@@ -486,6 +616,13 @@ test_reunit_utils_f3_OBJECTS = $(am_test_reunit_utils_f3_OBJECTS)
 test_reunit_utils_f3_LDADD = $(LDADD)
 test_reunit_utils_f3_LINK = $(CCLD) $(test_reunit_utils_f3_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_wilson_force_bench_d1_OBJECTS =  \
+	wilson_force_bench_d1-test_common.$(OBJEXT) \
+	wilson_force_bench_d1-wilson_force_bench.$(OBJEXT)
+wilson_force_bench_d1_OBJECTS = $(am_wilson_force_bench_d1_OBJECTS)
+wilson_force_bench_d1_LDADD = $(LDADD)
+wilson_force_bench_d1_LINK = $(CCLD) $(wilson_force_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_wilson_force_bench_d2_OBJECTS =  \
 	wilson_force_bench_d2-test_common.$(OBJEXT) \
 	wilson_force_bench_d2-wilson_force_bench.$(OBJEXT)
@@ -506,6 +643,13 @@ am_wilson_force_bench_dn_OBJECTS =  \
 wilson_force_bench_dn_OBJECTS = $(am_wilson_force_bench_dn_OBJECTS)
 wilson_force_bench_dn_LDADD = $(LDADD)
 wilson_force_bench_dn_LINK = $(CCLD) $(wilson_force_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_wilson_force_bench_f1_OBJECTS =  \
+	wilson_force_bench_f1-test_common.$(OBJEXT) \
+	wilson_force_bench_f1-wilson_force_bench.$(OBJEXT)
+wilson_force_bench_f1_OBJECTS = $(am_wilson_force_bench_f1_OBJECTS)
+wilson_force_bench_f1_LDADD = $(LDADD)
+wilson_force_bench_f1_LINK = $(CCLD) $(wilson_force_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_wilson_force_bench_f2_OBJECTS =  \
 	wilson_force_bench_f2-test_common.$(OBJEXT) \
@@ -528,6 +672,13 @@ wilson_force_bench_fn_OBJECTS = $(am_wilson_force_bench_fn_OBJECTS)
 wilson_force_bench_fn_LDADD = $(LDADD)
 wilson_force_bench_fn_LINK = $(CCLD) $(wilson_force_bench_fn_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_wilson_invert_bench_d1_OBJECTS =  \
+	wilson_invert_bench_d1-test_common.$(OBJEXT) \
+	wilson_invert_bench_d1-wilson_invert_bench.$(OBJEXT)
+wilson_invert_bench_d1_OBJECTS = $(am_wilson_invert_bench_d1_OBJECTS)
+wilson_invert_bench_d1_LDADD = $(LDADD)
+wilson_invert_bench_d1_LINK = $(CCLD) $(wilson_invert_bench_d1_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_wilson_invert_bench_d2_OBJECTS =  \
 	wilson_invert_bench_d2-test_common.$(OBJEXT) \
 	wilson_invert_bench_d2-wilson_invert_bench.$(OBJEXT)
@@ -548,6 +699,13 @@ am_wilson_invert_bench_dn_OBJECTS =  \
 wilson_invert_bench_dn_OBJECTS = $(am_wilson_invert_bench_dn_OBJECTS)
 wilson_invert_bench_dn_LDADD = $(LDADD)
 wilson_invert_bench_dn_LINK = $(CCLD) $(wilson_invert_bench_dn_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_wilson_invert_bench_f1_OBJECTS =  \
+	wilson_invert_bench_f1-test_common.$(OBJEXT) \
+	wilson_invert_bench_f1-wilson_invert_bench.$(OBJEXT)
+wilson_invert_bench_f1_OBJECTS = $(am_wilson_invert_bench_f1_OBJECTS)
+wilson_invert_bench_f1_LDADD = $(LDADD)
+wilson_invert_bench_f1_LINK = $(CCLD) $(wilson_invert_bench_f1_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_wilson_invert_bench_f2_OBJECTS =  \
 	wilson_invert_bench_f2-test_common.$(OBJEXT) \
@@ -584,6 +742,12 @@ wilson_mg_test_f3_OBJECTS = $(am_wilson_mg_test_f3_OBJECTS)
 wilson_mg_test_f3_LDADD = $(LDADD)
 wilson_mg_test_f3_LINK = $(CCLD) $(wilson_mg_test_f3_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_wilson_test_d1_OBJECTS = wilson_test_d1-test_common.$(OBJEXT) \
+	wilson_test_d1-wilson_test.$(OBJEXT)
+wilson_test_d1_OBJECTS = $(am_wilson_test_d1_OBJECTS)
+wilson_test_d1_LDADD = $(LDADD)
+wilson_test_d1_LINK = $(CCLD) $(wilson_test_d1_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_wilson_test_d2_OBJECTS = wilson_test_d2-test_common.$(OBJEXT) \
 	wilson_test_d2-wilson_test.$(OBJEXT)
 wilson_test_d2_OBJECTS = $(am_wilson_test_d2_OBJECTS)
@@ -601,6 +765,12 @@ am_wilson_test_dn_OBJECTS = wilson_test_dn-test_common.$(OBJEXT) \
 wilson_test_dn_OBJECTS = $(am_wilson_test_dn_OBJECTS)
 wilson_test_dn_LDADD = $(LDADD)
 wilson_test_dn_LINK = $(CCLD) $(wilson_test_dn_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_wilson_test_f1_OBJECTS = wilson_test_f1-test_common.$(OBJEXT) \
+	wilson_test_f1-wilson_test.$(OBJEXT)
+wilson_test_f1_OBJECTS = $(am_wilson_test_f1_OBJECTS)
+wilson_test_f1_LDADD = $(LDADD)
+wilson_test_f1_LINK = $(CCLD) $(wilson_test_f1_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_wilson_test_f2_OBJECTS = wilson_test_f2-test_common.$(OBJEXT) \
 	wilson_test_f2-wilson_test.$(OBJEXT)
@@ -629,105 +799,137 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(asqtad_eigcg_d3_SOURCES) $(asqtad_eigcg_f3_SOURCES) \
+	$(asqtad_force_bench_d1_SOURCES) \
 	$(asqtad_force_bench_d2_SOURCES) \
 	$(asqtad_force_bench_d3_SOURCES) \
 	$(asqtad_force_bench_dn_SOURCES) \
+	$(asqtad_force_bench_f1_SOURCES) \
 	$(asqtad_force_bench_f2_SOURCES) \
 	$(asqtad_force_bench_f3_SOURCES) \
 	$(asqtad_force_bench_fn_SOURCES) \
+	$(asqtad_invert_bench_d1_SOURCES) \
 	$(asqtad_invert_bench_d2_SOURCES) \
 	$(asqtad_invert_bench_d3_SOURCES) \
 	$(asqtad_invert_bench_dn_SOURCES) \
+	$(asqtad_invert_bench_f1_SOURCES) \
 	$(asqtad_invert_bench_f2_SOURCES) \
 	$(asqtad_invert_bench_f3_SOURCES) \
-	$(asqtad_invert_bench_fn_SOURCES) $(asqtad_test_d2_SOURCES) \
-	$(asqtad_test_d3_SOURCES) $(asqtad_test_dn_SOURCES) \
+	$(asqtad_invert_bench_fn_SOURCES) $(asqtad_test_d1_SOURCES) \
+	$(asqtad_test_d2_SOURCES) $(asqtad_test_d3_SOURCES) \
+	$(asqtad_test_dn_SOURCES) $(asqtad_test_f1_SOURCES) \
 	$(asqtad_test_f2_SOURCES) $(asqtad_test_f3_SOURCES) \
-	$(asqtad_test_fn_SOURCES) $(dw_invert_bench_d2_SOURCES) \
-	$(dw_invert_bench_d3_SOURCES) $(dw_invert_bench_dn_SOURCES) \
+	$(asqtad_test_fn_SOURCES) $(dw_invert_bench_d1_SOURCES) \
+	$(dw_invert_bench_d2_SOURCES) $(dw_invert_bench_d3_SOURCES) \
+	$(dw_invert_bench_dn_SOURCES) $(dw_invert_bench_f1_SOURCES) \
 	$(dw_invert_bench_f2_SOURCES) $(dw_invert_bench_f3_SOURCES) \
-	$(dw_invert_bench_fn_SOURCES) $(hisq_force_bench_d2_SOURCES) \
-	$(hisq_force_bench_d3_SOURCES) $(hisq_force_bench_dn_SOURCES) \
+	$(dw_invert_bench_fn_SOURCES) $(hisq_force_bench_d1_SOURCES) \
+	$(hisq_force_bench_d2_SOURCES) $(hisq_force_bench_d3_SOURCES) \
+	$(hisq_force_bench_dn_SOURCES) $(hisq_force_bench_f1_SOURCES) \
 	$(hisq_force_bench_f2_SOURCES) $(hisq_force_bench_f3_SOURCES) \
-	$(hisq_force_bench_fn_SOURCES) $(hisq_invert_bench_d2_SOURCES) \
+	$(hisq_force_bench_fn_SOURCES) $(hisq_invert_bench_d1_SOURCES) \
+	$(hisq_invert_bench_d2_SOURCES) \
 	$(hisq_invert_bench_d3_SOURCES) \
 	$(hisq_invert_bench_dn_SOURCES) \
+	$(hisq_invert_bench_f1_SOURCES) \
 	$(hisq_invert_bench_f2_SOURCES) \
 	$(hisq_invert_bench_f3_SOURCES) \
 	$(hisq_invert_bench_fn_SOURCES) \
+	$(imp_gauge_force_bench_d1_SOURCES) \
 	$(imp_gauge_force_bench_d2_SOURCES) \
 	$(imp_gauge_force_bench_d3_SOURCES) \
 	$(imp_gauge_force_bench_dn_SOURCES) \
+	$(imp_gauge_force_bench_f1_SOURCES) \
 	$(imp_gauge_force_bench_f2_SOURCES) \
 	$(imp_gauge_force_bench_f3_SOURCES) \
 	$(imp_gauge_force_bench_fn_SOURCES) \
 	$(test_reunit_utils_d3_SOURCES) \
 	$(test_reunit_utils_f3_SOURCES) \
+	$(wilson_force_bench_d1_SOURCES) \
 	$(wilson_force_bench_d2_SOURCES) \
 	$(wilson_force_bench_d3_SOURCES) \
 	$(wilson_force_bench_dn_SOURCES) \
+	$(wilson_force_bench_f1_SOURCES) \
 	$(wilson_force_bench_f2_SOURCES) \
 	$(wilson_force_bench_f3_SOURCES) \
 	$(wilson_force_bench_fn_SOURCES) \
+	$(wilson_invert_bench_d1_SOURCES) \
 	$(wilson_invert_bench_d2_SOURCES) \
 	$(wilson_invert_bench_d3_SOURCES) \
 	$(wilson_invert_bench_dn_SOURCES) \
+	$(wilson_invert_bench_f1_SOURCES) \
 	$(wilson_invert_bench_f2_SOURCES) \
 	$(wilson_invert_bench_f3_SOURCES) \
 	$(wilson_invert_bench_fn_SOURCES) $(wilson_mg_test_d3_SOURCES) \
-	$(wilson_mg_test_f3_SOURCES) $(wilson_test_d2_SOURCES) \
-	$(wilson_test_d3_SOURCES) $(wilson_test_dn_SOURCES) \
+	$(wilson_mg_test_f3_SOURCES) $(wilson_test_d1_SOURCES) \
+	$(wilson_test_d2_SOURCES) $(wilson_test_d3_SOURCES) \
+	$(wilson_test_dn_SOURCES) $(wilson_test_f1_SOURCES) \
 	$(wilson_test_f2_SOURCES) $(wilson_test_f3_SOURCES) \
 	$(wilson_test_fn_SOURCES)
 DIST_SOURCES = $(asqtad_eigcg_d3_SOURCES) $(asqtad_eigcg_f3_SOURCES) \
+	$(asqtad_force_bench_d1_SOURCES) \
 	$(asqtad_force_bench_d2_SOURCES) \
 	$(asqtad_force_bench_d3_SOURCES) \
 	$(asqtad_force_bench_dn_SOURCES) \
+	$(asqtad_force_bench_f1_SOURCES) \
 	$(asqtad_force_bench_f2_SOURCES) \
 	$(asqtad_force_bench_f3_SOURCES) \
 	$(asqtad_force_bench_fn_SOURCES) \
+	$(asqtad_invert_bench_d1_SOURCES) \
 	$(asqtad_invert_bench_d2_SOURCES) \
 	$(asqtad_invert_bench_d3_SOURCES) \
 	$(asqtad_invert_bench_dn_SOURCES) \
+	$(asqtad_invert_bench_f1_SOURCES) \
 	$(asqtad_invert_bench_f2_SOURCES) \
 	$(asqtad_invert_bench_f3_SOURCES) \
-	$(asqtad_invert_bench_fn_SOURCES) $(asqtad_test_d2_SOURCES) \
-	$(asqtad_test_d3_SOURCES) $(asqtad_test_dn_SOURCES) \
+	$(asqtad_invert_bench_fn_SOURCES) $(asqtad_test_d1_SOURCES) \
+	$(asqtad_test_d2_SOURCES) $(asqtad_test_d3_SOURCES) \
+	$(asqtad_test_dn_SOURCES) $(asqtad_test_f1_SOURCES) \
 	$(asqtad_test_f2_SOURCES) $(asqtad_test_f3_SOURCES) \
-	$(asqtad_test_fn_SOURCES) $(dw_invert_bench_d2_SOURCES) \
-	$(dw_invert_bench_d3_SOURCES) $(dw_invert_bench_dn_SOURCES) \
+	$(asqtad_test_fn_SOURCES) $(dw_invert_bench_d1_SOURCES) \
+	$(dw_invert_bench_d2_SOURCES) $(dw_invert_bench_d3_SOURCES) \
+	$(dw_invert_bench_dn_SOURCES) $(dw_invert_bench_f1_SOURCES) \
 	$(dw_invert_bench_f2_SOURCES) $(dw_invert_bench_f3_SOURCES) \
-	$(dw_invert_bench_fn_SOURCES) $(hisq_force_bench_d2_SOURCES) \
-	$(hisq_force_bench_d3_SOURCES) $(hisq_force_bench_dn_SOURCES) \
+	$(dw_invert_bench_fn_SOURCES) $(hisq_force_bench_d1_SOURCES) \
+	$(hisq_force_bench_d2_SOURCES) $(hisq_force_bench_d3_SOURCES) \
+	$(hisq_force_bench_dn_SOURCES) $(hisq_force_bench_f1_SOURCES) \
 	$(hisq_force_bench_f2_SOURCES) $(hisq_force_bench_f3_SOURCES) \
-	$(hisq_force_bench_fn_SOURCES) $(hisq_invert_bench_d2_SOURCES) \
+	$(hisq_force_bench_fn_SOURCES) $(hisq_invert_bench_d1_SOURCES) \
+	$(hisq_invert_bench_d2_SOURCES) \
 	$(hisq_invert_bench_d3_SOURCES) \
 	$(hisq_invert_bench_dn_SOURCES) \
+	$(hisq_invert_bench_f1_SOURCES) \
 	$(hisq_invert_bench_f2_SOURCES) \
 	$(hisq_invert_bench_f3_SOURCES) \
 	$(hisq_invert_bench_fn_SOURCES) \
+	$(imp_gauge_force_bench_d1_SOURCES) \
 	$(imp_gauge_force_bench_d2_SOURCES) \
 	$(imp_gauge_force_bench_d3_SOURCES) \
 	$(imp_gauge_force_bench_dn_SOURCES) \
+	$(imp_gauge_force_bench_f1_SOURCES) \
 	$(imp_gauge_force_bench_f2_SOURCES) \
 	$(imp_gauge_force_bench_f3_SOURCES) \
 	$(imp_gauge_force_bench_fn_SOURCES) \
 	$(test_reunit_utils_d3_SOURCES) \
 	$(test_reunit_utils_f3_SOURCES) \
+	$(wilson_force_bench_d1_SOURCES) \
 	$(wilson_force_bench_d2_SOURCES) \
 	$(wilson_force_bench_d3_SOURCES) \
 	$(wilson_force_bench_dn_SOURCES) \
+	$(wilson_force_bench_f1_SOURCES) \
 	$(wilson_force_bench_f2_SOURCES) \
 	$(wilson_force_bench_f3_SOURCES) \
 	$(wilson_force_bench_fn_SOURCES) \
+	$(wilson_invert_bench_d1_SOURCES) \
 	$(wilson_invert_bench_d2_SOURCES) \
 	$(wilson_invert_bench_d3_SOURCES) \
 	$(wilson_invert_bench_dn_SOURCES) \
+	$(wilson_invert_bench_f1_SOURCES) \
 	$(wilson_invert_bench_f2_SOURCES) \
 	$(wilson_invert_bench_f3_SOURCES) \
 	$(wilson_invert_bench_fn_SOURCES) $(wilson_mg_test_d3_SOURCES) \
-	$(wilson_mg_test_f3_SOURCES) $(wilson_test_d2_SOURCES) \
-	$(wilson_test_d3_SOURCES) $(wilson_test_dn_SOURCES) \
+	$(wilson_mg_test_f3_SOURCES) $(wilson_test_d1_SOURCES) \
+	$(wilson_test_d2_SOURCES) $(wilson_test_d3_SOURCES) \
+	$(wilson_test_dn_SOURCES) $(wilson_test_f1_SOURCES) \
 	$(wilson_test_f2_SOURCES) $(wilson_test_f3_SOURCES) \
 	$(wilson_test_fn_SOURCES)
 am__can_run_installinfo = \
@@ -843,12 +1045,18 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ALL_CFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include $(CFLAGS)
+F1_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=1 -DQDP_Precision=\'F\' -DQDP_Nc=1 $(ALL_CFLAGS)
+D1_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=1 -DQDP_Precision=\'D\' -DQDP_Nc=1 $(ALL_CFLAGS)
 F2_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=2 -DQDP_Precision=\'F\' -DQDP_Nc=2 $(ALL_CFLAGS)
 D2_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=2 -DQDP_Precision=\'D\' -DQDP_Nc=2 $(ALL_CFLAGS)
 F3_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=3 -DQDP_Precision=\'F\' -DQDP_Nc=3 $(ALL_CFLAGS)
 D3_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=3 -DQDP_Precision=\'D\' -DQDP_Nc=3 $(ALL_CFLAGS)
 FN_CFLAGS = -DQOP_PrecisionInt=1 -DQOP_Nc=4 -DQOP_Colors=\'N\' -DQDP_Precision=\'F\' -DQDP_Nc=4 -DQDP_Colors=\'N\' $(ALL_CFLAGS)
 DN_CFLAGS = -DQOP_PrecisionInt=2 -DQOP_Nc=4 -DQOP_Colors=\'N\' -DQDP_Precision=\'D\' -DQDP_Nc=4 -DQDP_Colors=\'N\' $(ALL_CFLAGS)
+imp_gauge_force_bench_f1_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+imp_gauge_force_bench_d1_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
+imp_gauge_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 imp_gauge_force_bench_f2_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_f2_CFLAGS = $(F2_CFLAGS)
 imp_gauge_force_bench_d2_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
@@ -861,6 +1069,10 @@ imp_gauge_force_bench_fn_SOURCES = test_common.h test_common.c imp_gauge_force_b
 imp_gauge_force_bench_fn_CFLAGS = $(FN_CFLAGS)
 imp_gauge_force_bench_dn_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_dn_CFLAGS = $(DN_CFLAGS)
+asqtad_test_f1_SOURCES = test_common.h test_common.c asqtad_test.c
+asqtad_test_f1_CFLAGS = $(F1_CFLAGS)
+asqtad_test_d1_SOURCES = test_common.h test_common.c asqtad_test.c
+asqtad_test_d1_CFLAGS = $(D1_CFLAGS)
 asqtad_test_f2_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_f2_CFLAGS = $(F2_CFLAGS)
 asqtad_test_d2_SOURCES = test_common.h test_common.c asqtad_test.c
@@ -873,6 +1085,10 @@ asqtad_test_fn_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_fn_CFLAGS = $(FN_CFLAGS)
 asqtad_test_dn_SOURCES = test_common.h test_common.c asqtad_test.c
 asqtad_test_dn_CFLAGS = $(DN_CFLAGS)
+asqtad_invert_bench_f1_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
+asqtad_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+asqtad_invert_bench_d1_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
+asqtad_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
 asqtad_invert_bench_f2_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
 asqtad_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 asqtad_invert_bench_d2_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
@@ -885,6 +1101,10 @@ asqtad_invert_bench_fn_SOURCES = test_common.h test_common.c asqtad_invert_bench
 asqtad_invert_bench_fn_CFLAGS = $(FN_CFLAGS)
 asqtad_invert_bench_dn_SOURCES = test_common.h test_common.c asqtad_invert_bench.c
 asqtad_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
+asqtad_force_bench_f1_SOURCES = test_common.h test_common.c asqtad_force_bench.c
+asqtad_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+asqtad_force_bench_d1_SOURCES = test_common.h test_common.c asqtad_force_bench.c
+asqtad_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 asqtad_force_bench_f2_SOURCES = test_common.h test_common.c asqtad_force_bench.c
 asqtad_force_bench_f2_CFLAGS = $(F2_CFLAGS)
 asqtad_force_bench_d2_SOURCES = test_common.h test_common.c asqtad_force_bench.c
@@ -901,6 +1121,10 @@ asqtad_eigcg_f3_SOURCES = test_common.h test_common.c asqtad_eigcg.c
 asqtad_eigcg_f3_CFLAGS = $(F3_CFLAGS)
 asqtad_eigcg_d3_SOURCES = test_common.h test_common.c asqtad_eigcg.c
 asqtad_eigcg_d3_CFLAGS = $(D3_CFLAGS)
+hisq_invert_bench_f1_SOURCES = test_common.h test_common.c hisq_invert_bench.c
+hisq_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+hisq_invert_bench_d1_SOURCES = test_common.h test_common.c hisq_invert_bench.c
+hisq_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
 hisq_invert_bench_f2_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 hisq_invert_bench_d2_SOURCES = test_common.h test_common.c hisq_invert_bench.c
@@ -913,6 +1137,10 @@ hisq_invert_bench_fn_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_fn_CFLAGS = $(FN_CFLAGS)
 hisq_invert_bench_dn_SOURCES = test_common.h test_common.c hisq_invert_bench.c
 hisq_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
+hisq_force_bench_f1_SOURCES = test_common.h test_common.c hisq_force_bench.c
+hisq_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+hisq_force_bench_d1_SOURCES = test_common.h test_common.c hisq_force_bench.c
+hisq_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 hisq_force_bench_f2_SOURCES = test_common.h test_common.c hisq_force_bench.c
 hisq_force_bench_f2_CFLAGS = $(F2_CFLAGS)
 hisq_force_bench_d2_SOURCES = test_common.h test_common.c hisq_force_bench.c
@@ -925,6 +1153,10 @@ hisq_force_bench_fn_SOURCES = test_common.h test_common.c hisq_force_bench.c
 hisq_force_bench_fn_CFLAGS = $(FN_CFLAGS)
 hisq_force_bench_dn_SOURCES = test_common.h test_common.c hisq_force_bench.c
 hisq_force_bench_dn_CFLAGS = $(DN_CFLAGS)
+wilson_test_f1_SOURCES = test_common.h test_common.c wilson_test.c
+wilson_test_f1_CFLAGS = $(F1_CFLAGS)
+wilson_test_d1_SOURCES = test_common.h test_common.c wilson_test.c
+wilson_test_d1_CFLAGS = $(D1_CFLAGS)
 wilson_test_f2_SOURCES = test_common.h test_common.c wilson_test.c
 wilson_test_f2_CFLAGS = $(F2_CFLAGS)
 wilson_test_d2_SOURCES = test_common.h test_common.c wilson_test.c
@@ -937,6 +1169,10 @@ wilson_test_fn_SOURCES = test_common.h test_common.c wilson_test.c
 wilson_test_fn_CFLAGS = $(FN_CFLAGS)
 wilson_test_dn_SOURCES = test_common.h test_common.c wilson_test.c
 wilson_test_dn_CFLAGS = $(DN_CFLAGS)
+wilson_invert_bench_f1_SOURCES = test_common.h test_common.c wilson_invert_bench.c
+wilson_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+wilson_invert_bench_d1_SOURCES = test_common.h test_common.c wilson_invert_bench.c
+wilson_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
 wilson_invert_bench_f2_SOURCES = test_common.h test_common.c wilson_invert_bench.c
 wilson_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 wilson_invert_bench_d2_SOURCES = test_common.h test_common.c wilson_invert_bench.c
@@ -953,6 +1189,10 @@ wilson_mg_test_f3_SOURCES = test_common.h test_common.c wilson_mg_test.c
 wilson_mg_test_f3_CFLAGS = $(F3_CFLAGS)
 wilson_mg_test_d3_SOURCES = test_common.h test_common.c wilson_mg_test.c
 wilson_mg_test_d3_CFLAGS = $(D3_CFLAGS)
+wilson_force_bench_f1_SOURCES = test_common.h test_common.c wilson_force_bench.c
+wilson_force_bench_f1_CFLAGS = $(F1_CFLAGS)
+wilson_force_bench_d1_SOURCES = test_common.h test_common.c wilson_force_bench.c
+wilson_force_bench_d1_CFLAGS = $(D1_CFLAGS)
 wilson_force_bench_f2_SOURCES = test_common.h test_common.c wilson_force_bench.c
 wilson_force_bench_f2_CFLAGS = $(F2_CFLAGS)
 wilson_force_bench_d2_SOURCES = test_common.h test_common.c wilson_force_bench.c
@@ -965,6 +1205,10 @@ wilson_force_bench_fn_SOURCES = test_common.h test_common.c wilson_force_bench.c
 wilson_force_bench_fn_CFLAGS = $(FN_CFLAGS)
 wilson_force_bench_dn_SOURCES = test_common.h test_common.c wilson_force_bench.c
 wilson_force_bench_dn_CFLAGS = $(DN_CFLAGS)
+dw_invert_bench_f1_SOURCES = test_common.h test_common.c dw_invert_bench.c
+dw_invert_bench_f1_CFLAGS = $(F1_CFLAGS)
+dw_invert_bench_d1_SOURCES = test_common.h test_common.c dw_invert_bench.c
+dw_invert_bench_d1_CFLAGS = $(D1_CFLAGS)
 dw_invert_bench_f2_SOURCES = test_common.h test_common.c dw_invert_bench.c
 dw_invert_bench_f2_CFLAGS = $(F2_CFLAGS)
 dw_invert_bench_d2_SOURCES = test_common.h test_common.c dw_invert_bench.c
@@ -1024,6 +1268,9 @@ asqtad_eigcg_d3$(EXEEXT): $(asqtad_eigcg_d3_OBJECTS) $(asqtad_eigcg_d3_DEPENDENC
 asqtad_eigcg_f3$(EXEEXT): $(asqtad_eigcg_f3_OBJECTS) $(asqtad_eigcg_f3_DEPENDENCIES) $(EXTRA_asqtad_eigcg_f3_DEPENDENCIES) 
 	@rm -f asqtad_eigcg_f3$(EXEEXT)
 	$(asqtad_eigcg_f3_LINK) $(asqtad_eigcg_f3_OBJECTS) $(asqtad_eigcg_f3_LDADD) $(LIBS)
+asqtad_force_bench_d1$(EXEEXT): $(asqtad_force_bench_d1_OBJECTS) $(asqtad_force_bench_d1_DEPENDENCIES) $(EXTRA_asqtad_force_bench_d1_DEPENDENCIES) 
+	@rm -f asqtad_force_bench_d1$(EXEEXT)
+	$(asqtad_force_bench_d1_LINK) $(asqtad_force_bench_d1_OBJECTS) $(asqtad_force_bench_d1_LDADD) $(LIBS)
 asqtad_force_bench_d2$(EXEEXT): $(asqtad_force_bench_d2_OBJECTS) $(asqtad_force_bench_d2_DEPENDENCIES) $(EXTRA_asqtad_force_bench_d2_DEPENDENCIES) 
 	@rm -f asqtad_force_bench_d2$(EXEEXT)
 	$(asqtad_force_bench_d2_LINK) $(asqtad_force_bench_d2_OBJECTS) $(asqtad_force_bench_d2_LDADD) $(LIBS)
@@ -1033,6 +1280,9 @@ asqtad_force_bench_d3$(EXEEXT): $(asqtad_force_bench_d3_OBJECTS) $(asqtad_force_
 asqtad_force_bench_dn$(EXEEXT): $(asqtad_force_bench_dn_OBJECTS) $(asqtad_force_bench_dn_DEPENDENCIES) $(EXTRA_asqtad_force_bench_dn_DEPENDENCIES) 
 	@rm -f asqtad_force_bench_dn$(EXEEXT)
 	$(asqtad_force_bench_dn_LINK) $(asqtad_force_bench_dn_OBJECTS) $(asqtad_force_bench_dn_LDADD) $(LIBS)
+asqtad_force_bench_f1$(EXEEXT): $(asqtad_force_bench_f1_OBJECTS) $(asqtad_force_bench_f1_DEPENDENCIES) $(EXTRA_asqtad_force_bench_f1_DEPENDENCIES) 
+	@rm -f asqtad_force_bench_f1$(EXEEXT)
+	$(asqtad_force_bench_f1_LINK) $(asqtad_force_bench_f1_OBJECTS) $(asqtad_force_bench_f1_LDADD) $(LIBS)
 asqtad_force_bench_f2$(EXEEXT): $(asqtad_force_bench_f2_OBJECTS) $(asqtad_force_bench_f2_DEPENDENCIES) $(EXTRA_asqtad_force_bench_f2_DEPENDENCIES) 
 	@rm -f asqtad_force_bench_f2$(EXEEXT)
 	$(asqtad_force_bench_f2_LINK) $(asqtad_force_bench_f2_OBJECTS) $(asqtad_force_bench_f2_LDADD) $(LIBS)
@@ -1042,6 +1292,9 @@ asqtad_force_bench_f3$(EXEEXT): $(asqtad_force_bench_f3_OBJECTS) $(asqtad_force_
 asqtad_force_bench_fn$(EXEEXT): $(asqtad_force_bench_fn_OBJECTS) $(asqtad_force_bench_fn_DEPENDENCIES) $(EXTRA_asqtad_force_bench_fn_DEPENDENCIES) 
 	@rm -f asqtad_force_bench_fn$(EXEEXT)
 	$(asqtad_force_bench_fn_LINK) $(asqtad_force_bench_fn_OBJECTS) $(asqtad_force_bench_fn_LDADD) $(LIBS)
+asqtad_invert_bench_d1$(EXEEXT): $(asqtad_invert_bench_d1_OBJECTS) $(asqtad_invert_bench_d1_DEPENDENCIES) $(EXTRA_asqtad_invert_bench_d1_DEPENDENCIES) 
+	@rm -f asqtad_invert_bench_d1$(EXEEXT)
+	$(asqtad_invert_bench_d1_LINK) $(asqtad_invert_bench_d1_OBJECTS) $(asqtad_invert_bench_d1_LDADD) $(LIBS)
 asqtad_invert_bench_d2$(EXEEXT): $(asqtad_invert_bench_d2_OBJECTS) $(asqtad_invert_bench_d2_DEPENDENCIES) $(EXTRA_asqtad_invert_bench_d2_DEPENDENCIES) 
 	@rm -f asqtad_invert_bench_d2$(EXEEXT)
 	$(asqtad_invert_bench_d2_LINK) $(asqtad_invert_bench_d2_OBJECTS) $(asqtad_invert_bench_d2_LDADD) $(LIBS)
@@ -1051,6 +1304,9 @@ asqtad_invert_bench_d3$(EXEEXT): $(asqtad_invert_bench_d3_OBJECTS) $(asqtad_inve
 asqtad_invert_bench_dn$(EXEEXT): $(asqtad_invert_bench_dn_OBJECTS) $(asqtad_invert_bench_dn_DEPENDENCIES) $(EXTRA_asqtad_invert_bench_dn_DEPENDENCIES) 
 	@rm -f asqtad_invert_bench_dn$(EXEEXT)
 	$(asqtad_invert_bench_dn_LINK) $(asqtad_invert_bench_dn_OBJECTS) $(asqtad_invert_bench_dn_LDADD) $(LIBS)
+asqtad_invert_bench_f1$(EXEEXT): $(asqtad_invert_bench_f1_OBJECTS) $(asqtad_invert_bench_f1_DEPENDENCIES) $(EXTRA_asqtad_invert_bench_f1_DEPENDENCIES) 
+	@rm -f asqtad_invert_bench_f1$(EXEEXT)
+	$(asqtad_invert_bench_f1_LINK) $(asqtad_invert_bench_f1_OBJECTS) $(asqtad_invert_bench_f1_LDADD) $(LIBS)
 asqtad_invert_bench_f2$(EXEEXT): $(asqtad_invert_bench_f2_OBJECTS) $(asqtad_invert_bench_f2_DEPENDENCIES) $(EXTRA_asqtad_invert_bench_f2_DEPENDENCIES) 
 	@rm -f asqtad_invert_bench_f2$(EXEEXT)
 	$(asqtad_invert_bench_f2_LINK) $(asqtad_invert_bench_f2_OBJECTS) $(asqtad_invert_bench_f2_LDADD) $(LIBS)
@@ -1060,6 +1316,9 @@ asqtad_invert_bench_f3$(EXEEXT): $(asqtad_invert_bench_f3_OBJECTS) $(asqtad_inve
 asqtad_invert_bench_fn$(EXEEXT): $(asqtad_invert_bench_fn_OBJECTS) $(asqtad_invert_bench_fn_DEPENDENCIES) $(EXTRA_asqtad_invert_bench_fn_DEPENDENCIES) 
 	@rm -f asqtad_invert_bench_fn$(EXEEXT)
 	$(asqtad_invert_bench_fn_LINK) $(asqtad_invert_bench_fn_OBJECTS) $(asqtad_invert_bench_fn_LDADD) $(LIBS)
+asqtad_test_d1$(EXEEXT): $(asqtad_test_d1_OBJECTS) $(asqtad_test_d1_DEPENDENCIES) $(EXTRA_asqtad_test_d1_DEPENDENCIES) 
+	@rm -f asqtad_test_d1$(EXEEXT)
+	$(asqtad_test_d1_LINK) $(asqtad_test_d1_OBJECTS) $(asqtad_test_d1_LDADD) $(LIBS)
 asqtad_test_d2$(EXEEXT): $(asqtad_test_d2_OBJECTS) $(asqtad_test_d2_DEPENDENCIES) $(EXTRA_asqtad_test_d2_DEPENDENCIES) 
 	@rm -f asqtad_test_d2$(EXEEXT)
 	$(asqtad_test_d2_LINK) $(asqtad_test_d2_OBJECTS) $(asqtad_test_d2_LDADD) $(LIBS)
@@ -1069,6 +1328,9 @@ asqtad_test_d3$(EXEEXT): $(asqtad_test_d3_OBJECTS) $(asqtad_test_d3_DEPENDENCIES
 asqtad_test_dn$(EXEEXT): $(asqtad_test_dn_OBJECTS) $(asqtad_test_dn_DEPENDENCIES) $(EXTRA_asqtad_test_dn_DEPENDENCIES) 
 	@rm -f asqtad_test_dn$(EXEEXT)
 	$(asqtad_test_dn_LINK) $(asqtad_test_dn_OBJECTS) $(asqtad_test_dn_LDADD) $(LIBS)
+asqtad_test_f1$(EXEEXT): $(asqtad_test_f1_OBJECTS) $(asqtad_test_f1_DEPENDENCIES) $(EXTRA_asqtad_test_f1_DEPENDENCIES) 
+	@rm -f asqtad_test_f1$(EXEEXT)
+	$(asqtad_test_f1_LINK) $(asqtad_test_f1_OBJECTS) $(asqtad_test_f1_LDADD) $(LIBS)
 asqtad_test_f2$(EXEEXT): $(asqtad_test_f2_OBJECTS) $(asqtad_test_f2_DEPENDENCIES) $(EXTRA_asqtad_test_f2_DEPENDENCIES) 
 	@rm -f asqtad_test_f2$(EXEEXT)
 	$(asqtad_test_f2_LINK) $(asqtad_test_f2_OBJECTS) $(asqtad_test_f2_LDADD) $(LIBS)
@@ -1078,6 +1340,9 @@ asqtad_test_f3$(EXEEXT): $(asqtad_test_f3_OBJECTS) $(asqtad_test_f3_DEPENDENCIES
 asqtad_test_fn$(EXEEXT): $(asqtad_test_fn_OBJECTS) $(asqtad_test_fn_DEPENDENCIES) $(EXTRA_asqtad_test_fn_DEPENDENCIES) 
 	@rm -f asqtad_test_fn$(EXEEXT)
 	$(asqtad_test_fn_LINK) $(asqtad_test_fn_OBJECTS) $(asqtad_test_fn_LDADD) $(LIBS)
+dw_invert_bench_d1$(EXEEXT): $(dw_invert_bench_d1_OBJECTS) $(dw_invert_bench_d1_DEPENDENCIES) $(EXTRA_dw_invert_bench_d1_DEPENDENCIES) 
+	@rm -f dw_invert_bench_d1$(EXEEXT)
+	$(dw_invert_bench_d1_LINK) $(dw_invert_bench_d1_OBJECTS) $(dw_invert_bench_d1_LDADD) $(LIBS)
 dw_invert_bench_d2$(EXEEXT): $(dw_invert_bench_d2_OBJECTS) $(dw_invert_bench_d2_DEPENDENCIES) $(EXTRA_dw_invert_bench_d2_DEPENDENCIES) 
 	@rm -f dw_invert_bench_d2$(EXEEXT)
 	$(dw_invert_bench_d2_LINK) $(dw_invert_bench_d2_OBJECTS) $(dw_invert_bench_d2_LDADD) $(LIBS)
@@ -1087,6 +1352,9 @@ dw_invert_bench_d3$(EXEEXT): $(dw_invert_bench_d3_OBJECTS) $(dw_invert_bench_d3_
 dw_invert_bench_dn$(EXEEXT): $(dw_invert_bench_dn_OBJECTS) $(dw_invert_bench_dn_DEPENDENCIES) $(EXTRA_dw_invert_bench_dn_DEPENDENCIES) 
 	@rm -f dw_invert_bench_dn$(EXEEXT)
 	$(dw_invert_bench_dn_LINK) $(dw_invert_bench_dn_OBJECTS) $(dw_invert_bench_dn_LDADD) $(LIBS)
+dw_invert_bench_f1$(EXEEXT): $(dw_invert_bench_f1_OBJECTS) $(dw_invert_bench_f1_DEPENDENCIES) $(EXTRA_dw_invert_bench_f1_DEPENDENCIES) 
+	@rm -f dw_invert_bench_f1$(EXEEXT)
+	$(dw_invert_bench_f1_LINK) $(dw_invert_bench_f1_OBJECTS) $(dw_invert_bench_f1_LDADD) $(LIBS)
 dw_invert_bench_f2$(EXEEXT): $(dw_invert_bench_f2_OBJECTS) $(dw_invert_bench_f2_DEPENDENCIES) $(EXTRA_dw_invert_bench_f2_DEPENDENCIES) 
 	@rm -f dw_invert_bench_f2$(EXEEXT)
 	$(dw_invert_bench_f2_LINK) $(dw_invert_bench_f2_OBJECTS) $(dw_invert_bench_f2_LDADD) $(LIBS)
@@ -1096,6 +1364,9 @@ dw_invert_bench_f3$(EXEEXT): $(dw_invert_bench_f3_OBJECTS) $(dw_invert_bench_f3_
 dw_invert_bench_fn$(EXEEXT): $(dw_invert_bench_fn_OBJECTS) $(dw_invert_bench_fn_DEPENDENCIES) $(EXTRA_dw_invert_bench_fn_DEPENDENCIES) 
 	@rm -f dw_invert_bench_fn$(EXEEXT)
 	$(dw_invert_bench_fn_LINK) $(dw_invert_bench_fn_OBJECTS) $(dw_invert_bench_fn_LDADD) $(LIBS)
+hisq_force_bench_d1$(EXEEXT): $(hisq_force_bench_d1_OBJECTS) $(hisq_force_bench_d1_DEPENDENCIES) $(EXTRA_hisq_force_bench_d1_DEPENDENCIES) 
+	@rm -f hisq_force_bench_d1$(EXEEXT)
+	$(hisq_force_bench_d1_LINK) $(hisq_force_bench_d1_OBJECTS) $(hisq_force_bench_d1_LDADD) $(LIBS)
 hisq_force_bench_d2$(EXEEXT): $(hisq_force_bench_d2_OBJECTS) $(hisq_force_bench_d2_DEPENDENCIES) $(EXTRA_hisq_force_bench_d2_DEPENDENCIES) 
 	@rm -f hisq_force_bench_d2$(EXEEXT)
 	$(hisq_force_bench_d2_LINK) $(hisq_force_bench_d2_OBJECTS) $(hisq_force_bench_d2_LDADD) $(LIBS)
@@ -1105,6 +1376,9 @@ hisq_force_bench_d3$(EXEEXT): $(hisq_force_bench_d3_OBJECTS) $(hisq_force_bench_
 hisq_force_bench_dn$(EXEEXT): $(hisq_force_bench_dn_OBJECTS) $(hisq_force_bench_dn_DEPENDENCIES) $(EXTRA_hisq_force_bench_dn_DEPENDENCIES) 
 	@rm -f hisq_force_bench_dn$(EXEEXT)
 	$(hisq_force_bench_dn_LINK) $(hisq_force_bench_dn_OBJECTS) $(hisq_force_bench_dn_LDADD) $(LIBS)
+hisq_force_bench_f1$(EXEEXT): $(hisq_force_bench_f1_OBJECTS) $(hisq_force_bench_f1_DEPENDENCIES) $(EXTRA_hisq_force_bench_f1_DEPENDENCIES) 
+	@rm -f hisq_force_bench_f1$(EXEEXT)
+	$(hisq_force_bench_f1_LINK) $(hisq_force_bench_f1_OBJECTS) $(hisq_force_bench_f1_LDADD) $(LIBS)
 hisq_force_bench_f2$(EXEEXT): $(hisq_force_bench_f2_OBJECTS) $(hisq_force_bench_f2_DEPENDENCIES) $(EXTRA_hisq_force_bench_f2_DEPENDENCIES) 
 	@rm -f hisq_force_bench_f2$(EXEEXT)
 	$(hisq_force_bench_f2_LINK) $(hisq_force_bench_f2_OBJECTS) $(hisq_force_bench_f2_LDADD) $(LIBS)
@@ -1114,6 +1388,9 @@ hisq_force_bench_f3$(EXEEXT): $(hisq_force_bench_f3_OBJECTS) $(hisq_force_bench_
 hisq_force_bench_fn$(EXEEXT): $(hisq_force_bench_fn_OBJECTS) $(hisq_force_bench_fn_DEPENDENCIES) $(EXTRA_hisq_force_bench_fn_DEPENDENCIES) 
 	@rm -f hisq_force_bench_fn$(EXEEXT)
 	$(hisq_force_bench_fn_LINK) $(hisq_force_bench_fn_OBJECTS) $(hisq_force_bench_fn_LDADD) $(LIBS)
+hisq_invert_bench_d1$(EXEEXT): $(hisq_invert_bench_d1_OBJECTS) $(hisq_invert_bench_d1_DEPENDENCIES) $(EXTRA_hisq_invert_bench_d1_DEPENDENCIES) 
+	@rm -f hisq_invert_bench_d1$(EXEEXT)
+	$(hisq_invert_bench_d1_LINK) $(hisq_invert_bench_d1_OBJECTS) $(hisq_invert_bench_d1_LDADD) $(LIBS)
 hisq_invert_bench_d2$(EXEEXT): $(hisq_invert_bench_d2_OBJECTS) $(hisq_invert_bench_d2_DEPENDENCIES) $(EXTRA_hisq_invert_bench_d2_DEPENDENCIES) 
 	@rm -f hisq_invert_bench_d2$(EXEEXT)
 	$(hisq_invert_bench_d2_LINK) $(hisq_invert_bench_d2_OBJECTS) $(hisq_invert_bench_d2_LDADD) $(LIBS)
@@ -1123,6 +1400,9 @@ hisq_invert_bench_d3$(EXEEXT): $(hisq_invert_bench_d3_OBJECTS) $(hisq_invert_ben
 hisq_invert_bench_dn$(EXEEXT): $(hisq_invert_bench_dn_OBJECTS) $(hisq_invert_bench_dn_DEPENDENCIES) $(EXTRA_hisq_invert_bench_dn_DEPENDENCIES) 
 	@rm -f hisq_invert_bench_dn$(EXEEXT)
 	$(hisq_invert_bench_dn_LINK) $(hisq_invert_bench_dn_OBJECTS) $(hisq_invert_bench_dn_LDADD) $(LIBS)
+hisq_invert_bench_f1$(EXEEXT): $(hisq_invert_bench_f1_OBJECTS) $(hisq_invert_bench_f1_DEPENDENCIES) $(EXTRA_hisq_invert_bench_f1_DEPENDENCIES) 
+	@rm -f hisq_invert_bench_f1$(EXEEXT)
+	$(hisq_invert_bench_f1_LINK) $(hisq_invert_bench_f1_OBJECTS) $(hisq_invert_bench_f1_LDADD) $(LIBS)
 hisq_invert_bench_f2$(EXEEXT): $(hisq_invert_bench_f2_OBJECTS) $(hisq_invert_bench_f2_DEPENDENCIES) $(EXTRA_hisq_invert_bench_f2_DEPENDENCIES) 
 	@rm -f hisq_invert_bench_f2$(EXEEXT)
 	$(hisq_invert_bench_f2_LINK) $(hisq_invert_bench_f2_OBJECTS) $(hisq_invert_bench_f2_LDADD) $(LIBS)
@@ -1132,6 +1412,9 @@ hisq_invert_bench_f3$(EXEEXT): $(hisq_invert_bench_f3_OBJECTS) $(hisq_invert_ben
 hisq_invert_bench_fn$(EXEEXT): $(hisq_invert_bench_fn_OBJECTS) $(hisq_invert_bench_fn_DEPENDENCIES) $(EXTRA_hisq_invert_bench_fn_DEPENDENCIES) 
 	@rm -f hisq_invert_bench_fn$(EXEEXT)
 	$(hisq_invert_bench_fn_LINK) $(hisq_invert_bench_fn_OBJECTS) $(hisq_invert_bench_fn_LDADD) $(LIBS)
+imp_gauge_force_bench_d1$(EXEEXT): $(imp_gauge_force_bench_d1_OBJECTS) $(imp_gauge_force_bench_d1_DEPENDENCIES) $(EXTRA_imp_gauge_force_bench_d1_DEPENDENCIES) 
+	@rm -f imp_gauge_force_bench_d1$(EXEEXT)
+	$(imp_gauge_force_bench_d1_LINK) $(imp_gauge_force_bench_d1_OBJECTS) $(imp_gauge_force_bench_d1_LDADD) $(LIBS)
 imp_gauge_force_bench_d2$(EXEEXT): $(imp_gauge_force_bench_d2_OBJECTS) $(imp_gauge_force_bench_d2_DEPENDENCIES) $(EXTRA_imp_gauge_force_bench_d2_DEPENDENCIES) 
 	@rm -f imp_gauge_force_bench_d2$(EXEEXT)
 	$(imp_gauge_force_bench_d2_LINK) $(imp_gauge_force_bench_d2_OBJECTS) $(imp_gauge_force_bench_d2_LDADD) $(LIBS)
@@ -1141,6 +1424,9 @@ imp_gauge_force_bench_d3$(EXEEXT): $(imp_gauge_force_bench_d3_OBJECTS) $(imp_gau
 imp_gauge_force_bench_dn$(EXEEXT): $(imp_gauge_force_bench_dn_OBJECTS) $(imp_gauge_force_bench_dn_DEPENDENCIES) $(EXTRA_imp_gauge_force_bench_dn_DEPENDENCIES) 
 	@rm -f imp_gauge_force_bench_dn$(EXEEXT)
 	$(imp_gauge_force_bench_dn_LINK) $(imp_gauge_force_bench_dn_OBJECTS) $(imp_gauge_force_bench_dn_LDADD) $(LIBS)
+imp_gauge_force_bench_f1$(EXEEXT): $(imp_gauge_force_bench_f1_OBJECTS) $(imp_gauge_force_bench_f1_DEPENDENCIES) $(EXTRA_imp_gauge_force_bench_f1_DEPENDENCIES) 
+	@rm -f imp_gauge_force_bench_f1$(EXEEXT)
+	$(imp_gauge_force_bench_f1_LINK) $(imp_gauge_force_bench_f1_OBJECTS) $(imp_gauge_force_bench_f1_LDADD) $(LIBS)
 imp_gauge_force_bench_f2$(EXEEXT): $(imp_gauge_force_bench_f2_OBJECTS) $(imp_gauge_force_bench_f2_DEPENDENCIES) $(EXTRA_imp_gauge_force_bench_f2_DEPENDENCIES) 
 	@rm -f imp_gauge_force_bench_f2$(EXEEXT)
 	$(imp_gauge_force_bench_f2_LINK) $(imp_gauge_force_bench_f2_OBJECTS) $(imp_gauge_force_bench_f2_LDADD) $(LIBS)
@@ -1156,6 +1442,9 @@ test_reunit_utils_d3$(EXEEXT): $(test_reunit_utils_d3_OBJECTS) $(test_reunit_uti
 test_reunit_utils_f3$(EXEEXT): $(test_reunit_utils_f3_OBJECTS) $(test_reunit_utils_f3_DEPENDENCIES) $(EXTRA_test_reunit_utils_f3_DEPENDENCIES) 
 	@rm -f test_reunit_utils_f3$(EXEEXT)
 	$(test_reunit_utils_f3_LINK) $(test_reunit_utils_f3_OBJECTS) $(test_reunit_utils_f3_LDADD) $(LIBS)
+wilson_force_bench_d1$(EXEEXT): $(wilson_force_bench_d1_OBJECTS) $(wilson_force_bench_d1_DEPENDENCIES) $(EXTRA_wilson_force_bench_d1_DEPENDENCIES) 
+	@rm -f wilson_force_bench_d1$(EXEEXT)
+	$(wilson_force_bench_d1_LINK) $(wilson_force_bench_d1_OBJECTS) $(wilson_force_bench_d1_LDADD) $(LIBS)
 wilson_force_bench_d2$(EXEEXT): $(wilson_force_bench_d2_OBJECTS) $(wilson_force_bench_d2_DEPENDENCIES) $(EXTRA_wilson_force_bench_d2_DEPENDENCIES) 
 	@rm -f wilson_force_bench_d2$(EXEEXT)
 	$(wilson_force_bench_d2_LINK) $(wilson_force_bench_d2_OBJECTS) $(wilson_force_bench_d2_LDADD) $(LIBS)
@@ -1165,6 +1454,9 @@ wilson_force_bench_d3$(EXEEXT): $(wilson_force_bench_d3_OBJECTS) $(wilson_force_
 wilson_force_bench_dn$(EXEEXT): $(wilson_force_bench_dn_OBJECTS) $(wilson_force_bench_dn_DEPENDENCIES) $(EXTRA_wilson_force_bench_dn_DEPENDENCIES) 
 	@rm -f wilson_force_bench_dn$(EXEEXT)
 	$(wilson_force_bench_dn_LINK) $(wilson_force_bench_dn_OBJECTS) $(wilson_force_bench_dn_LDADD) $(LIBS)
+wilson_force_bench_f1$(EXEEXT): $(wilson_force_bench_f1_OBJECTS) $(wilson_force_bench_f1_DEPENDENCIES) $(EXTRA_wilson_force_bench_f1_DEPENDENCIES) 
+	@rm -f wilson_force_bench_f1$(EXEEXT)
+	$(wilson_force_bench_f1_LINK) $(wilson_force_bench_f1_OBJECTS) $(wilson_force_bench_f1_LDADD) $(LIBS)
 wilson_force_bench_f2$(EXEEXT): $(wilson_force_bench_f2_OBJECTS) $(wilson_force_bench_f2_DEPENDENCIES) $(EXTRA_wilson_force_bench_f2_DEPENDENCIES) 
 	@rm -f wilson_force_bench_f2$(EXEEXT)
 	$(wilson_force_bench_f2_LINK) $(wilson_force_bench_f2_OBJECTS) $(wilson_force_bench_f2_LDADD) $(LIBS)
@@ -1174,6 +1466,9 @@ wilson_force_bench_f3$(EXEEXT): $(wilson_force_bench_f3_OBJECTS) $(wilson_force_
 wilson_force_bench_fn$(EXEEXT): $(wilson_force_bench_fn_OBJECTS) $(wilson_force_bench_fn_DEPENDENCIES) $(EXTRA_wilson_force_bench_fn_DEPENDENCIES) 
 	@rm -f wilson_force_bench_fn$(EXEEXT)
 	$(wilson_force_bench_fn_LINK) $(wilson_force_bench_fn_OBJECTS) $(wilson_force_bench_fn_LDADD) $(LIBS)
+wilson_invert_bench_d1$(EXEEXT): $(wilson_invert_bench_d1_OBJECTS) $(wilson_invert_bench_d1_DEPENDENCIES) $(EXTRA_wilson_invert_bench_d1_DEPENDENCIES) 
+	@rm -f wilson_invert_bench_d1$(EXEEXT)
+	$(wilson_invert_bench_d1_LINK) $(wilson_invert_bench_d1_OBJECTS) $(wilson_invert_bench_d1_LDADD) $(LIBS)
 wilson_invert_bench_d2$(EXEEXT): $(wilson_invert_bench_d2_OBJECTS) $(wilson_invert_bench_d2_DEPENDENCIES) $(EXTRA_wilson_invert_bench_d2_DEPENDENCIES) 
 	@rm -f wilson_invert_bench_d2$(EXEEXT)
 	$(wilson_invert_bench_d2_LINK) $(wilson_invert_bench_d2_OBJECTS) $(wilson_invert_bench_d2_LDADD) $(LIBS)
@@ -1183,6 +1478,9 @@ wilson_invert_bench_d3$(EXEEXT): $(wilson_invert_bench_d3_OBJECTS) $(wilson_inve
 wilson_invert_bench_dn$(EXEEXT): $(wilson_invert_bench_dn_OBJECTS) $(wilson_invert_bench_dn_DEPENDENCIES) $(EXTRA_wilson_invert_bench_dn_DEPENDENCIES) 
 	@rm -f wilson_invert_bench_dn$(EXEEXT)
 	$(wilson_invert_bench_dn_LINK) $(wilson_invert_bench_dn_OBJECTS) $(wilson_invert_bench_dn_LDADD) $(LIBS)
+wilson_invert_bench_f1$(EXEEXT): $(wilson_invert_bench_f1_OBJECTS) $(wilson_invert_bench_f1_DEPENDENCIES) $(EXTRA_wilson_invert_bench_f1_DEPENDENCIES) 
+	@rm -f wilson_invert_bench_f1$(EXEEXT)
+	$(wilson_invert_bench_f1_LINK) $(wilson_invert_bench_f1_OBJECTS) $(wilson_invert_bench_f1_LDADD) $(LIBS)
 wilson_invert_bench_f2$(EXEEXT): $(wilson_invert_bench_f2_OBJECTS) $(wilson_invert_bench_f2_DEPENDENCIES) $(EXTRA_wilson_invert_bench_f2_DEPENDENCIES) 
 	@rm -f wilson_invert_bench_f2$(EXEEXT)
 	$(wilson_invert_bench_f2_LINK) $(wilson_invert_bench_f2_OBJECTS) $(wilson_invert_bench_f2_LDADD) $(LIBS)
@@ -1198,6 +1496,9 @@ wilson_mg_test_d3$(EXEEXT): $(wilson_mg_test_d3_OBJECTS) $(wilson_mg_test_d3_DEP
 wilson_mg_test_f3$(EXEEXT): $(wilson_mg_test_f3_OBJECTS) $(wilson_mg_test_f3_DEPENDENCIES) $(EXTRA_wilson_mg_test_f3_DEPENDENCIES) 
 	@rm -f wilson_mg_test_f3$(EXEEXT)
 	$(wilson_mg_test_f3_LINK) $(wilson_mg_test_f3_OBJECTS) $(wilson_mg_test_f3_LDADD) $(LIBS)
+wilson_test_d1$(EXEEXT): $(wilson_test_d1_OBJECTS) $(wilson_test_d1_DEPENDENCIES) $(EXTRA_wilson_test_d1_DEPENDENCIES) 
+	@rm -f wilson_test_d1$(EXEEXT)
+	$(wilson_test_d1_LINK) $(wilson_test_d1_OBJECTS) $(wilson_test_d1_LDADD) $(LIBS)
 wilson_test_d2$(EXEEXT): $(wilson_test_d2_OBJECTS) $(wilson_test_d2_DEPENDENCIES) $(EXTRA_wilson_test_d2_DEPENDENCIES) 
 	@rm -f wilson_test_d2$(EXEEXT)
 	$(wilson_test_d2_LINK) $(wilson_test_d2_OBJECTS) $(wilson_test_d2_LDADD) $(LIBS)
@@ -1207,6 +1508,9 @@ wilson_test_d3$(EXEEXT): $(wilson_test_d3_OBJECTS) $(wilson_test_d3_DEPENDENCIES
 wilson_test_dn$(EXEEXT): $(wilson_test_dn_OBJECTS) $(wilson_test_dn_DEPENDENCIES) $(EXTRA_wilson_test_dn_DEPENDENCIES) 
 	@rm -f wilson_test_dn$(EXEEXT)
 	$(wilson_test_dn_LINK) $(wilson_test_dn_OBJECTS) $(wilson_test_dn_LDADD) $(LIBS)
+wilson_test_f1$(EXEEXT): $(wilson_test_f1_OBJECTS) $(wilson_test_f1_DEPENDENCIES) $(EXTRA_wilson_test_f1_DEPENDENCIES) 
+	@rm -f wilson_test_f1$(EXEEXT)
+	$(wilson_test_f1_LINK) $(wilson_test_f1_OBJECTS) $(wilson_test_f1_LDADD) $(LIBS)
 wilson_test_f2$(EXEEXT): $(wilson_test_f2_OBJECTS) $(wilson_test_f2_DEPENDENCIES) $(EXTRA_wilson_test_f2_DEPENDENCIES) 
 	@rm -f wilson_test_f2$(EXEEXT)
 	$(wilson_test_f2_LINK) $(wilson_test_f2_OBJECTS) $(wilson_test_f2_LDADD) $(LIBS)
@@ -1227,84 +1531,112 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_eigcg_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_eigcg_f3-asqtad_eigcg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_eigcg_f3-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_d2-asqtad_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_d3-asqtad_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_dn-asqtad_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_f2-asqtad_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_f3-asqtad_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_fn-asqtad_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_force_bench_fn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_d2-asqtad_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_d3-asqtad_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_dn-asqtad_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_f2-asqtad_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_f3-asqtad_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_fn-asqtad_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_invert_bench_fn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d1-asqtad_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d2-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d3-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_dn-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f1-asqtad_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f2-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f3-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_fn-asqtad_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asqtad_test_fn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d2-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d3-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_dn-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f2-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f3-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_fn-dw_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dw_invert_bench_fn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_d2-hisq_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_d3-hisq_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_dn-hisq_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_f2-hisq_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_f3-hisq_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_fn-hisq_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_force_bench_fn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_d2-hisq_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_d3-hisq_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_dn-hisq_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_f2-hisq_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_f3-hisq_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_fn-hisq_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hisq_invert_bench_fn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d2-imp_gauge_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d3-imp_gauge_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_dn-imp_gauge_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_dn-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f1-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f2-imp_gauge_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_gauge_force_bench_f3-imp_gauge_force_bench.Po@am__quote@
@@ -1315,24 +1647,32 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_reunit_utils_d3-test_reunit_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_reunit_utils_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_reunit_utils_f3-test_reunit_utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_d1-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_d2-wilson_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_d3-wilson_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_dn-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_dn-wilson_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_f1-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_f2-wilson_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_f3-wilson_force_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_fn-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_force_bench_fn-wilson_force_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d1-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d2-wilson_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_d3-wilson_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_dn-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_dn-wilson_invert_bench.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f1-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f2-wilson_invert_bench.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_invert_bench_f3-test_common.Po@am__quote@
@@ -1343,12 +1683,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_mg_test_d3-wilson_mg_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_mg_test_f3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_mg_test_f3-wilson_mg_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d1-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d1-wilson_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d2-wilson_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d3-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_d3-wilson_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_dn-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_dn-wilson_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f1-test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f1-wilson_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f2-test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f2-wilson_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wilson_test_f3-test_common.Po@am__quote@
@@ -1427,6 +1771,34 @@ asqtad_eigcg_f3-asqtad_eigcg.obj: asqtad_eigcg.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_eigcg.c' object='asqtad_eigcg_f3-asqtad_eigcg.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_eigcg_f3_CFLAGS) $(CFLAGS) -c -o asqtad_eigcg_f3-asqtad_eigcg.obj `if test -f 'asqtad_eigcg.c'; then $(CYGPATH_W) 'asqtad_eigcg.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_eigcg.c'; fi`
+
+asqtad_force_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_force_bench_d1-test_common.Tpo -c -o asqtad_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_d1-test_common.Tpo $(DEPDIR)/asqtad_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_force_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+asqtad_force_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/asqtad_force_bench_d1-test_common.Tpo -c -o asqtad_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_d1-test_common.Tpo $(DEPDIR)/asqtad_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_force_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+asqtad_force_bench_d1-asqtad_force_bench.o: asqtad_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_d1-asqtad_force_bench.o -MD -MP -MF $(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Tpo -c -o asqtad_force_bench_d1-asqtad_force_bench.o `test -f 'asqtad_force_bench.c' || echo '$(srcdir)/'`asqtad_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Tpo $(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_force_bench.c' object='asqtad_force_bench_d1-asqtad_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_d1-asqtad_force_bench.o `test -f 'asqtad_force_bench.c' || echo '$(srcdir)/'`asqtad_force_bench.c
+
+asqtad_force_bench_d1-asqtad_force_bench.obj: asqtad_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_d1-asqtad_force_bench.obj -MD -MP -MF $(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Tpo -c -o asqtad_force_bench_d1-asqtad_force_bench.obj `if test -f 'asqtad_force_bench.c'; then $(CYGPATH_W) 'asqtad_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Tpo $(DEPDIR)/asqtad_force_bench_d1-asqtad_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_force_bench.c' object='asqtad_force_bench_d1-asqtad_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_d1-asqtad_force_bench.obj `if test -f 'asqtad_force_bench.c'; then $(CYGPATH_W) 'asqtad_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_force_bench.c'; fi`
 
 asqtad_force_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_d2_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_force_bench_d2-test_common.Tpo -c -o asqtad_force_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -1512,6 +1884,34 @@ asqtad_force_bench_dn-asqtad_force_bench.obj: asqtad_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_dn_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_dn-asqtad_force_bench.obj `if test -f 'asqtad_force_bench.c'; then $(CYGPATH_W) 'asqtad_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_force_bench.c'; fi`
 
+asqtad_force_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_force_bench_f1-test_common.Tpo -c -o asqtad_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_f1-test_common.Tpo $(DEPDIR)/asqtad_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_force_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+asqtad_force_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/asqtad_force_bench_f1-test_common.Tpo -c -o asqtad_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_f1-test_common.Tpo $(DEPDIR)/asqtad_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_force_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+asqtad_force_bench_f1-asqtad_force_bench.o: asqtad_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_f1-asqtad_force_bench.o -MD -MP -MF $(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Tpo -c -o asqtad_force_bench_f1-asqtad_force_bench.o `test -f 'asqtad_force_bench.c' || echo '$(srcdir)/'`asqtad_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Tpo $(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_force_bench.c' object='asqtad_force_bench_f1-asqtad_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_f1-asqtad_force_bench.o `test -f 'asqtad_force_bench.c' || echo '$(srcdir)/'`asqtad_force_bench.c
+
+asqtad_force_bench_f1-asqtad_force_bench.obj: asqtad_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_f1-asqtad_force_bench.obj -MD -MP -MF $(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Tpo -c -o asqtad_force_bench_f1-asqtad_force_bench.obj `if test -f 'asqtad_force_bench.c'; then $(CYGPATH_W) 'asqtad_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Tpo $(DEPDIR)/asqtad_force_bench_f1-asqtad_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_force_bench.c' object='asqtad_force_bench_f1-asqtad_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_f1-asqtad_force_bench.obj `if test -f 'asqtad_force_bench.c'; then $(CYGPATH_W) 'asqtad_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_force_bench.c'; fi`
+
 asqtad_force_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_f2_CFLAGS) $(CFLAGS) -MT asqtad_force_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_force_bench_f2-test_common.Tpo -c -o asqtad_force_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_force_bench_f2-test_common.Tpo $(DEPDIR)/asqtad_force_bench_f2-test_common.Po
@@ -1595,6 +1995,34 @@ asqtad_force_bench_fn-asqtad_force_bench.obj: asqtad_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_force_bench.c' object='asqtad_force_bench_fn-asqtad_force_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_force_bench_fn_CFLAGS) $(CFLAGS) -c -o asqtad_force_bench_fn-asqtad_force_bench.obj `if test -f 'asqtad_force_bench.c'; then $(CYGPATH_W) 'asqtad_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_force_bench.c'; fi`
+
+asqtad_invert_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_d1-test_common.Tpo -c -o asqtad_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_d1-test_common.Tpo $(DEPDIR)/asqtad_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_invert_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+asqtad_invert_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_d1-test_common.Tpo -c -o asqtad_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_d1-test_common.Tpo $(DEPDIR)/asqtad_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_invert_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+asqtad_invert_bench_d1-asqtad_invert_bench.o: asqtad_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_d1-asqtad_invert_bench.o -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Tpo -c -o asqtad_invert_bench_d1-asqtad_invert_bench.o `test -f 'asqtad_invert_bench.c' || echo '$(srcdir)/'`asqtad_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Tpo $(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_invert_bench.c' object='asqtad_invert_bench_d1-asqtad_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_d1-asqtad_invert_bench.o `test -f 'asqtad_invert_bench.c' || echo '$(srcdir)/'`asqtad_invert_bench.c
+
+asqtad_invert_bench_d1-asqtad_invert_bench.obj: asqtad_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_d1-asqtad_invert_bench.obj -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Tpo -c -o asqtad_invert_bench_d1-asqtad_invert_bench.obj `if test -f 'asqtad_invert_bench.c'; then $(CYGPATH_W) 'asqtad_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Tpo $(DEPDIR)/asqtad_invert_bench_d1-asqtad_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_invert_bench.c' object='asqtad_invert_bench_d1-asqtad_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_d1-asqtad_invert_bench.obj `if test -f 'asqtad_invert_bench.c'; then $(CYGPATH_W) 'asqtad_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_invert_bench.c'; fi`
 
 asqtad_invert_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_d2_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_d2-test_common.Tpo -c -o asqtad_invert_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -1680,6 +2108,34 @@ asqtad_invert_bench_dn-asqtad_invert_bench.obj: asqtad_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_dn_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_dn-asqtad_invert_bench.obj `if test -f 'asqtad_invert_bench.c'; then $(CYGPATH_W) 'asqtad_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_invert_bench.c'; fi`
 
+asqtad_invert_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_f1-test_common.Tpo -c -o asqtad_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_f1-test_common.Tpo $(DEPDIR)/asqtad_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_invert_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+asqtad_invert_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_f1-test_common.Tpo -c -o asqtad_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_f1-test_common.Tpo $(DEPDIR)/asqtad_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_invert_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+asqtad_invert_bench_f1-asqtad_invert_bench.o: asqtad_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_f1-asqtad_invert_bench.o -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Tpo -c -o asqtad_invert_bench_f1-asqtad_invert_bench.o `test -f 'asqtad_invert_bench.c' || echo '$(srcdir)/'`asqtad_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Tpo $(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_invert_bench.c' object='asqtad_invert_bench_f1-asqtad_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_f1-asqtad_invert_bench.o `test -f 'asqtad_invert_bench.c' || echo '$(srcdir)/'`asqtad_invert_bench.c
+
+asqtad_invert_bench_f1-asqtad_invert_bench.obj: asqtad_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_f1-asqtad_invert_bench.obj -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Tpo -c -o asqtad_invert_bench_f1-asqtad_invert_bench.obj `if test -f 'asqtad_invert_bench.c'; then $(CYGPATH_W) 'asqtad_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Tpo $(DEPDIR)/asqtad_invert_bench_f1-asqtad_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_invert_bench.c' object='asqtad_invert_bench_f1-asqtad_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_f1-asqtad_invert_bench.obj `if test -f 'asqtad_invert_bench.c'; then $(CYGPATH_W) 'asqtad_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_invert_bench.c'; fi`
+
 asqtad_invert_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_f2_CFLAGS) $(CFLAGS) -MT asqtad_invert_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_invert_bench_f2-test_common.Tpo -c -o asqtad_invert_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_invert_bench_f2-test_common.Tpo $(DEPDIR)/asqtad_invert_bench_f2-test_common.Po
@@ -1763,6 +2219,34 @@ asqtad_invert_bench_fn-asqtad_invert_bench.obj: asqtad_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_invert_bench.c' object='asqtad_invert_bench_fn-asqtad_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_invert_bench_fn_CFLAGS) $(CFLAGS) -c -o asqtad_invert_bench_fn-asqtad_invert_bench.obj `if test -f 'asqtad_invert_bench.c'; then $(CYGPATH_W) 'asqtad_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_invert_bench.c'; fi`
+
+asqtad_test_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -MT asqtad_test_d1-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_test_d1-test_common.Tpo -c -o asqtad_test_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_d1-test_common.Tpo $(DEPDIR)/asqtad_test_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_test_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -c -o asqtad_test_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+asqtad_test_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -MT asqtad_test_d1-test_common.obj -MD -MP -MF $(DEPDIR)/asqtad_test_d1-test_common.Tpo -c -o asqtad_test_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_d1-test_common.Tpo $(DEPDIR)/asqtad_test_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_test_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -c -o asqtad_test_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+asqtad_test_d1-asqtad_test.o: asqtad_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -MT asqtad_test_d1-asqtad_test.o -MD -MP -MF $(DEPDIR)/asqtad_test_d1-asqtad_test.Tpo -c -o asqtad_test_d1-asqtad_test.o `test -f 'asqtad_test.c' || echo '$(srcdir)/'`asqtad_test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_d1-asqtad_test.Tpo $(DEPDIR)/asqtad_test_d1-asqtad_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_d1-asqtad_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -c -o asqtad_test_d1-asqtad_test.o `test -f 'asqtad_test.c' || echo '$(srcdir)/'`asqtad_test.c
+
+asqtad_test_d1-asqtad_test.obj: asqtad_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -MT asqtad_test_d1-asqtad_test.obj -MD -MP -MF $(DEPDIR)/asqtad_test_d1-asqtad_test.Tpo -c -o asqtad_test_d1-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_d1-asqtad_test.Tpo $(DEPDIR)/asqtad_test_d1-asqtad_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_d1-asqtad_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d1_CFLAGS) $(CFLAGS) -c -o asqtad_test_d1-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
 
 asqtad_test_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_d2_CFLAGS) $(CFLAGS) -MT asqtad_test_d2-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_test_d2-test_common.Tpo -c -o asqtad_test_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -1848,6 +2332,34 @@ asqtad_test_dn-asqtad_test.obj: asqtad_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_dn_CFLAGS) $(CFLAGS) -c -o asqtad_test_dn-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
 
+asqtad_test_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -MT asqtad_test_f1-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_test_f1-test_common.Tpo -c -o asqtad_test_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_f1-test_common.Tpo $(DEPDIR)/asqtad_test_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_test_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -c -o asqtad_test_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+asqtad_test_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -MT asqtad_test_f1-test_common.obj -MD -MP -MF $(DEPDIR)/asqtad_test_f1-test_common.Tpo -c -o asqtad_test_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_f1-test_common.Tpo $(DEPDIR)/asqtad_test_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='asqtad_test_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -c -o asqtad_test_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+asqtad_test_f1-asqtad_test.o: asqtad_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -MT asqtad_test_f1-asqtad_test.o -MD -MP -MF $(DEPDIR)/asqtad_test_f1-asqtad_test.Tpo -c -o asqtad_test_f1-asqtad_test.o `test -f 'asqtad_test.c' || echo '$(srcdir)/'`asqtad_test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_f1-asqtad_test.Tpo $(DEPDIR)/asqtad_test_f1-asqtad_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_f1-asqtad_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -c -o asqtad_test_f1-asqtad_test.o `test -f 'asqtad_test.c' || echo '$(srcdir)/'`asqtad_test.c
+
+asqtad_test_f1-asqtad_test.obj: asqtad_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -MT asqtad_test_f1-asqtad_test.obj -MD -MP -MF $(DEPDIR)/asqtad_test_f1-asqtad_test.Tpo -c -o asqtad_test_f1-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_f1-asqtad_test.Tpo $(DEPDIR)/asqtad_test_f1-asqtad_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_f1-asqtad_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f1_CFLAGS) $(CFLAGS) -c -o asqtad_test_f1-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
+
 asqtad_test_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_f2_CFLAGS) $(CFLAGS) -MT asqtad_test_f2-test_common.o -MD -MP -MF $(DEPDIR)/asqtad_test_f2-test_common.Tpo -c -o asqtad_test_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/asqtad_test_f2-test_common.Tpo $(DEPDIR)/asqtad_test_f2-test_common.Po
@@ -1931,6 +2443,34 @@ asqtad_test_fn-asqtad_test.obj: asqtad_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='asqtad_test.c' object='asqtad_test_fn-asqtad_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asqtad_test_fn_CFLAGS) $(CFLAGS) -c -o asqtad_test_fn-asqtad_test.obj `if test -f 'asqtad_test.c'; then $(CYGPATH_W) 'asqtad_test.c'; else $(CYGPATH_W) '$(srcdir)/asqtad_test.c'; fi`
+
+dw_invert_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/dw_invert_bench_d1-test_common.Tpo -c -o dw_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_d1-test_common.Tpo $(DEPDIR)/dw_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='dw_invert_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+dw_invert_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/dw_invert_bench_d1-test_common.Tpo -c -o dw_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_d1-test_common.Tpo $(DEPDIR)/dw_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='dw_invert_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+dw_invert_bench_d1-dw_invert_bench.o: dw_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_d1-dw_invert_bench.o -MD -MP -MF $(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Tpo -c -o dw_invert_bench_d1-dw_invert_bench.o `test -f 'dw_invert_bench.c' || echo '$(srcdir)/'`dw_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Tpo $(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dw_invert_bench.c' object='dw_invert_bench_d1-dw_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_d1-dw_invert_bench.o `test -f 'dw_invert_bench.c' || echo '$(srcdir)/'`dw_invert_bench.c
+
+dw_invert_bench_d1-dw_invert_bench.obj: dw_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_d1-dw_invert_bench.obj -MD -MP -MF $(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Tpo -c -o dw_invert_bench_d1-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Tpo $(DEPDIR)/dw_invert_bench_d1-dw_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dw_invert_bench.c' object='dw_invert_bench_d1-dw_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_d1-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
 
 dw_invert_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_d2_CFLAGS) $(CFLAGS) -MT dw_invert_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/dw_invert_bench_d2-test_common.Tpo -c -o dw_invert_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -2016,6 +2556,34 @@ dw_invert_bench_dn-dw_invert_bench.obj: dw_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_dn_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_dn-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
 
+dw_invert_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/dw_invert_bench_f1-test_common.Tpo -c -o dw_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_f1-test_common.Tpo $(DEPDIR)/dw_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='dw_invert_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+dw_invert_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/dw_invert_bench_f1-test_common.Tpo -c -o dw_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_f1-test_common.Tpo $(DEPDIR)/dw_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='dw_invert_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+dw_invert_bench_f1-dw_invert_bench.o: dw_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_f1-dw_invert_bench.o -MD -MP -MF $(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Tpo -c -o dw_invert_bench_f1-dw_invert_bench.o `test -f 'dw_invert_bench.c' || echo '$(srcdir)/'`dw_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Tpo $(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dw_invert_bench.c' object='dw_invert_bench_f1-dw_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_f1-dw_invert_bench.o `test -f 'dw_invert_bench.c' || echo '$(srcdir)/'`dw_invert_bench.c
+
+dw_invert_bench_f1-dw_invert_bench.obj: dw_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -MT dw_invert_bench_f1-dw_invert_bench.obj -MD -MP -MF $(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Tpo -c -o dw_invert_bench_f1-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Tpo $(DEPDIR)/dw_invert_bench_f1-dw_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dw_invert_bench.c' object='dw_invert_bench_f1-dw_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_f1-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
+
 dw_invert_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_f2_CFLAGS) $(CFLAGS) -MT dw_invert_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/dw_invert_bench_f2-test_common.Tpo -c -o dw_invert_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dw_invert_bench_f2-test_common.Tpo $(DEPDIR)/dw_invert_bench_f2-test_common.Po
@@ -2099,6 +2667,34 @@ dw_invert_bench_fn-dw_invert_bench.obj: dw_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dw_invert_bench.c' object='dw_invert_bench_fn-dw_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dw_invert_bench_fn_CFLAGS) $(CFLAGS) -c -o dw_invert_bench_fn-dw_invert_bench.obj `if test -f 'dw_invert_bench.c'; then $(CYGPATH_W) 'dw_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/dw_invert_bench.c'; fi`
+
+hisq_force_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/hisq_force_bench_d1-test_common.Tpo -c -o hisq_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_d1-test_common.Tpo $(DEPDIR)/hisq_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_force_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+hisq_force_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/hisq_force_bench_d1-test_common.Tpo -c -o hisq_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_d1-test_common.Tpo $(DEPDIR)/hisq_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_force_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+hisq_force_bench_d1-hisq_force_bench.o: hisq_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_d1-hisq_force_bench.o -MD -MP -MF $(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Tpo -c -o hisq_force_bench_d1-hisq_force_bench.o `test -f 'hisq_force_bench.c' || echo '$(srcdir)/'`hisq_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Tpo $(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_force_bench.c' object='hisq_force_bench_d1-hisq_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_d1-hisq_force_bench.o `test -f 'hisq_force_bench.c' || echo '$(srcdir)/'`hisq_force_bench.c
+
+hisq_force_bench_d1-hisq_force_bench.obj: hisq_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_d1-hisq_force_bench.obj -MD -MP -MF $(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Tpo -c -o hisq_force_bench_d1-hisq_force_bench.obj `if test -f 'hisq_force_bench.c'; then $(CYGPATH_W) 'hisq_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Tpo $(DEPDIR)/hisq_force_bench_d1-hisq_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_force_bench.c' object='hisq_force_bench_d1-hisq_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_d1-hisq_force_bench.obj `if test -f 'hisq_force_bench.c'; then $(CYGPATH_W) 'hisq_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_force_bench.c'; fi`
 
 hisq_force_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_d2_CFLAGS) $(CFLAGS) -MT hisq_force_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/hisq_force_bench_d2-test_common.Tpo -c -o hisq_force_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -2184,6 +2780,34 @@ hisq_force_bench_dn-hisq_force_bench.obj: hisq_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_dn_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_dn-hisq_force_bench.obj `if test -f 'hisq_force_bench.c'; then $(CYGPATH_W) 'hisq_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_force_bench.c'; fi`
 
+hisq_force_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/hisq_force_bench_f1-test_common.Tpo -c -o hisq_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_f1-test_common.Tpo $(DEPDIR)/hisq_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_force_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+hisq_force_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/hisq_force_bench_f1-test_common.Tpo -c -o hisq_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_f1-test_common.Tpo $(DEPDIR)/hisq_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_force_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+hisq_force_bench_f1-hisq_force_bench.o: hisq_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_f1-hisq_force_bench.o -MD -MP -MF $(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Tpo -c -o hisq_force_bench_f1-hisq_force_bench.o `test -f 'hisq_force_bench.c' || echo '$(srcdir)/'`hisq_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Tpo $(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_force_bench.c' object='hisq_force_bench_f1-hisq_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_f1-hisq_force_bench.o `test -f 'hisq_force_bench.c' || echo '$(srcdir)/'`hisq_force_bench.c
+
+hisq_force_bench_f1-hisq_force_bench.obj: hisq_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_force_bench_f1-hisq_force_bench.obj -MD -MP -MF $(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Tpo -c -o hisq_force_bench_f1-hisq_force_bench.obj `if test -f 'hisq_force_bench.c'; then $(CYGPATH_W) 'hisq_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Tpo $(DEPDIR)/hisq_force_bench_f1-hisq_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_force_bench.c' object='hisq_force_bench_f1-hisq_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_f1-hisq_force_bench.obj `if test -f 'hisq_force_bench.c'; then $(CYGPATH_W) 'hisq_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_force_bench.c'; fi`
+
 hisq_force_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_f2_CFLAGS) $(CFLAGS) -MT hisq_force_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/hisq_force_bench_f2-test_common.Tpo -c -o hisq_force_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_force_bench_f2-test_common.Tpo $(DEPDIR)/hisq_force_bench_f2-test_common.Po
@@ -2267,6 +2891,34 @@ hisq_force_bench_fn-hisq_force_bench.obj: hisq_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_force_bench.c' object='hisq_force_bench_fn-hisq_force_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_force_bench_fn_CFLAGS) $(CFLAGS) -c -o hisq_force_bench_fn-hisq_force_bench.obj `if test -f 'hisq_force_bench.c'; then $(CYGPATH_W) 'hisq_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_force_bench.c'; fi`
+
+hisq_invert_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/hisq_invert_bench_d1-test_common.Tpo -c -o hisq_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_d1-test_common.Tpo $(DEPDIR)/hisq_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_invert_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+hisq_invert_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/hisq_invert_bench_d1-test_common.Tpo -c -o hisq_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_d1-test_common.Tpo $(DEPDIR)/hisq_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_invert_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+hisq_invert_bench_d1-hisq_invert_bench.o: hisq_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_d1-hisq_invert_bench.o -MD -MP -MF $(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Tpo -c -o hisq_invert_bench_d1-hisq_invert_bench.o `test -f 'hisq_invert_bench.c' || echo '$(srcdir)/'`hisq_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Tpo $(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_invert_bench.c' object='hisq_invert_bench_d1-hisq_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_d1-hisq_invert_bench.o `test -f 'hisq_invert_bench.c' || echo '$(srcdir)/'`hisq_invert_bench.c
+
+hisq_invert_bench_d1-hisq_invert_bench.obj: hisq_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_d1-hisq_invert_bench.obj -MD -MP -MF $(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Tpo -c -o hisq_invert_bench_d1-hisq_invert_bench.obj `if test -f 'hisq_invert_bench.c'; then $(CYGPATH_W) 'hisq_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Tpo $(DEPDIR)/hisq_invert_bench_d1-hisq_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_invert_bench.c' object='hisq_invert_bench_d1-hisq_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_d1-hisq_invert_bench.obj `if test -f 'hisq_invert_bench.c'; then $(CYGPATH_W) 'hisq_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_invert_bench.c'; fi`
 
 hisq_invert_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_d2_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/hisq_invert_bench_d2-test_common.Tpo -c -o hisq_invert_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -2352,6 +3004,34 @@ hisq_invert_bench_dn-hisq_invert_bench.obj: hisq_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_dn_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_dn-hisq_invert_bench.obj `if test -f 'hisq_invert_bench.c'; then $(CYGPATH_W) 'hisq_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_invert_bench.c'; fi`
 
+hisq_invert_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/hisq_invert_bench_f1-test_common.Tpo -c -o hisq_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_f1-test_common.Tpo $(DEPDIR)/hisq_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_invert_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+hisq_invert_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/hisq_invert_bench_f1-test_common.Tpo -c -o hisq_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_f1-test_common.Tpo $(DEPDIR)/hisq_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='hisq_invert_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+hisq_invert_bench_f1-hisq_invert_bench.o: hisq_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_f1-hisq_invert_bench.o -MD -MP -MF $(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Tpo -c -o hisq_invert_bench_f1-hisq_invert_bench.o `test -f 'hisq_invert_bench.c' || echo '$(srcdir)/'`hisq_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Tpo $(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_invert_bench.c' object='hisq_invert_bench_f1-hisq_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_f1-hisq_invert_bench.o `test -f 'hisq_invert_bench.c' || echo '$(srcdir)/'`hisq_invert_bench.c
+
+hisq_invert_bench_f1-hisq_invert_bench.obj: hisq_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_f1-hisq_invert_bench.obj -MD -MP -MF $(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Tpo -c -o hisq_invert_bench_f1-hisq_invert_bench.obj `if test -f 'hisq_invert_bench.c'; then $(CYGPATH_W) 'hisq_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Tpo $(DEPDIR)/hisq_invert_bench_f1-hisq_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hisq_invert_bench.c' object='hisq_invert_bench_f1-hisq_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_f1-hisq_invert_bench.obj `if test -f 'hisq_invert_bench.c'; then $(CYGPATH_W) 'hisq_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_invert_bench.c'; fi`
+
 hisq_invert_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_f2_CFLAGS) $(CFLAGS) -MT hisq_invert_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/hisq_invert_bench_f2-test_common.Tpo -c -o hisq_invert_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hisq_invert_bench_f2-test_common.Tpo $(DEPDIR)/hisq_invert_bench_f2-test_common.Po
@@ -2436,6 +3116,34 @@ hisq_invert_bench_fn-hisq_invert_bench.obj: hisq_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(hisq_invert_bench_fn_CFLAGS) $(CFLAGS) -c -o hisq_invert_bench_fn-hisq_invert_bench.obj `if test -f 'hisq_invert_bench.c'; then $(CYGPATH_W) 'hisq_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/hisq_invert_bench.c'; fi`
 
+imp_gauge_force_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_d1-test_common.Tpo -c -o imp_gauge_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_d1-test_common.Tpo $(DEPDIR)/imp_gauge_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+imp_gauge_force_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_d1-test_common.Tpo -c -o imp_gauge_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_d1-test_common.Tpo $(DEPDIR)/imp_gauge_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+imp_gauge_force_bench_d1-imp_gauge_force_bench.o: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d1-imp_gauge_force_bench.o -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Tpo -c -o imp_gauge_force_bench_d1-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Tpo $(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_d1-imp_gauge_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d1-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c
+
+imp_gauge_force_bench_d1-imp_gauge_force_bench.obj: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d1-imp_gauge_force_bench.obj -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Tpo -c -o imp_gauge_force_bench_d1-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Tpo $(DEPDIR)/imp_gauge_force_bench_d1-imp_gauge_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_d1-imp_gauge_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_d1-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
+
 imp_gauge_force_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_d2_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_d2-test_common.Tpo -c -o imp_gauge_force_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_d2-test_common.Tpo $(DEPDIR)/imp_gauge_force_bench_d2-test_common.Po
@@ -2519,6 +3227,34 @@ imp_gauge_force_bench_dn-imp_gauge_force_bench.obj: imp_gauge_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_dn-imp_gauge_force_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_dn_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_dn-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
+
+imp_gauge_force_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_f1-test_common.Tpo -c -o imp_gauge_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_f1-test_common.Tpo $(DEPDIR)/imp_gauge_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+imp_gauge_force_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_f1-test_common.Tpo -c -o imp_gauge_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_f1-test_common.Tpo $(DEPDIR)/imp_gauge_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='imp_gauge_force_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+imp_gauge_force_bench_f1-imp_gauge_force_bench.o: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f1-imp_gauge_force_bench.o -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Tpo -c -o imp_gauge_force_bench_f1-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Tpo $(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_f1-imp_gauge_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f1-imp_gauge_force_bench.o `test -f 'imp_gauge_force_bench.c' || echo '$(srcdir)/'`imp_gauge_force_bench.c
+
+imp_gauge_force_bench_f1-imp_gauge_force_bench.obj: imp_gauge_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f1-imp_gauge_force_bench.obj -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Tpo -c -o imp_gauge_force_bench_f1-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Tpo $(DEPDIR)/imp_gauge_force_bench_f1-imp_gauge_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='imp_gauge_force_bench.c' object='imp_gauge_force_bench_f1-imp_gauge_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f1_CFLAGS) $(CFLAGS) -c -o imp_gauge_force_bench_f1-imp_gauge_force_bench.obj `if test -f 'imp_gauge_force_bench.c'; then $(CYGPATH_W) 'imp_gauge_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/imp_gauge_force_bench.c'; fi`
 
 imp_gauge_force_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(imp_gauge_force_bench_f2_CFLAGS) $(CFLAGS) -MT imp_gauge_force_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/imp_gauge_force_bench_f2-test_common.Tpo -c -o imp_gauge_force_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -2660,6 +3396,34 @@ test_reunit_utils_f3-test_reunit_utils.obj: test_reunit_utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_reunit_utils_f3_CFLAGS) $(CFLAGS) -c -o test_reunit_utils_f3-test_reunit_utils.obj `if test -f 'test_reunit_utils.c'; then $(CYGPATH_W) 'test_reunit_utils.c'; else $(CYGPATH_W) '$(srcdir)/test_reunit_utils.c'; fi`
 
+wilson_force_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/wilson_force_bench_d1-test_common.Tpo -c -o wilson_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_d1-test_common.Tpo $(DEPDIR)/wilson_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_force_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_force_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/wilson_force_bench_d1-test_common.Tpo -c -o wilson_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_d1-test_common.Tpo $(DEPDIR)/wilson_force_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_force_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_force_bench_d1-wilson_force_bench.o: wilson_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_d1-wilson_force_bench.o -MD -MP -MF $(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Tpo -c -o wilson_force_bench_d1-wilson_force_bench.o `test -f 'wilson_force_bench.c' || echo '$(srcdir)/'`wilson_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Tpo $(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_force_bench.c' object='wilson_force_bench_d1-wilson_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_d1-wilson_force_bench.o `test -f 'wilson_force_bench.c' || echo '$(srcdir)/'`wilson_force_bench.c
+
+wilson_force_bench_d1-wilson_force_bench.obj: wilson_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_d1-wilson_force_bench.obj -MD -MP -MF $(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Tpo -c -o wilson_force_bench_d1-wilson_force_bench.obj `if test -f 'wilson_force_bench.c'; then $(CYGPATH_W) 'wilson_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Tpo $(DEPDIR)/wilson_force_bench_d1-wilson_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_force_bench.c' object='wilson_force_bench_d1-wilson_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_d1-wilson_force_bench.obj `if test -f 'wilson_force_bench.c'; then $(CYGPATH_W) 'wilson_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_force_bench.c'; fi`
+
 wilson_force_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_d2_CFLAGS) $(CFLAGS) -MT wilson_force_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/wilson_force_bench_d2-test_common.Tpo -c -o wilson_force_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_d2-test_common.Tpo $(DEPDIR)/wilson_force_bench_d2-test_common.Po
@@ -2743,6 +3507,34 @@ wilson_force_bench_dn-wilson_force_bench.obj: wilson_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_force_bench.c' object='wilson_force_bench_dn-wilson_force_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_dn_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_dn-wilson_force_bench.obj `if test -f 'wilson_force_bench.c'; then $(CYGPATH_W) 'wilson_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_force_bench.c'; fi`
+
+wilson_force_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/wilson_force_bench_f1-test_common.Tpo -c -o wilson_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_f1-test_common.Tpo $(DEPDIR)/wilson_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_force_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_force_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/wilson_force_bench_f1-test_common.Tpo -c -o wilson_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_f1-test_common.Tpo $(DEPDIR)/wilson_force_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_force_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_force_bench_f1-wilson_force_bench.o: wilson_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_f1-wilson_force_bench.o -MD -MP -MF $(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Tpo -c -o wilson_force_bench_f1-wilson_force_bench.o `test -f 'wilson_force_bench.c' || echo '$(srcdir)/'`wilson_force_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Tpo $(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_force_bench.c' object='wilson_force_bench_f1-wilson_force_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_f1-wilson_force_bench.o `test -f 'wilson_force_bench.c' || echo '$(srcdir)/'`wilson_force_bench.c
+
+wilson_force_bench_f1-wilson_force_bench.obj: wilson_force_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_force_bench_f1-wilson_force_bench.obj -MD -MP -MF $(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Tpo -c -o wilson_force_bench_f1-wilson_force_bench.obj `if test -f 'wilson_force_bench.c'; then $(CYGPATH_W) 'wilson_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_force_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Tpo $(DEPDIR)/wilson_force_bench_f1-wilson_force_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_force_bench.c' object='wilson_force_bench_f1-wilson_force_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_f1-wilson_force_bench.obj `if test -f 'wilson_force_bench.c'; then $(CYGPATH_W) 'wilson_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_force_bench.c'; fi`
 
 wilson_force_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_f2_CFLAGS) $(CFLAGS) -MT wilson_force_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/wilson_force_bench_f2-test_common.Tpo -c -o wilson_force_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -2828,6 +3620,34 @@ wilson_force_bench_fn-wilson_force_bench.obj: wilson_force_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_force_bench_fn_CFLAGS) $(CFLAGS) -c -o wilson_force_bench_fn-wilson_force_bench.obj `if test -f 'wilson_force_bench.c'; then $(CYGPATH_W) 'wilson_force_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_force_bench.c'; fi`
 
+wilson_invert_bench_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d1-test_common.o -MD -MP -MF $(DEPDIR)/wilson_invert_bench_d1-test_common.Tpo -c -o wilson_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_d1-test_common.Tpo $(DEPDIR)/wilson_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_invert_bench_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d1-test_common.obj -MD -MP -MF $(DEPDIR)/wilson_invert_bench_d1-test_common.Tpo -c -o wilson_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_d1-test_common.Tpo $(DEPDIR)/wilson_invert_bench_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_invert_bench_d1-wilson_invert_bench.o: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d1-wilson_invert_bench.o -MD -MP -MF $(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Tpo -c -o wilson_invert_bench_d1-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Tpo $(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_d1-wilson_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d1-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c
+
+wilson_invert_bench_d1-wilson_invert_bench.obj: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d1-wilson_invert_bench.obj -MD -MP -MF $(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Tpo -c -o wilson_invert_bench_d1-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Tpo $(DEPDIR)/wilson_invert_bench_d1-wilson_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_d1-wilson_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_d1-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
+
 wilson_invert_bench_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_d2_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_d2-test_common.o -MD -MP -MF $(DEPDIR)/wilson_invert_bench_d2-test_common.Tpo -c -o wilson_invert_bench_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_d2-test_common.Tpo $(DEPDIR)/wilson_invert_bench_d2-test_common.Po
@@ -2911,6 +3731,34 @@ wilson_invert_bench_dn-wilson_invert_bench.obj: wilson_invert_bench.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_dn-wilson_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_dn_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_dn-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
+
+wilson_invert_bench_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f1-test_common.o -MD -MP -MF $(DEPDIR)/wilson_invert_bench_f1-test_common.Tpo -c -o wilson_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_f1-test_common.Tpo $(DEPDIR)/wilson_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_invert_bench_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f1-test_common.obj -MD -MP -MF $(DEPDIR)/wilson_invert_bench_f1-test_common.Tpo -c -o wilson_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_f1-test_common.Tpo $(DEPDIR)/wilson_invert_bench_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_invert_bench_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_invert_bench_f1-wilson_invert_bench.o: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f1-wilson_invert_bench.o -MD -MP -MF $(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Tpo -c -o wilson_invert_bench_f1-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Tpo $(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_f1-wilson_invert_bench.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f1-wilson_invert_bench.o `test -f 'wilson_invert_bench.c' || echo '$(srcdir)/'`wilson_invert_bench.c
+
+wilson_invert_bench_f1-wilson_invert_bench.obj: wilson_invert_bench.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f1-wilson_invert_bench.obj -MD -MP -MF $(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Tpo -c -o wilson_invert_bench_f1-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Tpo $(DEPDIR)/wilson_invert_bench_f1-wilson_invert_bench.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_invert_bench.c' object='wilson_invert_bench_f1-wilson_invert_bench.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f1_CFLAGS) $(CFLAGS) -c -o wilson_invert_bench_f1-wilson_invert_bench.obj `if test -f 'wilson_invert_bench.c'; then $(CYGPATH_W) 'wilson_invert_bench.c'; else $(CYGPATH_W) '$(srcdir)/wilson_invert_bench.c'; fi`
 
 wilson_invert_bench_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_invert_bench_f2_CFLAGS) $(CFLAGS) -MT wilson_invert_bench_f2-test_common.o -MD -MP -MF $(DEPDIR)/wilson_invert_bench_f2-test_common.Tpo -c -o wilson_invert_bench_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
@@ -3052,6 +3900,34 @@ wilson_mg_test_f3-wilson_mg_test.obj: wilson_mg_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_mg_test_f3_CFLAGS) $(CFLAGS) -c -o wilson_mg_test_f3-wilson_mg_test.obj `if test -f 'wilson_mg_test.c'; then $(CYGPATH_W) 'wilson_mg_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_mg_test.c'; fi`
 
+wilson_test_d1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -MT wilson_test_d1-test_common.o -MD -MP -MF $(DEPDIR)/wilson_test_d1-test_common.Tpo -c -o wilson_test_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_d1-test_common.Tpo $(DEPDIR)/wilson_test_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_d1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -c -o wilson_test_d1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_test_d1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -MT wilson_test_d1-test_common.obj -MD -MP -MF $(DEPDIR)/wilson_test_d1-test_common.Tpo -c -o wilson_test_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_d1-test_common.Tpo $(DEPDIR)/wilson_test_d1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_d1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -c -o wilson_test_d1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_test_d1-wilson_test.o: wilson_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -MT wilson_test_d1-wilson_test.o -MD -MP -MF $(DEPDIR)/wilson_test_d1-wilson_test.Tpo -c -o wilson_test_d1-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_d1-wilson_test.Tpo $(DEPDIR)/wilson_test_d1-wilson_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_d1-wilson_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -c -o wilson_test_d1-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+
+wilson_test_d1-wilson_test.obj: wilson_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -MT wilson_test_d1-wilson_test.obj -MD -MP -MF $(DEPDIR)/wilson_test_d1-wilson_test.Tpo -c -o wilson_test_d1-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_d1-wilson_test.Tpo $(DEPDIR)/wilson_test_d1-wilson_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_d1-wilson_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d1_CFLAGS) $(CFLAGS) -c -o wilson_test_d1-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
+
 wilson_test_d2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_d2_CFLAGS) $(CFLAGS) -MT wilson_test_d2-test_common.o -MD -MP -MF $(DEPDIR)/wilson_test_d2-test_common.Tpo -c -o wilson_test_d2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_d2-test_common.Tpo $(DEPDIR)/wilson_test_d2-test_common.Po
@@ -3135,6 +4011,34 @@ wilson_test_dn-wilson_test.obj: wilson_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_dn-wilson_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_dn_CFLAGS) $(CFLAGS) -c -o wilson_test_dn-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
+
+wilson_test_f1-test_common.o: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -MT wilson_test_f1-test_common.o -MD -MP -MF $(DEPDIR)/wilson_test_f1-test_common.Tpo -c -o wilson_test_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_f1-test_common.Tpo $(DEPDIR)/wilson_test_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_f1-test_common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -c -o wilson_test_f1-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c
+
+wilson_test_f1-test_common.obj: test_common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -MT wilson_test_f1-test_common.obj -MD -MP -MF $(DEPDIR)/wilson_test_f1-test_common.Tpo -c -o wilson_test_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_f1-test_common.Tpo $(DEPDIR)/wilson_test_f1-test_common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test_common.c' object='wilson_test_f1-test_common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -c -o wilson_test_f1-test_common.obj `if test -f 'test_common.c'; then $(CYGPATH_W) 'test_common.c'; else $(CYGPATH_W) '$(srcdir)/test_common.c'; fi`
+
+wilson_test_f1-wilson_test.o: wilson_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -MT wilson_test_f1-wilson_test.o -MD -MP -MF $(DEPDIR)/wilson_test_f1-wilson_test.Tpo -c -o wilson_test_f1-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_f1-wilson_test.Tpo $(DEPDIR)/wilson_test_f1-wilson_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_f1-wilson_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -c -o wilson_test_f1-wilson_test.o `test -f 'wilson_test.c' || echo '$(srcdir)/'`wilson_test.c
+
+wilson_test_f1-wilson_test.obj: wilson_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -MT wilson_test_f1-wilson_test.obj -MD -MP -MF $(DEPDIR)/wilson_test_f1-wilson_test.Tpo -c -o wilson_test_f1-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/wilson_test_f1-wilson_test.Tpo $(DEPDIR)/wilson_test_f1-wilson_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wilson_test.c' object='wilson_test_f1-wilson_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f1_CFLAGS) $(CFLAGS) -c -o wilson_test_f1-wilson_test.obj `if test -f 'wilson_test.c'; then $(CYGPATH_W) 'wilson_test.c'; else $(CYGPATH_W) '$(srcdir)/wilson_test.c'; fi`
 
 wilson_test_f2-test_common.o: test_common.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wilson_test_f2_CFLAGS) $(CFLAGS) -MT wilson_test_f2-test_common.o -MD -MP -MF $(DEPDIR)/wilson_test_f2-test_common.Tpo -c -o wilson_test_f2-test_common.o `test -f 'test_common.c' || echo '$(srcdir)/'`test_common.c

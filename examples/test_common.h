@@ -7,7 +7,9 @@
 #if QOP_Colors == 'N'
 
 #define NCPROT int nc,
+#define NCPROT1 int nc,
 #define NCARG QLA_Nc,
+#define NCARG1 QLA_Nc,
 #ifndef QLA_ColorMatrix
 #if QOP_Precision == 'F'
 #define QLA_ColorMatrix(x) QLA_FN_ColorMatrix(QLA_Nc,(x))
@@ -21,11 +23,20 @@
 #else
 
 #define NCPROT
+#define NCPROT1
 #define NCARG
+#define NCARG1
 #ifndef QLA_ColorMatrix
 #define QLA_ColorMatrix(x) QLA_ColorMatrix x
 #define QLA_F_ColorMatrix(x) QLA_F_ColorMatrix x
 #define QLA_D_ColorMatrix(x) QLA_D_ColorMatrix x
+#endif
+
+#if QOP_Colors == 1
+#undef NCPROT1
+#define NCPROT1 int nc,
+#undef NCARG1
+#define NCARG1 QLA_Nc,
 #endif
 
 #endif

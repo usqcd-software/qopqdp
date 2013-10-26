@@ -31,10 +31,12 @@ EOF
 
 for f in "$@"; do
   b=`basename $f`
-  #makestub $b f 2 2
-  #makestub $b d 2 2
+  makestub $b f 1 1
+  makestub $b d 1 1
+  makestub $b f 2 2
+  makestub $b d 2 2
   makestub $b f 3 3
   makestub $b d 3 3
-  #makestub $b f n
-  #makestub $b d n
+  makestub $b f n
+  makestub $b d n
 done

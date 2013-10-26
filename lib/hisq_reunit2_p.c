@@ -1,5 +1,9 @@
 #include <qop_internal.h>
-#if QOP_Colors == 2
+#if QOP_Colors == 1
+#include <qla_f1.h>
+#include <qla_d1.h>
+#include <qla_df1.h>
+#elif QOP_Colors == 2
 #include <qla_f2.h>
 #include <qla_d2.h>
 #include <qla_df2.h>
@@ -14,9 +18,8 @@
 #endif
 
 #define NC NCVAR
-
 static void
-projectU_site_d(NCPROT QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
+projectU_site_d(NCPROT1 QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
 {
   QLA_D_ColorMatrix(M1);
   QLA_D_ColorMatrix(M2);
@@ -27,17 +30,17 @@ projectU_site_d(NCPROT QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
 }
 
 static void
-projectU_site(NCPROT QLA_ColorMatrix(*Ur), int i, void *args)
+projectU_site(NCPROT1 QLA_ColorMatrix(*Ur), int i, void *args)
 {
   QLA_ColorMatrix(*U) = &((QLA_ColorMatrix(*))args)[i];
 #if QLA_Precision == 'F'
   QLA_D_ColorMatrix(Ud);
   QLA_D_ColorMatrix(Urd);
   QLA_DF_M_eq_M(&Ud, U);
-  projectU_site_d(NCARG &Urd, &Ud);
+  projectU_site_d(NCARG1 &Urd, &Ud);
   QLA_FD_M_eq_M(Ur, &Urd);
 #else
-  projectU_site_d(NCARG Ur, U);
+  projectU_site_d(NCARG1 Ur, U);
 #endif
 }
 #undef NC

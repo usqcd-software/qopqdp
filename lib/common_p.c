@@ -446,7 +446,7 @@ static int staggered_sign_bits;
 
 #define NC nc
 static void
-rephase_func(NCPROT QLA_ColorMatrix(*m), int coords[])
+rephase_func(NCPROT1 QLA_ColorMatrix(*m), int coords[])
 {
   if(bc_dir>=0) {
     int rshift = (coords[bc_dir] + bc_coord - bc_origin) % bc_coord;

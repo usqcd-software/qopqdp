@@ -1,3 +1,5 @@
+#ifdef HAVE_NC3
+
 typedef struct {
   QOP_F3_FermionLinksWilson *wil;
   QLA_F_Real kappa;
@@ -20,6 +22,8 @@ void QOP_F3_wilsonDslashEOS (QDP_F3_DiracFermion *out, QDP_F3_DiracFermion *in,
 			     QOP_F3_FermionLinksWilson *wil, QLA_F_Real kappa, int sign, QOP_evenodd_t par);
 void QOP_F3_wilsonDslashEOH (QDP_F3_DiracFermion *out, QDP_F3_DiracFermion *in,
 			     QOP_F3_FermionLinksWilson *wil, QLA_F_Real kappa, int sign, QOP_evenodd_t par);
+
+#ifdef HAVE_NCN
 
 void QOP_F3_V1eqD (QDP_FN_ColorVector *v[1], QDP_F3_DiracFermion *d, QDP_Subset sub);
 void QOP_F3_DeqV1 (QDP_DiracFermion *d, QDP_FN_ColorVector *v[1], QDP_Subset sub);
@@ -768,6 +772,8 @@ struct QOP_WilsonMgStruct {
   int ngcr;
 };
 
+#endif // NCN
+#endif // NC3
 
 #if QOP_Precision == 'F'
 

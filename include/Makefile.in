@@ -205,6 +205,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 include_HEADERS = \
 qop.h \
+qop_d1.h \
+qop_d1_color_generic.h \
+qop_d1_generic.h \
+qop_d1_internal.h \
+qop_d1_internal_generic.h \
+qop_d1_precision_generic.h \
 qop_d2.h \
 qop_d2_color_generic.h \
 qop_d2_generic.h \
@@ -223,12 +229,20 @@ qop_dn_generic.h \
 qop_dn_internal.h \
 qop_dn_internal_generic.h \
 qop_dn_precision_generic.h \
+qop_df1.h \
+qop_df1_color_generic.h \
 qop_df2.h \
 qop_df2_color_generic.h \
 qop_df3.h \
 qop_df3_color_generic.h \
 qop_dfn.h \
 qop_dfn_color_generic.h \
+qop_f1.h \
+qop_f1_color_generic.h \
+qop_f1_generic.h \
+qop_f1_internal.h \
+qop_f1_internal_generic.h \
+qop_f1_precision_generic.h \
 qop_f2.h \
 qop_f2_color_generic.h \
 qop_f2_generic.h \

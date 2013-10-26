@@ -159,6 +159,19 @@ void QOP_D3_symanzik_1loop_gauge_force(QOP_info_t *info,
 				       QOP_gauge_coeffs_t *coeffs,
 				       QOP_D_Real eps);
 
+void QOP_D3_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
+					      QDP_D3_ColorMatrix *links[],
+					      QLA_D_Real beta,
+					      QOP_gauge_coeffs_t *coeffs,
+					      QDP_RandomState *rs0);
+
+void QOP_D3_symanzik_1loop_gauge_staple_qdp(QOP_info_t *info,
+					    QDP_D3_ColorMatrix *staple,
+					    int mu,
+					    QDP_D3_ColorMatrix *links[],
+					    QOP_gauge_coeffs_t *coeffs,
+					    QDP_Subset subs[], int subi);
+
 void QOP_D3_projectU_qdp(QOP_info_t *info,
 			 QDP_D3_ColorMatrix *pU,
 			 QDP_D3_ColorMatrix *U);
