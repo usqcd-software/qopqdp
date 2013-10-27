@@ -1,4 +1,10 @@
+#ifndef _QOP_MG_INTERNAL_H
+#define _QOP_MG_INTERNAL_H
+
 #ifdef HAVE_NC3
+
+#include <qop_f3.h>
+#include <qop_d3.h>
 
 typedef struct {
   QOP_F3_FermionLinksWilson *wil;
@@ -634,75 +640,12 @@ void QOP_D_mgDslashEoReconstruct (QDP_DN_ColorVector *out[], QDP_DN_ColorVector 
 void QOP_D_mgDslashEoReconstructP (QDP_DN_ColorVector *out[], QDP_DN_ColorVector *outeo[],
 				   QDP_DN_ColorVector *in[], void *args);
 
-// V-cycle
-
-typedef struct {
-  double s;
-  double tpre;
-  double tcoarse;
-  double tpost;
-  double delta;
-  void (*op)(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in, int sign, void *args);
-  void *opargs;
-  void (*cop)(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in, int sign, void *args);
-  void *copargs;
-  void (*sop)(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in, int sign, void *args);
-  void *sopargs;
-  int nv;
-  int npre;
-  int npost;
-  int indent;
-  int verbose;
-  int count;
-  QDP_Subset sub;
-  QDP_Subset sub2;
-  QOP_F_Gcr *gcr;
-  QOP_F_Cgls *cgls;
-  QDP_FN_ColorVector **r;
-  QDP_FN_ColorVector **p;
-  QDP_FN_ColorVector **Ap;
-} QOP_F_MgVcycleArgs ;
-
-void QOP_F_mgVcycle (QDP_FN_ColorVector **out, QDP_FN_ColorVector **in, int sign, void *args);
-
 void QOP_F_eignhVN (int n, int nv, QDP_FN_ColorVector *v[n][nv], int nc,
 		    QDP_FN_ColorVector *v0[nv], QOP_F_MgOp *op, void *opargs,
 		    QDP_Subset sub, int maxits);
 int QOP_F_svdVN (int n, int nv, QDP_FN_ColorVector *v[n][nv], int nc,
 		 QDP_FN_ColorVector *v0[nv], QOP_F_MgOp *op, void *opargs,
 		 QDP_Subset sub, QDP_Subset sub2, int maxits);
-
-typedef struct {
-  double s;
-  double tpre;
-  double tcoarse;
-  double tpost;
-  double delta;
-  void (*op)(QDP_DN_ColorVector **out, QDP_DN_ColorVector **in, int sign, void *
-	     args);
-  void *opargs;
-  void (*cop)(QDP_DN_ColorVector **out, QDP_DN_ColorVector **in, int sign, void 
-	      *args);
-  void *copargs;
-  void (*sop)(QDP_DN_ColorVector **out, QDP_DN_ColorVector **in, int sign, void 
-	      *args);
-  void *sopargs;
-  int nv;
-  int npre;
-  int npost;
-  int indent;
-  int verbose;
-  int count;
-  QDP_Subset sub;
-  QDP_Subset sub2;
-  QOP_D_Gcr *gcr;
-  QOP_D_Cgls *cgls;
-  QDP_DN_ColorVector **r;
-  QDP_DN_ColorVector **p;
-  QDP_DN_ColorVector **Ap;
-} QOP_D_MgVcycleArgs ;
-
-void QOP_D_mgVcycle (QDP_DN_ColorVector **out, QDP_DN_ColorVector **in, int sign, void *args);
 
 void QOP_D_eignhVN (int n, int nv, QDP_DN_ColorVector *v[n][nv], int nc,
 		    QDP_DN_ColorVector *v0[nv], QOP_D_MgOp *op, void *opargs,
@@ -712,6 +655,9 @@ int QOP_D_svdVN (int n, int nv, QDP_DN_ColorVector *v[n][nv], int nc,
 		 QDP_Subset sub, QDP_Subset sub2, int maxits);
 
 // Wilson MG
+
+#include <qop_f_internal.h>
+struct QOP_F_MgVcycleArgs;
 
 typedef struct {
   // general parameters
@@ -733,7 +679,7 @@ typedef struct {
   void *vcopargs;
   QOP_F_Gcr *gcrf;
   QOP_F_MgF2cOpArgs *fcoa; //
-  QOP_F_MgVcycleArgs *vca; //
+  struct QOP_F_MgVcycleArgs *vca; //
   // coarse operator variables
   QDP_Lattice *lattice;
   QOP_MgBlock *mgblock;
@@ -753,7 +699,7 @@ typedef struct {
   QOP_F_MgOp *csop;
   void *csopargs;
   int created;
-} QOP_WilMgLevel ;
+} QOP_WilMgLevel;
 
 struct QOP_WilsonMgStruct {
   QOP_F3_FermionLinksWilson *wilF;
@@ -1001,4 +947,6 @@ struct QOP_WilsonMgStruct {
 #define QOP_eignhVN QOP_D_eignhVN
 #define QOP_svdVN QOP_D_svdVN
 
-#endif
+#endif // if QOP_Precision == 'F' else
+
+#endif /* _QOP_MG_INTERNAL_H */

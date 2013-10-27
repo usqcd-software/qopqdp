@@ -5,9 +5,11 @@ for P in F D; do
   p=`echo $P |tr 'A-Z' 'a-z'`
   o=`echo $O |tr 'A-Z' 'a-z'`
 
-  #./makespecific qop_p.h $P "" >qop_$p.h
-  #./makespecific qop_p_internal.h $P $C >qop_$p${c}_internal.h
-  #./makegeneric qop_p.h P $P >qop_${p}_generic.h
+  ./makespecific qop_p.h $P "" >qop_$p.h
+  ./makespecific qop_p_internal.h $P "" >qop_${p}_internal.h
+
+  ./makegeneric qop_p.h P $P >qop_${p}_generic.h
+  ./makegeneric qop_p_internal.h IP $P >qop_${p}_internal_generic.h
 
   for C in 1 2 3 N; do
     c=`echo $C |tr 'A-Z' 'a-z'`
@@ -18,8 +20,8 @@ for P in F D; do
     ./makespecific qop_pc.h $P $C >qop_$p$c.h
     ./makespecific qop_pc_internal.h $P $C >qop_$p${c}_internal.h
 
-    ./makegeneric qop_pc.h P $P >qop_$p${c}_generic.h
-    ./makegeneric qop_pc.h PC $P$C >>qop_$p${c}_generic.h
+    #./makegeneric qop_pc.h P $P >qop_$p${c}_generic.h
+    ./makegeneric qop_pc.h PC $P$C >qop_$p${c}_generic.h
     ./makegeneric qop_pc.h PC $P$C $P >qop_$p${c}_color_generic.h
     ./makegeneric qop_pc.h PC $P$C $C >qop_$p${c}_precision_generic.h
     ./makegeneric qop_pc_internal.h IPC $P$C >qop_$p${c}_internal_generic.h

@@ -9,14 +9,14 @@
 extern "C" {
 #endif
 
-QOP_F_test
+  // QOP_F_Real // defined in QOP_int.h, need generic mapping
 
   /**************************************************/
   /* Mapping of generic names to specific precision */
   /**************************************************/
 
 #if QOP_Precision == 'F'
-#  include <qop__generic.h>
+#  include <qop_f_generic.h>
 #endif
 
 #ifdef __cplusplus

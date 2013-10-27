@@ -50,4 +50,4 @@
 #define QOP_wilson_dslash_get_tmp QOP_D2_wilson_dslash_get_tmp
 #define QOP_wilson_initialize_gauge_L QOP_D2_wilson_initialize_gauge_L
 
-#endif //_QOP_D2__IPC_GENERIC_H
+#endif // _QOP_D2__IPC_GENERIC_H

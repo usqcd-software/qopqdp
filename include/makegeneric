@@ -24,11 +24,12 @@ makegen() {
  fi
 }
 
+def="_QOP_${n}_${o}_${t}_GENERIC_H"
 echo "// DO NOT EDIT"
 echo "// generated from $f"
-echo "#ifndef _QOP_"$n"_"$o"_"$t"_GENERIC_H"
-echo "#define _QOP_"$n"_"$o"_"$t"_GENERIC_H"
+echo "#ifndef $def"
+echo "#define $def"
 echo
 makegen |sort -u
 echo
-echo "#endif //_QOP_"$n"_"$o"_"$t"_GENERIC_H"
+echo "#endif // $def"

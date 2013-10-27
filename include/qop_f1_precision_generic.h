@@ -182,4 +182,4 @@
 #define QOP_1_wilson_load_L_from_qdp QOP_F1_wilson_load_L_from_qdp
 #define QOP_1_wilson_load_L_from_raw QOP_F1_wilson_load_L_from_raw
 
-#endif //_QOP_F1_1_PC_GENERIC_H
+#endif // _QOP_F1_1_PC_GENERIC_H

@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-QOP_P_test
+  // QOP_P_Real // defined in QOP_int.h, need generic mapping
 
   /**************************************************/
   /* Mapping of generic names to specific precision */

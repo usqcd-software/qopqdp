@@ -87,6 +87,12 @@ extern "C" {
 
 #include <qop_int.h>
 
+#if QOP_Precision == 'F'
+#  include <qop_f.h>
+#else
+#  include <qop_d.h>
+#endif
+
 #if QOP_Colors == 1
 #  include <qop_f1.h>
 #  include <qop_d1.h>

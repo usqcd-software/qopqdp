@@ -243,6 +243,12 @@ QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 #define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
 #define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
 
+#if QOP_Precision == 'F'
+#  include <qop_f_internal.h>
+#else
+#  include <qop_d_internal.h>
+#endif
+
 #if QOP_Colors == 1
 #include <qop_f1_internal.h>
 #include <qop_d1_internal.h>

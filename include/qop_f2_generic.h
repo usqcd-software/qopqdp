@@ -1,13 +1,5 @@
 // DO NOT EDIT
 // generated from qop_pc.h
-#ifndef _QOP_F__P_GENERIC_H
-#define _QOP_F__P_GENERIC_H
-
-#define QOP_Real QOP_F_Real
-
-#endif //_QOP_F__P_GENERIC_H
-// DO NOT EDIT
-// generated from qop_pc.h
 #ifndef _QOP_F2__PC_GENERIC_H
 #define _QOP_F2__PC_GENERIC_H
 
@@ -190,4 +182,4 @@
 #define QOP_wilson_load_L_from_qdp QOP_F2_wilson_load_L_from_qdp
 #define QOP_wilson_load_L_from_raw QOP_F2_wilson_load_L_from_raw
 
-#endif //_QOP_F2__PC_GENERIC_H
+#endif // _QOP_F2__PC_GENERIC_H

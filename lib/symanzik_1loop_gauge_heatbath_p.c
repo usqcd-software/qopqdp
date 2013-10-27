@@ -1,4 +1,5 @@
 #include <qop_internal.h>
+#include <math.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -33,18 +34,18 @@ su2_fill(NCPROT QLA_ColorMatrix(*m), QLA_Real r[4], int i, int j)
   QLA_c_eq_r(z, 1);
   QLA_M_eq_c(m, &z);
 
-  QLA_c_eq_r_plus_i_r(z, r[0], r[3]);
+  QLA_c_eq_r_plus_ir(z, r[0], r[3]);
   QLA_M_eq_elem_C(m, &z, i, i);
 
-  QLA_c_eq_r_plus_i_r(z, r[2], r[1]);
+  QLA_c_eq_r_plus_ir(z, r[2], r[1]);
   QLA_M_eq_elem_C(m, &z, i, j);
 
   r[2] = -r[2];
-  QLA_c_eq_r_plus_i_r(z, r[2], r[1]);
+  QLA_c_eq_r_plus_ir(z, r[2], r[1]);
   QLA_M_eq_elem_C(m, &z, j, i);
 
   r[3] = -r[3];
-  QLA_c_eq_r_plus_i_r(z, r[0], r[3]);
+  QLA_c_eq_r_plus_ir(z, r[0], r[3]);
   QLA_M_eq_elem_C(m, &z, j, j);
 }
 
@@ -97,7 +98,7 @@ get_hb2(QLA_Real *b, QLA_Real al, QLA_RandomState *srs)
 }
 
 static void
-hb_func(NCPROT QLA_ColorMatrix(*m), int site)
+hb_func(NCPROT1 QLA_ColorMatrix(*m), int site)
 {
   QLA_RandomState *srs = rs + site;
   if(QDP_Nc==1) {
@@ -164,10 +165,10 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
   double dtime = QOP_time();
   double nflops = 0;
   fac = beta/QLA_Nc;
-  QLA_Real plaq = fac*coeffs->plaquette;
-  QLA_Real rect = fac*coeffs->rectangle;
-  QLA_Real pgm  = fac*coeffs->parallelogram;
-  QLA_Real adpl = fac*fac*coeffs->adjoint_plaquette;
+  //QLA_Real plaq = fac*coeffs->plaquette;
+  //QLA_Real rect = fac*coeffs->rectangle;
+  //QLA_Real pgm  = fac*coeffs->parallelogram;
+  //QLA_Real adpl = fac*fac*coeffs->adjoint_plaquette;
   coeffs->adjoint_plaquette *= fac;
   int imp = (coeffs->rectangle!=0)||(coeffs->parallelogram!=0);
   QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
@@ -176,7 +177,7 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
   int ncb = 2;
   if(imp) {
     ncb = 32;
-    cbs = QOP_get_sub32(lat);
+    //cbs = QOP_get_sub32(lat);
   }
 
   QDP_ColorMatrix *staple = QDP_create_M_L(lat);

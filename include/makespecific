@@ -16,6 +16,7 @@ QPQ="\'$P\'"
 #C=`echo $PC |sed 's/.*\(.\)/\1/'`
 QCQ=`echo $C |sed "s/N/'N'/"`
 DFC="DF$C"
+p=`echo $P |tr 'A-Z' 'a-z'`
 pc=`echo $PC |tr 'A-Z' 'a-z'`
 poc=`echo $POC |tr 'A-Z' 'a-z'`
 opc=`echo $OPC |tr 'A-Z' 'a-z'`
@@ -33,12 +34,14 @@ cat $f |sed '
   s/QOP_IPC_/QOP_'$PC'_/g;
   s/QOP_PC_/QOP_'$PC'_/g;
   s/QOP_OC_/QOP_'$OC'_/g;
+  s/QOP_IP_/QOP_'$P'_/g;
   s/QOP_P_/QOP_'$P'_/g;
   s/qop_p_/qop_'$p'_/g;
   s/qop_pc_/qop_'$pc'_/g;
   s/qop_dfc_/qop_'$dfc'_/g;
   s/QDP_PC_/QDP_'$PC'_/g;
   s/QDP_P_/QDP_'$P'_/g;
+  s/QDP_N_/QDP_'$P'N_/g;
   s/QLA_PC_/QLA_'$PC'_/g;
   s/QLA_P_/QLA_'$P'_/g;
   s/NCPROT/'"$NCPROT"'/g;
