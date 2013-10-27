@@ -1,7 +1,9 @@
 include_HEADERS = \
 qop.h \
 qop_d.h \
+qop_d_generic.h \
 qop_d_internal.h \
+qop_d_internal_generic.h \
 qop_d1.h \
 qop_d1_color_generic.h \
 qop_d1_generic.h \
@@ -27,7 +29,9 @@ qop_dn_internal.h \
 qop_dn_internal_generic.h \
 qop_dn_precision_generic.h \
 qop_f.h \
+qop_f_generic.h \
 qop_f_internal.h \
+qop_f_internal_generic.h \
 qop_df1.h \
 qop_df1_color_generic.h \
 qop_df2.h \
