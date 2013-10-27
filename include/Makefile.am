@@ -1,5 +1,7 @@
 include_HEADERS = \
 qop.h \
+qop_d.h \
+qop_d_internal.h \
 qop_d1.h \
 qop_d1_color_generic.h \
 qop_d1_generic.h \
@@ -24,6 +26,8 @@ qop_dn_generic.h \
 qop_dn_internal.h \
 qop_dn_internal_generic.h \
 qop_dn_precision_generic.h \
+qop_f.h \
+qop_f_internal.h \
 qop_df1.h \
 qop_df1_color_generic.h \
 qop_df2.h \
@@ -63,6 +67,7 @@ qop_mg.h \
 qop_mg_internal.h
 
 EXTRA_DIST = \
+qop_p.h qop_p_internal.h \
 qop_pc.h qop_poc.h qop_pc_internal.h \
 generic_D.h generic_V.h generic_vD.h \
 asqtad_action.h hisq_action.h
