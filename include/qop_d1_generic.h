@@ -144,6 +144,7 @@
 #define QOP_staples_deriv QOP_D1_staples_deriv
 #define QOP_staples QOP_D1_staples
 #define QOP_su3reunit QOP_D1_su3reunit
+#define QOP_symanzik_1loop_gauge_action_qdp QOP_D1_symanzik_1loop_gauge_action_qdp
 #define QOP_symanzik_1loop_gauge_action QOP_D1_symanzik_1loop_gauge_action
 #define QOP_symanzik_1loop_gauge_deriv_qdp QOP_D1_symanzik_1loop_gauge_deriv_qdp
 #define QOP_symanzik_1loop_gauge_force_qdp QOP_D1_symanzik_1loop_gauge_force_qdp

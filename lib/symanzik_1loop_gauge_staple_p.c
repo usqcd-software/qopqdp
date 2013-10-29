@@ -1,28 +1,30 @@
 #include <qop_internal.h>
 
-static QDP_ColorMatrix *sm[2][8], *tm[2]={NULL,NULL};
+static QDP_ColorMatrix **sm[2], *tm[2]={NULL,NULL};
 
+#if 0
 static int
 neighsubeo(int subl, int dir)
 {
   return 1 - subl;
 }
+#endif
 
 static int
 neighsub32(int subl, int dir)
 {
 #if 0
-  int i, s=0, r=0;
-  for(i=QDP_ndim()-1; i>=0; i--) {
-    s = 2*s + (coords[i]%2);
+  int s=0, r=0;
+  for(int i=nd-1; i>=0; i--) {
+    s = 2*(s + (coords[i]%2));
     r += coords[i]/2;
   }
-  return 16*(r%2) + s;
+  return s + (r%2);
 #endif
-  int bitnum = abs(dir)-1;
+  int bitnum = abs(dir);
   int bitmask = 1<<bitnum;
   if( ((subl&bitmask)&&(dir>0)) || (!(subl&bitmask)&&(dir<0)) ) {
-    subl ^= 16;
+    subl ^= 1;
   }
   subl ^= bitmask;
   return subl;
@@ -36,14 +38,14 @@ static void
 path_prod(QDP_ColorMatrix *u[], QDP_ColorMatrix *m, int path[], int len,
 	  int subl, QDP_Subset subset[], int (*neighsubl)(int subl, int dir))
 {
-  int dir, sn;
   QDP_ShiftDir fb;
   QDP_ColorMatrix *p=NULL, *s=NULL;
   QDP_Lattice *lat = QDP_get_lattice_M(m);
+  int nd = QDP_ndim_L(lat);
 
-  sn = 0;
+  int sn = 0;
   for(int i=0; i<len; i++) {
-    dir = abs(path[i])-1;
+    int dir = abs(path[i])-1;
     // if the path moves in the + dir then we shift from the backward dir
     fb = path[i]<0 ? QDP_forward : QDP_backward;
     if(fb==QDP_backward) { // path is moving in + dir
@@ -54,7 +56,7 @@ path_prod(QDP_ColorMatrix *u[], QDP_ColorMatrix *m, int path[], int len,
 	QDP_discard_M(p);
       }
       subl = neighsubl(subl, path[i]);
-      s = sm[sn][4+dir];
+      s = sm[sn][nd+dir];
       QDP_discard_M(s);
       QDP_M_eq_sM(s, tm[sn], QDP_neighbor_L(lat)[dir], fb, eosub(subl));
       //p = t1; t1 = t2; t2 = p;
@@ -87,7 +89,7 @@ get_staple_plaq(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix *u[],
 		QOP_gauge_coeffs_t *coeffs,
 		QDP_Subset subset, QDP_Subset osubset)
 {
-#define NC QDP_get_nc_M(staple)
+#define NC QDP_get_nc(staple)
   QDP_Lattice *lat = QDP_get_lattice_M(staple);
   int nd = QDP_ndim_L(lat);
   QDP_Shift *neighbor = QDP_neighbor_L(lat);
@@ -102,6 +104,8 @@ get_staple_plaq(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix *u[],
   temp4 = QDP_create_M_L(lat);
   //temp5 = QDP_create_M();
   temp6 = QDP_create_M_L(lat);
+  QDP_Complex *tc = NULL;
+  if(adpl!=0) tc = QDP_create_C_L(lat);
 
   /* staple += u[nu](x) u[mu](x+nu) u*[nu](x+mu)
    *         + u*[nu](x-nu) u[mu](x-nu) u[nu](x-nu+mu) */
@@ -125,7 +129,19 @@ get_staple_plaq(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix *u[],
       QDP_M_peq_M_times_Ma(temp5, temp6, temp1, subset);
       QDP_M_peq_r_times_M(staple, &plaq, temp5, subset);
     } else {
-      // FIXME
+      QLA_Complex z;
+      QLA_c_eq_r(z, plaq/adpl);
+
+      QDP_C_eq_c(tc, &z, subset);
+      QDP_M_eq_M_times_Ma(temp2, temp6, temp1, subset);
+      QDP_C_peq_M_dot_M(tc, temp2, u[mu], subset);
+      QDP_C_eq_r_times_C(tc, &adpl, tc, subset);
+      QDP_M_peq_C_times_M(staple, tc, temp2, subset);
+
+      QDP_C_eq_c(tc, &z, subset);
+      QDP_C_peq_M_dot_M(tc, temp5, u[mu], subset);
+      QDP_C_eq_r_times_C(tc, &adpl, tc, subset);
+      QDP_M_peq_C_times_M(staple, tc, temp5, subset);
     }
 
     //QDP_discard_M(temp1);
@@ -137,6 +153,7 @@ get_staple_plaq(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix *u[],
 
   }  /* closes nu loop */
 
+  if(adpl!=0) QDP_destroy_C(tc);
   //QDP_destroy_M(temp1);
   QDP_destroy_M(temp2);
   //QDP_destroy_M(temp3);
@@ -168,42 +185,55 @@ get_staple_plaq(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix *u[],
 
 static void
 get_staple_imp(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix **u,
+	       QOP_gauge_coeffs_t *coeffs,
 	       int subl, QDP_Subset subs[], int (*neighsub)(int subl, int dir))
 {
-#define NC QDP_get_nc_M(staple)
-  QDP_ColorMatrix *t;
-  int path[5], bsubl;
+#define NC QDP_get_nc(staple)
   QDP_Lattice *lat = QDP_get_lattice_M(staple);
   int nd = QDP_ndim_L(lat);
+  int nd2 = 2*nd;
   QLA_Real plaq = coeffs->plaquette;
   QLA_Real rect = coeffs->rectangle;
   QLA_Real pgm  = coeffs->parallelogram;
   QLA_Real adpl = coeffs->adjoint_plaquette;
 
-  t = QDP_create_M_L(lat);
-  for(mup=0; mup<2; mup++) {
-    tm[mup] = QDP_create_M_L(lat);
-    for(int nu=0; nu<8; nu++) {
-      sm[mup][nu] = QDP_create_M_L(lat);
+  QDP_ColorMatrix *sm0[2][nd2];
+  QDP_ColorMatrix *t = QDP_create_M_L(lat);
+  for(int i=0; i<2; i++) {
+    tm[i] = QDP_create_M_L(lat);
+    sm[i] = sm0[i];
+    for(int nu=0; nu<nd2; nu++) {
+      sm[i][nu] = QDP_create_M_L(lat);
+    }
+  }
+  QDP_Complex *tc = NULL;
+  if(adpl!=0) tc = QDP_create_C_L(lat);
+
+  int mup = 1 + mu;
+  int bsubl = neighsub(subl, mup);
+  int path[5];
+  QDP_Subset subset = subs[subl];
+
+  if(plaq!=0 || adpl!=0) {
+    for(int nu=-nd; nu<=nd; nu++) {
+      if ( nu==-mup || nu==0 || nu==mup ) continue;
+      path[0] = nu;
+      path[1] = -mup;
+      path[2] = -nu;
+      path_prod(u, t, path, 3, bsubl, subs, neighsub);
+      if(adpl==0) {
+	QDP_M_peq_r_times_M(staple, &plaq, t, subset);
+      } else {
+	QLA_Complex z;
+	QLA_c_eq_r(z, plaq/adpl);
+	QDP_C_eq_c(tc, &z, subset);
+	QDP_C_peq_M_dot_M(tc, t, u[mu], subset);
+	QDP_C_eq_r_times_C(tc, &adpl, tc, subset);
+	QDP_M_peq_C_times_M(staple, tc, t, subset);
+      }
     }
   }
 
-  //printf("test0\n");
-  mup = 1 + mu;
-  bsubl = neighsub(subl, mup);
-  for(int nu=-nd; nu<=nd; nu++) {
-    if ( nu==-mup || nu==0 || nu==mup ) continue;
-    //s = QDP_create_M();
-    path[0] = nu;
-    path[1] = -mup;
-    path[2] = -nu;
-    path_prod(u, t, path, 3, bsubl, subs, neighsub);
-    QDP_M_peq_M(staple, t, subs[subl]);
-    //QDP_destroy_M(s);
-  }
-  //QDP_destroy_M(s);
-  //printf("test1\n");
-  //s = QDP_create_M();
   if(rect) {
     for(int nu=-nd; nu<=nd; nu++) {
       if ( nu==-mup || nu==0 || nu==mup ) continue;
@@ -214,7 +244,7 @@ get_staple_imp(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix **u,
       path[3] = -nu;
       path[4] = -nu;
       path_prod(u, t, path, 5, bsubl, subs, neighsub);
-      QDP_M_peq_r_times_M(staple, &rect, t, subs[subl]);
+      QDP_M_peq_r_times_M(staple, &rect, t, subset);
       //QDP_destroy_M(s);
       //s = QDP_create_M();
       path[0] = nu;
@@ -223,7 +253,7 @@ get_staple_imp(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix **u,
       path[3] = -nu;
       path[4] = mup;
       path_prod(u, t, path, 5, bsubl, subs, neighsub);
-      QDP_M_peq_r_times_M(staple, &rect, t, subs[subl]);
+      QDP_M_peq_r_times_M(staple, &rect, t, subset);
       //QDP_destroy_M(s);
       //s = QDP_create_M();
       path[0] = mup;
@@ -232,12 +262,13 @@ get_staple_imp(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix **u,
       path[3] = -mup;
       path[4] = -nu;
       path_prod(u, t, path, 5, bsubl, subs, neighsub);
-      QDP_M_peq_r_times_M(staple, &rect, t, subs[subl]);
+      QDP_M_peq_r_times_M(staple, &rect, t, subset);
       //QDP_destroy_M(s);
     }
   }
+
   if(pgm) {
-    for(nu=-nd; nu<=nd; nu++) {
+    for(int nu=-nd; nu<=nd; nu++) {
       if ( nu==-mup || nu==0 || nu==mup ) continue;
       for(int rho=-nd; rho<=nd; rho++) {
 	if ( rho==-mup || rho==0 || rho==mup || rho==-nu || rho==nu ) continue;
@@ -247,39 +278,35 @@ get_staple_imp(QDP_ColorMatrix *staple, int mu, QDP_ColorMatrix **u,
 	path[3] = -nu;
 	path[4] = -rho;
 	path_prod(u, t, path, 5, bsubl, subs, neighsub);
-	QDP_M_peq_r_times_M(staple, &para, t, subs[subl]);
+	QDP_M_peq_r_times_M(staple, &pgm, t, subset);
       }
     }
   }
-  QDP_destroy_M(t);
 
-  for(int mup=0; mup<2; mup++) {
-    for(int nu=0; nu<8; nu++) {
-      QDP_destroy_M(sm[mup][nu]);
+  if(adpl!=0) QDP_destroy_C(tc);
+  QDP_destroy_M(t);
+  for(int i=0; i<2; i++) {
+    for(int nu=0; nu<nd2; nu++) {
+      QDP_destroy_M(sm[i][nu]);
     }
-    QDP_destroy_M(tm[mup]);
+    QDP_destroy_M(tm[i]);
   }
 }
 
 void 
 QOP_symanzik_1loop_gauge_staple_qdp(QOP_info_t *info,
+				    QDP_ColorMatrix *links[],
 				    QDP_ColorMatrix *staple,
 				    int mu,
-				    QDP_ColorMatrix *links[],
 				    QOP_gauge_coeffs_t *coeffs,
 				    QDP_Subset subs[], int subi)
 {
+  coeffs->adjoint_plaquette *= 2.0/QLA_Nc;
   int imp = (coeffs->rectangle!=0)||(coeffs->parallelogram!=0);
-  if(imp) {  // only works in 4d
-#if 0
-    QDP_Subset subs[2];
-    subs[0] = QDP_all_L(lat);
-    subs[1] = QDP_all_L(lat);
-    get_staple_imp(staple, mu, u, 1, subs, neighsubeo);
-#else
-    get_staple_imp(staple, mu, links, subi, subs, neighsub32);
-#endif
-  } else { // should work in any dimension
+  if(imp) {
+    get_staple_imp(staple, mu, links, coeffs, subi, subs, neighsub32);
+  } else {
     get_staple_plaq(staple, mu, links, coeffs, subs[subi], subs[1-subi]);
   }
+  coeffs->adjoint_plaquette *= 0.5*QLA_Nc;
 }

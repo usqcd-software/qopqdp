@@ -141,17 +141,10 @@ void QOP_F2_symanzik_1loop_gauge_action(QOP_info_t *info,
 					QOP_F_Real *acts, QOP_F_Real *actt,
 					QOP_gauge_coeffs_t *coeffs);
 
-void QOP_F2_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info,
-					   QOP_F2_GaugeField *gauge,
-					   QDP_F2_ColorMatrix *deriv[],
-					   QOP_gauge_coeffs_t *coeffs,
-					   QOP_F_Real eps, int doLastScale);
-
-void QOP_F2_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, 
-					   QOP_F2_GaugeField *gauge, 
-					   QDP_F2_ColorMatrix *force[],
-					   QOP_gauge_coeffs_t *coeffs,
-					   QOP_F_Real eps);
+void QOP_F2_symanzik_1loop_gauge_action_qdp(QOP_info_t *info,
+					    QDP_F2_ColorMatrix *links[],
+					    QOP_F_Real *acts, QOP_F_Real *actt,
+					    QOP_gauge_coeffs_t *coeffs);
 
 void QOP_F2_symanzik_1loop_gauge_force(QOP_info_t *info, 
 				       QOP_F2_GaugeField *gauge, 
@@ -159,16 +152,29 @@ void QOP_F2_symanzik_1loop_gauge_force(QOP_info_t *info,
 				       QOP_gauge_coeffs_t *coeffs,
 				       QOP_F_Real eps);
 
+void QOP_F2_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, 
+					   QDP_F2_ColorMatrix *links[],
+					   QDP_F2_ColorMatrix *force[],
+					   QOP_gauge_coeffs_t *coeffs,
+					   QOP_F_Real eps);
+
+void QOP_F2_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info,
+					   QDP_F2_ColorMatrix *links[],
+					   QDP_F2_ColorMatrix *deriv[],
+					   QOP_gauge_coeffs_t *coeffs,
+					   QOP_F_Real eps, int doLastScale);
+
 void QOP_F2_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
 					      QDP_F2_ColorMatrix *links[],
 					      QLA_F_Real beta,
 					      QOP_gauge_coeffs_t *coeffs,
-					      QDP_RandomState *rs0);
+					      QDP_RandomState *rs0,
+					      int nup, int nhb, int nover);
 
 void QOP_F2_symanzik_1loop_gauge_staple_qdp(QOP_info_t *info,
+					    QDP_F2_ColorMatrix *links[],
 					    QDP_F2_ColorMatrix *staple,
 					    int mu,
-					    QDP_F2_ColorMatrix *links[],
 					    QOP_gauge_coeffs_t *coeffs,
 					    QDP_Subset subs[], int subi);
 

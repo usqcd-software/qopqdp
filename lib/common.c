@@ -170,15 +170,57 @@ QOP_sites_on_node_raw_F(QOP_evenodd_t evenodd)
   return QDP_sites_on_node;
 }
 
+static int
+sub32_func(QDP_Lattice *lat, int coords[], void *args)
+{
+  int nd = QDP_ndim_L(lat);
+  int s=0, r=0;
+  for(int i=nd-1; i>=0; i--) {
+    s = 2*(s + (coords[i]%2));
+    r += coords[i]/2;
+  }
+  return s + (r%2);
+}
+
+typedef struct {
+  QDP_Lattice *lat;
+  QDP_Subset *sub32;
+} latsub32_t;
+static latsub32_t *latsub32 = NULL;
+static int nlatsub32 = 0, nlatsub32alloc = 0;
+
+QDP_Subset *
+QOP_get_sub32(QDP_Lattice *lat)
+{
+  for(int i=0; i<nlatsub32; i++) {
+    if(latsub32[i].lat==lat) return latsub32[i].sub32;
+  }
+  int n = nlatsub32+1;
+  if(nlatsub32alloc<n) {
+    nlatsub32alloc = 2*n;
+    latsub32 = realloc(latsub32, nlatsub32alloc*sizeof(latsub32_t));
+  }
+  QDP_Subset *s = QDP_create_subset_L(lat, sub32_func, NULL, 0, 32);
+  latsub32[nlatsub32].lat = lat;
+  latsub32[nlatsub32].sub32 = s;
+  nlatsub32 = n;
+  return s;
+}
 
   /***********************/
   /*  Internal routines  */
   /***********************/
 
+#if 0
 double
 QOP_time(void)
 {
+#if 0
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return tv.tv_sec + 1e-6*tv.tv_usec;
+#else
+  return QDP_time();
+#endif
 }
+#endif

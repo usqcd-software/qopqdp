@@ -460,19 +460,19 @@ staplep2(QDP_ColorMatrix *outmu, QDP_ColorMatrix *Unu0,
 #undef backmubnu
 }
 
-#define G(x) gauge->links[x]
+#define G(x) links[x]
 
 // TODO: implement chain rule
 void
-QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge, 
+QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QDP_ColorMatrix *links[], 
 				   QDP_ColorMatrix *deriv[],
 				   QOP_gauge_coeffs_t *coeffs,
 				   REAL eps, int doLastScale)
 {
-#define NC QDP_get_nc(gauge->links[0])
+#define NC QDP_get_nc(links[0])
   double dtime = QOP_time();
   double nflops = 0;
-  QDP_Lattice *lat = QDP_get_lattice_M(gauge->links[0]);
+  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
   int nd = QDP_ndim_L(lat);
   QDP_Subset sub = QDP_all_L(lat);
 
@@ -764,14 +764,14 @@ QOP_symanzik_1loop_gauge_deriv_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
 
 // TODO: use top gauge field in force
 void
-QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
+QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QDP_ColorMatrix *links[],
 				   QDP_ColorMatrix *force[],
 				   QOP_gauge_coeffs_t *coeffs,
 				   QLA_Real eps)
 {
-#define NC QDP_get_nc(gauge->links[0])
+#define NC QDP_get_nc(links[0])
   double dtime = QOP_time();
-  QDP_Lattice *lat = QDP_get_lattice_M(gauge->links[0]);
+  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
   int nd = QDP_ndim_L(lat);
   QDP_Subset sub = QDP_all_L(lat);
 
@@ -780,7 +780,7 @@ QOP_symanzik_1loop_gauge_force_qdp(QOP_info_t *info, QOP_GaugeField *gauge,
     deriv[mu] = QDP_create_M_L(lat);
     QDP_M_eq_zero(deriv[mu], sub);
   }
-  QOP_symanzik_1loop_gauge_deriv_qdp(info, gauge, deriv, coeffs, eps, 0);
+  QOP_symanzik_1loop_gauge_deriv_qdp(info, links, deriv, coeffs, eps, 0);
 
   QDP_ColorMatrix *mtmp = QDP_create_M_L(lat);
 #ifdef CHKSUM
@@ -828,5 +828,6 @@ QOP_symanzik_1loop_gauge_force(QOP_info_t *info, QOP_GaugeField *gauge,
 			       QOP_Force *force, QOP_gauge_coeffs_t *coeffs,
 			       REAL eps)
 {
-  QOP_symanzik_1loop_gauge_force_qdp(info, gauge, force->force, coeffs, eps);
+  QOP_symanzik_1loop_gauge_force_qdp(info, gauge->links, force->force,
+				     coeffs, eps);
 }

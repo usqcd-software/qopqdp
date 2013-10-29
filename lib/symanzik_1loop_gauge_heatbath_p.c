@@ -1,14 +1,10 @@
+//#define DO_TRACE
 #include <qop_internal.h>
 #include <math.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-//cbs = QOP_get_sub32(lat);
-///get_staple(staple, mu, links, cbs, cb);
-//su2_extract(r, m, i, j);
-//su2_fill(&t, r, i, j);
 
 static QLA_RandomState *rs;
 static QLA_Real fac;
@@ -101,8 +97,8 @@ static void
 hb_func(NCPROT1 QLA_ColorMatrix(*m), int site)
 {
   QLA_RandomState *srs = rs + site;
-  if(QDP_Nc==1) {
-    // FIXME
+  if(QLA_Nc==1) { // exp(-fac*Re[u*z]) = exp(-fac*|z|*cos(t))
+    // FIXME: just repeating overrelaxation for now
     //QLA_R_eq_random_S(&xr, srs);
     QLA_Complex z, zs, t;
     QLA_C_eq_elem_M(&z, m, 0, 0);
@@ -154,22 +150,69 @@ hb_func(NCPROT1 QLA_ColorMatrix(*m), int site)
   }
 }
 
+static void
+over_func(NCPROT1 QLA_ColorMatrix(*m), int site)
+{
+  if(QLA_Nc==1) {
+    QLA_Complex z, zs, t;
+    QLA_C_eq_elem_M(&z, m, 0, 0);
+    QLA_c_eq_ca(zs, z);
+    QLA_C_eq_C_divide_C(&t, &zs, &z);
+    QLA_M_eq_elem_C(m, &t, 0, 0);
+  } else {
+    QLA_ColorMatrix(s);
+    QLA_ColorMatrix(t);
+    QLA_ColorMatrix(tt);
+    QLA_Complex one;
+    QLA_c_eq_r(one, 1);
+    QLA_M_eq_c(&s, &one);
+
+    /* Loop over SU(2) subgroup index */
+    for(int i = 0; i < QLA_Nc; ++i) {
+      for(int j = i+1; j < QLA_Nc; ++j) {
+	QLA_Real a[4], r[4], rn;
+	su2_extract(NCARG r, m, i, j);
+	rn = sqrt( r[0]*r[0] + r[1]*r[1] + r[2]*r[2] + r[3]*r[3] );
+	if(rn<1e-10) {
+	  a[0] = 1; a[1] = a[2] = a[3] = 0;
+	} else {
+	  rn = 1/rn;
+	  a[0] =  rn*r[0];
+	  a[1] = -rn*r[1];
+	  a[2] = -rn*r[2];
+	  a[3] = -rn*r[3];
+	}
+	r[0] = a[0]*a[0] - a[1]*a[1] - a[2]*a[2] - a[3]*a[3];
+	a[0] *= 2;
+	r[1] = a[0]*a[1];
+	r[2] = a[0]*a[2];
+	r[3] = a[0]*a[3];
+	su2_fill(NCARG &t, r, i, j);
+	QLA_M_eq_M_times_M(&tt, &t, &s);
+	QLA_M_eq_M(&s, &tt);
+	QLA_M_eq_M_times_M(&tt, &t, m);
+	QLA_M_eq_M(m, &tt);
+      }
+    }
+    QLA_M_eq_M(m, &s);
+  }
+}
+
 void 
 QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
 				      QDP_ColorMatrix *links[],
 				      QLA_Real beta,
 				      QOP_gauge_coeffs_t *coeffs,
-				      QDP_RandomState *rs0)
+				      QDP_RandomState *rs0,
+				      int nup, int nhb, int nover)
 {
 #define NC QDP_get_nc(links[0])
   double dtime = QOP_time();
   double nflops = 0;
+  if(coeffs->adjoint_plaquette) {
+    QOP_error("%s: adj plaq not supported\n", __func__);
+  }
   fac = beta/QLA_Nc;
-  //QLA_Real plaq = fac*coeffs->plaquette;
-  //QLA_Real rect = fac*coeffs->rectangle;
-  //QLA_Real pgm  = fac*coeffs->parallelogram;
-  //QLA_Real adpl = fac*fac*coeffs->adjoint_plaquette;
-  coeffs->adjoint_plaquette *= fac;
   int imp = (coeffs->rectangle!=0)||(coeffs->parallelogram!=0);
   QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
   int nd = QDP_ndim_L(lat);
@@ -177,7 +220,7 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
   int ncb = 2;
   if(imp) {
     ncb = 32;
-    //cbs = QOP_get_sub32(lat);
+    cbs = QOP_get_sub32(lat);
   }
 
   QDP_ColorMatrix *staple = QDP_create_M_L(lat);
@@ -185,16 +228,32 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
   QDP_ColorMatrix *tmp = QDP_create_M_L(lat);
   rs = QDP_expose_S(rs0);
 
-  for(int cb=0; cb<ncb; cb++) {
-    QDP_Subset subset = cbs[cb];
-    for(int mu=0; mu<nd; mu++) {
-      QDP_M_eq_zero(staple, subset);
-      QOP_symanzik_1loop_gauge_staple_qdp(info, staple, mu, links, coeffs, cbs, cb);
-      //heatbath(links[mu], staple, cbs[cb]);
-      QDP_M_eq_M_times_Ma(v, links[mu], staple, subset);
-      QDP_M_eq_funci(v, hb_func, subset);
-      QDP_M_eq_M_times_M(tmp, v, links[mu], subset);
-      QDP_M_eq_M(links[mu], tmp, subset);
+  for(int up=0; up<nup; up++) {
+    for(int hb=0; hb<nhb; hb++) {
+      for(int cb=0; cb<ncb; cb++) {
+	QDP_Subset subset = cbs[cb];
+	for(int mu=0; mu<nd; mu++) {
+	  QDP_M_eq_zero(staple, subset);
+	  QOP_symanzik_1loop_gauge_staple_qdp(info, links, staple, mu, coeffs, cbs, cb);
+	  QDP_M_eq_M_times_Ma(v, links[mu], staple, subset);
+	  QDP_M_eq_funci(v, hb_func, subset);
+	  QDP_M_eq_M_times_M(tmp, v, links[mu], subset);
+	  QDP_M_eq_M(links[mu], tmp, subset);
+	}
+      }
+    }
+    for(int over=0; over<nover; over++) {
+      for(int cb=0; cb<ncb; cb++) {
+	QDP_Subset subset = cbs[cb];
+	for(int mu=0; mu<nd; mu++) {
+	  QDP_M_eq_zero(staple, subset);
+	  QOP_symanzik_1loop_gauge_staple_qdp(info, links, staple, mu, coeffs, cbs, cb);
+	  QDP_M_eq_M_times_Ma(v, links[mu], staple, subset);
+	  QDP_M_eq_funci(v, over_func, subset);
+	  QDP_M_eq_M_times_M(tmp, v, links[mu], subset);
+	  QDP_M_eq_M(links[mu], tmp, subset);
+	}
+      }
     }
   }
 
@@ -202,7 +261,6 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
   QDP_destroy_M(tmp);
   QDP_destroy_M(v);
   QDP_destroy_M(staple);
-  coeffs->adjoint_plaquette /= fac;
 
   info->final_sec = QOP_time() - dtime;
   info->final_flop = nflops*QDP_sites_on_node; 

@@ -191,7 +191,9 @@ typedef struct {
 } QOP_hisq_links_t;
 extern QOP_hisq_links_t QOP_hisq_links;
 
-double QOP_time(void);
+//double QOP_time(void);
+#define QOP_time() QDP_time()
+QDP_Subset *QOP_get_sub32(QDP_Lattice *lat);
 QOP_status_t QOP_asqtad_invert_init(void);
 
 #if QOP_Precision == 'F'

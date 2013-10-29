@@ -224,7 +224,7 @@ get_plaq(QDP_ColorMatrix *link[])
   QDP_destroy_M(temp3);
   QDP_destroy_M(temp4);
 
-  return plaq/(0.5*QDP_ndim()*(QDP_ndim()-1)*QDP_volume());
+  return plaq/(0.5*QDP_ndim()*(QDP_ndim()-1)*QDP_volume()*QLA_Nc);
 }
 
 void

@@ -22,6 +22,7 @@ NC1SOURCES = \
   pcstubs/symanzik_1loop_gauge_action_f1.c pcstubs/symanzik_1loop_gauge_action_d1.c \
   pcstubs/symanzik_1loop_gauge_force_f1.c pcstubs/symanzik_1loop_gauge_force_d1.c \
   pcstubs/symanzik_1loop_gauge_heatbath_f1.c pcstubs/symanzik_1loop_gauge_heatbath_d1.c \
+  pcstubs/symanzik_1loop_gauge_staple_f1.c pcstubs/symanzik_1loop_gauge_staple_d1.c \
   pcstubs/asqtad_dslash_f1.c pcstubs/asqtad_dslash_d1.c \
   pcstubs/asqtad_invert_f1.c pcstubs/asqtad_invert_d1.c \
   pcstubs/asqtad_force_f1.c pcstubs/asqtad_force_d1.c \
@@ -54,6 +55,7 @@ NC2SOURCES = \
   pcstubs/symanzik_1loop_gauge_action_f2.c pcstubs/symanzik_1loop_gauge_action_d2.c \
   pcstubs/symanzik_1loop_gauge_force_f2.c pcstubs/symanzik_1loop_gauge_force_d2.c \
   pcstubs/symanzik_1loop_gauge_heatbath_f2.c pcstubs/symanzik_1loop_gauge_heatbath_d2.c \
+  pcstubs/symanzik_1loop_gauge_staple_f2.c pcstubs/symanzik_1loop_gauge_staple_d2.c \
   pcstubs/asqtad_dslash_f2.c pcstubs/asqtad_dslash_d2.c \
   pcstubs/asqtad_invert_f2.c pcstubs/asqtad_invert_d2.c \
   pcstubs/asqtad_force_f2.c pcstubs/asqtad_force_d2.c \
@@ -86,6 +88,7 @@ NC3SOURCES = \
   pcstubs/symanzik_1loop_gauge_action_f3.c pcstubs/symanzik_1loop_gauge_action_d3.c \
   pcstubs/symanzik_1loop_gauge_force_f3.c pcstubs/symanzik_1loop_gauge_force_d3.c \
   pcstubs/symanzik_1loop_gauge_heatbath_f3.c pcstubs/symanzik_1loop_gauge_heatbath_d3.c \
+  pcstubs/symanzik_1loop_gauge_staple_f3.c pcstubs/symanzik_1loop_gauge_staple_d3.c \
   pcstubs/asqtad_dslash_f3.c pcstubs/asqtad_dslash_d3.c \
   pcstubs/asqtad_invert_f3.c pcstubs/asqtad_invert_d3.c \
   pcstubs/asqtad_force_f3.c pcstubs/asqtad_force_d3.c \
@@ -127,6 +130,7 @@ NCNSOURCES = \
   pcstubs/symanzik_1loop_gauge_action_fn.c pcstubs/symanzik_1loop_gauge_action_dn.c \
   pcstubs/symanzik_1loop_gauge_force_fn.c pcstubs/symanzik_1loop_gauge_force_dn.c \
   pcstubs/symanzik_1loop_gauge_heatbath_fn.c pcstubs/symanzik_1loop_gauge_heatbath_dn.c \
+  pcstubs/symanzik_1loop_gauge_staple_fn.c pcstubs/symanzik_1loop_gauge_staple_dn.c \
   pcstubs/asqtad_dslash_fn.c pcstubs/asqtad_dslash_dn.c \
   pcstubs/asqtad_invert_fn.c pcstubs/asqtad_invert_dn.c \
   pcstubs/asqtad_force_fn.c pcstubs/asqtad_force_dn.c \
@@ -161,6 +165,7 @@ EXTRA_DIST = \
   symanzik_1loop_gauge_force_p.c \
   symanzik_1loop_gauge_force2_p.c \
   symanzik_1loop_gauge_heatbath_p.c \
+  symanzik_1loop_gauge_staple_p.c \
   asqtad_dslash_p.c \
   asqtad_invert_p.c \
   asqtad_force_p.c \

@@ -154,8 +154,8 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
     // THEN THIS WILL WORK.
     QOP_printf0("QOP_hisq_create_L_from_G: SU(3) projection not supported for now\n");
     exit(1);
-    for (i=0;i<4;i++)
-      QOP_su3reunit(info, flh->Y_unitlinks[i], flh->W_unitlinks[i]);
+    //for (i=0;i<4;i++)
+    //QOP_su3reunit(info, flh->Y_unitlinks[i], flh->W_unitlinks[i]);
   }
 
   if(!want_aux && !flh->WeqY){

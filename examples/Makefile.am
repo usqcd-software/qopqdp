@@ -17,6 +17,7 @@ check_PROGRAMS =
 if NCN
   check_PROGRAMS += \
   imp_gauge_force_bench_f1 imp_gauge_force_bench_d1 \
+  imp_gauge_heatbath_bench_f1 imp_gauge_heatbath_bench_d1 \
   asqtad_test_f1 asqtad_test_d1 \
   asqtad_invert_bench_f1 asqtad_invert_bench_d1 \
   asqtad_force_bench_f1 asqtad_force_bench_d1 \
@@ -30,6 +31,7 @@ endif
 if NC2
   check_PROGRAMS += \
   imp_gauge_force_bench_f2 imp_gauge_force_bench_d2 \
+  imp_gauge_heatbath_bench_f2 imp_gauge_heatbath_bench_d2 \
   asqtad_test_f2 asqtad_test_d2 \
   asqtad_invert_bench_f2 asqtad_invert_bench_d2 \
   asqtad_force_bench_f2 asqtad_force_bench_d2 \
@@ -43,6 +45,7 @@ endif
 if NC3
   check_PROGRAMS += \
   imp_gauge_force_bench_f3 imp_gauge_force_bench_d3 \
+  imp_gauge_heatbath_bench_f3 imp_gauge_heatbath_bench_d3 \
   asqtad_test_f3 asqtad_test_d3 \
   asqtad_invert_bench_f3 asqtad_invert_bench_d3 \
   asqtad_force_bench_f3 asqtad_force_bench_d3 \
@@ -62,6 +65,7 @@ endif
 if NCN
   check_PROGRAMS += \
   imp_gauge_force_bench_fn imp_gauge_force_bench_dn \
+  imp_gauge_heatbath_bench_fn imp_gauge_heatbath_bench_dn \
   asqtad_test_fn asqtad_test_dn \
   asqtad_invert_bench_fn asqtad_invert_bench_dn \
   asqtad_force_bench_fn asqtad_force_bench_dn \
@@ -96,6 +100,31 @@ imp_gauge_force_bench_fn_CFLAGS = $(FN_CFLAGS)
 
 imp_gauge_force_bench_dn_SOURCES = test_common.h test_common.c imp_gauge_force_bench.c
 imp_gauge_force_bench_dn_CFLAGS = $(DN_CFLAGS)
+
+
+imp_gauge_heatbath_bench_f1_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_f1_CFLAGS = $(F1_CFLAGS)
+
+imp_gauge_heatbath_bench_d1_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_d1_CFLAGS = $(D1_CFLAGS)
+
+imp_gauge_heatbath_bench_f2_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_f2_CFLAGS = $(F2_CFLAGS)
+
+imp_gauge_heatbath_bench_d2_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_d2_CFLAGS = $(D2_CFLAGS)
+
+imp_gauge_heatbath_bench_f3_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_f3_CFLAGS = $(F3_CFLAGS)
+
+imp_gauge_heatbath_bench_d3_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_d3_CFLAGS = $(D3_CFLAGS)
+
+imp_gauge_heatbath_bench_fn_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_fn_CFLAGS = $(FN_CFLAGS)
+
+imp_gauge_heatbath_bench_dn_SOURCES = test_common.h test_common.c imp_gauge_heatbath_bench.c
+imp_gauge_heatbath_bench_dn_CFLAGS = $(DN_CFLAGS)
 
 
 asqtad_test_f1_SOURCES = test_common.h test_common.c asqtad_test.c

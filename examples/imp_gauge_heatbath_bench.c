@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 
+static QDP_Lattice *lat=NULL;
 static int ndim=4;
 static int *lattice_size;
 static int seed;
@@ -18,9 +19,13 @@ static const int nma[] = {2, 4, 8, 16};
 static const int nmn = sizeof(nma)/sizeof(int);
 static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 static const int bsn = sizeof(bsa)/sizeof(int);
+static QDP_ColorMatrix **u, **cm;
 static QOP_GaugeField *gauge;
 static double flops, secs;
 const double beta = 6.0;
+double act=0, act2=0;
+double plq=0, plq2=0;
+int nact=0;
 
 double
 bench_action(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
@@ -61,23 +66,61 @@ bench_action(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
   return mf/nit;
 }
 
+void
+check_staple(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
+{
+  QOP_info_t info = QOP_INFO_ZERO;
+  for(int i=0; i<ndim; i++) QDP_M_eq_zero(cm[i], QDP_all);
+  QOP_symanzik_1loop_gauge_deriv_qdp(&info, u, cm, coeffs, -QLA_Nc, 0);
+
+  int nsub=2;
+  QDP_Subset *subs = QDP_even_and_odd_L(lat);
+  int imp = (coeffs->rectangle!=0) || (coeffs->parallelogram!=0);
+  if(imp) {
+    nsub = 32;
+    QDP_Subset *QOP_get_sub32(QDP_Lattice *);
+    subs = QOP_get_sub32(lat);
+  }
+  QDP_ColorMatrix *st = QDP_create_M_L(lat);
+  for(int i=0; i<ndim; i++) {
+    QDP_M_eq_zero(st, QDP_all_L(lat));
+    for(int subi=0; subi<nsub; subi++) {
+      QOP_symanzik_1loop_gauge_staple_qdp(&info, u, st, i, coeffs,
+					  subs, subi);
+    }
+    QLA_Real nrm2;
+    QDP_M_meq_M(st, cm[i], QDP_all);
+    QDP_r_eq_norm2_M(&nrm2, st, QDP_all);
+    printf0("%i norm2: %g\n", i, nrm2);
+  }
+  QDP_destroy_M(st);
+}
+
 double
-bench_force(QOP_gauge_coeffs_t *coeffs, QOP_Force *out)
+bench_heatbath(QOP_gauge_coeffs_t *coeffs)
 {
   double sec=0, flop=0, mf=0;
-
-  QLA_Real eps=0.1;
   QOP_info_t info = QOP_INFO_ZERO;
 
   for(int i=0; i<=nit; i++) {
-    QOP_symanzik_1loop_gauge_force(&info, gauge, out, coeffs, eps);
+    QOP_symanzik_1loop_gauge_heatbath_qdp(&info, u, beta, coeffs, rs, 1, 1, 1);
 
     if(i>0) {
       sec += info.final_sec;
       flop += info.final_flop;
       mf += info.final_flop/(1e6*info.final_sec);
     }
+    QLA_Real plaq = get_plaq(u);
+    plq += plaq;
+    plq2 += plaq*plaq;
+    QLA_Real acts, actt;
+    QOP_symanzik_1loop_gauge_action_qdp(&info, u, &acts, &actt, coeffs);
+    double at = acts + actt;
+    act += at;
+    act2 += at*at;
+    nact++;
   }
+
   secs = sec/nit;
   flops = flop/nit;
   return mf/nit;
@@ -88,7 +131,6 @@ start(void)
 {
   double mf, best_mf;
   QLA_Real plaq;
-  QDP_ColorMatrix **u;
   int i, bs, bsi, best_bs;
 
   u = (QDP_ColorMatrix **) malloc(ndim*sizeof(QDP_ColorMatrix *));
@@ -97,7 +139,7 @@ start(void)
 
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
-  
+
   QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
   qoplayout.latsize = (int *) malloc(ndim*sizeof(int));
@@ -113,44 +155,70 @@ start(void)
 
   QOP_Force *force;
 
-  QDP_ColorMatrix *cm[4];
-  for(i=0; i<4; i++) {
+  QDP_ColorMatrix *cm0[ndim];
+  cm = cm0;
+  for(i=0; i<ndim; i++) {
     cm[i] = QDP_create_M();
     QDP_M_eq_zero(cm[i], QDP_all);
   }
 
   QOP_gauge_coeffs_t gcoeffs = QOP_GAUGE_COEFFS_ZERO;
-  gcoeffs.plaquette  = 0.2;
-  gcoeffs.rectangle  = 0.2;
+  gcoeffs.plaquette  = 0.4;
+  gcoeffs.rectangle  = 0.3;
   gcoeffs.parallelogram   = 0.2;
-  gcoeffs.adjoint_plaquette = 0.2;
+  gcoeffs.adjoint_plaquette = 0;
 
   force = QOP_create_F_from_qdp(cm);
   mf = bench_action(&gcoeffs, force);
   QOP_destroy_F(force);
   printf0("action: sec%7.4f mflops = %g\n", secs, mf);
 
+  force = QOP_create_F_from_qdp(cm);
+  check_staple(&gcoeffs, force);
+  QOP_destroy_F(force);
+  gcoeffs.rectangle = 0;
+  gcoeffs.parallelogram = 0;
+  force = QOP_create_F_from_qdp(cm);
+  check_staple(&gcoeffs, force);
+  QOP_destroy_F(force);
+
   if(QDP_this_node==0) { printf("begin force\n"); fflush(stdout); }
 
+  gcoeffs.plaquette  = 1;
+  gcoeffs.rectangle  = 0.3;
+  gcoeffs.parallelogram   = 0.2;
   best_mf = 0;
   best_bs = bsa[0];
   for(bsi=0; bsi<bsn; bsi++) {
     bs = bsa[bsi];
     QDP_set_block_size(bs);
     force = QOP_create_F_from_qdp(cm);
-    mf = bench_force(&gcoeffs, force);
+    mf = bench_heatbath(&gcoeffs);
     QOP_destroy_F(force);
     printf0("GF: bs%5i sec%7.4f mflops = %g\n", bs, secs, mf);
     if(mf>best_mf) {
       best_mf = mf;
       best_bs = bs;
     }
+    //plaq = get_plaq(u);
+    //if(QDP_this_node==0) printf("plaquette = %g\n", plaq);
+  }
+
+  if(QDP_this_node==0) {
+    double pa = plq/nact;
+    double p2 = plq2/nact;
+    double pe = sqrt((p2-pa*pa)/(nact-1));
+    printf("average plq: %g\tvar: %g\n", pa, pe);
+    double aa = beta*act/nact;
+    double a2 = beta*beta*act2/nact;
+    double av = sqrt(a2-aa*aa);
+    printf("average act: %g\tvar: %g\n", aa, av);
   }
 
   QDP_set_block_size(best_bs);
   QDP_profcontrol(1);
   force = QOP_create_F_from_qdp(cm);
-  mf = bench_force(&gcoeffs, force);
+  //mf = bench_staple(&gcoeffs, force);
   QDP_profcontrol(0);
   printf0("prof: GF: bs%5i sec%7.4f mflops = %g\n", best_bs, secs, mf);
 
@@ -210,6 +278,7 @@ main(int argc, char *argv[])
   }
   QDP_set_latsize(ndim, lattice_size);
   QDP_create_layout();
+  lat = QDP_get_default_lattice();
 
   if(QDP_this_node==0) {
     printf("size = %i", lattice_size[0]);

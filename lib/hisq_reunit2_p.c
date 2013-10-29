@@ -17,7 +17,6 @@
 #include <qla_dfn.h>
 #endif
 
-#define NC NCVAR
 static void
 projectU_site_d(NCPROT1 QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
 {

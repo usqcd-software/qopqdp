@@ -6,11 +6,11 @@
 #define PEQMTM (QLA_Nc*QLA_Nc*(8*QLA_Nc))
 
 void 
-QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
-				REAL *acts, REAL *actt,
-				QOP_gauge_coeffs_t *coeffs)
+QOP_symanzik_1loop_gauge_action_qdp(QOP_info_t *info, QDP_ColorMatrix *links[],
+				    REAL *acts, REAL *actt,
+				    QOP_gauge_coeffs_t *coeffs)
 {
-#define NC QDP_get_nc(gauge->links[0])
+#define NC QDP_get_nc(links[0])
   double dtime = QOP_time();
   double nflops = 0;
 
@@ -23,7 +23,7 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QLA_Real rects=0, rectt=0;
   QLA_Real pgms=0, pgmt=0;
   QLA_Real adpls=0, adplt=0;
-  QDP_Lattice *lat = QDP_get_lattice_M(gauge->links[0]);
+  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
   QDP_Subset sub = QDP_all_L(lat);
   QDP_Shift *neighbor = QDP_neighbor_L(lat);
   int nd = QDP_ndim_L(lat);
@@ -32,8 +32,8 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   QDP_ColorMatrix *U[nd], *Uf[nd][nd];
   for(int mu=0; mu<nd; mu++) {
     //QDP_create_M(U[mu]);
-    //QDP_M_eq_M(U[mu], gauge->links[mu], sub);
-    U[mu] = gauge->links[mu];
+    //QDP_M_eq_M(U[mu], links[mu], sub);
+    U[mu] = links[mu];
     for(int nu=0; nu<nd; nu++) {
       if(nu==mu) continue;
       Uf[mu][nu] = QDP_create_M_L(lat);
@@ -233,4 +233,12 @@ QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
   info->final_flop = nflops*QDP_sites_on_node; 
   info->status = QOP_SUCCESS;
 #undef NC
+}
+
+void 
+QOP_symanzik_1loop_gauge_action(QOP_info_t *info, QOP_GaugeField *gauge,
+				REAL *acts, REAL *actt,
+				QOP_gauge_coeffs_t *coeffs)
+{
+  QOP_symanzik_1loop_gauge_action_qdp(info, gauge->links, acts, actt, coeffs);
 }
