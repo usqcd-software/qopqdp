@@ -6,6 +6,14 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define WENSLEY_CONST 1.05110196582237
+
+#if QLA_Precision == 'F'
+#define QLAP(x) QLA_F_ ## x
+#else
+#define QLAP(x) QLA_D_ ## x
+#endif
+
 static QLA_RandomState *rs;
 static QLA_Real fac;
 
@@ -93,18 +101,70 @@ get_hb2(QLA_Real *b, QLA_Real al, QLA_RandomState *srs)
   b[2] = rho*sin(xr);
 }
 
+// Wensley heatbath
+static void
+get_hb1(QLA_Real *theta, QLA_Real g, QLA_RandomState *srs)
+{
+  QLA_Real xr, f, norm;
+
+  if( 0==g ) { // uniform distribution
+    QLA_R_eq_random_S(&xr, srs);
+    *theta = 2*xr - 1.0;
+    *theta *= M_PI;
+  }
+  else if( g<0.01 ) { // simple accept/reject
+    norm = exp( g );
+    do {
+      QLA_R_eq_random_S(&xr, srs);
+      *theta = 2*xr - 1.0;
+      *theta *= M_PI;
+      f = exp( g * cos( *theta ) ); 
+      QLA_R_eq_random_S(&xr, srs);
+    } while( f < xr*norm );
+  }
+  else { // Wensley linear filter
+    norm = exp( g*WENSLEY_CONST );
+    do {
+      QLA_R_eq_random_S(&xr, srs);
+      if( xr<0.5 ) {
+        *theta = log( 1 + 2*( exp( g ) - 1 )*xr ) / g - 1;
+      }
+      else {
+        *theta = 1 - log( 1 + 2*( exp( g ) - 1 )*( 1 - xr ) ) / g;
+      }
+      *theta *= M_PI;
+      f = exp( g*( cos( *theta ) + fabs( *theta )/M_PI ) ) / norm;
+      QLA_R_eq_random_S(&xr, srs);
+    } while( f < xr );
+  }
+}
+
 static void
 hb_func(NCPROT1 QLA_ColorMatrix(*m), int site)
 {
   QLA_RandomState *srs = rs + site;
   if(QLA_Nc==1) { // exp(-fac*Re[u*z]) = exp(-fac*|z|*cos(t))
-    // FIXME: just repeating overrelaxation for now
-    //QLA_R_eq_random_S(&xr, srs);
-    QLA_Complex z, zs, t;
-    QLA_C_eq_elem_M(&z, m, 0, 0);
-    QLA_c_eq_ca(zs, z);
-    QLA_C_eq_C_divide_C(&t, &zs, &z);
-    QLA_M_eq_elem_C(m, &t, 0, 0);
+    // call Wensley heatbath
+    QLA_Complex cc;
+    QLA_Real r, phi, g, theta;
+
+    // *m contains r*exp(i*phi), extract r and phi
+    // extract QLA matrix element as complex number
+    QLA_c_eq_c(cc, QLA_elem_M(*m,0,0));
+    // get norm and arg
+    QLA_R_eq_norm_C( &r, &cc );
+    QLA_R_eq_arg_C( &phi, &cc );
+    g = fac*r;
+
+    // generate theta with probability P(theta)=exp( g*cos(theta) )
+    get_hb1( &theta, g, srs );
+
+    // convert to real and imag
+    //QLA_Real vr = cos( theta - phi );
+    //QLA_Real vi = sin( theta - phi );
+    // assemble QLA complex number and set QLA U(1) matrix to this
+    //QLA_c_eq_r_plus_i_r( QLA_elem_M(*m,0,0), vr, vi );
+    QLA_elem_M(*m,0,0) = QLAP(cexpi)(theta - phi);
   } else {
     QLA_ColorMatrix(s);
     QLA_ColorMatrix(t);
