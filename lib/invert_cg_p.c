@@ -21,33 +21,29 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
   int max_restarts=inv_arg->max_restarts;
   if(max_restarts<0) max_restarts = 5;
 
+  /* Default output values unless reassigned */
+  res_arg->final_rsq = 0;
+  res_arg->final_rel = 0;
+  res_arg->final_iter = 0;
+  res_arg->final_restart = 0;
+
+  r_eq_norm2_V(&insq, in, subset);
+  /* Special case of exactly zero source */
+  if(insq == 0.) {
+    VERB(LOW, "CG: exiting because of zero source\n");
+    V_eq_zero(out, subset);
+    return QOP_SUCCESS;
+  }
+
   create_V(r);
   create_V(Mp);
 
-  r_eq_norm2_V(&insq, in, subset);
   rsqstop = res_arg->rsqmin * insq;
   VERB(LOW, "CG: rsqmin = %g relmin = %g\n", res_arg->rsqmin, res_arg->relmin);
   VERB(LOW, "CG: rsqstop = %g\n", rsqstop);
   rsq = 0;
   relnorm2 = 1.;
   oldrsq = rsq;
-
-  /* Default output values unless reassigned */
-  res_arg->final_rsq = 0;
-  res_arg->final_rel = 0;
-  res_arg->final_iter = 0;
-  res_arg->final_restart = 0;
-  
-  /* Special case of exactly zero source */
-  if(insq == 0.){
-    VERB(LOW, "CG: exiting because of zero source\n");
-    destroy_V(r);
-    destroy_V(Mp);
-    V_eq_zero(out, subset);
-    
-    return QOP_SUCCESS;
-  }
-
   while(1) {
 
     if( (total_iterations==0) ||

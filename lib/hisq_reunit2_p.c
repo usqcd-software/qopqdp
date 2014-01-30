@@ -42,7 +42,6 @@ projectU_site(NCPROT1 QLA_ColorMatrix(*Ur), int i, void *args)
   projectU_site_d(NCARG1 Ur, U);
 #endif
 }
-#undef NC
 
 // requires QLA >= 1.7.0 and QDP >= 1.9.0
 void

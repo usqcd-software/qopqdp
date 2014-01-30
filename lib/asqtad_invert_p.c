@@ -17,6 +17,26 @@ D^-1 (x) = ( A^-1 z                )
      (y)   ( y/m - D_ba A^-1 z / m )
 
 with z = m x - D_ab y.
+
+If we have the approximate preconditioned solution, v,
+the preconditioned residual, s, is
+
+s = z - A v
+
+and the full residual is
+
+r = (x) - D ( v              ) = ( s/m )
+    (y)     ( y/m - D_ba v/m )   ( 0 )
+
+the stopping criterion is
+
+|r|^2/(|x|^2+|y|^2) < rsqmin  (outer)
+|s|^2/|v|^2         < rsqmin' (inner)
+
+equating these gives
+
+rsqmin' = rsqmin (|x|^2+|y|^2) m^2 / |v|^2
+
 ***************************************************************************/
 #include <qop_internal.h>
 
@@ -168,7 +188,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   double dtime = 0;
   double nflop = 0.5 * (60+2*72*fla->nlinks);
   double rsqminold,relminold;
-  QLA_Real rsq, rsqstop, relnorm2, insq;
+  QLA_Real rsq, rsqstop, relnorm2, insq, pinsq, rsqfac;
   QDP_ColorVector *qdpin, *qdpout;
   QDP_ColorVector *cgp, *cgr;
   QDP_Subset insub, cgsub;
@@ -190,38 +210,48 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
 
-  //QOP_printf0("mass = %g\n", mass);
-  //dumpvec(in, insub);
-  //QOP_asqtad_dslash_qdp(NULL, fla, mass, out, in, QOP_EVENODD, ineo);
-  //dumpvec(out, QDP_all);
-
   qdpin = QDP_create_V();
   qdpout = QDP_create_V();
 
   gl_fla = fla;
   gl_mass = mass;
 
-  cgeo = ineo;
-  if(ineo==QOP_EVENODD) cgeo = QOP_EVEN;
+  // calculate input norm2 on even and odd subsets
+  QLA_Real insqe=0, insqo=0;
+  if(ineo!=QOP_ODD) { // even sites
+    QDP_r_eq_norm2_V(&insqe, in, QDP_even);
+  }
+  if(ineo!=QOP_EVEN) { // odd sites
+    QDP_r_eq_norm2_V(&insqo, in, QDP_odd);
+  }
+  insq = insqe + insqo;
+
+  // run preconditioned solve on larger input subset
+  if(insqe>=insqo) cgeo = QOP_EVEN;
+  else cgeo = QOP_ODD;
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
+  // get temporary vectors
   cgp = QOP_asqtad_dslash_get_tmp(fla, oppsub(cgeo), 1);
   cgr = QOP_asqtad_dslash_get_tmp(fla, oppsub(cgeo), 2);
   gl_tmp = cgr;
   gl_tmp2 = QOP_asqtad_dslash_get_tmp(fla, cgeo, 1);
 
-  QDP_V_eq_zero(qdpin, QDP_all);
+  // copy and project input vector
+  QDP_V_eq_V(gl_tmp2, in, insub);
+  if(ineo!=QOP_EVENODD) QDP_V_eq_zero(gl_tmp2, qdpsub(oppsub(ineo)));
+  project(fla, mass, qdpin, gl_tmp2, cgeo);
   if(ineo==cgeo) {
-    QLA_Real m = mass;
-    //QDP_V_eq_V(qdpin, in->cv, insub);
-    QDP_V_eq_r_times_V(qdpin, &m, in, insub);
+    QDP_V_eq_zero(qdpin, qdpsub(oppsub(cgeo)));
   } else {
-    QDP_V_eq_zero(gl_tmp2, QDP_all);
-    QDP_V_eq_V(gl_tmp2, in, insub);
-    project(fla, mass, qdpin, gl_tmp2, cgeo);
     QDP_V_eq_V(qdpin, in, qdpsub(oppsub(cgeo)));
   }
+  // get projected input norm2
+  QDP_r_eq_norm2_V(&pinsq, qdpin, cgsub);
+  rsqfac = mass*mass*insq/pinsq;  // conversion factor inner rsq/outer rsq
+
+  // copy output vector
   //QOP_asqtad_diaginv_qdp(NULL, fla, mass, cgp, qdpin, cgeo);
   //QDP_V_eq_V(qdpin, cgp, cgsub);
   //if(ineo!=QOP_EVENODD && ineo!=cgeo) {
@@ -231,20 +261,16 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   QDP_V_eq_zero(qdpout, QDP_all);
   QDP_V_eq_V(qdpout, out, cgsub);
 
-  QDP_r_eq_norm2_V(&insq, in, insub);
   rsqstop = insq * res_arg->rsqmin;
   VERB(LOW, "ASQTAD_INVERT: rsqstop = %g\n", rsqstop);
   rsq = 0;
   relnorm2 = 1.;
   rsqminold = res_arg->rsqmin;
   relminold = res_arg->relmin;
-  //QDP_thread_barrier();
-  res_arg->rsqmin = 0.9 * rsqminold;
-  res_arg->relmin = 0.5 * relminold;
+  res_arg->rsqmin = 0.99 * rsqminold * rsqfac;
+  res_arg->relmin = 0.99 * relminold;
   inv_arg->max_restarts = 0;
   do {
-    inv_arg->max_iter = max_iter_old - iter;
-
     dtime -= QOP_time();
     if(QOP_asqtad.cgtype==1) {
       QOP_invert_eigcg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
@@ -253,38 +279,30 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
       QOP_invert_cg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
 		      qdpout, qdpin, cgp, cgsub);
     }
-    //printf("resid = %g\n", res_arg->final_rsq);
     dtime += QOP_time();
+    iter += res_arg->final_iter;
 
     reconstruct(fla, mass, qdpout, qdpout, qdpin, oppsub(cgeo));
     //QOP_asqtad_dslash_qdp(NULL, fla, mass, cgr, qdpout, oppsub(ineo), QOP_EVENODD);
     //QDP_r_eq_norm2_V(&rsq, cgr, qdpsub(oppsub(ineo)));
     //printf("0 ?= %g\n", rsq);
 
-    // get final residual
-    //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
-    //printf("nrm = %g\n", rsq);
+    // get final residual and relmin
     QOP_asqtad_dslash_qdp(NULL, fla, mass, cgr, qdpout, ineo, QOP_EVENODD);
-    //QDP_V_eq_V(cgp, qdpout, insub);
-    //QOPPC(asqtad_invert_d2)(qdpr, cgp, insub);
-    //QDP_V_meq_V(qdpr, qdpin, insub);
     QDP_V_meq_V(cgr, in, insub);
     QDP_r_eq_norm2_V(&rsq, cgr, insub);
-    if(res_arg->relmin > 0)
+    res_arg->rsqmin *= 0.99;
+    if(res_arg->relmin>0) {
       relnorm2 = QOP_relnorm2_V(&cgr, &qdpout, insub, 1);
+      res_arg->relmin = 0.99*res_arg->final_rel/relnorm2 * relminold;
+    }
     //printf("%i %i rsq = %g\tprec rsq = %g\trsqstop = %g\n", nrestart,
     //res_arg->final_iter, rsq, res_arg->final_rsq, rsqstop);
-    res_arg->rsqmin = 0.9*res_arg->final_rsq*rsqstop/rsq;
-    /* Do the same for the relative minimum if we are using it */
-    if(res_arg->relmin > 0)
-      res_arg->relmin = 0.5*res_arg->final_rel/relnorm2 * relminold;
-    iter += res_arg->final_iter;
     VERB(LOW, "ASQTAD_INVERT: iter %i rsq = %g rel = %g\n", iter, rsq,
 	 relnorm2);
-    /* Keep going if the residue exceeds tolerance and we haven't
-       exhausted restarts.  If rsqstop is zero, ignore this test.  If
-       relmin is zero, ignore this test. */
+    inv_arg->max_iter = max_iter_old - iter;
   } while( (++nrestart < max_restarts) &&
+	   (inv_arg->max_iter>0) &&
 	   (rsq > rsqstop) &&
 	   (relnorm2 > res_arg->relmin) );
 
