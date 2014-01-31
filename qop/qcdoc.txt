@@ -1,0 +1,7 @@
+/* for QCDOC: re/im, row,column and:
+   QOP_*_ColorVector : x(fastest)yzt, even first
+   QOP_*_DiracFermion: ???
+   QOP_*_GaugeField  : x(fastest)yzt, even first, dir(xyzt)
+   QOP_*_Force       : x(fastest)yzt, even first, dir(xyzt)
+*/
+

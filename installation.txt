@@ -1,0 +1,162 @@
+-----------------------------------------------------------------------------
+Instructions for installing SciDAC QDP/C and related packages.
+
+James C. Osborn
+June 27, 2007
+
+-----------------------------------------------------------------------------
+0. Get files
+
+All packages can be found from links here:
+http://usqcd.jlab.org/usqcd-software
+
+download the files:
+http://usqcd.jlab.org/usqcd-software/qmp/qmp-2.1.7.tar.gz
+http://usqcd.jlab.org/usqcd-software/qio/qio-2.1.8.tar.gz
+http://usqcd.jlab.org/usqcd-software/qla/qla-1.6.2.tar.gz
+http://usqcd.jlab.org/usqcd-software/qdp/qdp-1.6.0.tar.gz
+http://usqcd.jlab.org/usqcd-software/qopqdp/qopqdp-0.8.1.tar.gz
+
+-----------------------------------------------------------------------------
+1. Install QMP
+
+a) untar the QMP source package somewhere
+
+b) make a build dir somewhere (can be the same as the source dir, but it is
+   usually better to make a separate one)
+
+c) in the build dir do:
+
+   $QMPSRC/configure --prefix=$QMPDIR \
+                     --with-qmp-comms-type=SINGLE \
+                     CC=<C compiler> \
+                     CFLAGS=<compiler options>
+
+   where $QMPSRC is where the source is and $QMPDIR is where you want the
+   final library to be installed
+
+   replace SINGLE with MPI and use CC=mpicc for MPI version instead of
+   single node version.
+
+   other configure options are:
+    --enable-bgl			(uses BG/L personality hints)
+    --host=blrts --build=none		(needed for cross compiling, i.e. BG/L)
+
+d) do "make"
+
+e) do "make install"
+
+-----------------------------------------------------------------------------
+2. Install QIO
+
+a) untar the QIO source package somewhere
+
+b) make a build dir somewhere (can be the same as the source dir, but it is
+   usually better to make a separate one)
+
+c) in the build dir do:
+
+   $QIOSRC/configure --prefix=$QIODIR \
+                     --with-qmp=$QMPDIR
+
+   where $QIOSRC is where the source is and $QIODIR is where you want the
+   final library to be installed
+
+   other configure options are:
+    --host=blrts --build=none		(needed for cross compiling, i.e. BG/L)
+
+d) do "make"
+
+e) do "make install"
+
+-----------------------------------------------------------------------------
+3. Install QLA
+
+a) untar the QLA source package somewhere
+
+b) make a build dir somewhere (can be the same as the source dir, but it is
+   usually better to make a separate one)
+
+c) in the build dir do:
+
+   $QLASRC/configure --prefix=$QLADIR \
+		     --enable-nc=3 \
+                     CC=<C compiler> \
+                     CFLAGS=<compiler options (high optimization)> \
+		     TEST_CFLAGS="<compiler options (low optimization)>"
+
+   where $QLASRC is where the source is and $QLADIR is where you want the
+   final library to be installed
+
+   other configure options are:
+    --enable-nc=<2,3,N>		(compile only the Nc=2,3 or N (variable)
+				 libraries.  leave off for all libs.)
+    --enable-sse			(use some SSE codes)
+    --enable-sse2			(use some SSE & SSE2 codes)
+    --enable-sse3			(use some SSE & SSE2 & SSE3 codes)
+    --enable-440			(use some 440 asm codes)
+    --enable-440d			(use some 440d asm codes)
+    --host=blrts --build=none		(needed for cross compiling, i.e. BG/L)
+
+d) do "make" (may take anywhere from 15 mins to a few hours)
+
+e) do "make install"
+
+-----------------------------------------------------------------------------
+4. Install QDP
+
+a) untar the QDP source package somewhere
+
+b) make a build dir somewhere (can be the same as the source dir, but it is
+   usually better to make a separate one)
+
+c) in the build dir do:
+
+   $QDPSRC/configure --prefix=$QDPDIR \
+                     --with-qmp=$QMPDIR \
+                     --with-qio=$QIODIR \
+                     --with-qla=$QLADIR \
+		     --enable-nc=3
+
+   where $QDPSRC is where the source is and $QDPDIR is where you want the
+   final library to be installed
+
+   other configure options are:
+    --enable-nc=<2,3,N>		(compile only the Nc=2,3 or N (variable)
+				 libraries.  leave off for all libs.)
+    --host=blrts --build=none		(needed for cross compiling, i.e. BG/L)
+
+d) do "make" (may take anywhere from 15 mins to a few hours)
+
+e) do "make install"
+
+f) do "make check" to build some test programs in the examples dir
+
+-----------------------------------------------------------------------------
+5. Install QOPQDP
+
+a) untar the QOPQDP source package somewhere
+
+b) make a build dir somewhere (can be the same as the source dir, but it is
+   usually better to make a separate one)
+
+c) in the build dir do:
+
+   $QOPSRC/configure --prefix=$QOPDIR \
+                     --with-qmp=$QMPDIR \
+                     --with-qio=$QIODIR \
+                     --with-qla=$QLADIR \
+                     --with-qdp=$QDPDIR
+
+   where $QOPSRC is where the source is and $QOPDIR is where you want the
+   final library to be installed
+
+   other configure options are:
+    --host=blrts --build=none		(needed for cross compiling, i.e. BG/L)
+
+d) do "make"
+
+e) do "make install"
+
+f) do "make check" to build some test programs in the examples dir
+-----------------------------------------------------------------------------
