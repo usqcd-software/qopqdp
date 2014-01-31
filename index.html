@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>QOPQDP by usqcd-software</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>QOPQDP</h1>
+        <p>SciDAC QFT Operations library built on QDP</p>
+
+        <p class="view"><a href="https://github.com/usqcd-software/qopqdp">View the Project on GitHub <small>usqcd-software/qopqdp</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/usqcd-software/qopqdp/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/usqcd-software/qopqdp/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/usqcd-software/qopqdp">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>QOPQDP is an implementation of the SciDAC Level 3 QOP (QCD OPerations) API on top of the QDP/C library. The goal is to provide a complete reference implementation of the QOP API that is both portable to all platforms and at the same time well optimized for many platforms.</p>
+
+<p>The QOPQDP package currently contains:</p>
+
+<ul>
+<li>Gauge:</li>
+<li>* Symanzik 1-loop force</li>
+<li>Asqtad:</li>
+<li>* dslash</li>
+<li>* inverter (single and multimass)</li>
+<li>* force</li>
+<li>Wilson:</li>
+<li>* dslash (with anisotropic clover)</li>
+<li>* inverter</li>
+<li>Domain Wall:</li>
+<li>* inverter</li>
+</ul><p>Current and past releases can be found <a href="http://usqcd-software.github.io/downloads/qopqdp">here</a></p>
+
+<p>There is now a simple installer for SciDAC software packages called qinstall. Instructions for it's use can be found here.</p>
+
+<p>*** NOTE: versions 0.16.0 added two new members to QOP_resid_arg_t. Set new member relmin to zero for backward compatibility.</p>
+
+<p>*** NOTE: versions 0.11.0 and higher now require QDP version 1.8.0 or higher. Likewise versions before 0.11.0 require QDP versions before 1.8.0.</p>
+
+<p>*** NOTE: as of version 0.9.0 the Asqtad inverter conventions have changed. See the README below for more details ***</p>
+
+<p>The installation options can be found in the README file. </p>
+
+<p>The documentation for QOP is <a href="./qop">here</a></p>
+
+<p>The materials from the SciDAC 2007 tutorial are <a href="http://web.mit.edu/bgl/scidac-2007">here</a>
+Some simple step-by-step instructions for installing QOPQDP and all it's dependencies (QDP/C, QLA, QIO and QMP) can be found <a href="./installation.txt">here</a></p>
+
+<p>The motivation for this development comes from the U.S. Dept. of Energy SciDAC program. See the <a href="http://usqcd-software.github.io">USQCD</a> home pages for more details.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/usqcd-software">usqcd-software</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
