@@ -1,19 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
-#if QOP_Precision == 'F'
-#define QOPP(x) QOP_F_##x
-#define QCDP(x) QOP_F_##x
-#define QCDPC(x) QOP_F3_##x
-#define QDPN(x) QDP_FN_##x
-#else
-#define QOPP(x) QOP_D_##x
-#define QCDP(x) QOP_D_##x
-#define QCDPC(x) QOP_D3_##x
-#define QDPN(x) QDP_DN_##x
-#endif
-
 #define printf0 QOP_printf0
 
 static int
@@ -249,5 +235,3 @@ QOP_freeBlock(QOP_MgBlock *mgb)
   QDP_destroy_lattice(mgb->coarse);
   QOP_free(mgb);
 }
-
-#endif

@@ -105,7 +105,7 @@ extern "C" {
 #  include <qop_f3.h>
 #  include <qop_d3.h>
 #  include <qop_df3.h>
-#  include <qop_mg.h>
+  //#  include <qop_mg.h>
 #elif QOP_Colors == 'N'
 #  include <qop_fn.h>
 #  include <qop_dn.h>

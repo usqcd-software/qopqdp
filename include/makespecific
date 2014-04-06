@@ -34,8 +34,11 @@ cat $f |sed '
   s/QOP_IPC_/QOP_'$PC'_/g;
   s/QOP_PC_/QOP_'$PC'_/g;
   s/QOP_OC_/QOP_'$OC'_/g;
+  s/QOP_FC_/QOP_F'$C'_/g;
+  s/QOP_DC_/QOP_D'$C'_/g;
   s/QOP_IP_/QOP_'$P'_/g;
   s/QOP_P_/QOP_'$P'_/g;
+  s/QOP_C_/QOP_'$C'_/g;
   s/qop_p_/qop_'$p'_/g;
   s/qop_pc_/qop_'$pc'_/g;
   s/qop_dfc_/qop_'$dfc'_/g;

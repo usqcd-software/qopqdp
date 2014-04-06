@@ -1,7 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
 #include <string.h>
 #include <math.h>
 #include <qdp_fn.h>
@@ -133,13 +131,18 @@ QOP_bicgstabSolveS(QOP_Bicgstab *bcg, QDPN(ColorVector) *x[], QDPN(ColorVector) 
       QLA_D_Complex ctmp1, ctmp2;
       QLA_c_eq_c(rho0, rho1);
       c_eq_V_dot_V(&rho1, r0, r);
+#if 1
+      QLA_c_eq_c_times_c(ctmp1,rho1,alpha);
+      QLA_c_eq_c_times_c(ctmp2,rho0,omega);
+      if(QLA_norm2_c(ctmp2)==0.) break;
+      //QOP_printf0("ctmp2: %g\n", QLA_norm2_c(ctmp2));
+      QLA_D_c_eq_c_div_c(beta,ctmp1,ctmp2);
+#else
       if(QLA_norm2_c(rho1)==0.) break;
-      //QLA_c_eq_c_times_c(ctmp1,rho1,alpha);
-      //QLA_c_eq_c_times_c(ctmp2,rho0,omega);
-      //QLA_c_eq_c_div_c(beta,ctmp1,ctmp2);
       QLA_c_eq_c_div_c(ctmp1,rho1,rho0);
       QLA_c_eq_c_div_c(ctmp2,alpha,omega);
       QLA_c_eq_c_times_c(beta,ctmp1,ctmp2);
+#endif
       V_eq_V(t, p);
       V_meq_c_times_V(t, &omega, v);
       V_eq_V(p, r);
@@ -152,7 +155,8 @@ QOP_bicgstabSolveS(QOP_Bicgstab *bcg, QDPN(ColorVector) *x[], QDPN(ColorVector) 
 
     c_eq_V_dot_V(&ctmp1, r0, v);
     if(QLA_norm2_c(ctmp1)==0.) break;
-    QLA_c_eq_c_div_c(alpha, rho1, ctmp1);
+    //QOP_printf0("ctmp1: %g\n", QLA_norm2_c(ctmp1));
+    QLA_D_c_eq_c_div_c(alpha, rho1, ctmp1);
     V_meq_c_times_V(r, &alpha, v);
 
     M(Mx, r);
@@ -160,6 +164,7 @@ QOP_bicgstabSolveS(QOP_Bicgstab *bcg, QDPN(ColorVector) *x[], QDPN(ColorVector) 
 
     c_eq_V_dot_V(&ctmp2, t, r);
     r_eq_norm2_V(&t2, t);
+    //QOP_printf0("t2: %g\n", t2);
     QLA_c_eq_c_div_r(omega, ctmp2, t2);
 
     V_peq_c_times_V(x, &omega, r);
@@ -205,5 +210,3 @@ QCDP(bicgstabSolveEo)(QDPN(ColorVector) **out, QDPN(ColorVector) **in,
   sa->reconstruct(out, sa->outeo, in, sa->opargs);
   return nits;
 }
-
-#endif

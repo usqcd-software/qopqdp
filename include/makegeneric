@@ -1,18 +1,18 @@
 #!/bin/sh
 
 f=$1  # source filename
-t=$2  # source pc type: P PC
+t=$2  # source pc type: P C PC
 n=$3  # new specific type
 o=$4  # old type
 if [ ! -z $o ]; then uo=_$o; fi
 
 makecgen() {
  sed 's/\([a-zA-Z0-9_][a-zA-Z0-9_]*\)/ \1 /g' |tr ' ' '\n' |\
- sed -n '/^QOP_'$t'_/{s/^QOP_'$t'_\(.*\)/#define QOP'$uo'_\1 QOP_'$n'_\1/;p}'
+ sed -n '/^QOP_'$t'_/{s/^QOP_'$t'_\(.*\)/#define QOP'$uo'_\1 QOP_'$n'_\1/;p;}'
 }
 
 makengen() {
- sed -n '/.*QOP_'$t'_[^(]*(NCPROT/{s/.*QOP_'$t'_\([^(]*\)(NCPROT.*/#define QOP'$uo'_\1(...) QOP_'$n'_\1(QOP_Nc, __VA_ARGS__)/;p}'
+ sed -n '/.*QOP_'$t'_[^(]*(NCPROT/{s/.*QOP_'$t'_\([^(]*\)(NCPROT.*/#define QOP'$uo'_\1(...) QOP_'$n'_\1(QOP_Nc, __VA_ARGS__)/;p;}'
 }
 
 makegen() {

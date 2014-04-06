@@ -1,7 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
 #include <math.h>
 #include <float.h>
 #include <qla_fn.h>
@@ -13,14 +11,10 @@
 
 #if QOP_Precision == 'F'
 #define QOPP(x) QOP_F_##x
-#define QCDP(x) QOP_F_##x
-#define QCDPC(x) QOP_F3_##x
 #define QDPN(x) QDP_FN_##x
 #define QLAN(x) QLA_FN_##x
 #else
 #define QOPP(x) QOP_D_##x
-#define QCDP(x) QOP_D_##x
-#define QCDPC(x) QOP_D3_##x
 #define QDPN(x) QDP_DN_##x
 #define QLAN(x) QLA_DN_##x
 #endif
@@ -83,27 +77,6 @@ QDPN(V_meq_c_times_V_multi)(QDPN(ColorVector) *r, QLA_Complex z[],
 }
 #endif
 
-static int g_nc;
-static void
-get_nc_hack(int nc, QLAN(ColorVector)(nc,(*v)), int index)
-{
-  g_nc = nc;
-}
-
-static int
-get_nc(QDPN(ColorVector) *v)
-{
-  g_nc = 0;
-  QDPN(V_eq_funci)(v, get_nc_hack, QDP_all_L(QDPN(get_lattice_V)(v)));
-  double d[2];
-  d[0] = g_nc;
-  d[1] = g_nc==0 ? 0 : 1;
-  QMP_sum_double_array(d, 2);
-  int nc = (int) ((d[0]/d[1])+0.5);
-  //QOP_printf0(" nc = %i\n", nc);
-  return nc;
-}
-
 static void
 inv_sqrt_re(int nc, QLAN(ColorVector)(nc,(*v)), int index)
 {
@@ -160,7 +133,7 @@ QOPP(rRitzHarm)(QDPN(ColorVector) *vv[], int n, int nv, QOP_MgOp *op, void *opar
 {
   QDPN(ColorVector) *Av[n][nv], *(*v)[nv] = (QDPN(ColorVector) *(*)[nv]) vv;
   QDP_Lattice *lat = QDPN(get_lattice_V)(v[0][0]);
-  int nc = get_nc(v[0][0]);
+  int nc = QDP_get_nc(v[0][0]);
   zmat m;
   zmat_alloc(&m, n, n);
   for(int i=0; i<n; i++) {
@@ -267,7 +240,7 @@ void
 QOPP(mgOrtho)(QDPN(ColorVector) *cv[], int nv, QOP_MgBlock *mgb)
 {
 #if 1
-  int fnc = get_nc(cv[0]);
+  int fnc = QDP_get_nc(cv[0]);
   QDPN(ColorVector) *t = QDPN(create_V_L)(fnc, mgb->fine);
   QDPN(ColorVector) *z = QDPN(create_V_L)(1, mgb->coarse);
   QDPN(V_eq_zero)(t, QDP_all_L(mgb->fine));
@@ -421,7 +394,7 @@ void
 QOPP(mgOrthoSort)(QDPN(ColorVector) *cv[], int imin, int n, QOP_MgBlock *mgb,
 		  double min[], double ave[], double max[])
 {
-  int fnc = get_nc(cv[0]);
+  int fnc = QDP_get_nc(cv[0]);
   QDPN(ColorVector) *t = QDPN(create_V_L)(fnc, mgb->fine);
   QDPN(ColorVector) *tk = QDPN(create_V_L)(1, mgb->fine);
   QDPN(ColorVector) *ones = QDPN(create_V_L)(1, mgb->fine);
@@ -491,7 +464,7 @@ void
 QOPP(mgOrthoVec)(QDPN(ColorVector) *cv[], int nv, QOP_MgBlock *mgb, int norm)
 {
   if(nv>0 || norm) {
-    int fnc = get_nc(cv[0]);
+    int fnc = QDP_get_nc(cv[0]);
     QDPN(ColorVector) *t = QDPN(create_V_L)(fnc, mgb->fine);
     QDPN(ColorVector) *z = QDPN(create_V_L)(1, mgb->coarse);
     QDPN(V_eq_zero)(t, QDP_all_L(mgb->fine));
@@ -553,7 +526,7 @@ QDPN(Minv)(QDPN(ColorMatrix) *m, int nc)
 void
 QOPP(mgOrtho2)(QDPN(ColorVector) *cv1[], QDPN(ColorVector) *cv2[], int nv, QOP_MgBlock *mgb)
 {
-  int fnc = get_nc(cv1[0]);
+  int fnc = QDP_get_nc(cv1[0]);
   QDPN(ColorMatrix) *m = QDPN(create_M_L)(nv, mgb->coarse);
   QDPN(ColorVector) *z = QDPN(create_V_L)(nv, mgb->coarse);
   QDPN(ColorVector) *t[nv];
@@ -590,7 +563,7 @@ QOPP(mgRestrict)(QDPN(ColorVector) *cv[], QDPN(ColorVector) *fv[], int nv,
 		 QOP_evenodd_t par)
 {
   double t0 = QDP_time();
-#define CHKNC(nc,v) { int _nc = get_nc(v); if(nc!=_nc) { QOP_printf0("%s mismatch in %s %s %i %i\n", __func__, #nc, #v, nc, _nc); QDP_abort(1); } }
+#define CHKNC(nc,v) { int _nc = QDP_get_nc(v); if(nc!=_nc) { QOP_printf0("%s mismatch in %s %s %i %i\n", __func__, #nc, #v, nc, _nc); QDP_abort(1); } }
   //CHKNC(cnc, cv[0]);
   //CHKNC(fnc, fv[0]);
   //CHKNC(fnc, pv[0]);
@@ -936,5 +909,3 @@ QOPP(mgTestCoarse)(QOPP(MgArgs) *mga, QDPN(ColorVector) **vf)
     QDPN(destroy_V)(vf2[i]);
   }
 }
-
-#endif

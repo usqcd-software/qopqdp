@@ -1,7 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
 #include <math.h>
 #include <limits.h>
 #include <qla_fn.h>
@@ -13,14 +11,10 @@
 
 #if QOP_Precision == 'F'
 #define QOPP(x) QOP_F_##x
-#define QCDP(x) QOP_F_##x
-#define QCDPC(x) QOP_F3_##x
 #define QDPN(x) QDP_FN_##x
 #define QLAN(x) QLA_FN_##x
 #else
 #define QOPP(x) QOP_D_##x
-#define QCDP(x) QOP_D_##x
-#define QCDPC(x) QOP_D3_##x
 #define QDPN(x) QDP_DN_##x
 #define QLAN(x) QLA_DN_##x
 #endif
@@ -938,5 +932,3 @@ QOPP(mgDslashEoReconstructP)(QDPN(ColorVector) *out[], QDPN(ColorVector) *outeo[
   sub = da->odd;
   V_eq_V_minus_V(out, in, out);
 }
-
-#endif

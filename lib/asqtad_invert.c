@@ -104,7 +104,6 @@ QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
   return QOP_SUCCESS;
 }
 
-
 QOP_status_t
 QOP_hisq_invert_set_opts(QOP_opt_t opts[], int nopts)
 {

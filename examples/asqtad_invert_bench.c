@@ -13,6 +13,7 @@ static int cgtype=0;
 static int verb=0;
 static double naik=0.1;
 static int nthreads=0;
+static double mixedrsq=1e9;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -41,7 +42,8 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     qopin = QOP_create_V_from_qdp(in);
     QMP_barrier();
     if(nthreads==0) {
-      QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+      //QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+      QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,&res_arg,&mass,&out,&in,1);
     } else {
       //QOP_asqtad_invert_threaded(info, fla, inv_arg, res_arg, mass, qopout, qopin, nthreads);
     }
@@ -121,6 +123,7 @@ start(void)
   inv_arg.restart = 200;
   inv_arg.max_restarts = 5;
   inv_arg.evenodd = QOP_EVEN;
+  inv_arg.mixed_rsq = mixedrsq;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
@@ -217,6 +220,7 @@ usage(char *s)
   printf("k\tnaik term\n");
   printf("m\tmass\n");
   printf("n\tnumber of iterations\n");
+  printf("p\tmixed rsq\n");
   printf("t\tnthreads\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
@@ -229,14 +233,12 @@ usage(char *s)
 int
 main(int argc, char *argv[])
 {
-  int i, j;
-
   QDP_initialize(&argc, &argv);
   QDP_profcontrol(0);
 
   seed = time(NULL);
-  j = 0;
-  for(i=1; i<argc; i++) {
+  int j = 0;
+  for(int i=1; i<argc; i++) {
     switch(argv[i][0]) {
     case 'b' : bsmin=atoi(&argv[i][1]); break;
     case 'B' : bsmax=atoi(&argv[i][1]); break;
@@ -244,6 +246,7 @@ main(int argc, char *argv[])
     case 'k' : naik=atof(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
+    case 'p' : mixedrsq=atof(&argv[i][1]); break;
     case 't' : nthreads=atoi(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
@@ -255,11 +258,11 @@ main(int argc, char *argv[])
 
   lattice_size = (int *) malloc(ndim*sizeof(int));
   if(j==0) {
-    for(i=0; i<ndim; ++i) lattice_size[i] = 8;
+    for(int i=0; i<ndim; ++i) lattice_size[i] = 8;
   } else {
     if(!isdigit(argv[j][1])) usage(argv[0]);
     lattice_size[0] = atoi(&argv[j][1]);
-    for(i=1; i<ndim; ++i) {
+    for(int i=1; i<ndim; ++i) {
       if((++j<argc)&&(isdigit(argv[j][0]))) {
         lattice_size[i] = atoi(&argv[j][0]);
       } else {
@@ -274,9 +277,9 @@ main(int argc, char *argv[])
     mass = 0.2 * pow(QDP_volume(),0.1);
   }
 
-  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsn = i+1;
+  for(int i=0,j=bsmin; j<=bsmax; i++,j*=2) bsn = i+1;
   bsa = (int *) malloc(bsn*sizeof(*bsa));
-  for(i=0,j=bsmin; j<=bsmax; i++,j*=2) bsa[i] = j;
+  for(int i=0,j=bsmin; j<=bsmax; i++,j*=2) bsa[i] = j;
 
   if(QDP_this_node==0) {
     print_layout();

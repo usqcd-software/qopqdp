@@ -17,14 +17,14 @@ static int cgtype=-1;
 static int clover=0;
 static int verb=0;
 
-static const int sta[] = {0, 1, 2, 3};
+//static const int sta[] = {0, 1, 2, 3};
 //static const int sta[] = {1};
-static const int stn = sizeof(sta)/sizeof(int);
-static const int nsa[] = {1, 2, 4, 8};
-static const int nsn = sizeof(nsa)/sizeof(int);
-static const int nma[] = {1, 2, 4, 8};
+//static const int stn = sizeof(sta)/sizeof(int);
+//static const int nsa[] = {1, 2, 4, 8};
+//static const int nsn = sizeof(nsa)/sizeof(int);
+//static const int nma[] = {1, 2, 4, 8};
 //static const int nma[] = {0};
-static const int nmn = sizeof(nma)/sizeof(int);
+//static const int nmn = sizeof(nma)/sizeof(int);
 //static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 //static const int bsn = sizeof(bsa)/sizeof(int);
 static int bsmin=32, bsmax=8192, *bsa, bsn;
@@ -92,10 +92,11 @@ mg_setup(void)
   QOP_wilsonMgSet(wilmg, -1, "kappanv", kappanv);
   QOP_wilsonMgSet(wilmg, -1, "itmax", MGMAXITER);
   QOP_wilsonMgSet(wilmg, -1, "ngcr", 8);
+  QOP_wilsonMgSet(wilmg, -1, "nc", QLA_Nc);
 
   double dlat[4], vol=1, vol0=1;
   int lat[4], lat0[4], bl0[4]=BLOCK0;
-  int nvecs0 = 22;
+  int nvecs0;
   QDP_latsize(lat);
   for(int i=0; i<4; i++) {
     if(i==3) {
@@ -117,7 +118,7 @@ mg_setup(void)
   }
   printf0("vol = %i\n", (int)vol);
   printf0("vol0 = %i\n", (int)vol0);
-  nvecs0 = floor(0.99+sqrt(8.*vol/(3.*vol0)))-3;
+  //nvecs0 = floor(0.99+sqrt(8.*vol/(3.*vol0)))-3;
   nvecs0 = NVECS0;
 
   for(int i=0; i<4; i++) dlat[i] = lat0[i];
@@ -145,12 +146,12 @@ mg_setup(void)
 
   printf0("\nsetup Wilson MG\n");
   double t0 = QDP_time();
-#if QOP_Precision == 'F'
+  //#if QOP_Precision == 'F'
   QOP_wilsonMgSetLinks(wilmg, flw);
-#else
-  QOP_F3_FermionLinksWilson *fflw = QOP_FD3_wilson_create_L_from_L(flw);
-  QOP_wilsonMgSetLinks(wilmg, fflw);
-#endif
+  //#else
+  //QOP_F3_FermionLinksWilson *fflw = QOP_FD3_wilson_create_L_from_L(flw);
+  //QOP_wilsonMgSetLinks(wilmg, fflw);
+  //#endif
   QOP_wilsonMgSetup(wilmg);
   t0 = QDP_time() - t0;
   printf0("setup time: %g seconds\n", t0);
@@ -180,7 +181,7 @@ start(void)
     coeffs.clov_s = 0;
     coeffs.clov_t = 0;
   }
-  coeffs.aniso = 0;
+  coeffs.aniso = 1;
 
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);

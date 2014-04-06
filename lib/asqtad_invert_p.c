@@ -31,14 +31,16 @@ r = (x) - D ( v              ) = ( s/m )
 the stopping criterion is
 
 |r|^2/(|x|^2+|y|^2) < rsqmin  (outer)
-|s|^2/|v|^2         < rsqmin' (inner)
+|s|^2/|z|^2         < rsqmin' (inner)
 
 equating these gives
 
-rsqmin' = rsqmin (|x|^2+|y|^2) m^2 / |v|^2
+rsqmin' = rsqmin (|x|^2+|y|^2) m^2 / |z|^2
 
 ***************************************************************************/
+#define DO_TRACE
 #include <qop_internal.h>
+#include <math.h>
 
 extern QOP_asqtad_t QOP_asqtad;
 extern QDP_ColorVector *QOP_asqtad_dslash_get_tmp
@@ -101,13 +103,33 @@ static void
 QOP_asqtad_invert_d2(QDP_ColorVector *out, QDP_ColorVector *in,
 		     QDP_Subset subset)
 {
-  QLA_Real m2 = gl_mass*gl_mass;
-  //QLA_Real m2 = -1.0/(gl_mass*gl_mass);
-  QOP_asqtad_dslash_qdp(NULL,gl_fla,gl_mass, gl_tmp2, in, oppsub(gl_eo),gl_eo);
-  QOP_asqtad_dslash_qdp(NULL,gl_fla,gl_mass, out,gl_tmp2, gl_eo,oppsub(gl_eo));
-  QDP_V_eq_r_times_V_minus_V(out, &m2, in, out, qdpsub(gl_eo));
-  //QDP_V_eq_r_times_V_plus_V(out, &m2, out, in, qdpsub(gl_eo));
+  QOP_asqtad_ddagd(NULL, gl_fla, gl_mass, out, in, gl_eo);
 }
+
+static QOP_Real
+QOP_asqtad_invert_d2_norm2(QDP_ColorVector *out, QDP_ColorVector *in,
+			   QDP_Subset subset)
+{
+  return QOP_asqtad_ddagd_norm2(NULL, gl_fla, gl_mass, out, in, gl_eo);
+}
+
+#if QOP_Precision == 'D'
+static QOP_F_FermionLinksAsqtad *gl_flaf;
+#if 0
+static void
+QOP_F_asqtad_invert_d2(QDP_F_ColorVector *out, QDP_F_ColorVector *in,
+		       QDP_Subset subset)
+{
+  QOP_F_asqtad_ddagd(NULL, gl_flaf, gl_mass, out, in, gl_eo);
+}
+#endif
+static QOP_F_Real
+QOP_F_asqtad_invert_d2_norm2(QDP_F_ColorVector *out, QDP_F_ColorVector *in,
+			     QDP_Subset subset)
+{
+  return QOP_F_asqtad_ddagd_norm2(NULL, gl_flaf, gl_mass, out, in, gl_eo);
+}
+#endif
 
 void
 QOP_asqtad_invert(QOP_info_t *info,
@@ -172,6 +194,365 @@ QOP_asqtad_invert_threaded(QOP_info_t *info,
 }
 #endif
 
+
+#if 1
+static void
+QOP_asqtad_solve_multiA(QOP_info_t *info,
+			QOP_FermionLinksAsqtad *fla,
+			QOP_invert_arg_t *inv_arg,
+			QOP_resid_arg_t *res_arg[],
+			REAL masses[],
+			QDP_ColorVector *out[],
+			QDP_ColorVector *in[],
+			int nsolve)
+{
+  for(int i=0; i<nsolve; i++) {
+    QOP_asqtad_invert_qdp(info, fla, inv_arg, res_arg[i], masses[i],
+			  out[i], in[i]);
+  }
+#if 0
+  for(int i=0; i<nsolve; i++) {
+    if(ineo==QOP_ODD) reconstruct(fla, mass[i], y[i], x[i], x[i], QOP_EVEN);
+    else reconstruct(fla, mass[i], y[i], x[i], in[i], QOP_EVEN);
+    if(ineo==QOP_EVEN) reconstruct(fla, mass[i], y[i], x[i], x[i], QOP_ODD);
+    else reconstruct(fla, mass[i], y[i], x[i], in[i], QOP_ODD);
+  }
+  {
+    // update x from y e/o
+
+    for(int i=0; i<nsolve; i++) {
+      QOP_asqtad_dslash_qdp(NULL, fla, mass[i], r[i], x[i], QOP_EVENODD, QOP_EVENODD);
+      QDP_V_meq_V(r[i], in[i], insub);
+    }
+    if(ineo!=QOP_ODD) QDP_r_veq_norm2_V(innrm2e, in, QOP_EVEN, nsolve);
+    else for(int i=0; i<nsolve; i++) innrm2e[i] = 0;
+    if(ineo!=QOP_EVEN) QDP_r_veq_norm2_V(innrm2o, in, QOP_ODD, nsolve);
+    else for(int i=0; i<nsolve; i++) innrm2o[i] = 0;
+    for(int i=0; i<nsolve; i++) {
+      innrm2et += innrm2
+	innrm2[i] = innrm2e[i] + innrm2o[i];
+    }
+    // run preconditioned solve on larger input subset
+    if(insqe>=insqo) cgeo = QOP_EVEN;
+    else cgeo = QOP_ODD;
+    cgsub = qdpsub(cgeo);
+    gl_eo = cgeo;
+    for(int i=0; i<nsolve; i++) {
+      QOP_asqtad_dslash_qdp(NULL, fla, mass[i], r[i], x[i], QOP_EVENODD, QOP_EVENODD);
+      QDP_V_meq_V(r[i], in[i], insub);
+    }
+  }
+#endif
+}
+
+// r[i][opsub] = A out[i][insub]
+static void
+refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
+       QLA_Real r2[], QLA_Real m2[], QLA_Complex scale[], int no,
+       QOP_evenodd_t ineo, QDP_ColorVector *x[], QDP_ColorVector *Ax[], int nx,
+       int oi[], int xi[], int ni, QDP_ColorVector *tv)
+{
+  QDP_Subset insub = qdpsub(ineo);
+  QOP_evenodd_t opeo = oppsub(ineo);
+  QDP_Subset opsub = qdpsub(opeo);
+  QDP_ColorVector **Aout = r;
+  // Ax[i][opsub] = A x[i][insub]
+  for(int i=0; i<nx; i++) {
+    QOP_asqtad_dslash_qdp(NULL, gl_fla, 0, Ax[i], x[i], opeo, ineo);
+  }
+  QLA_Real x2[nx+1], Ax2[nx+1];
+  QDP_r_veq_norm2_V(x2, x, insub, nx);
+  QDP_r_veq_norm2_V(Ax2, Ax, opsub, nx);
+  for(int i=0; i<ni; i++) {
+    int ko = oi[i];
+    int kx = 0;
+    if(nx>0) kx = xi[i];
+    QLA_Complex z, Az, s, sx;
+    QLA_c_eq_r(sx, 0);
+    // A-orthogonalize out[ko] against x[kx]
+    double d = 0;
+    if(nx>0) {
+      QDP_c_eq_V_dot_V(&z, x[kx], out[ko], insub);
+      QDP_c_eq_V_dot_V(&Az, Ax[kx], Aout[ko], opsub);
+      d = Ax2[kx] + m2[ko]*x2[kx];
+      //QOP_printf0("d: %g\n", d);
+    }
+    VERB(LOW, "REFINE: d: %g\n", d);
+    if(d!=0) {
+      double di = 1/d;
+      double dim2 = di*m2[ko];
+      QLA_c_eq_r_times_c(s, dim2, z);
+      QLA_c_peq_r_times_c(s, di, Az);
+      QDP_V_meq_c_times_V(out[ko], &s, x[kx], insub);
+      QDP_V_meq_c_times_V(Aout[ko], &s, Ax[kx], opsub);
+      // get scale factor for x[kx] to minimize the residual
+      QDP_c_eq_V_dot_V(&z, x[kx], in[ko], insub);
+      QLA_c_eq_r_times_c(sx, di, z);
+      //QOP_printf0("sx: %g  %g\n", QLA_real(sx), QLA_imag(sx));
+    }
+    // get scale factor for out[ko] to minimize the residual
+    QLA_Real o2, Ao2;
+    QDP_c_eq_V_dot_V(&z, out[ko], in[ko], insub);
+    QDP_r_eq_norm2_V(&o2, out[ko], insub);
+    QDP_r_eq_norm2_V(&Ao2, Aout[ko], opsub);
+    d = Ao2 + m2[kx]*o2;
+    VERB(LOW, "REFINE: d: %g  o2: %g  Ao2: %g\n", d, o2, Ao2);
+    if(d!=0) {
+      double di = 1/d;
+      QLA_c_eq_r_times_c(s, di, z);
+      QLA_c_eq_c(scale[ko], s);
+      // out[ko] <- out[ko] + (sx/s)*x[kx]
+      if(nx>0) {
+	QLA_c_eq_c_div_c(z, sx, s);
+	QDP_V_peq_c_times_V(out[ko], &z, x[kx], insub);
+	QDP_V_peq_c_times_V(Aout[ko], &z, Ax[kx], opsub);
+      }
+    } else {
+      QLA_c_eq_c(scale[ko], sx);
+      if(nx>0) {
+	QDP_V_eq_V(out[ko], x[kx], insub);
+	QDP_V_eq_V(Aout[ko], Ax[kx], opsub);
+      }
+    }
+  }
+  // get residuals (r <- in - D2 scale out)
+  for(int i=0; i<no; i++) {
+    QOP_asqtad_dslash_qdp(NULL, gl_fla, 0, tv, Aout[i], ineo, opeo);
+    QDP_V_meq_r_times_V(tv, &m2[i], out[i], insub);
+    QDP_V_eq_c_times_V_plus_V(r[i], &scale[i], tv, in[i], insub);
+  }
+  QDP_r_veq_norm2_V(r2, r, insub, no);
+}
+
+void
+QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
+			   QOP_FermionLinksAsqtad *fla,
+			   QOP_invert_arg_t *inv_arg,
+			   QOP_resid_arg_t *res_arg[],
+			   REAL masses[],
+			   QDP_ColorVector *out[],
+			   QDP_ColorVector *in[],
+			   int nsolve)
+{
+#define NC QDP_get_nc(in[0])
+  QOP_evenodd_t ineo = inv_arg->evenodd;
+  if(ineo==QOP_EVENODD) {
+    QOP_asqtad_solve_multiA(info, fla, inv_arg,	res_arg, masses,
+			    out, in, nsolve);
+    return;
+  }
+  QDP_ColorVector *tv, *r[nsolve];
+  QLA_Complex scale[nsolve];
+  double dtime = 0;
+  QLA_Real in2[nsolve];
+  QLA_Real r2[nsolve];
+  QLA_Real r2stop[nsolve];
+  QLA_Real mass2[nsolve];
+  QLA_Real m2s[nsolve];
+  int oi[nsolve], xi[nsolve];
+  int nm = 0;
+  int iter = 0, nrestart = -1;
+  int max_iter = inv_arg->max_iter;
+  int max_restarts = inv_arg->max_restarts;
+  QDP_Subset insub = qdpsub(ineo);
+  QOP_evenodd_t opeo = oppsub(ineo);
+#if QOP_Precision == 'D'
+  double mixedrsq = inv_arg->mixed_rsq;
+#endif
+
+  gl_fla = fla;
+  gl_mass = 0;
+  gl_eo = ineo;
+  gl_tmp2 = QOP_asqtad_dslash_get_tmp(fla, ineo, 1);
+  QDP_ColorVector *cgp = QOP_asqtad_dslash_get_tmp(fla, opeo, 1);
+
+  QDP_r_veq_norm2_V(in2, in, insub, nsolve);
+
+  tv = QDP_create_V();
+  for(int i=0; i<nsolve; i++) {
+    r2stop[i] = res_arg[i]->rsqmin * in2[i];
+    mass2[i] = masses[i]*masses[i];
+    oi[i] = i;
+    int j = nm;
+    while(j>0 && mass2[i]<m2s[j-1]) j--;
+    if(j==nm || m2s[j]!=mass2[i]) {
+      for(int k=nm; k>j; k--) m2s[k] = m2s[k-1];
+      m2s[j] = mass2[i];
+      nm++;
+    }
+    r[i] = QDP_create_V();
+    QOP_asqtad_dslash_qdp(NULL, fla, 0, r[i], out[i], opeo, ineo);
+  }
+  for(int i=0; i<nsolve; i++) {
+    int j = 0;
+    while(j<nm-1 && m2s[j]!=mass2[i]) j++;
+    xi[i] = j;
+  }
+  QOP_resid_arg_t *xresarg[nm];
+  QDP_ColorVector *x[nm];
+  double m20 = m2s[0];
+  gl_mass = sqrt(m20);
+  for(int i=0; i<nm; i++) {
+    m2s[i] -= m20;
+    x[i] = QDP_create_V();
+  }
+
+#if 1
+  refine(out, in, r, r2, mass2, scale, nsolve, ineo, NULL, NULL, 0,
+	 oi, NULL, nsolve, tv);
+#else
+  for(int i=0; i<nsolve; i++) {
+    int oi = 1;
+    refine(out+i, in+i, r+i, r2+i, mass2+i, scale+i, 1, ineo, in+i, &tv, 1,
+	   &oi, &oi, 1, tv);
+  }
+#endif
+
+  while(1) {
+    // find least converged (or smaller mass if tie)
+    int imax = 0;
+    double r2max=1, r2stopmax=1, in2max=1;
+    VERB(LOW, "SOLVE: its: %i\n", iter);
+    for(int i=0; i<nsolve; i++) {
+      // find the stopping criterion that is closer to convergence for this 'i'
+      double r2i = r2[i];
+      double r2stopi = r2stop[i];
+      double in2i = in2[i];
+      if(res_arg[i]->final_rel*r2stopi<r2i*res_arg[i]->relmin) {
+	r2i = res_arg[i]->final_rel;
+	r2stopi = res_arg[i]->relmin;
+	in2i = 1;
+      }
+      // update if less converged
+      double a = r2i*r2stopmax;
+      double b = r2max*r2stopi;
+      if(a>b || (a==b && mass2[i]<mass2[imax])) {
+	imax = i;
+	r2max = r2i;
+	r2stopmax = r2stopi;
+	in2max = in2i;
+      }
+      VERB(LOW, "SOLVE[%i]: rsq = %g rel = %g\n", i,
+	   r2[i]/in2[i], res_arg[i]->final_rel);
+    }
+    //QOP_printf0("imax: %i\n", imax);
+    // if least converged has converged, we're done
+    if( r2max <= r2stopmax ||
+	nrestart >= max_restarts ||
+	iter >= max_iter ) break;
+
+    // solve
+    for(int i=0; i<nm; i++) {
+      xresarg[i] = res_arg[imax];
+      QDP_V_eq_zero(x[i], QDP_all);
+    }
+    double rsqminold = res_arg[imax]->rsqmin;
+    //res_arg[imax]->rsqmin = r2stop[imax]/r2[imax];
+    res_arg[imax]->rsqmin = r2stopmax/r2max;
+    if(res_arg[imax]->rsqmin>=1) {
+      res_arg[imax]->rsqmin = in2max*r2stopmax/r2max;
+    }
+    inv_arg->max_iter = max_iter - iter;
+    //QOP_verbose(3);
+#if QOP_Precision == 'D'
+    int mixed = (r2max > mixedrsq*in2max);
+    if(mixed) {
+      QOP_F_FermionLinksAsqtad *flaf = QOP_FD_asqtad_create_L_from_L(fla);
+      gl_flaf = flaf;
+      float m2sf[nm];
+      QDP_F_ColorVector *xf[nm];
+      QDP_F_ColorVector *rf = QDP_F_create_V();
+      QDP_FD_V_eq_V(rf, r[imax], insub);
+      for(int i=0; i<nm; i++) {
+	m2sf[i] = m2s[i];
+	xf[i] = QDP_F_create_V();
+	//QDP_FD_V_eq_V(xf[i], x[i], insub);
+      }
+      QDP_F_ColorVector *cgpf = QOPFC(asqtad_dslash_get_tmp)(flaf, opeo, 1);
+      if(mixedrsq>rsqminold) {
+	res_arg[imax]->rsqmin = mixedrsq*in2max/r2max;
+      }
+      dtime -= QOP_time();
+      QOPFC(invert_cgms_V)(QOP_F_asqtad_invert_d2_norm2, inv_arg, xresarg,
+			   m2sf, nm, xf, rf, cgpf, insub);
+      dtime += QOP_time();
+      for(int i=0; i<nm; i++) {
+	QDP_DF_V_eq_V(x[i], xf[i], insub);
+	QDP_F_destroy_V(xf[i]);
+      }
+      QDP_F_destroy_V(rf);
+      QOP_F_asqtad_destroy_L(flaf);
+    } else
+#endif
+      {
+	dtime -= QOP_time();
+	QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, xresarg,
+			  m2s, nm, x, r[imax], cgp, insub);
+	dtime += QOP_time();
+      }
+    iter += res_arg[imax]->final_iter;
+    nrestart++;
+    res_arg[imax]->rsqmin = rsqminold;
+
+#if 0
+    for(int i=0; i<nm; i++) {
+      QOP_asqtad_dslash_qdp(NULL, fla, 0, x[i], x[i], opeo, ineo);
+      QOP_asqtad_dslash_qdp(NULL, fla, 0, tv, x[i], ineo, opeo);
+      QDP_V_meq_r_times_V(tv, &mass2[i], x[i], insub);
+      QDP_V_eq_V_plus_V(r[i], tv, r[imax], insub);
+    }
+    QDP_r_veq_norm2_V(r2, r, insub, nm);
+    for(int i=0; i<nm; i++) {
+      QOP_printf0(" r2/in2[%i]: %g\n", i, r2[i]/in2[i]);
+    }
+#endif
+
+    refine(out, in, r, r2, mass2, scale, nsolve, ineo, x, x, nm,
+	   oi, xi, nsolve, tv);
+    for(int i=0; i<nsolve; i++) {
+      if(res_arg[i]->relmin>0) {
+	res_arg[i]->final_rel = QOP_relnorm2_V(&tv, &out[i], insub, 1);
+      } else {
+	res_arg[i]->final_rel = 1;
+      }
+    }
+  }
+
+  inv_arg->max_iter = max_iter;
+
+  for(int i=0; i<nsolve; i++) {
+    QLA_Complex s;
+    QLA_c_eq_r_times_c(s, masses[i], scale[i]);
+    QDP_V_eq_c_times_V(tv, &s, out[i], insub);
+    QDP_V_eq_V(out[i], tv, insub);
+    res_arg[i]->final_iter = iter;
+    res_arg[i]->final_rsq = r2[i]/in2[i];
+    res_arg[i]->final_restart = nrestart;
+    if(QOP_common.verbosity>=QOP_VERB_MED) {
+      QLA_Real o2;
+      QDP_r_eq_norm2_V(&o2, out[i], insub);
+      QOP_printf0("SOLVE[%i]: in2: %g  out2: %g\n", i, in2[i], o2);
+    }
+  }
+
+  double nflop = 0.5 * (20*QLA_Nc+2*8*QLA_Nc*QLA_Nc*fla->nlinks);
+  double nflopm = 0.5 * 10*QLA_Nc; /* per extra mass */
+  info->final_sec = dtime;
+  info->final_flop = (nflop+nflopm*(nm-1))*iter*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+
+  for(int i=0; i<nm; i++) {
+    QDP_destroy_V(x[i]);
+  }
+  for(int i=0; i<nsolve; i++) {
+    QDP_destroy_V(r[i]);
+  }
+  QDP_destroy_V(tv);
+#undef NC
+}
+#endif
+
+
 void
 QOP_asqtad_invert_qdp(QOP_info_t *info,
 		      QOP_FermionLinksAsqtad *fla,
@@ -186,8 +567,8 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
   /* MdagM without naik -> 2*(66+72*7)+12 = 1152 flops/site */
   double dtime = 0;
-  double nflop = 0.5 * (60+2*72*fla->nlinks);
-  double rsqminold,relminold;
+  double nflop = 0.5 * (20*QLA_Nc+2*8*QLA_Nc*QLA_Nc*fla->nlinks);
+  double rsqminold, relminold;
   QLA_Real rsq, rsqstop, relnorm2, insq, pinsq, rsqfac;
   QDP_ColorVector *qdpin, *qdpout;
   QDP_ColorVector *cgp, *cgr;
@@ -370,8 +751,8 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
   /* MdagM without naik -> 2*(66+72*7)+12 = 1152 flops/site */
   double dtime;
-  double nflop = 0.5 * (60+2*72*fla->nlinks);
-  double nflopm = 0.5 * 30; /* per extra mass */
+  double nflop = 0.5 * (20*QLA_Nc+2*8*QLA_Nc*QLA_Nc*fla->nlinks);
+  double nflopm = 0.5 * 10*QLA_Nc; /* per extra mass */
   QDP_ColorVector *cgp, *cgr;
   QDP_Subset cgsub;
   QOP_evenodd_t ineo, cgeo;
@@ -409,7 +790,7 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
     for(j=0; j<nmass[i]; j++) {
       gl_mass = masses[i][j];
 
-      QOP_invert_cg_V(QOP_asqtad_invert_d2, inv_arg, res_arg[i][j],
+      QOP_invert_cg_V(QOP_asqtad_invert_d2_norm2, inv_arg, res_arg[i][j],
 		      out_pt[i][j]->cv, in_pt[i]->cv, cgp, cgsub);
 
       info->final_flop += nflop*res_arg[i][j]->final_iter*QDP_sites_on_node;
@@ -451,7 +832,7 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
       res_arg[i][0]->rsqmin *= rsq0/rsq1;
     }
 
-    QOP_invert_cgms_V(QOP_asqtad_invert_d2, inv_arg, ra, shifts, 2,
+    QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, ra, shifts, 2,
 		      outcv, src, cgp, cgsub);
 
     info->final_flop += (nflop+nflopm)*ra[imin]->final_iter*QDP_sites_on_node;
@@ -481,7 +862,7 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
       gl_mass = masses[i][jmin];
       for(j=0; j<nmass[i]; j++) shifts[j] -= gl_mass*gl_mass;
 
-      QOP_invert_cgms_V(QOP_asqtad_invert_d2, inv_arg, res_arg[i],
+      QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, res_arg[i],
 			shifts, nmass[i], cv, in_pt[i], cgp, cgsub);
 
       info->final_flop += (nflop+nflopm*(nmass[i]-1))

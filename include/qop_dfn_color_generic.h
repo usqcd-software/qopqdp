@@ -1,4 +1,18 @@
 // DO NOT EDIT
+// generated from qop_pc.h
+#ifndef _QOP_N__C_GENERIC_H
+#define _QOP_N__C_GENERIC_H
+
+#define QOP_WilsonMg QOP_N_WilsonMg
+#define QOP_WilsonMgStruct QOP_N_WilsonMgStruct
+#define QOP_wilsonMgFree QOP_N_wilsonMgFree
+#define QOP_wilsonMgNew QOP_N_wilsonMgNew
+#define QOP_wilsonMgSet QOP_N_wilsonMgSet
+#define QOP_wilsonMgSetArray QOP_N_wilsonMgSetArray
+#define QOP_wilsonMgSetup QOP_N_wilsonMgSetup
+
+#endif // _QOP_N__C_GENERIC_H
+// DO NOT EDIT
 // generated from qop_poc.h
 #ifndef _QOP_FDN_FD_POC_GENERIC_H
 #define _QOP_FDN_FD_POC_GENERIC_H

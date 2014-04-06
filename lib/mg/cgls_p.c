@@ -1,7 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
 #include <string.h>
 #include <qdp_fn.h>
 #include <qdp_dn.h>
@@ -304,6 +302,3 @@ QOP_cgSolveA(QDPN(ColorVector) **out, QDPN(ColorVector) **in,
   return QOP_cgSolve(sa->cgls, out, in, sa->op, sa->opargs, sa->pop,
 		     sa->popargs, sa->res, sa->itmax, sa->sub1);
 }
-
-
-#endif

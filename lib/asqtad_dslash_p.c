@@ -205,6 +205,7 @@ QOP_asqtad_convert_L_from_qdp(QDP_ColorMatrix *fatlinks[],
   check_setup(fla);
   TRACE;
   fla->eigcg.u = NULL;
+  //fla->ofla = NULL;
 
   TRACE;
   ASQTAD_DSLASH_END;
@@ -756,7 +757,8 @@ QOP_asqtad_extract_L_to_qdp(QDP_ColorMatrix *fatlinks[],
     QLA_Real f = 2.0;
     QDP_M_eq_r_times_M(fatlinks[i], &f, src->fatlinks[i], QDP_all);
     // need to check if src->longlinks exists
-    if(longlinks) QDP_M_eq_r_times_M(longlinks[i], &f, src->longlinks[i], QDP_all);
+    if(longlinks && src->longlinks)
+      QDP_M_eq_r_times_M(longlinks[i], &f, src->longlinks[i], QDP_all);
   }
   ASQTAD_DSLASH_END;
 }
@@ -952,11 +954,44 @@ QOP_asqtad_diaginv_qdp(QOP_info_t *info,
   QDP_V_eq_r_times_V(out, &f, in, qdpsub(eo));
 }
 
+void
+QOP_asqtad_ddagd(QOP_info_t *info,
+		 QOP_FermionLinksAsqtad *asqtad,
+		 REAL mass,
+		 QDP_ColorVector *out,
+		 QDP_ColorVector *in,
+		 QOP_evenodd_t eo)
+{
+  QLA_Real m2 = mass*mass;
+  QDP_ColorVector *tmp = QOP_asqtad_dslash_get_tmp(asqtad, eo, 1);
+  QOP_asqtad_dslash_qdp(info,asqtad,mass, tmp, in, oppsub(eo),eo);
+  QOP_asqtad_dslash_qdp(info,asqtad,mass, out, tmp, eo,oppsub(eo));
+  QDP_V_eq_r_times_V_minus_V(out, &m2, in, out, qdpsub(eo));
+}
+
+REAL
+QOP_asqtad_ddagd_norm2(QOP_info_t *info,
+		       QOP_FermionLinksAsqtad *asqtad,
+		       REAL mass,
+		       QDP_ColorVector *out,
+		       QDP_ColorVector *in,
+		       QOP_evenodd_t eo)
+{
+  QLA_Real m2 = mass*mass;
+  QDP_ColorVector *tmp = QOP_asqtad_dslash_get_tmp(asqtad, eo, 1);
+  QOP_asqtad_dslash_qdp(info,asqtad,mass, tmp, in, oppsub(eo),eo);
+  QOP_asqtad_dslash_qdp(info,asqtad,mass, out, tmp, eo,oppsub(eo));
+  QDP_V_eq_r_times_V_minus_V(out, &m2, in, out, qdpsub(eo));
+  QLA_Real in2, Ain2;
+  QDP_r_eq_norm2_V(&in2, in, qdpsub(eo));
+  QDP_r_eq_norm2_V(&Ain2, tmp, qdpsub(oppsub(eo)));
+  return Ain2 + m2*in2;
+}
+
 /* shift (parallel transport a la dslash)
    (Used to construct vector interpolating operators.  Same as dslash,
    except always acts on all sites and works in only one direction.)
 */
-
 #define asqtad_hop_dir(fla, dest, src, dir, fb, wtfat, wtlong, eo)	\
 { \
   QDP_ColorVector *tsrc = src; \

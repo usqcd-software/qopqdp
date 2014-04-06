@@ -111,7 +111,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
       if(QLA_norm2_c(rho1)==0.) break;
       QLA_c_eq_c_times_c(ctmp1,rho1,alpha);
       QLA_c_eq_c_times_c(ctmp2,rho0,omega);
-      QLA_c_eq_c_div_c(beta,ctmp1,ctmp2);
+      QLA_D_c_eq_c_div_c(beta,ctmp1,ctmp2);
 #define C2(x) QLA_real(x), QLA_imag(x)
       //printf0("beta = %g %g  ctmp1 = %g %g  ctmp2 = %g %g\n", C2(beta), C2(ctmp1), C2(ctmp2));
 
@@ -133,7 +133,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 
     c_eq_V_dot_V(&ctmp1,r0,v,subset);
     if(QLA_norm2_c(ctmp1)==0.) break;
-    QLA_c_eq_c_div_c(alpha, rho1, ctmp1);
+    QLA_D_c_eq_c_div_c(alpha, rho1, ctmp1);
     //printf0("alpha = %g %g  rho1 = %g %g  ctmp1 = %g %g\n", C2(alpha), C2(rho1), C2(ctmp1));
     V_meq_c_times_V(r, &alpha, v, subset);
 

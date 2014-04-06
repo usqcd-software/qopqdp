@@ -1,20 +1,20 @@
+//#define DO_TRACE
+#include <qop.h>
 #include <qop_internal.h>
 
 #ifdef USE_MG
 
 #include "solvers.h"
 
+#define QCDPC(x) QOP_##x
+
 #if QOP_Precision == 'F'
-#define QOPP(x) QOP_F_##x
-#define QCDPC(x) QOP_F3_##x
 #define QDPN(x) QDP_FN_##x
 #else
-#define QOPP(x) QOP_D_##x
-#define QCDPC(x) QOP_D3_##x
 #define QDPN(x) QDP_DN_##x
 #endif
 
-#define NV_BICGSTAB
+//#define NV_BICGSTAB
 
 #define EO_PREC
 #define SPLIT_CHIRALITIES
@@ -51,6 +51,11 @@ QOP_wilsonMgNew(void)
   wmg->gcrF = NULL;
   wmg->gcrD = NULL;
   wmg->ngcr = 8;
+#if QOP_Colors == 'N'
+  wmg->nc = -1;
+#else
+  wmg->nc = QLA_Nc;
+#endif
   return wmg;
 }
 
@@ -69,11 +74,7 @@ init_level(QOP_WilMgLevel l[], int n)
     l[n].npre = 0;
     l[n].npost = 5;
     l[n].scale = 1;
-#ifdef SPLIT_CHIRALITIES
-    l[n].fnc = 6;
-#else
-    l[n].fnc = 12;
-#endif
+    l[n].fnc = -1;
   }
   if(n==1) {
     l[n].lattice_size[0] = l[n-1].lattice_size[0]/2;
@@ -115,14 +116,14 @@ init_level(QOP_WilMgLevel l[], int n)
 }
 
 static QLA_Real
-norm2V(QDPN(ColorVector) **v, int nv)
+norm2V(QDP_N_ColorVector **v, int nv)
 {
-  QDP_Lattice *lat = QDPN(get_lattice_V)(v[0]);
+  QDP_Lattice *lat = QDP_N_get_lattice_V(v[0]);
   QDP_Subset allf = QDP_all_L(lat);
   QLA_Real nrm2 = 0;
   for(int i=0; i<nv; i++) {
     QLA_Real tt;
-    QDPN(r_eq_norm2_V)(&tt, v[i], allf);
+    QDP_N_r_eq_norm2_V(&tt, v[i], allf);
     nrm2 += tt;
   }
   return nrm2;
@@ -209,135 +210,22 @@ QOP_randSeed(QDP_RandomState *rs, int seed)
   QDP_destroy_I(li);
 }
 
-#if 0
-static void
-get_nvev(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QDP_Subset sub,
-	 QOPP(MgOp) *eop, void *eopargs, QDP_Subset esub, int nvecs, int maxits, double cfac)
-{
-  int nv = mgargs->nv;
-  int fnc = mgargs->fnc;
-  int cnc = mgargs->cnc;
-  QDP_Lattice *fine = mgargs->mgb->fine;
-  QDP_Subset allf = QDP_all_L(fine);
-  QDP_RandomState *rs = QDP_create_S(); // hack: lives on fine lattice
-  QOP_randSeed(rs, 987654321); // needs to be fixed to use any lattice
-  double dt = -QDP_time();
-
-  QDP_FN_ColorVector *pv[nvecs][nv];
-  QDP_FN_ColorVector *mpv[nv][cnc];
-  for(int i=0; i<nvecs; i++) {
-    for(int j=0; j<nv; j++) {
-      if(i<cnc) {
-	pv[i][j] = mgargs->pv[j][i];
-	mpv[j][i] = pv[i][j];
-      } else {
-	pv[i][j] = QDP_FN_create_V_L(fnc, fine);
-      }
-    }
-  }
-  QDP_FN_ColorVector *tv[nv];
-  for(int j=0; j<nv; j++) tv[j] = QDP_FN_create_V_L(fnc, fine);
-  for(int j=0; j<nv; j++) QDP_FN_V_eq_gaussian_S(pv[0][j], rs, allf);
-  //double nrm2 = norm2V(tv, nv);
-  //QOP_printf0("nrm2 = %g\n", nrm2);
-
-  double sv[nvecs];
-  int k = 0;
-  while(1) {
-    V_eq_V(tv, pv[k]);
-
-    QOP_F_eignhVN(nvecs-k, nv, &pv[k], fnc, tv, op, opargs, allf, maxits);
-
-    for(int i=k; i<nvecs; i++) {
-      QLA_Real nrm = norm2V(pv[i], nv);
-      op(tv, pv[i], 1, opargs);
-      QLA_Real nrm2 = norm2V(tv, nv);
-      sv[i] = nrm2/nrm;
-      QOP_printf0("%3i %g\n", i, sv[i]);
-      QLA_Real scale = 1/sqrt(nrm);
-      for(int j=0; j<nv; j++) { 
-	QDP_FN_V_eq_r_times_V(pv[i][j], &scale, pv[i][j], allf);
-      }
-    }
-
-    for(int i=0; i<cnc; i++) {
-      double svmin = sv[i];
-      int imin = i;
-      for(int l=i+1; l<nvecs; l++) if(sv[l]<svmin) { svmin = sv[l]; imin = l; }
-      if(i!=imin) {
-	sv[i] = svmin;
-	for(int j=0; j<nv; j++) { 
-	  QDP_FN_V_eq_V(tv[j], pv[i][j], allf);
-	  QDP_FN_V_eq_V(pv[i][j], pv[imin][j], allf);
-	  QDP_FN_V_eq_V(pv[imin][j], tv[j], allf);
-	}
-      }
-      for(int l=i+1; l<nvecs; l++) {
-        QLA_Complex z = dotV(pv[i], pv[l], nv);
-        for(int j=0; j<nv; j++) {
-	  QDP_FN_V_meq_c_times_V(pv[l][j], &z, pv[i][j], allf);
-	}
-	QLA_Real nrm = norm2V(pv[l], nv);
-	op(tv, pv[l], 1, opargs);
-	QLA_Real nrm2 = norm2V(tv, nv);
-	sv[l] = nrm2/nrm;
-	//QOP_printf0("%3i %g\n", l, sv[l]);
-	QLA_Real scale = 1/sqrt(nrm);
-	for(int j=0; j<nv; j++) { 
-	  QDP_FN_V_eq_r_times_V(pv[l][j], &scale, pv[l][j], allf);
-	}
-      }
-      QOP_printf0("%3i %g\n", i, sv[i]);
-    }
-    k = 0;
-    while(k<nvecs && sv[0]>=cfac*sv[k]) k++;
-    if(k>=cnc) break;
-  }
-  for(int i=cnc; i<nvecs; i++) {
-    for(int j=0; j<nv; j++) {
-      QDP_FN_destroy_V(pv[i][j]);
-    }
-  }
-
-  print_norms(*mpv, nv, fnc, cnc, op, opargs, 1);
-  QOP_F_mgOrthoVn(mgargs->pv, nv, 0, cnc, allf);
-  print_norms(*mpv, nv, fnc, cnc, op, opargs, 1);
-  for(int j=0; j<nv; j++) {
-    QOP_F_mgOrtho(mpv[j], cnc, mgargs->mgb);
-  }
-  print_norms(*mpv, nv, fnc, cnc, op, opargs, 1);
-  for(int i=0; i<cnc; i++) {
-    for(int j=0; j<nv; j++) {
-      QDP_FN_V_eq_V(mgargs->rv[j][i], mgargs->pv[j][i], allf);
-    }
-  }
-  dt += QDP_time();
-  QOP_printf0("%s: %g secs\n", __func__, dt);
-
-  for(int i=0; i<nv; i++) {
-    QDP_FN_V_eq_gaussian_S(tv[i], rs, allf);
-  }
-  QOP_F_mgTestCoarse(mgargs, tv);
-  for(int j=0; j<nv; j++) {
-    QDP_FN_destroy_V(tv[j]);
-  }
-  QDP_destroy_S(rs);
-}
-#endif
-
 static void
 get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
 	     QLA_Real change_fac, int maxit, int nvecs, int verbose,
 	     int (smoother)(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in,
-			     int sign, void *args), void *sargs)
+			    int sign, void *args), void *sargs)
 {
   int nv = mgargs->nv;
   int fnc = mgargs->fnc;
   int cnc = mgargs->cnc;
   QDP_Lattice *fine = mgargs->mgb->fine;
   QDP_Subset allf = QDP_all_L(fine);
+  TRACE;
   QDP_RandomState *rs = QDP_create_S(); // hack: lives on fine lattice
+  TRACE;
   QOP_randSeed(rs, 987654321); // needs to be fixed to use any lattice
+  TRACE;
   double dt = -QDP_time();
   int cnc0 = cnc;
   if(nvecs>cnc) cnc = nvecs;
@@ -354,24 +242,15 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
       mpv[j][i] = pv[i][j];
     }
   }
+  TRACE;
 
   QDP_FN_ColorVector *tv[nv], *tv2[nv];
   for(int j=0; j<nv; j++) tv[j] = QDP_FN_create_V_L(fnc, fine);
   for(int j=0; j<nv; j++) tv2[j] = QDP_FN_create_V_L(fnc, fine);
+  TRACE;
 
-#if 0
-#ifdef NV_BICGSTAB
-  QOP_Bicgstab *bcg = QOP_bicgstabInit(fine, nv, fnc);
-  QOP_bicgstabSet(bcg, "verbose", verbose);
-  QOP_bicgstabSet(bcg, "indent", 2);
-#else
-  QOP_Cgls *cg = QOP_cglsInit(fine, nv, fnc);
-  QOP_cglsSet(cg, "verbose", verbose);
-  QOP_cglsSet(cg, "indent", 2);
-#endif
-#endif
+#define prn(v) {QLA_Real n2 = norm2V(v, nv); QOP_printf0("norm2 " #v ": %g\n", n2); }
 
-#if 1
   int tnits=0;
   int maxhits=20;
   double svhist[maxhits];
@@ -379,34 +258,28 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
     if(i==0) {
       for(int j=0; j<nv; j++) QDP_FN_V_eq_gaussian_S(pv[i][j], rs, allf);
     }
+  TRACE;
     //if(i==1) maxit /= 2;
     QLA_Real sv2=FLT_MAX, sv2o;
     int nhits=0;
     int nits=0;
     do {
       nhits++;
-#if 1
       //QOP_mgOrthoVn(mpv, nv, 0, i+1, allf);
+      //prn(pv[i]);
       for(int k=0; k<i; k++) {
         QLA_Complex z = dotV(pv[k], pv[i], nv);
         for(int j=0; j<nv; j++) { QDP_FN_V_meq_c_times_V(pv[i][j], &z, pv[k][j], allf); }
       }
-#else
-      for(int j=0; j<nv; j++) {
-        QOP_F_mgOrthoVec(mpv[j], i, mgargs->mgb, 0);
-      }
-#endif
-#if 0
-#ifdef NV_BICGSTAB
-      nits += QOP_bicgstabSolveS(bcg, tv, pv[i], op, opargs, NULL, NULL, 1, res, maxit, allf);
-#else
-      nits += QOP_cglsSolve(cg, tv, pv[i], NULL, op, opargs, NULL, NULL, 0, res, 0, maxit, allf, allf);
-      //QOP_cglsSolve(cg, tv, NULL, pv[i], op, opargs, NULL, NULL, 0, 0, res, maxit, allf, allf);
-#endif
-#endif
+  TRACE;
+      //prn(pv[i]);
       nits += smoother(tv, pv[i], 1, sargs);
+  TRACE;
+      //prn(tv);
       QLA_Real nrm = norm2V(tv, nv);
+  TRACE;
       op(pv[i], tv, 1, opargs);
+  TRACE;
       QLA_Real nrm2 = norm2V(pv[i], nv);
       sv2o = sv2;
       sv2 = nrm2/nrm;
@@ -416,197 +289,27 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
       for(int j=0; j<nv; j++) { QDP_FN_V_eq_r_times_V(pv[i][j], &scale, tv[j], allf); }
       if(verbose>0) QOP_printf0("%i %g\n", i, sv2);
       if(i>0 && nhits==4) break;
+  TRACE;
     } while(sv2<change_fac*sv2o);
     tnits += nits;
     QOP_printf0("%-3i %-3i %-5i  %-10g  %-10g", i, nhits, nits, sqrt(sv2), sqrt(sv2o));
     for(int i=nhits-3; i>0; i--) QOP_printf0("  %-10g", sqrt(svhist[i]));
     QOP_printf0("\n");
-#if 0
-    for(int j=0; j<nv; j++) {
-      QOP_F_mgOrthoVec(mpv[j], i, mgargs->mgb, 1);
-    }
-#endif
   }
   QOP_printf0("setup its = %i\n", tnits);
-#endif
 
-#if 0
-  int tnits=0;
-  for(int i=0; i<cnc; i++) {
-    int nhits=0;
-    int nits=0;
-    if(i==0) {
-      for(int j=0; j<nv; j++) QDP_FN_V_eq_gaussian_S(pv[i][j], rs, allf);
-      nhits = 10;
-    } else {
-      QLA_Complex z = dotV(pv[i-1], pv[i], nv);
-      for(int j=0; j<nv; j++) { QDP_FN_V_meq_c_times_V(pv[i][j], &z, pv[i-1][j], allf); }
-      nhits = 1;
-    }
-    QLA_Real sv2=FLT_MAX, sv2o;
-    {
-      QLA_Real nrm = norm2V(pv[i], nv);
-      op(tv2, pv[i], 1, opargs);
-      QLA_Real nrm2 = norm2V(tv2, nv);
-      sv2o = sv2;
-      sv2 = sqrt(nrm2/nrm);
-      QOP_printf0("warmup %-3i %-5i %-10g\n", 0, nits, sv2);
-    }
-    for(int h=0; h<nhits; h++) {
-      nits += QOP_bicgstabSolveS(bcg, tv, pv[i], op, opargs, NULL, NULL, 1, res, maxit, allf);
-      for(int k=0; k<i; k++) {
-	QLA_Complex z = dotV(pv[k], tv, nv);
-	for(int j=0; j<nv; j++) { QDP_FN_V_meq_c_times_V(tv[j], &z, pv[k][j], allf); }
-      }
-      QLA_Real nrm = norm2V(tv, nv);
-      op(tv2, tv, 1, opargs);
-      QLA_Real nrm2 = norm2V(tv2, nv);
-      sv2o = sv2;
-      sv2 = sqrt(nrm2/nrm);
-      QLA_Real scale = 1/sqrt(nrm);
-      for(int j=0; j<nv; j++) { QDP_FN_V_eq_r_times_V(pv[i][j], &scale, tv[j], allf); }
-      QOP_printf0("warmup %-3i %-5i %-10g\n", h+1, nits, sv2);
-      if(sv2>change_fac*sv2o) break;
-    }
-    if(i+1<cnc) for(int j=0; j<nv; j++) { QDP_FN_V_eq_V(pv[i+1][j], pv[i][j], allf); }
-    {
-      // Ax
-      op(tv, pv[i], 1, opargs);
-      // relax
-#ifdef NV_BICGSTAB
-      nits += QOP_bicgstabSolveS(bcg, tv2, tv, op, opargs, NULL, NULL, 1, res, maxit/2, allf);
-#else
-      nits += QOP_cglsSolve(cg, tv2, tv, NULL, op, opargs, NULL, NULL, 0, res, 0, maxit, allf, allf);
-      //QOP_cglsSolve(cg, tv, NULL, pv[i], op, opargs, NULL, NULL, 0, 0, res, maxit, allf, allf);
-#endif
-      // e
-      for(int j=0; j<nv; j++) { QDP_FN_V_meq_V(tv2[j], pv[i][j], allf); }
-      // ortho
-      for(int k=0; k<i; k++) {
-	QLA_Complex z = dotV(pv[k], tv2, nv);
-	for(int j=0; j<nv; j++) { QDP_FN_V_meq_c_times_V(tv2[j], &z, pv[k][j], allf); }
-      }
-      // RQ
-      // norm
-      QLA_Real nrm = norm2V(tv2, nv);
-      op(tv, tv2, 1, opargs);
-      QLA_Real nrm2 = norm2V(tv, nv);
-      sv2 = sqrt(nrm2/nrm);
-      QLA_Real scale = 1/sqrt(nrm);
-      for(int j=0; j<nv; j++) { QDP_FN_V_eq_r_times_V(pv[i][j], &scale, tv2[j], allf); }
-      QOP_printf0("%-3i %-5i  %-10g\n", i, nits, sv2);
-    }
-    tnits += nits;
-  }
-  QOP_printf0("setup its = %i\n", tnits);
-#endif
-
-#if 0
-  QLA_F_Complex evs[cnc];
-  double min[cnc], ave[cnc], max[cnc];
-
-  int tnits=0, ncycles=0, ncyclesmax=5;
-  int imin=0;
-  //double tol=1e-4;
-  double tol=1e-1;
-  for(int j=0; j<nv; j++) QDP_FN_V_eq_gaussian_S(pv[imin][j], rs, allf);
-  do {
-    int nits=0;
-    ncycles++;
-    for(int j=0; j<nv; j++) { QDP_FN_V_eq_V(tv[j], pv[imin][j], allf); }
-    //for(int i=cnc-1; i>=imin; i--) {
-    for(int i=imin; i<cnc; i++) {
-      if(ncycles!=1) {
-	for(int j=0; j<nv; j++) { QDP_FN_V_eq_V(tv[j], pv[i][j], allf); }
-      }
-      nits += QOP_bicgstabSolveS(bcg, pv[i], tv, op, opargs, NULL, NULL, 1, res, maxit, allf);
-      //for(int k=0; k<cnc; k++) {
-      //if(k>=imin && k<=i) continue;
-      for(int k=0; k<i; k++) {
-	QLA_Complex z = dotV(pv[k], pv[i], nv);
-	for(int j=0; j<nv; j++) { QDP_FN_V_meq_c_times_V(pv[i][j], &z, pv[k][j], allf); }
-      }
-      QLA_Real nrm = norm2V(pv[i], nv);
-      op(tv, pv[i], 1, opargs);
-      QLA_Real nrm2 = norm2V(tv, nv);
-      QLA_Real scale = 1/sqrt(nrm);
-      for(int j=0; j<nv; j++) { QDP_FN_V_eq_r_times_V(pv[i][j], &scale, pv[i][j], allf); }
-      for(int j=0; j<nv; j++) { QDP_FN_V_eq_V(tv[j], pv[i][j], allf); }
-      QOP_printf0("%-3i  %-10g\n", i, sqrt(nrm2/nrm));
-    }
-
-    //QOP_F_rRitzHarm(pv[imin], cnc-imin, nv, op, opargs, evs+imin, QOP_SORT_ASCEND, QOP_NORM_2, allf);
-    QOP_F_rRitzHarm(pv[0], cnc, nv, op, opargs, evs, QOP_SORT_ASCEND, QOP_NORM_2, allf);
-    int imin0 = imin;
-    //double rstop = tol*fabs(QLA_real(evs[0]));
-    double rstop = tol*QLA_norm2_c(evs[0]);
-    for(int i=0; i<cnc; i++) {
-      double err;
-      //QOP_printf0("ev%i = %-12g %-12g  %-12g\n", i, QLA_real(evs[i]), QLA_imag(evs[i]), sqrt(QLA_norm2_c(evs[i])));
-      {
-	QLA_Real nrm = norm2V(pv[i], nv);
-	op(tv, pv[i], 1, opargs);
-	QLA_Complex z = dotV(pv[i], tv, nv);
-	QLA_c_eq_r_times_c(z, 1/nrm, z);
-	//QOP_printf0("ev%i = %-12g %-12g  %-12g\n", i, QLA_real(z), QLA_imag(z), sqrt(QLA_norm2_c(z)));
-	QLA_c_meq_c(z, evs[i]);
-	err = sqrt(QLA_norm2_c(z));
-	QOP_printf0("ev%i = %-12g %-12g  %-12g  %-12g\n", i, QLA_real(evs[i]), QLA_imag(evs[i]), sqrt(QLA_norm2_c(evs[i])), err);
-      }
-      //if(imin0<i && fabs(QLA_real(evs[i]))>rstop) imin0 = i;
-      //if(imin0<i && QLA_norm2_c(evs[i])>rstop) imin0 = i;
-      if(imin0==i-1 && err<rstop) imin0 = i;
-    }
-    if(imin0>cnc0) imin0=cnc0;
-#if 0
-    for(int j=0; j<nv; j++) {
-      QOP_F_mgOrthoSort(mpv[j], imin, cnc, mgargs->mgb, min, ave, max);
-      for(int i=0; i<cnc; i++) {
-	QOP_printf0("min,ave,max %i %-2i = %-12g %-12g %-12g\n", j, i, min[i], ave[i], max[i]);
-	if(imin0<i && max[i]>tol*max[0]) imin0 = i;
-      }
-    }
-#endif
-    imin = imin0;
-    tnits += nits;
-    QOP_printf0("cycle %i  its %i  imin = %i\n", ncycles, nits, imin);
-  } while(ncycles<ncyclesmax);
-  //} while(imin<cnc0-1 && ncycles<ncyclesmax);
-  QOP_printf0("setup its = %i\n", tnits);
-#endif
-
-#if 0
-  QOP_F_rRitzHarm(*pv, cnc, nv, op, opargs, evs, QOP_SORT_ASCEND, QOP_NORM_E, allf);
-  for(int i=0; i<cnc; i++) {
-    QLA_Real nrm = norm2V(pv[i], nv);
-    op(tv, pv[i], 1, opargs);
-    QLA_Complex z = dotV(pv[i], tv, nv);
-    QLA_c_eq_r_times_c(z, 1/nrm, z);
-    //QOP_printf0("ev%i = %-12g %-12g  %-12g\n", i, QLA_real(z), QLA_imag(z), sqrt(QLA_norm2_c(z)));
-    QLA_c_meq_c(z, evs[i]);
-    double err = sqrt(QLA_norm2_c(z));
-    QOP_printf0("ev%i = %-12g %-12g  %-12g  %-12g\n", i, QLA_real(evs[i]), QLA_imag(evs[i]), sqrt(QLA_norm2_c(evs[i])), err);
-  }
-  for(int j=0; j<nv; j++) {
-    QOP_F_mgOrthoSort(mpv[j], 0, cnc, mgargs->mgb, min, ave, max);
-    for(int i=0; i<cnc; i++) {
-      QOP_printf0("min,ave,max %i %-2i = %-12g %-12g %-12g\n", j, i, min[i], ave[i], max[i]);
-    }
-  }
-#else
   print_norms(*mpv, nv, fnc, cnc, op, opargs, 1);
   QOP_F_mgOrthoVn(mgargs->pv, nv, 0, cnc0, allf);
   print_norms(*mpv, nv, fnc, cnc, op, opargs, 1);
   for(int j=0; j<nv; j++) {
     QOP_F_mgOrtho(mpv[j], cnc, mgargs->mgb);
   }
-#endif
   print_norms(*mpv, nv, fnc, cnc, op, opargs, 1);
   for(int i=0; i<cnc0; i++) {
     for(int j=0; j<nv; j++) {
 #ifndef SPLIT_CHIRALITIES
-      if(fnc==12) { // hack -- top level without splitting chiralities
-	QDP_F3_D_eq_gamma_times_D((QDP_F3_DiracFermion*)mgargs->rv[j][i], (QDP_F3_DiracFermion*)mgargs->pv[j][i], 15, allf);
+      if(fnc==4*QLA_Nc) { // hack -- top level without splitting chiralities
+	QDP_F_D_eq_gamma_times_D((QDP_F_DiracFermion*)mgargs->rv[j][i], (QDP_F_DiracFermion*)mgargs->pv[j][i], 15, allf);
       } else
 #endif
 	QDP_FN_V_eq_V(mgargs->rv[j][i], mgargs->pv[j][i], allf);
@@ -629,18 +332,12 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
     }
   }
   QDP_destroy_S(rs);
-#if 0
-#ifdef NV_BICGSTAB
-  QOP_bicgstabFree(bcg);
-#else
-  QOP_cglsFree(cg);
-#endif
-#endif
 }
 
 static void
 create_level(QOP_WilsonMg *wmg, int n)
 {
+#define NC (wmg->nc)
   QOP_printf0("creating MG level %i\n", n);
 
   QOP_WilMgLevel *l = wmg->mg;
@@ -652,29 +349,42 @@ create_level(QOP_WilsonMg *wmg, int n)
 
   void (*smoothop)(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in, int sign, void *args);
   if(n==0) {
+    if(l[n].fnc<=0) {
+      if(wmg->nc<=0) {
+	QOP_printf0("%s error: wmg->nc not set\n", __func__);
+	QDP_abort(-1);
+      } else {
+#ifdef SPLIT_CHIRALITIES
+	l[n].fnc = 2*wmg->nc;
+#else
+	l[n].fnc = 4*wmg->nc;
+#endif
+      }
+    }
+
     lat0 = QDP_get_default_lattice();
 #ifdef SPLIT_CHIRALITIES
 #ifdef EO_PREC
-    l[n].vcop = QOP_F3_wilEoV2;
-    l[n].nvop = QOP_F3_wilPV2;
-    l[n].cfop = QOP_F3_wilPV2;
+    l[n].vcop = QOPFC(wilEoV2);
+    l[n].nvop = QOPFC(wilPV2);
+    l[n].cfop = QOPFC(wilPV2);
 #else
-    l[n].vcop = QOP_F3_wilDV2;
-    l[n].nvop = QOP_F3_wilDV2;
-    l[n].cfop = QOP_F3_wilDV2;
+    l[n].vcop = QOPFC(wilDV2);
+    l[n].nvop = QOPFC(wilDV2);
+    l[n].cfop = QOPFC(wilDV2);
 #endif
-    smoothop = QOP_F3_wilEoV2;
+    smoothop = QOPFC(wilEoV2);
 #else
 #ifdef EO_PREC
-    l[n].vcop = QOP_F3_wilEoV1;
-    l[n].nvop = QOP_F3_wilPV1;
-    l[n].cfop = QOP_F3_wilPV1;
+    l[n].vcop = QOPFC(wilEoV1);
+    l[n].nvop = QOPFC(wilPV1);
+    l[n].cfop = QOPFC(wilPV1);
 #else
-    l[n].vcop = QOP_F3_wilDV1;
-    l[n].nvop = QOP_F3_wilDV1;
-    l[n].cfop = QOP_F3_wilDV1;
+    l[n].vcop = QOPFC(wilDV1);
+    l[n].nvop = QOPFC(wilDV1);
+    l[n].cfop = QOPFC(wilDV1);
 #endif
-    smoothop = QOP_F3_wilEoV1;
+    smoothop = QOPFC(wilEoV1);
 #endif
     l[n].vcopargs = &wmg->vcwaF;
     l[n].nvopargs = &wmg->nvwaF;
@@ -722,7 +432,9 @@ create_level(QOP_WilsonMg *wmg, int n)
   // get nullvecs
   QOP_printf0("creating null vecs\n");
   {
+    TRACE;
     QOP_Bicgstab *bcg = QOP_bicgstabInit(lat0, l[n].nv, l[n].fnc);
+    TRACE;
     QOP_bicgstabSet(bcg, "verbose", l[n].verbose);
     QOP_bicgstabSet(bcg, "indent", 2);
     QOP_F_BicgstabSolveArgs *QOP_malloc(nvsa, QOP_F_BicgstabSolveArgs, 1);
@@ -746,19 +458,19 @@ create_level(QOP_WilsonMg *wmg, int n)
     if(n==0) {
 #ifdef EO_PREC
 #ifdef SPLIT_CHIRALITIES
-      nvsa->project = QOP_F3_wilEoProjectV2;
-      nvsa->reconstruct = QOP_F3_wilEoReconstructPV2;
+      nvsa->project = QOP_wilEoProjectV2;
+      nvsa->reconstruct = QOP_wilEoReconstructPV2;
 #else
-      nvsa->project = QOP_F3_wilEoProjectV1;
-      nvsa->reconstruct = QOP_F3_wilEoReconstructPV1;
+      nvsa->project = QOP_wilEoProjectV1;
+      nvsa->reconstruct = QOP_wilEoReconstructPV1;
 #endif
 #else
 #ifdef SPLIT_CHIRALITIES
-      nvsa->project = QOP_F3_wilEoProjectV2;
-      nvsa->reconstruct = QOP_F3_wilEoReconstructV2;
+      nvsa->project = QOP_wilEoProjectV2;
+      nvsa->reconstruct = QOP_wilEoReconstructV2;
 #else
-      nvsa->project = QOP_F3_wilEoProjectV1;
-      nvsa->reconstruct = QOP_F3_wilEoReconstructV1;
+      nvsa->project = QOP_wilEoProjectV1;
+      nvsa->reconstruct = QOP_wilEoReconstructV1;
 #endif
 #endif
     } else {
@@ -770,10 +482,13 @@ create_level(QOP_WilsonMg *wmg, int n)
       nvsa->reconstruct = QOP_F_mgDslashEoReconstruct;
 #endif
     }
+    printf("%p %p\n", l[n].nvop, QOPFC(wilPV2));
     //get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose);
     //#ifdef EO_PREC
     //get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveEo, nvsa);
+  TRACE;
     get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveEo, nvsa);
+  TRACE;
     //#else
     //get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveA, nvsa);
     //#endif
@@ -784,6 +499,7 @@ create_level(QOP_WilsonMg *wmg, int n)
     QOP_free(nvsa);
     QOP_bicgstabFree(bcg);
   }
+  TRACE;
 
   // create coarse Dslash
   QDP_FN_ColorVector **QOP_malloc(fin, QDP_FN_ColorVector *, nv);
@@ -801,6 +517,7 @@ create_level(QOP_WilsonMg *wmg, int n)
   cfoa->fout = fout;
   cfoa->fpar = QOP_EVENODD;
 
+  TRACE;
   // create true coarse op
   QOP_printf0("\ncreating true coarse operator\n");
 #if 0
@@ -912,7 +629,7 @@ create_level(QOP_WilsonMg *wmg, int n)
     l[n-1].sa->pop = QOP_F_mgVcycle;
     l[n-1].sa->popargs = vc;
   }
-
+#undef NC
 }
 
 static void
@@ -969,6 +686,7 @@ QOP_wilsonMgSet(QOP_WilsonMg *wmg, int l, char *s, double val)
     if(!strcmp(s,"profile")) wmg->profile = (int) val;
     if(!strcmp(s,"itmax")) wmg->itmax = (int) val;
     if(!strcmp(s,"ngcr")) wmg->ngcr = (int) val;
+    if(!strcmp(s,"nc")) wmg->nc = (int) val;
   } else if(l>=0 || l<wmg->nlevels) {
     seti(verbose);
     seti(nvecs);
@@ -999,6 +717,25 @@ QOP_wilsonMgSetArray(QOP_WilsonMg *wmg, int l, char *s, double *vals, int nval)
   }
 }
 
+void
+QOP_wilsonMgSetup(QOP_WilsonMg *wmg)
+{
+  for(int i=0; i<wmg->nlevels; i++) {
+    if(!wmg->mg[i].created) {
+      create_level(wmg, i);
+      wmg->mg[i].created = 1;
+    }
+  }
+}
+
+void
+QOP_wilsonMgSetLinks(QOP_WilsonMg *wmg, QOP_FermionLinksWilson *wil)
+{
+  wmg->wilF = wil;
+  wmg->vcwaF.wil = wil;
+  wmg->nvwaF.wil = wil;
+}
+
 #if 0
 void
 QOP_wilsonMgSetVecs(QOP_WilsonMg *wmg, int nv, QDP_DiracFermion *vv[nv])
@@ -1013,26 +750,18 @@ QOP_wilsonMgSetVecs(QOP_WilsonMg *wmg, int nv, QDP_DiracFermion *vv[nv])
 }
 #endif
 
+#else // double precision
+
 void
-QOP_wilsonMgSetLinks(QOP_WilsonMg *wmg, QOP_FermionLinksWilson *wil)
+QOP_wilsonMgSetLinks(QOP_WilsonMg *wmg, QOP_FermionLinksWilson *wild)
 {
+  QOP_F_FermionLinksWilson *wil = QOP_FD_wilson_create_L_from_L(wild);
   wmg->wilF = wil;
   wmg->vcwaF.wil = wil;
   wmg->nvwaF.wil = wil;
 }
 
-void
-QOP_wilsonMgSetup(QOP_WilsonMg *wmg)
-{
-  for(int i=0; i<wmg->nlevels; i++) {
-    if(!wmg->mg[i].created) {
-      create_level(wmg, i);
-      wmg->mg[i].created = 1;
-    }
-  }
-}
-
-#endif // single precision
+#endif // single/double precision
 
 #if 0
 void
@@ -1086,6 +815,7 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
 		  QOP_resid_arg_t *res_arg, QLA_Real kappa,
 		  QDP_DiracFermion *out, QDP_DiracFermion *in)
 {
+#define NC QDP_get_nc(out)
   QOP_WilArgs wa;
   wa.wil = flw;
   wa.kappa = kappa;
@@ -1256,6 +986,7 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
 
   res_arg->final_iter = its;
   info->final_sec = secs;
+#undef NC
 }
 
 #endif // USE_MG

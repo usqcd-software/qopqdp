@@ -310,6 +310,29 @@ void QOP_FN_asqtad_diaginv(QOP_info_t *info,
 			   QOP_FN_ColorVector *in,
 			   QOP_evenodd_t eo);
 
+void QOP_FN_asqtad_ddagd(QOP_info_t *info,
+			 QOP_FN_FermionLinksAsqtad *asqtad,
+			 QOP_F_Real mass,
+			 QDP_FN_ColorVector *out,
+			 QDP_FN_ColorVector *in,
+			 QOP_evenodd_t eo);
+
+QOP_F_Real QOP_FN_asqtad_ddagd_norm2(QOP_info_t *info,
+				     QOP_FN_FermionLinksAsqtad *asqtad,
+				     QOP_F_Real mass,
+				     QDP_FN_ColorVector *out,
+				     QDP_FN_ColorVector *in,
+				     QOP_evenodd_t eo);
+
+void QOP_FN_asqtad_solve_multi_qdp(QOP_info_t *info,
+				   QOP_FN_FermionLinksAsqtad *fla,
+				   QOP_invert_arg_t *inv_arg,
+				   QOP_resid_arg_t *res_arg[],
+				   QOP_F_Real masses[],
+				   QDP_FN_ColorVector *out[],
+				   QDP_FN_ColorVector *in[],
+				   int nsolve);
+
 void QOP_FN_asqtad_invert(QOP_info_t *info,
 			  QOP_FN_FermionLinksAsqtad *asqtad,
 			  QOP_invert_arg_t *inv_arg,
@@ -680,6 +703,24 @@ void QOP_FN_wilson_ifla_dslash_qdp(QOP_info_t *info,
 				   QDP_FN_DiracFermion *in,
 				   QOP_evenodd_t eo_out,
 				   QOP_evenodd_t eo_in);
+
+  // MULTIGRID STUFF
+
+#ifndef _QOP_N_MG
+#define _QOP_N_MG
+typedef struct QOP_N_WilsonMgStruct QOP_N_WilsonMg;
+QOP_N_WilsonMg *QOP_N_wilsonMgNew(void);
+void QOP_N_wilsonMgFree(QOP_N_WilsonMg *wmg);
+void QOP_N_wilsonMgSet(QOP_N_WilsonMg *wmg, int l, char *s, double val);
+void QOP_N_wilsonMgSetArray(QOP_N_WilsonMg *wmg, int l, char *s, double *vals, int nval);
+void QOP_N_wilsonMgSetup(QOP_N_WilsonMg *wmg);
+#endif // _QOP_N_MG
+
+void QOP_FN_wilsonMgSetLinks(QOP_N_WilsonMg *wmg, QOP_FN_FermionLinksWilson *wil);
+void QOP_FN_wilsonMgSolve(QOP_info_t *info, QOP_N_WilsonMg *wmg,
+			  QOP_FN_FermionLinksWilson *flw,
+			  QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg,
+			  QLA_Real kappa, QDP_DiracFermion *out, QDP_DiracFermion *in);
 
 
   /**************************/

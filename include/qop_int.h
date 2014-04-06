@@ -117,12 +117,13 @@ typedef struct {
 
   /* these are quantities that apply to all masses in the multi inverter */
 typedef struct {
+  double mixed_rsq;        // rsq above which to use mixed precision
   int max_iter;            /* (in) max number of iterations */
   int restart;             /* (in) number of iterations before restart */
   int max_restarts;        /* (in) number of restarts allowed */
   QOP_evenodd_t evenodd;   /* (in) subset of source vector */
 } QOP_invert_arg_t;
-#define QOP_INVERT_ARG_DEFAULT ((QOP_invert_arg_t){2000,1000,5,QOP_EVENODD})
+#define QOP_INVERT_ARG_DEFAULT ((QOP_invert_arg_t){1e9,2000,1000,5,QOP_EVENODD})
 
   /* these are quantities that vary for each mass in the multi inverter */
 typedef struct {

@@ -9,10 +9,12 @@ static int *lattice_size;
 static int seed;
 static int nit=5;
 static QLA_Real mass=-1;
+static double naik=0.1;
 static int style=-1;
 static int nmass=1;
 static int cgtype=0;
 static int verb=0;
+static double mixedrsq=1e9;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -26,32 +28,92 @@ static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 static const int bsn = sizeof(bsa)/sizeof(int);
 QOP_FermionLinksAsqtad *fla;
 
+void
+check_op(QDP_ColorVector *out, QDP_ColorVector *in)
+{
+  QOP_asqtad_dslash_qdp(NULL, fla, mass, out, in, QOP_EVENODD, QOP_EVENODD);
+  QDP_ColorMatrix *fl[ndim], *ll[ndim];
+  QDP_ColorVector *chk = QDP_create_V();
+  QDP_ColorVector *s1 = QDP_create_V();
+  QDP_ColorVector *s2 = QDP_create_V();
+  for(int i=0; i<ndim; i++) {
+    fl[i] = QDP_create_M();
+    if(naik!=0) ll[i] = QDP_create_M();
+  }
+  QOP_asqtad_extract_L_to_qdp(fl, ll, fla);
+  QLA_Real m2 = 2*mass;
+  QDP_V_eq_r_times_V(chk, &m2, in, QDP_all);
+  for(int i=0; i<ndim; i++) {
+    QDP_V_peq_M_times_sV(chk,fl[i],in,QDP_neighbor[i],QDP_forward,QDP_all);
+    QDP_V_meq_sMa_times_sV(chk,fl[i],in,QDP_neighbor[i],QDP_backward,QDP_all);
+    if(naik!=0) {
+      QDP_V_eq_sV(s1, in, QDP_neighbor[i], QDP_forward, QDP_all);
+      QDP_V_eq_sV(s2, s1, QDP_neighbor[i], QDP_forward, QDP_all);
+      QDP_V_peq_M_times_sV(chk,ll[i],s2,QDP_neighbor[i],QDP_forward,QDP_all);
+      QDP_V_eq_sMa_times_sV(s1,ll[i],in,QDP_neighbor[i],QDP_backward,QDP_all);
+      QDP_V_eq_sV(s2, s1, QDP_neighbor[i], QDP_backward, QDP_all);
+      QDP_V_eq_sV(s1, s2, QDP_neighbor[i], QDP_backward, QDP_all);
+      QDP_V_meq_V(chk, s1, QDP_all);
+    }
+  }
+  QLA_Real half = 0.5;
+  QDP_V_eq_r_times_V(chk, &half, chk, QDP_all);
+  QDP_V_meq_V(chk, out, QDP_all);
+  QLA_Real in2, d2;
+  QDP_r_eq_norm2_V(&in2, in, QDP_all);
+  QDP_r_eq_norm2_V(&d2, chk, QDP_all);
+  d2 = d2/in2;
+  if(d2>1e-10) {
+    printf0("ERROR: %s: d2: %g\n", __func__, d2);
+  }
+  for(int i=0; i<ndim; i++) {
+    if(naik!=0) QDP_destroy_M(ll[i]);
+    QDP_destroy_M(fl[i]);
+  }
+  QDP_destroy_V(chk);
+  QDP_destroy_V(s2);
+  QDP_destroy_V(s1);
+}
+
 double
 bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
 	  QOP_resid_arg_t *res_arg, QDP_ColorVector *out, QDP_ColorVector *in)
 {
   double sec=0, flop=0, mf=0;
-  int i, j, iter=0;
-  QOP_ColorVector *qopout[nmass], **pqo, *qopin;
-  QLA_Real masses[nmass], *pm;
-  QOP_resid_arg_t *ra[nmass], **pra;
-
-  pqo = qopout;
-  pm = masses;
-  pra = ra;
-  for(i=0; i<=nit; i++) {
-    QDP_V_eq_zero(out, QDP_all);
+  int iter=0;
+  QLA_Real masses[nmass];
+  QOP_resid_arg_t *ra[nmass];
+  QDP_ColorVector *qout[nmass];
+  for(int i=0; i<nmass; i++) {
+    if(i==0) qout[i] = out;
+    else qout[i] = QDP_create_V();
+    QDP_V_eq_zero(qout[i], QDP_all);
+  }
+  check_op(out, in);
+  QLA_Real *pm = masses;
+  QOP_resid_arg_t **pra = ra;
+  for(int i=0; i<=nit; i++) {
+    QOP_ColorVector *qopout[nmass], *qopin;
     qopin = QOP_create_V_from_qdp(in);
-    for(j=0; j<nmass; j++) {
-      qopout[j] = QOP_create_V_from_qdp(out);
+    for(int j=0; j<nmass; j++) {
+      QDP_V_eq_zero(qout[j], QDP_all);
+      qopout[j] = QOP_create_V_from_qdp(qout[j]);
       masses[j] = mass*(j+1);
       ra[j] = res_arg;
     }
     QMP_barrier();
     if(nmass == 1) {
-      QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
+      //QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
+      QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,&res_arg,&mass,&out,&in,1);
     } else {
-      QOP_asqtad_invert_multi(info, fla, inv_arg, &pra, &pm, &nmass, &pqo, &qopin, 1);
+#if 0
+      QOP_ColorVector **pqo = qopout;
+      QOP_asqtad_invert_multi(info,fla,inv_arg,&pra,&pm,&nmass,&pqo,&qopin,1);
+#else
+      QDP_ColorVector *qin[nmass];
+      for(int i=0; i<nmass; i++) qin[i] = in;
+      QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,pra,pm,qout,qin,nmass);
+#endif
     }
     QMP_barrier();
     if(i>0) {
@@ -60,10 +122,15 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
       flop += info->final_flop;
       //mf += info->final_flop/(1e6*info->final_sec);
     }
-    for(j=0; j<nmass; j++) {
+    for(int j=0; j<nmass; j++) {
+      QOP_extract_V_to_qdp(qout[j], qopout[j]);
       QOP_destroy_V(qopout[j]);
+      //check_soln(out[i], mass[i], in);
     }
     QOP_destroy_V(qopin);
+  }
+  for(int i=1; i<nmass; i++) {
+    QDP_destroy_V(qout[i]);
   }
   mf = 1;
   QMP_sum_double(&mf);
@@ -120,7 +187,7 @@ start(void)
   coeffs.five_staple = 0.1;
   coeffs.seven_staple = 0.1;
   coeffs.lepage = 0.1;
-  coeffs.naik = 0.1;
+  coeffs.naik = naik;
 
   QOP_info_t info = QOP_INFO_ZERO;
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
@@ -130,6 +197,7 @@ start(void)
   inv_arg.restart = 200;
   inv_arg.max_restarts = 5;
   inv_arg.evenodd = QOP_EVEN;
+  inv_arg.mixed_rsq = mixedrsq;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
@@ -232,9 +300,11 @@ usage(char *s)
   printf("%s [c#] [m#] [M#] [n#] [s#] [S#] [x# [# ...]] [v#]\n",s);
   printf("\n");
   printf("c\tcgtype\n");
+  printf("k\tnaik term\n");
   printf("m\tlightest mass\n");
   printf("M\tnumber of masses\n");
   printf("n\tnumber of iterations\n");
+  printf("p\tmixed rsq\n");
   printf("s\tseed\n");
   printf("S\tstyle\n");
   printf("x\tlattice sizes (Lx, [Ly], ..)\n");
@@ -256,9 +326,11 @@ main(int argc, char *argv[])
   for(i=1; i<argc; i++) {
     switch(argv[i][0]) {
     case 'c' : cgtype=atoi(&argv[i][1]); break;
+    case 'k' : naik=atof(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'M' : nmass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
+    case 'p' : mixedrsq=atof(&argv[i][1]); break;
     case 's' : seed=atoi(&argv[i][1]); break;
     case 'S' : style=atoi(&argv[i][1]); break;
     case 'x' : j=i; while((i+1<argc)&&(isdigit(argv[i+1][0]))) ++i; break;

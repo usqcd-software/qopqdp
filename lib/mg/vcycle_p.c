@@ -1,7 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
 #include <qdp_fn.h>
 #include <qdp_dn.h>
 #include <qdp_dfn.h>
@@ -11,13 +9,11 @@
 #if QOP_Precision == 'F'
 #define QOPP(x) QOP_F_##x
 #define QCDP(x) QOP_F_##x
-#define QCDPC(x) QOP_F3_##x
 #define QDPN(x) QDP_FN_##x
 #define QLAN(x) QLA_FN_##x
 #else
 #define QOPP(x) QOP_D_##x
 #define QCDP(x) QOP_D_##x
-#define QCDPC(x) QOP_D3_##x
 #define QDPN(x) QDP_DN_##x
 #define QLAN(x) QLA_DN_##x
 #endif
@@ -25,7 +21,8 @@
 #define printf0 QOP_printf0
 
 void
-QCDP(mgVcycle)(QDPN(ColorVector) **out, QDPN(ColorVector) **in, int sign, void *args)
+QCDP(mgVcycle)(QDPN(ColorVector) **out, QDPN(ColorVector) **in,
+	       int sign, void *args)
 {
   double t0 = QDP_time();
   QCDP(MgVcycleArgs) *vc = (QCDP(MgVcycleArgs) *)args;
@@ -123,5 +120,3 @@ QCDP(mgVcycle)(QDPN(ColorVector) **out, QDPN(ColorVector) **in, int sign, void *
   { double t1 = QDP_time(); vc->tpost += t1 - t0; t0 = t1; }
   vc->count++;
 }
-
-#endif

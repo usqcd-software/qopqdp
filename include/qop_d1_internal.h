@@ -120,9 +120,14 @@ QOP_D1_FermionLinksAsqtad *QOP_D1_asqtad_create_L_from_r_times_L(QOP_D_Real s,
 								  QOP_D1_FermionLinksAsqtad *fla_src);
 void QOP_D1_asqtad_L_peq_L(QOP_D1_FermionLinksAsqtad *fla, QOP_D1_FermionLinksAsqtad *fla1);
 void QOP_D1_qdpM_eq_raw(QDP_D1_ColorMatrix *cm, QOP_D_Real *lnk);
+
 typedef void (QOP_D1_linop_t_V)(QDP_D1_ColorVector *out, QDP_D1_ColorVector *in, QDP_Subset subset);
 typedef void (QOP_D1_linop_t_D)(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in, QDP_Subset subset);
 typedef void (QOP_D1_linop_t_vD)(QDP_D1_DiracFermion **out, QDP_D1_DiracFermion **in, QDP_Subset subset);
+
+typedef QOP_D_Real (QOP_D1_linopn_t_V)(QDP_D1_ColorVector *out, QDP_D1_ColorVector *in, QDP_Subset subset);
+typedef QOP_D_Real (QOP_D1_linopn_t_D)(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in, QDP_Subset subset);
+typedef QOP_D_Real (QOP_D1_linopn_t_vD)(QDP_D1_DiracFermion **out, QDP_D1_DiracFermion **in, QDP_Subset subset);
 
 QOP_status_t
 QOP_D1_invert_cg_V(QOP_D1_linop_t_V *linop,
@@ -153,7 +158,7 @@ QOP_D1_invert_cg_vD(QOP_D1_linop_t_vD *linop,
 		     int _n);
 
 QOP_status_t
-QOP_D1_invert_cgms_V(QOP_D1_linop_t_V *linop,
+QOP_D1_invert_cgms_V(QOP_D1_linopn_t_V *linop,
 		      QOP_invert_arg_t *inv_arg,
 		      QOP_resid_arg_t **res_arg,
 		      QOP_D_Real *shifts,
@@ -164,7 +169,7 @@ QOP_D1_invert_cgms_V(QOP_D1_linop_t_V *linop,
 		      QDP_Subset subset);
 
 QOP_status_t
-QOP_D1_invert_cgms_D(QOP_D1_linop_t_D *linop,
+QOP_D1_invert_cgms_D(QOP_D1_linopn_t_D *linop,
 		      QOP_invert_arg_t *inv_arg,
 		      QOP_resid_arg_t **res_arg,
 		      QOP_D_Real *shifts,
@@ -175,7 +180,7 @@ QOP_D1_invert_cgms_D(QOP_D1_linop_t_D *linop,
 		      QDP_Subset subset);
 
 QOP_status_t
-QOP_D1_invert_cgms_vD(QOP_D1_linop_t_vD *linop,
+QOP_D1_invert_cgms_vD(QOP_D1_linopn_t_vD *linop,
 		       QOP_invert_arg_t *inv_arg,
 		       QOP_resid_arg_t **res_arg,
 		       QOP_D_Real *shifts,
@@ -274,21 +279,19 @@ QOP_D1_hisq_force_multi_fnmat2_qdp(QOP_info_t *info,
 				    QDP_D1_ColorVector *in_pt[], 
 				    int *n_orders_naik);
 
+void QOP_D1_dw_schur2_qdp(QOP_info_t *info, QOP_D1_FermionLinksDW *fldw,
+			   QOP_D_Real M5, QOP_D_Real mq,
+			   QDP_D1_DiracFermion *out[], QDP_D1_DiracFermion *in[],
+			   int ls,QOP_evenodd_t eo);
+void QOP_D1_dw_schur_qdp(QOP_info_t *info, QOP_D1_FermionLinksDW *fldw,
+			  QOP_D_Real M5, QOP_D_Real mq, int sign,
+			  QDP_D1_DiracFermion *out[], QDP_D1_DiracFermion *in[],
+			  int ls, QOP_evenodd_t eo);
 void
-QOP_D1_dw_schur2_qdp(QOP_info_t *info, QOP_D1_FermionLinksDW *fldw,
-		      QOP_D_Real M5, QOP_D_Real mq,
-		      QDP_D1_DiracFermion *out[], QDP_D1_DiracFermion *in[],
-		      int ls, QOP_evenodd_t eo);
-void
-QOP_D1_dw_schur_qdp(QOP_info_t *info, QOP_D1_FermionLinksDW *fldw,
-		     QOP_D_Real M5, QOP_D_Real mq, int sign,
-		     QDP_DiracFermion *out[], QDP_D1_DiracFermion *in[],
-		     int ls, QOP_evenodd_t eo);
-extern void
 QOP_D1_dw_EO_project(QOP_D1_FermionLinksDW *fldw,
 		      QDP_D1_DiracFermion *out[], QDP_D1_DiracFermion *in[],
 		      QOP_D_Real M5, QOP_D_Real mq, int ls, QOP_evenodd_t eo);
-extern void
+void
 QOP_D1_dw_EO_reconstruct(QOP_D1_FermionLinksDW *fldw,
 			  QDP_D1_DiracFermion *out[], QDP_D1_DiracFermion *in[],
 			  QOP_D_Real M5, QOP_D_Real mq, int ls, QOP_evenodd_t eo);
@@ -320,6 +323,85 @@ QOP_D_Real
 QOP_D1_relnorm2_D(QDP_D1_DiracFermion **rsd, 
 		   QDP_D1_DiracFermion **out, 
 		   QDP_Subset subset, int nv);
+
+//// MULTIGRID STUFF
+
+typedef struct {
+  QOP_D1_FermionLinksWilson *wil;
+  QLA_D_Real kappa;
+} QOP_D1_WilArgs;
+
+void QOP_D1_wilsonDslash(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in,
+			  QOP_D1_FermionLinksWilson *wil, QLA_D_Real kappa,
+			  int sign, QOP_evenodd_t pout, QOP_evenodd_t pin);
+void QOP_D1_wilsonDiaginv(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in,
+			   QOP_D1_FermionLinksWilson *wil, QLA_D_Real kappa,
+			   QOP_evenodd_t pout);
+void QOP_D1_wilsonDslashEO(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in,
+			    QOP_D1_FermionLinksWilson *wil, QLA_D_Real kappa,
+			    int sign, QOP_evenodd_t par);
+void QOP_D1_wilsonDslashEOS(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in,
+			     QOP_FermionLinksWilson *wil, QLA_D_Real kappa,
+			     int sign, QOP_evenodd_t par);
+void QOP_D1_wilsonDslashEOH(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *in,
+			     QOP_FermionLinksWilson *wil, QLA_D_Real kappa,
+			     int sign, QOP_evenodd_t par);
+void QOP_D1_wilEoProjectD(QDP_D1_DiracFermion *ineo, QDP_D1_DiracFermion *in,
+			   QOP_D1_WilArgs *w);
+void QOP_D1_wilEoReconstructD(QDP_D1_DiracFermion *out, QDP_D1_DiracFermion *outeo,
+			       QDP_D1_DiracFermion *in, QOP_D1_WilArgs *w);
+
+#ifdef HAVE_NCN
+#include <qdp_fn.h>
+#include <qdp_dn.h>
+
+void QOP_D1_V1eqD(QDP_DN_ColorVector *v[1], QDP_D1_DiracFermion *d, QDP_Subset sub);
+void QOP_D1_DeqV1(QDP_D1_DiracFermion *d, QDP_DN_ColorVector *v[1], QDP_Subset sub);
+void QOP_D1_V2eqD(QDP_DN_ColorVector *v[2], QDP_D1_DiracFermion *d, QDP_Subset sub);
+void QOP_D1_DeqV2(QDP_D1_DiracFermion *d, QDP_DN_ColorVector *v[2], QDP_Subset sub);
+void QOP_D1_wilDV1(QDP_DN_ColorVector *out[1], QDP_DN_ColorVector *in[1], int sign, void *args);
+void QOP_D1_wilDV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *in[2], int sign, void *args);
+void QOP_D1_wilPV1(QDP_DN_ColorVector *out[1], QDP_DN_ColorVector *in[1], int sign, void *args);
+void QOP_D1_wilPV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *in[2], int sign, void *args);
+void QOP_D1_wilPNEV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *in[2], int sign, void *args);
+void QOP_D1_wilEoV1(QDP_DN_ColorVector *out[1], QDP_DN_ColorVector *in[1], int sign, void *args);
+void QOP_D1_wilEoV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *in[2], int sign, void *args);
+void QOP_D1_wilEoProjectV1(QDP_DN_ColorVector *ineo[1], QDP_DN_ColorVector *in[1], void *args);
+void QOP_D1_wilEoReconstructV1(QDP_DN_ColorVector *out[1], QDP_DN_ColorVector *outeo[1], QDP_DN_ColorVector *in[1], void *args);
+void QOP_D1_wilEoReconstructPV1(QDP_DN_ColorVector *out[1], QDP_DN_ColorVector *outeo[1], QDP_DN_ColorVector *in[1], void *args);
+void QOP_D1_wilEoProjectV2(QDP_DN_ColorVector *ineo[2], QDP_DN_ColorVector *in[2], void *args);
+void QOP_D1_wilEoReconstructV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *outeo[2], QDP_DN_ColorVector *in[2], void *args);
+void QOP_D1_wilEoReconstructPV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *outeo[2], QDP_DN_ColorVector *in[2], void *args);
+
+#endif // HAVE_NCN
+
+#ifndef _QOP_1_MG_INTERNAL
+#define _QOP_1_MG_INTERNAL
+
+#include <qop_f_internal.h>
+#include <qop_d_internal.h>
+//#include <qop_mg_internal.h>
+//struct QOP_WilMgLevel;
+
+struct QOP_1_WilsonMgStruct {
+  QOP_F1_FermionLinksWilson *wilF;
+  QOP_D1_FermionLinksWilson *wilD;
+  QLA_F_Real kappa;
+  QLA_F_Real kappanv;
+  QOP_F1_WilArgs vcwaF;
+  QOP_F1_WilArgs nvwaF;
+  int nlevels;
+  struct QOP_WilMgLevel *mg;
+  int verbose;
+  int profile;
+  int itmax;
+  QOP_F_Gcr *gcrF;
+  QOP_D_Gcr *gcrD;
+  int ngcr;
+  int nc;
+};
+
+#endif // _QOP_1_MG_INTERNAL
 
 #if QOP_Precision == 'D'
 #  if QOP_Colors == 1

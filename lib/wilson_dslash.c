@@ -4,11 +4,10 @@
 
 #include <qop.h>
 #include <qop_qdp.h>
-#include <qmp.h>
-
-#define QOP_color 3
-
 #include <qop_internal.h>
+
+#define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
+#define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
 
 /* Create a single-precision copy of a double-precision gauge field */
 
@@ -40,6 +39,8 @@ QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
   return qopgf_single;
 }
 
+#if 0
+
 /* Create a single-precision copy of double-precision Wilson fermion links */
 
 QOP_F3_FermionLinksWilson *
@@ -57,7 +58,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   /* Create and copy the modified gauge links */
 
-  if(flw_double->links != NULL){
+  if(flw_double->links != NULL) {
     QOP_malloc(flw_single->links, QDP_F3_ColorMatrix *, 4);
     for(i=0; i<4; i++){
       flw_single->links[i] = QDP_F3_create_M();
@@ -123,3 +124,5 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   return flw_single;
 }
+
+#endif

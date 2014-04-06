@@ -1,5 +1,3 @@
-/* adapted from MILC version 6 */
-
 /* conventions for raw packed clover term
 
 the clover term is a REAL array of length 72*QDP_sites_on_node
@@ -38,29 +36,47 @@ real(c(1,0, 1,0))
 real(c(1,1, 1,1))
 real(c(2,0, 2,0))
 real(c(2,1, 2,1))
-c(0,1, 0,0)
-c(1,0, 0,0)
-c(1,1, 0,0)
-c(2,0, 0,0)
-c(2,1, 0,0)
-c(1,0, 0,1)
-c(1,1, 0,1)
-c(2,0, 0,1)
-c(2,1, 0,1)
-c(1,1, 1,0)
-c(2,0, 1,0)
-c(2,1, 1,0)
-c(2,0, 1,1)
-c(2,1, 1,1)
-c(2,1, 2,0)
+c(0,1, 0,0)   (1,0)   6
+c(1,0, 0,0)   (2,0)   8
+c(1,1, 0,0)   (3,0)  10
+c(2,0, 0,0)   (4,0)  12
+c(2,1, 0,0)   (5,0)  14
+c(1,0, 0,1)   (2,1)  16
+c(1,1, 0,1)   (3,1)  18
+c(2,0, 0,1)   (4,1)  20
+c(2,1, 0,1)   (5,1)  22
+c(1,1, 1,0)   (3,2)  24
+c(2,0, 1,0)   (4,2)  26
+c(2,1, 1,0)   (5,2)  28
+c(2,0, 1,1)   (4,3)  30
+c(2,1, 1,1)   (5,3)  32
+c(2,1, 2,0)   (5,4)  34
 
 and likewise for the second block by adding 2 to all is,js values above.
+
+for the first block [is,js=0,1]
+cl[2*ic+is] = Re c(ic,is,ic,is)
+(ic,is,jc,js) -> (2*ic+is,2*jc+js) = (i,j) -> 2nc + 2*((2nc-(j+1)/2)*j+i-j-1)
+cl[2nc-2+(4nc-3-j)*j+2i] = c(ic,is,jc,js)
+
+(is,js) = (0,0) -> i=2ic,j=2jc
+ jc = 1 -> 2nc-2+14+4ic = 18+4ic
+ jc = 2 -> 2nc-2+20+4ic = 24+4ic
+
+00   4 +  4*ic + 14*jc
+11  14 +  4*ic + 10*jc
+10  12 + 10*ic +  4*jc
+01   6 +  4*ic + (18-4*jc)*jc
+
 */
 
-//#define DO_TRACE
+	//#define DO_TRACE
 #include <string.h>
 //#include <math.h>
 #include <qop_internal.h>
+
+#define CLOV_REALS (8*QLA_Nc*QLA_Nc) // 2 packed (2Nc)x(2Nc) Hermitian matrices
+#define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
 
 //#define printf0 QOP_printf0
 #define printf0(...)
@@ -123,10 +139,11 @@ free_temps(void)
   dslash_setup = 0;
 }
 
-#define NC nc
 static void
 reset_temps(NCPROTVOID)
 {
+  TRACE;
+  printf("nc: %i\n", QLA_Nc);
   free_temps();
   for(int i=0; i<NTMP; i++) {
     tin[i] = QDP_create_D();
@@ -148,7 +165,6 @@ reset_temps(NCPROTVOID)
   old_style = QOP_wilson_style;
   old_optnum = QOP_wilson_optnum;
 }
-#undef NC
 
 static void
 double_store(QOP_FermionLinksWilson *flw)
@@ -190,12 +206,9 @@ QOP_wilson_dslash_get_tmp(QOP_FermionLinksWilson *flw,
 #undef NC
 }
 
-/* ---------------------------------------------------------------- */
-/* This part is added by Bugra :::::------------------------------- */
-/* F_mu_nu calculates the $F_{\mu\nu}$ Field Strength Tensor  ----- */
-/* --------------------------------------------------------------   */
 static void
-f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, int nu)
+f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[],
+	int mu, int nu)
 {
 #define NC QDP_get_nc(fmn)
   int order_flag;
@@ -215,14 +228,12 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, i
   pqt3  = QDP_create_M();
   pqt4  = QDP_create_M();
 
-  /* chech if mu <nu */
-  if(mu>nu){
+  if(mu>nu) {
     int i = mu;
     mu = nu;
     nu = i;
     order_flag=1;
-  }
-  else{
+  } else {
     order_flag=0;
   }
 
@@ -321,22 +332,19 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[], int mu, i
 #undef NC
 }
 
-/* -------------------------------------------------------- */
-/* -- Calculation of the clover term :: added by Bugra ---- */
-/* -------------------------------------------------------- */
 static void
 get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
 {
-#if QOP_Colors != 'N'  // doesn't work for Nc!=3
 #define NC QDP_get_nc(link[0])
-  /* Fist I create A[0],A[1],B[0] and B[1] matrices */
-  QDP_ColorMatrix *a[2],*b[2];
+  QDP_ColorMatrix *a0, *a1, *b0, *b1;
   QDP_ColorMatrix *f_mn;
   QDP_ColorMatrix *xm,*ym;
+  int nc = NC;
+  int bsize = 4*nc*nc;
 
   f_mn  = QDP_create_M();
-  a[0]  = QDP_create_M();
-  a[1]  = QDP_create_M();
+  a0  = QDP_create_M();
+  a1  = QDP_create_M();
   xm = QDP_create_M();
   ym = QDP_create_M();
 
@@ -348,80 +356,39 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   QDP_M_meq_M(xm, f_mn, QDP_all);        /* xm = cs*F_{01}-ct*F_{23} */
   QDP_M_peq_M(ym, f_mn, QDP_all);        /* ym = cs*F_{01}+ct*F_{23} */
 
-  // PS: One cannot QDP_M_eq_i_M(a,b,subset) with a=b 
-  QDP_M_eq_i_M(a[0], xm, QDP_all);       /* a[0] = i(cs*F_{01}-ct*F_{23}) */ 
-  QDP_M_eq_i_M(a[1], ym, QDP_all);       /* a[1] = i(cs*F_{01}+ct*F_{23}) */
+  QDP_M_eq_i_M(a0, xm, QDP_all);         /* a[0] = i(cs*F_{01}-ct*F_{23}) */ 
+  QDP_M_eq_i_M(a1, ym, QDP_all);         /* a[1] = i(cs*F_{01}+ct*F_{23}) */
 
-  /* PART 1 and PART 2 */
   QLA_ColorMatrix(*A[2]);
-  A[0] = QDP_expose_M(a[0]);
-  A[1] = QDP_expose_M(a[1]);
+  A[0] = QDP_expose_M(a0);
+  A[1] = QDP_expose_M(a1);
 
-  for(int i=0; i<QDP_sites_on_node; i++) {
-    for(int j=0; j<QLA_Nc; j++) {
-      /* diagoal elements numbered from 00 to 05 for the matrix X */
-      /* c(0,0, 0,0) = clov[0]  c(1,1, 1,1) = clov[3]             */
-      /* c(0,1, 0,1) = clov[1]  c(2,0, 2,0) = clov[4]             */
-      /* c(1,0, 1,0) = clov[2]  c(2,1, 2,1) = clov[5]             */
-      clov[(72*i)+(2*j  )] =  QLA_real(QLA_elem_M(A[0][i],j,j));
-      clov[(72*i)+(2*j+1)] = -QLA_real(QLA_elem_M(A[0][i],j,j));
-      /* diagoal elements numbered from 36 to 41 for the matrix Y */
-      /* c(0,2, 0,2) = clov[36]  c(1,3, 1,3) = clov[39]           */
-      /* c(0,3, 0,3) = clov[37]  c(2,2, 2,2) = clov[40]           */
-      /* c(1,2, 1,2) = clov[38]  c(2,3, 2,3) = clov[41]           */
-      clov[(72*i)+(2*j+36)] =  QLA_real(QLA_elem_M(A[1][i],j,j));
-      clov[(72*i)+(2*j+37)] = -QLA_real(QLA_elem_M(A[1][i],j,j));
-      /* -------------------------------------------------------- */
-      /* 12 real number are assigned to the array clov            */
-
-      /* Below the triangular which have A[0] and A[1] only       */
-      for(int k=0; k<j; k++) { 
-	/* c(1,0, 0,0) = clov[ 8]+i*clov[ 9] */
-	/* c(2,0, 0,0) = clov[12]+i*clov[13] */
-	/* c(2,0, 1,0) = clov[26]+i*clov[27] */
-	int jk = 4 + (4*j) + (14*k);
-	clov[(72*i)+(jk  ) ] = QLA_real(QLA_elem_M(A[0][i],j,k));
-	clov[(72*i)+(jk+1) ] = QLA_imag(QLA_elem_M(A[0][i],j,k));
-	clov[(72*i)+(jk+36)] = QLA_real(QLA_elem_M(A[1][i],j,k));
-	clov[(72*i)+(jk+37)] = QLA_imag(QLA_elem_M(A[1][i],j,k));
-
-	/* c(1,1, 0,1) = clov[18]+i*clov[19] */
-	/* c(2,1, 0,1) = clov[22]+i*clov[23] */
-	/* c(2,1, 1,1) = clov[32]+i*clov[33] */
-	jk = 14 + (4*j) + (10*k);
-	clov[(72*i)+(jk   )] = -QLA_real(QLA_elem_M(A[0][i],j,k));
-	clov[(72*i)+(jk+1 )] = -QLA_imag(QLA_elem_M(A[0][i],j,k));
-	clov[(72*i)+(jk+36)] = -QLA_real(QLA_elem_M(A[1][i],j,k));
-	clov[(72*i)+(jk+37)] = -QLA_imag(QLA_elem_M(A[1][i],j,k));
+  // is,js = 0,0 and 1,1
+  for(int s=0; s<QDP_sites_on_node; s++) {
+    for(int b=0; b<2; b++) { // block
+      int k0 = bsize*(2*s+b);
+      for(int ic=0; ic<QLA_Nc; ic++) {
+	for(int is=0; is<2; is++) {
+	  int ii = 2*ic + is;
+	  QLA_Real sgn = 1-2*is;
+	  clov[k0+ii] = sgn*QLA_real(QLA_elem_M(A[b][s],ic,ic));
+	  for(int jc=0; jc<ic; jc++) { 
+	    int jj = 2*jc + is;
+	    int kk = 2*(nc-1) + (4*nc-3-jj)*jj + 2*ii;
+	    clov[k0+kk  ] = sgn*QLA_real(QLA_elem_M(A[b][s],ic,jc));
+	    clov[k0+kk+1] = sgn*QLA_imag(QLA_elem_M(A[b][s],ic,jc));
+	  }
+	}
       }
     }
   }
+  QDP_reset_M(a0);
+  QDP_reset_M(a1);
+  QDP_destroy_M(a0);
+  QDP_destroy_M(a1);
 
-  QDP_reset_M(a[0]);
-  QDP_reset_M(a[1]);
-
-  QDP_destroy_M(a[0]);
-  QDP_destroy_M(a[1]);
-
-  /* Creating B[0] and B[1] : 3x3 matrices for X and Y                     */
-  /* ------------------ NOTATION ------------------------------------------*/
-  /* For the 3x3 part of X   : B[0] above                                  */
-  /* c(1,1, 0,0) = clov[10]+i*clov[11]; c(1,1, 1,0) = clov[24]+i*clov[25]; */
-  /* c(2,0, 0,0) = clov[12]+i*clov[13]; c(2,0, 1,0) = clov[26]+i*clov[27]; */
-  /* c(2,1, 0,0) = clov[14]+i*clov[15]; c(2,1, 1,0) = clov[28]+i*clov[29]; */
-  /* c(1,1, 0,1) = clov[18]+i*clov[19]; */
-  /* c(2,0, 0,1) = clov[20]+i*clov[21]; */
-  /* c(2,1, 0,1) = clov[22]+i*clov[23]; */
-  /* For the 3x3 part of Y   : B[1] above                                  */
-  /* c(1,3, 0,2) = clov[46]+i*clov[47]; c(1,3, 1,2) = clov[60]+i*clov[61]; */
-  /* c(2,2, 0,2) = clov[48]+i*clov[49]; c(2,2, 1,2) = clov[62]+i*clov[63]; */
-  /* c(2,3, 0,2) = clov[50]+i*clov[51]; c(2,3, 1,2) = clov[64]+i*clov[65]; */
-  /* c(1,3, 0,3) = clov[54]+i*clov[55]; */
-  /* c(2,2, 0,3) = clov[56]+i*clov[57]; */
-  /* c(2,3, 0,3) = clov[58]+i*clov[59]; */
-
-  b[0] = QDP_create_M();
-  b[1] = QDP_create_M();
+  b0 = QDP_create_M();
+  b1 = QDP_create_M();
 
   f_mu_nu(xm, cs, link, 1, 2);               /* xm   = cs*F_{12}         */  
   f_mu_nu(f_mn, ct, link, 0, 3);             /* f_mn = ct*F_{03}         */
@@ -429,105 +396,64 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   QDP_M_eq_M_plus_M(ym, xm, f_mn, QDP_all);  /* ym = cs*F_{12}+ct*F_{03}    */
   QDP_M_meq_M(xm, f_mn, QDP_all);            /* xm = cs*F_{12}-ct*F_{03}    */
 
-  QDP_M_eq_i_M(b[0], xm, QDP_all);           /* b[0] = i(cs*F_{12}-ct*F_{03}) */
-  QDP_M_eq_i_M(b[1], ym, QDP_all);           /* b[1] = i(cs*F_{12}+ct*F_{03}) */
+  QDP_M_eq_i_M(b0, xm, QDP_all);             /* b0 = i(cs*F_{12}-ct*F_{03}) */
+  QDP_M_eq_i_M(b1, ym, QDP_all);             /* b1 = i(cs*F_{12}+ct*F_{03}) */
 
   f_mu_nu(f_mn, cs, link, 0, 2);             /* f_mn = cs*F_{02}           */
-  QDP_M_meq_M(b[0], f_mn, QDP_all);          /* b[0] = b[0]-cs*F_{02}      */
-  QDP_M_meq_M(b[1], f_mn, QDP_all);          /* b[1] = b[1]-cs*F_{02}      */
+  QDP_M_meq_M(b0, f_mn, QDP_all);          /* b[0] = b[0]-cs*F_{02}      */
+  QDP_M_meq_M(b1, f_mn, QDP_all);          /* b[1] = b[1]-cs*F_{02}      */
 
   f_mu_nu(f_mn, ct, link, 1, 3);             /* f_mn = ct*F_{13}           */
-  QDP_M_meq_M(b[0], f_mn, QDP_all);          /* b[0] = b[0]-ct*F_{13}      */
-  QDP_M_peq_M(b[1], f_mn, QDP_all);          /* b[1] = b[1]+ct*F_{13}      */
+  QDP_M_meq_M(b0, f_mn, QDP_all);          /* b[0] = b[0]-ct*F_{13}      */
+  QDP_M_peq_M(b1, f_mn, QDP_all);          /* b[1] = b[1]+ct*F_{13}      */
 
   /*  b[0] = i(cs*F_{12}-ct*F_{03})-(cs*F_{02}+ct*F_{13})    */
   /*  b[1] = i(cs*F_{12}+ct*F_{03})-(cs*F_{02}-ct*F_{13})    */
 
   QLA_ColorMatrix(*B[2]);
-  B[0] = QDP_expose_M(b[0]);
-  B[1] = QDP_expose_M(b[1]);
-  for(int i=0; i<QDP_sites_on_node; i++) {
-#if 1
-    for(int j=0; j<QLA_Nc; j++) {
-      for(int k=0; k<QLA_Nc; k++) {
-	if(j<k) {
-	  /* c(0,1, 1,0)* = clov[16]+i*clov[17] */
-	  /* c(0,1, 2,0)* = clov[20]+i*clov[21] */
-	  /* c(1,1, 2,0)* = clov[30]+i*clov[31] */
-	  int jk = 12 + 10*j + 4*k;
-	  clov[72*i+(jk   )] =  QLA_real(QLA_elem_M(B[0][i],j,k));
-	  clov[72*i+(jk+1 )] = -QLA_imag(QLA_elem_M(B[0][i],j,k));
-	  clov[72*i+(jk+36)] =  QLA_real(QLA_elem_M(B[1][i],j,k));
-	  clov[72*i+(jk+37)] = -QLA_imag(QLA_elem_M(B[1][i],j,k));
-	} else {
-	  /* c(0,1, 0,0) = clov[ 6]+i*clov[ 7] */
-	  /* c(1,1, 0,0) = clov[10]+i*clov[11] */
-	  /* c(2,1, 0,0) = clov[14]+i*clov[15] */
-	  /* c(1,1, 1,0) = clov[24]+i*clov[25] */
-	  /* c(2,1, 1,0) = clov[28]+i*clov[29] */
-	  /* c(2,1, 2,0) = clov[34]+i*clov[35] */
-	  int jk = 6 + 4*j + k*(18-4*k);
-	  clov[72*i+(jk   )] = QLA_real(QLA_elem_M(B[0][i],j,k));
-	  clov[72*i+(jk+1 )] = QLA_imag(QLA_elem_M(B[0][i],j,k));
-	  clov[72*i+(jk+36)] = QLA_real(QLA_elem_M(B[1][i],j,k));
-	  clov[72*i+(jk+37)] = QLA_imag(QLA_elem_M(B[1][i],j,k));
+  B[0] = QDP_expose_M(b0);
+  B[1] = QDP_expose_M(b1);
+
+  // is,js = 1,0 (or 0,1)
+  for(int s=0; s<QDP_sites_on_node; s++) {
+    for(int b=0; b<2; b++) { // block
+      int k0 = bsize*(2*s+b);
+      for(int ic=0; ic<QLA_Nc; ic++) {
+	int ii = 2*ic + 1;
+	for(int jc=0; jc<QLA_Nc; jc++) {
+	  int jj = 2*jc + 0;
+	  if(ii<jj) { // conjugate
+	    int kk = 2*(nc-1) + (4*nc-3-ii)*ii + 2*jj;
+	    clov[k0+kk  ] =  QLA_real(QLA_elem_M(B[b][s],ic,jc));
+	    clov[k0+kk+1] = -QLA_imag(QLA_elem_M(B[b][s],ic,jc));
+	  } else {
+	    int kk = 2*(nc-1) + (4*nc-3-jj)*jj + 2*ii;
+	    clov[k0+kk  ] = QLA_real(QLA_elem_M(B[b][s],ic,jc));
+	    clov[k0+kk+1] = QLA_imag(QLA_elem_M(B[b][s],ic,jc));
+	  }
 	}
       }
     }
-#else
-    for(int tr=0; tr<2; tr++) {
-      clov[(72*i)+6+(36*tr)]  = +QLA_real(QLA_elem_M(B[tr][i],0,0));
-      clov[(72*i)+7+(36*tr)]  = +QLA_imag(QLA_elem_M(B[tr][i],0,0));
-      clov[(72*i)+10+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],1,0));
-      clov[(72*i)+11+(36*tr)] = +QLA_imag(QLA_elem_M(B[tr][i],1,0));
-      clov[(72*i)+14+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],2,0));
-      clov[(72*i)+15+(36*tr)] = +QLA_imag(QLA_elem_M(B[tr][i],2,0));
-      clov[(72*i)+16+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],0,1));
-      clov[(72*i)+17+(36*tr)] = -QLA_imag(QLA_elem_M(B[tr][i],0,1));
-      clov[(72*i)+24+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],1,1));
-      clov[(72*i)+25+(36*tr)] = +QLA_imag(QLA_elem_M(B[tr][i],1,1));
-      clov[(72*i)+28+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],2,1));
-      clov[(72*i)+29+(36*tr)] = +QLA_imag(QLA_elem_M(B[tr][i],2,1));
-      clov[(72*i)+20+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],0,2));
-      clov[(72*i)+21+(36*tr)] = -QLA_imag(QLA_elem_M(B[tr][i],0,2));
-      clov[(72*i)+30+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],1,2));
-      clov[(72*i)+31+(36*tr)] = -QLA_imag(QLA_elem_M(B[tr][i],1,2));
-      clov[(72*i)+34+(36*tr)] = +QLA_real(QLA_elem_M(B[tr][i],2,2));
-      clov[(72*i)+35+(36*tr)] = +QLA_imag(QLA_elem_M(B[tr][i],2,2));
-    }
-#endif
   }
-  QDP_destroy_M(b[0]);
-  QDP_destroy_M(b[1]);
+  QDP_destroy_M(b0);
+  QDP_destroy_M(b1);
 
   QDP_destroy_M(f_mn);
   QDP_destroy_M(xm);
   QDP_destroy_M(ym);
-
-  /* 2*(3x3)=2*(18 real) = 36 real numbers are assiged to array clov  */
-  /* ---------------------------------------------------------------- */
 #undef NC
-#endif // QOP_Colors != 'N'
 }
 
-/* ---------------------------------------------------------------------- */
-/* -------- End of the calculation of Clover Coefficients  -------------  */
-/* ---------------------------------------------------------------------- */
-
-
-
-// ************************************************************************ 
-
 static void
-clov_unpack(QLA_Complex u[6][6], REAL *p)
+clov_unpack(NCPROT QLA_Complex u[2*QLA_Nc][2*QLA_Nc], REAL *p)
 {
   int i, j, k;
-  for(i=0; i<6; i++) {
+  for(i=0; i<2*QLA_Nc; i++) {
     QLA_c_eq_r(u[i][i], p[i]);
   }
-  k = 6;
-  for(i=0; i<6; i++) {
-    for(j=i+1; j<6; j++) {
+  k = 2*QLA_Nc;
+  for(i=0; i<2*QLA_Nc; i++) {
+    for(j=i+1; j<2*QLA_Nc; j++) {
       QLA_c_eq_ca(u[i][j], *((QLA_Complex *)(p+k)));
       QLA_c_eq_c(u[j][i], *((QLA_Complex *)(p+k)));
       k += 2;
@@ -536,15 +462,15 @@ clov_unpack(QLA_Complex u[6][6], REAL *p)
 }
 
 static void
-clov_pack(REAL *p, QLA_Complex u[6][6])
+clov_pack(NCPROT REAL *p, QLA_Complex u[2*QLA_Nc][2*QLA_Nc])
 {
   int i, j, k;
-  for(i=0; i<6; i++) {
+  for(i=0; i<2*QLA_Nc; i++) {
     p[i] = QLA_real(u[i][i]);
   }
-  k = 6;
-  for(i=0; i<6; i++) {
-    for(j=i+1; j<6; j++) {
+  k = 2*QLA_Nc;
+  for(i=0; i<2*QLA_Nc; i++) {
+    for(j=i+1; j<2*QLA_Nc; j++) {
       QLA_Complex z;
       QLA_c_eq_ca(z, u[i][j]);
       QLA_c_peq_c(z, u[j][i]);
@@ -555,16 +481,16 @@ clov_pack(REAL *p, QLA_Complex u[6][6])
 }
 
 static void
-clov_invert(QLA_Complex ci[6][6], QLA_Complex c[6][6])
+clov_invert(NCPROT QLA_Complex ci[2*QLA_Nc][2*QLA_Nc], QLA_Complex c[2*QLA_Nc][2*QLA_Nc])
 {
   int i, j, k;
-  for(i=0; i<6; i++) {
-    for(j=0; j<6; j++) {
+  for(i=0; i<2*QLA_Nc; i++) {
+    for(j=0; j<2*QLA_Nc; j++) {
       QLA_c_eq_r(ci[i][j], 0);
     }
     QLA_c_eq_r(ci[i][i], 1);
   }
-  for(k=0; k<6; k++) {
+  for(k=0; k<2*QLA_Nc; k++) {
     QLA_Complex s;
     //QLA_c_eq_r_div_c(s, 1, c[k][k]);
     {
@@ -573,23 +499,23 @@ clov_invert(QLA_Complex ci[6][6], QLA_Complex c[6][6])
       QLA_c_eq_r_times_c(s, r, c[k][k]);
       QLA_c_eq_ca(s, s);
     }
-    for(j=0; j<6; j++) {
+    for(j=0; j<2*QLA_Nc; j++) {
       QLA_Complex t;
       QLA_c_eq_c_times_c(t, s, c[k][j]);
       QLA_c_eq_c(c[k][j], t);
     }
-    for(j=0; j<6; j++) {
+    for(j=0; j<2*QLA_Nc; j++) {
       QLA_Complex t;
       QLA_c_eq_c_times_c(t, s, ci[k][j]);
       QLA_c_eq_c(ci[k][j], t);
     }
-    for(i=0; i<6; i++) {
+    for(i=0; i<2*QLA_Nc; i++) {
       if(i==k) continue;
       QLA_c_eq_c(s, c[i][k]);
-      for(j=0; j<6; j++) {
+      for(j=0; j<2*QLA_Nc; j++) {
 	QLA_c_meq_c_times_c(c[i][j], s, c[k][j]);
       }
-      for(j=0; j<6; j++) {
+      for(j=0; j<2*QLA_Nc; j++) {
 	QLA_c_meq_c_times_c(ci[i][j], s, ci[k][j]);
       }
     }
@@ -612,23 +538,25 @@ printcm(QLA_Complex *m, int nr, int nc)
 static void
 get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
 {
+#define NC QDP_get_nc(flw->links[0])
   QLA_Real m4 = 0.5/kappa;
   int i, j;
   if(flw->clovinv==NULL)
     QOP_malloc(flw->clovinv, REAL, QDP_sites_on_node*CLOV_REALS);
   for(i=0; i<2*QDP_sites_on_node; i++) {
-    QLA_Complex cu[6][6], ciu[6][6];
-    clov_unpack(cu, flw->clov+(CLOV_REALS/2)*i);
-    for(j=0; j<6; j++) QLA_c_peq_r(cu[j][j], m4);
-    //if(i==0) printcm(flw->clov, 3, 6);
-    //if(i==0) printcm(cu, 6, 6);
-    clov_invert(ciu, cu);
-    clov_pack(flw->clovinv+(CLOV_REALS/2)*i, ciu);
-    //if(i==0) printcm(cu, 6, 6);
-    //if(i==0) printcm(ciu, 6, 6);
-    //if(i==0) printcm(flw->clovinv, 3, 6);
+    QLA_Complex cu[2*QLA_Nc][2*QLA_Nc], ciu[2*QLA_Nc][2*QLA_Nc];
+    clov_unpack(NCARG cu, flw->clov+(CLOV_REALS/2)*i);
+    for(j=0; j<2*QLA_Nc; j++) QLA_c_peq_r(cu[j][j], m4);
+    //if(i==0) printcm(flw->clov, QLA_Nc, 2*QLA_Nc);
+    //if(i==0) printcm(cu, 2*QLA_Nc, 2*QLA_Nc);
+    clov_invert(NCARG ciu, cu);
+    clov_pack(NCARG flw->clovinv+(CLOV_REALS/2)*i, ciu);
+    //if(i==0) printcm(cu, 2*QLA_Nc, 2*QLA_Nc);
+    //if(i==0) printcm(ciu, 2*QLA_Nc, 2*QLA_Nc);
+    //if(i==0) printcm(flw->clovinv, QLA_Nc, 2*QLA_Nc);
   }
   flw->clovinvkappa = kappa;
+#undef NC
 }
 
 #define NC int nc
@@ -659,8 +587,6 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
   return flw;
 #undef NC
 }
-/* --------------------------------------------------- */
-/* This part is added by Bugra ----------------------- */
 
 QOP_FermionLinksWilson *
 QOP_wilson_initialize_gauge_L(void)
@@ -669,10 +595,10 @@ QOP_wilson_initialize_gauge_L(void)
 
   WILSON_INVERT_BEGIN;
 
-  QOP_malloc(flw          ,QOP_FermionLinksWilson,1);
-  QOP_malloc(flw->links   ,QDP_ColorMatrix *     ,4);
-  QOP_malloc(flw->bcklinks,QDP_ColorMatrix *     ,4);
-  QOP_malloc(flw->dbllinks,QDP_ColorMatrix *,     8);
+  QOP_malloc(flw          , QOP_FermionLinksWilson, 1);
+  QOP_malloc(flw->links   , QDP_ColorMatrix *     , 4);
+  QOP_malloc(flw->bcklinks, QDP_ColorMatrix *     , 4);
+  QOP_malloc(flw->dbllinks, QDP_ColorMatrix *     , 8);
 
   flw->dblstored = 0;
   flw->clov      = NULL;
@@ -689,9 +615,6 @@ QOP_wilson_initialize_gauge_L(void)
   return flw;
 }
 
-
-/* ----------------This part is added by Bugra ------------- */
-/* --------------------------------------------------------- */
 QOP_FermionLinksWilson *
 QOP_wilson_create_L_from_G(QOP_info_t *info, 
 			   QOP_wilson_coeffs_t *coeffs,
@@ -746,8 +669,83 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 #undef NC
 }
 
-/* --------------------------------------------------------- */
-/* --------------------------------------------------------- */
+#if QOP_Precision == 'F'
+
+/* Create a single-precision copy of double-precision Wilson fermion links */
+QOP_F_FermionLinksWilson *
+QOP_FD_wilson_create_L_from_L(QOP_D_FermionLinksWilson *flw_double)
+{
+#define NC QDP_get_nc(flw_double->links[0])
+  QOP_F_FermionLinksWilson *flw_single;
+
+  /* Create the parent struct */
+  flw_single = QOP_wilson_initialize_gauge_L();
+
+  /* Copy scalar values */
+  flw_single->dblstored = flw_double->dblstored;
+  flw_single->clovinvkappa = flw_double->clovinvkappa;
+
+  /* Create and copy the modified gauge links */
+  if(flw_double->links != NULL) {
+    //QOP_malloc(flw_single->links, QDP_F3_ColorMatrix *, 4);
+    for(int i=0; i<4; i++) {
+      flw_single->links[i] = QDP_create_M();
+      QDP_FD_M_eq_M(flw_single->links[i], flw_double->links[i], QDP_all);
+    }
+  } else {
+    QOP_printf0("QOP_FD_wilson_create_L_from_L: Error: missing gauge links\n");
+  }
+
+  /* Create and copy the modified backward gauge links */
+  //QOP_malloc(flw_single->bcklinks, QDP_F3_ColorMatrix *, 4);
+  for(int i=0; i<4; i++) {
+    if(flw_double->dblstored != 0 && flw_double->bcklinks[i] != NULL) {
+      flw_single->bcklinks[i] = QDP_create_M();
+      QDP_FD_M_eq_M(flw_single->bcklinks[i], flw_double->bcklinks[i], QDP_all);
+    } else {
+      flw_double->bcklinks[i] = NULL;
+    }
+  }
+
+  /* Create and copy the double links */
+  //QOP_malloc(flw_single->dbllinks, QDP_F3_ColorMatrix *, 8);
+  for(int i=0; i<4; i++) {
+    if(flw_double->dblstored != 0) {
+      flw_single->dbllinks[2*i] = flw_single->links[i];
+      flw_single->dbllinks[2*i+1] = flw_single->bcklinks[i];
+    } else {
+      flw_single->dbllinks[2*i] = NULL;
+      flw_single->dbllinks[2*i+1] = NULL;
+    }
+  }
+
+  /* Create and copy the clover term */
+  if(flw_double->clov != NULL) {
+    int size = QDP_sites_on_node*CLOV_REALS;
+    QOP_malloc(flw_single->clov, QLA_Real, size);
+    for(int k=0; k<size; k++) {
+      flw_single->clov[k] = flw_double->clov[k];
+    }
+  } else {
+    flw_single->clov = NULL;
+  }
+
+  /* Create and copy clovinv term */
+  if(flw_double->clovinv != NULL){
+    int size = QDP_sites_on_node*CLOV_REALS;
+    QOP_malloc(flw_single->clovinv, QLA_Real, size);
+    for(int k=0; k<size; k++) {
+      flw_single->clovinv[k] = flw_double->clovinv[k];
+    }
+  } else {
+    flw_single->clovinv = NULL;
+  }
+
+  return flw_single;
+#undef NC
+}
+
+#endif // QOP_Precision == 'F'
 
 void
 QOP_wilson_extract_L_to_raw(REAL *links[], REAL *clov,
@@ -867,6 +865,7 @@ QOP_FermionLinksWilson *
 QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 			      QDP_DiracPropagator *clov)
 {
+#define NC QDP_get_nc(clov)
   WILSON_INVERT_BEGIN;
   QOP_FermionLinksWilson *flw = QOP_wilson_initialize_gauge_L();
 
@@ -880,16 +879,16 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
       for(x=0; x<QDP_sites_on_node; x++) {
 	for(b=0; b<2; b++) { // two chiral blocks
 	  // first the diagonal
-	  for(i=0; i<6; i++) {
+	  for(i=0; i<2*QLA_Nc; i++) {
 	    ic = i/2;
 	    is = 2*b + i%2;
 	    flw->clov[k++] = QLA_real(QLA_elem_P(dp[x], ic, is, ic, is));
 	  }
 	  // now the offdiagonal
-	  for(i=0; i<6; i++) {
+	  for(i=0; i<2*QLA_Nc; i++) {
 	    ic = i/2;
 	    is = 2*b + i%2;
-	    for(j=i+1; j<6; j++) {
+	    for(j=i+1; j<2*QLA_Nc; j++) {
 	      QLA_Complex z1, z2;
 	      jc = j/2;
 	      js = 2*b + j%2;
@@ -925,6 +924,7 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
 
   WILSON_INVERT_END;
   return flw;
+#undef NC
 }
 
 void
@@ -974,14 +974,11 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
     } \
     _n++; \
   } \
-  TRACE; \
-  printf0("%i %i\n", eo, _n); \
   if(dblstore_style(QOP_wilson_style)) { \
     wilson_dslash1(flw, dest, tsrc, sign, eo, _n); \
   } else { \
     wilson_dslash0(flw, dest, tsrc, sign, eo, _n); \
   } \
-  TRACE; \
 }
 
 void
@@ -1008,7 +1005,9 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
 		      QOP_evenodd_t eo_in)
 {
 #define NC QDP_get_nc(flw->links[0])
+  TRACE;
   check_setup(flw);
+  TRACE;
 
   if(eo_in==eo_out) {
     if(eo_out==QOP_EVENODD) {
@@ -1080,162 +1079,120 @@ QOP_wilson_diaginv_qdp(QOP_info_t *info,
 #define cmplx(x) (*((QLA_Complex *)(&(x))))
 
 static void
-apply_clov_qla(REAL *clov, QLA_Real m4, QLA_DiracFermion *restrict clov_out,
-	       QLA_DiracFermion *restrict clov_in, QDP_Subset subset)
+apply_clov_qla(NCPROT REAL *clov, QLA_Real m4,
+	       QLA_DiracFermion *restrict clov_out,
+	       QLA_DiracFermion *restrict clov_in,
+	       QDP_Subset subset)
 {
-  //QLA_DiracFermion *clov_out, *clov_in;
-  //clov_out = QDP_expose_D(out);
-  //clov_in = QDP_expose_D(in);
-  //{
-    int x, start, end;
-    if(subset==QDP_odd) start = QDP_subset_len(QDP_even);
-    else start = 0;
-    end = start + QDP_subset_len(subset);
-    for(x=start; x<end; x++) {
-      int b;
-      for(b=0; b<2; b++) {
-	int xb;
-	xb = 36*(2*x+b);  // chiral block offset (in REALs)
-
+  int start, end;
+  if(subset==QDP_odd) start = QDP_subset_len(QDP_even);
+  else start = 0;
+  end = start + QDP_subset_len(subset);
+  int nc2 = 2*QLA_Nc;
+  for(int x=start; x<end; x++) {
+    for(int b=0; b<2; b++) {
+      int xb = nc2*nc2*(2*x+b);  // chiral block offset (in REALs)
+      int xbo = xb+nc2;
 #define clov_diag(i) clov[xb+i]
-#define clov_offd(i) cmplx(clov[xb+6+2*i])
+#define clov_offd(i) cmplx(clov[xbo+2*i])
+#define clov_offd2(i) cmplx(clov[xbo+i])
 #define src(i) QLA_elem_D(clov_in[x],i/2,2*b+(i&1))
 #define dest(i) QLA_elem_D(clov_out[x],i/2,2*b+(i&1))
-	//flops = 6*44 = 264; bytes = 4*(36+12+12) = 240
-#if 0
-	{
-	  QLA_Complex z0, z1, z2, z3, z4, z5;
-
-	  QLA_c_eq_r_times_c(z0, m4+clov_diag(0), src(0));
-	  QLA_c_eq_c_times_c(z1, clov_offd(0), src(0));
-	  QLA_c_eq_c_times_c(z2, clov_offd(1), src(0));
-	  QLA_c_eq_c_times_c(z3, clov_offd(2), src(0));
-	  QLA_c_eq_c_times_c(z4, clov_offd(3), src(0));
-	  QLA_c_eq_c_times_c(z5, clov_offd(4), src(0));
-
-	  QLA_c_peq_ca_times_c(z0, clov_offd(0), src(1));
-	  QLA_c_peq_r_times_c(z1, m4+clov_diag(1), src(1));
-	  QLA_c_peq_c_times_c(z2, clov_offd(5), src(1));
-	  QLA_c_peq_c_times_c(z3, clov_offd(6), src(1));
-	  QLA_c_peq_c_times_c(z4, clov_offd(7), src(1));
-	  QLA_c_peq_c_times_c(z5, clov_offd(8), src(1));
-
-	  QLA_c_peq_ca_times_c(z0, clov_offd(1), src(2));
- 	  QLA_c_peq_ca_times_c(z1, clov_offd(5), src(2));
-	  QLA_c_peq_r_times_c(z2, m4+clov_diag(2), src(2));
-	  QLA_c_peq_c_times_c(z3, clov_offd(9), src(2));
-	  QLA_c_peq_c_times_c(z4, clov_offd(10), src(2));
-	  QLA_c_peq_c_times_c(z5, clov_offd(11), src(2));
-
-	  QLA_c_peq_ca_times_c(z0, clov_offd(2), src(3));
-	  QLA_c_peq_ca_times_c(z1, clov_offd(6), src(3));
-	  QLA_c_peq_ca_times_c(z2, clov_offd(9), src(3));
-	  QLA_c_peq_r_times_c(z3, m4+clov_diag(3), src(3));
-	  QLA_c_peq_c_times_c(z4, clov_offd(12), src(3));
-	  QLA_c_peq_c_times_c(z5, clov_offd(13), src(3));
-
-	  QLA_c_peq_ca_times_c(z0, clov_offd(3), src(4));
-	  QLA_c_peq_ca_times_c(z1, clov_offd(7), src(4));
-	  QLA_c_peq_ca_times_c(z2, clov_offd(10), src(4));
-	  QLA_c_peq_ca_times_c(z3, clov_offd(12), src(4));
-	  QLA_c_peq_r_times_c(z4, m4+clov_diag(4), src(4));
-	  QLA_c_peq_c_times_c(z5, clov_offd(14), src(4));
-
-	  QLA_c_peq_ca_times_c(z0, clov_offd(4), src(5));
-	  QLA_c_peq_ca_times_c(z1, clov_offd(8), src(5));
-	  QLA_c_peq_ca_times_c(z2, clov_offd(11), src(5));
-	  QLA_c_peq_ca_times_c(z3, clov_offd(13), src(5));
-	  QLA_c_peq_ca_times_c(z4, clov_offd(14), src(5));
-	  QLA_c_peq_r_times_c(z5, m4+clov_diag(5), src(5));
-
-	  QLA_c_peq_c(dest(0), z0);
-	  QLA_c_peq_c(dest(1), z1);
-	  QLA_c_peq_c(dest(2), z2);
-	  QLA_c_peq_c(dest(3), z3);
-	  QLA_c_peq_c(dest(4), z4);
-	  QLA_c_peq_c(dest(5), z5);
+      //flops = 6*44 = 264; bytes = 4*(36+12+12) = 240
+#if QLA_Colors != 3
+      {
+	for(int i=0; i<nc2; i++) {
+	  QLA_c_eq_r_times_c(dest(i), m4+clov_diag(i), src(i));
 	}
-#else
-	{
-	  QLA_Complex z0, z1, z2, z3, z4, z5;
-
-	  QLA_c_eq_r_times_c(z0, m4+clov_diag(0), src(0));
-	  QLA_c_eq_r_times_c(z1, m4+clov_diag(1), src(1));
-	  QLA_c_eq_r_times_c(z2, m4+clov_diag(2), src(2));
-	  QLA_c_eq_r_times_c(z3, m4+clov_diag(3), src(3));
-	  QLA_c_eq_r_times_c(z4, m4+clov_diag(4), src(4));
-	  QLA_c_eq_r_times_c(z5, m4+clov_diag(5), src(5));
-
-	  QLA_c_peq_c_times_c(z1, clov_offd(0), src(0));
-	  QLA_c_peq_ca_times_c(z0, clov_offd(0), src(1));
-
-	  QLA_c_peq_c_times_c(z3, clov_offd(9), src(2));
-	  QLA_c_peq_ca_times_c(z2, clov_offd(9), src(3));
-
-	  QLA_c_peq_c_times_c(z5, clov_offd(14), src(4));
-	  QLA_c_peq_ca_times_c(z4, clov_offd(14), src(5));
-
-	  QLA_c_peq_c_times_c(z2, clov_offd(1), src(0));
-	  QLA_c_peq_ca_times_c(z0, clov_offd(1), src(2));
-
-	  QLA_c_peq_c_times_c(z4, clov_offd(12), src(3));
-	  QLA_c_peq_ca_times_c(z3, clov_offd(12), src(4));
-
-	  QLA_c_peq_c_times_c(z5, clov_offd(8), src(1));
-	  QLA_c_peq_ca_times_c(z1, clov_offd(8), src(5));
-
-	  QLA_c_peq_c_times_c(z3, clov_offd(2), src(0));
-	  QLA_c_peq_ca_times_c(z0, clov_offd(2), src(3));
-
-	  QLA_c_peq_c_times_c(z4, clov_offd(7), src(1));
-	  QLA_c_peq_ca_times_c(z1, clov_offd(7), src(4));
-
-	  QLA_c_peq_c_times_c(z5, clov_offd(11), src(2));
-	  QLA_c_peq_ca_times_c(z2, clov_offd(11), src(5));
-
-	  QLA_c_peq_c_times_c(z4, clov_offd(3), src(0));
-	  QLA_c_peq_ca_times_c(z0, clov_offd(3), src(4));
-
-	  QLA_c_peq_c_times_c(z5, clov_offd(13), src(3));
-	  QLA_c_peq_ca_times_c(z3, clov_offd(13), src(5));
-
-	  QLA_c_peq_c_times_c(z2, clov_offd(5), src(1));
- 	  QLA_c_peq_ca_times_c(z1, clov_offd(5), src(2));
-
-	  QLA_c_peq_c_times_c(z5, clov_offd(4), src(0));
-	  QLA_c_peq_ca_times_c(z0, clov_offd(4), src(5));
-
-	  QLA_c_peq_c_times_c(z4, clov_offd(10), src(2));
-	  QLA_c_peq_ca_times_c(z2, clov_offd(10), src(4));
-
-	  QLA_c_peq_c_times_c(z3, clov_offd(6), src(1));
-	  QLA_c_peq_ca_times_c(z1, clov_offd(6), src(3));
-
-	  QLA_c_peq_c(dest(0), z0);
-	  QLA_c_peq_c(dest(1), z1);
-	  QLA_c_peq_c(dest(2), z2);
-	  QLA_c_peq_c(dest(3), z3);
-	  QLA_c_peq_c(dest(4), z4);
-	  QLA_c_peq_c(dest(5), z5);
+	for(int j=0; j<nc2; j++) {
+	  for(int i=j+1; i<nc2; i++) {
+	    //cl[2nc-2+(4nc-3-j)*j+2i] = c(ic,is,jc,js)
+	    int k = (4*QLA_Nc-3-j)*j + 2*(i-1);
+	    QLA_c_peq_c_times_c(dest(i), clov_offd2(k), src(j));
+	    QLA_c_peq_ca_times_c(dest(j), clov_offd2(k), src(i));
+	  }
 	}
-#endif
       }
+#else
+      {
+	QLA_Complex z0, z1, z2, z3, z4, z5;
+
+	QLA_c_eq_r_times_c(z0, m4+clov_diag(0), src(0));
+	QLA_c_eq_r_times_c(z1, m4+clov_diag(1), src(1));
+	QLA_c_eq_r_times_c(z2, m4+clov_diag(2), src(2));
+	QLA_c_eq_r_times_c(z3, m4+clov_diag(3), src(3));
+	QLA_c_eq_r_times_c(z4, m4+clov_diag(4), src(4));
+	QLA_c_eq_r_times_c(z5, m4+clov_diag(5), src(5));
+
+	QLA_c_peq_c_times_c(z1, clov_offd(0), src(0));
+	QLA_c_peq_ca_times_c(z0, clov_offd(0), src(1));
+
+	QLA_c_peq_c_times_c(z3, clov_offd(9), src(2));
+	QLA_c_peq_ca_times_c(z2, clov_offd(9), src(3));
+
+	QLA_c_peq_c_times_c(z5, clov_offd(14), src(4));
+	QLA_c_peq_ca_times_c(z4, clov_offd(14), src(5));
+
+	QLA_c_peq_c_times_c(z2, clov_offd(1), src(0));
+	QLA_c_peq_ca_times_c(z0, clov_offd(1), src(2));
+
+	QLA_c_peq_c_times_c(z4, clov_offd(12), src(3));
+	QLA_c_peq_ca_times_c(z3, clov_offd(12), src(4));
+
+	QLA_c_peq_c_times_c(z5, clov_offd(8), src(1));
+	QLA_c_peq_ca_times_c(z1, clov_offd(8), src(5));
+
+	QLA_c_peq_c_times_c(z3, clov_offd(2), src(0));
+	QLA_c_peq_ca_times_c(z0, clov_offd(2), src(3));
+
+	QLA_c_peq_c_times_c(z4, clov_offd(7), src(1));
+	QLA_c_peq_ca_times_c(z1, clov_offd(7), src(4));
+
+	QLA_c_peq_c_times_c(z5, clov_offd(11), src(2));
+	QLA_c_peq_ca_times_c(z2, clov_offd(11), src(5));
+
+	QLA_c_peq_c_times_c(z4, clov_offd(3), src(0));
+	QLA_c_peq_ca_times_c(z0, clov_offd(3), src(4));
+
+	QLA_c_peq_c_times_c(z5, clov_offd(13), src(3));
+	QLA_c_peq_ca_times_c(z3, clov_offd(13), src(5));
+
+	QLA_c_peq_c_times_c(z2, clov_offd(5), src(1));
+	QLA_c_peq_ca_times_c(z1, clov_offd(5), src(2));
+
+	QLA_c_peq_c_times_c(z5, clov_offd(4), src(0));
+	QLA_c_peq_ca_times_c(z0, clov_offd(4), src(5));
+
+	QLA_c_peq_c_times_c(z4, clov_offd(10), src(2));
+	QLA_c_peq_ca_times_c(z2, clov_offd(10), src(4));
+
+	QLA_c_peq_c_times_c(z3, clov_offd(6), src(1));
+	QLA_c_peq_ca_times_c(z1, clov_offd(6), src(3));
+
+	QLA_c_peq_c(dest(0), z0);
+	QLA_c_peq_c(dest(1), z1);
+	QLA_c_peq_c(dest(2), z2);
+	QLA_c_peq_c(dest(3), z3);
+	QLA_c_peq_c(dest(4), z4);
+	QLA_c_peq_c(dest(5), z5);
+      }
+#endif // QLA_Colors == 3
     }
-    //}
-    //QDP_reset_D(in);
-    //QDP_reset_D(out);
+  }
 }
 
 static void
 apply_clov(REAL *clov, QLA_Real m4, QDP_DiracFermion *out,
 	   QDP_DiracFermion *in, QDP_Subset subset)
 {
+#define NC QDP_get_nc(in)
   QLA_DiracFermion *clov_out, *clov_in;
   clov_out = QDP_expose_D(out);
   clov_in = QDP_expose_D(in);
-  apply_clov_qla(clov, m4, clov_out, clov_in, subset);
+  apply_clov_qla(NCARG clov, m4, clov_out, clov_in, subset);
   QDP_reset_D(in);
   QDP_reset_D(out);
+#undef NC
 }
 
 static void

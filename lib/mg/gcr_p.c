@@ -1,7 +1,5 @@
 #include <qop_internal.h>
 
-#ifdef USE_MG
-
 #include <string.h>
 #include <qdp_fn.h>
 #include <qdp_dn.h>
@@ -696,5 +694,3 @@ QCDP(gcrSolveEo)(QDPN(ColorVector) **out, QDPN(ColorVector) **in, int sign, void
   sa->reconstruct(out, sa->outeo, in, sa->opargs);
   return n;
 }
-
-#endif

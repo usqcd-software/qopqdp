@@ -3,6 +3,8 @@
 #ifndef _QOP_F__IP_GENERIC_H
 #define _QOP_F__IP_GENERIC_H
 
+#define QOP_Gcr QOP_F_Gcr
+#define QOP_GcrSolveArgs QOP_F_GcrSolveArgs
 #define QOP_MgVcycleArgs QOP_F_MgVcycleArgs
 #define QOP_mgVcycle QOP_F_mgVcycle
 

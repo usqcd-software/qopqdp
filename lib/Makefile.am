@@ -35,6 +35,8 @@ NC1SOURCES = \
   pcstubs/wilson_dslash_f1.c pcstubs/wilson_dslash_d1.c \
   pcstubs/wilson_invert_f1.c pcstubs/wilson_invert_d1.c \
   pcstubs/wilson_force_f1.c pcstubs/wilson_force_d1.c \
+  pcstubs/wilson_mg_f1.c pcstubs/wilson_mg_d1.c \
+  pcstubs/wilson_ops_f1.c pcstubs/wilson_ops_d1.c \
   pcstubs/dw_dslash_f1.c pcstubs/dw_dslash_d1.c \
   pcstubs/dw_invert_f1.c pcstubs/dw_invert_d1.c \
   pcstubs/invert_cg_V_f1.c pcstubs/invert_cg_V_d1.c \
@@ -68,6 +70,8 @@ NC2SOURCES = \
   pcstubs/wilson_dslash_f2.c pcstubs/wilson_dslash_d2.c \
   pcstubs/wilson_invert_f2.c pcstubs/wilson_invert_d2.c \
   pcstubs/wilson_force_f2.c pcstubs/wilson_force_d2.c \
+  pcstubs/wilson_mg_f2.c pcstubs/wilson_mg_d2.c \
+  pcstubs/wilson_ops_f2.c pcstubs/wilson_ops_d2.c \
   pcstubs/dw_dslash_f2.c pcstubs/dw_dslash_d2.c \
   pcstubs/dw_invert_f2.c pcstubs/dw_invert_d2.c \
   pcstubs/invert_cg_V_f2.c pcstubs/invert_cg_V_d2.c \
@@ -114,14 +118,9 @@ NC3SOURCES = \
   pcstubs/invert_eigcg_V_f3.c pcstubs/invert_eigcg_V_d3.c \
   pcstubs/invert_eigcg_D_f3.c pcstubs/invert_eigcg_D_d3.c \
   pcstubs/invert_gmres2_D_f3.c pcstubs/invert_gmres2_D_d3.c \
-  pcstubs/invert_bicgstab_f3.c pcstubs/invert_bicgstab_d3.c \
-  pcstubs/invert_cgls_f3.c pcstubs/invert_cgls_d3.c \
-  pcstubs/invert_gcr_f3.c pcstubs/invert_gcr_d3.c \
   pcstubs/invert_utilities_V_f3.c pcstubs/invert_utilities_V_d3.c \
   pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
-  pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c \
-  pcstubs/mg_f3.c pcstubs/mg_d3.c \
-  pcstubs/mg_dslash_f3.c pcstubs/mg_dslash_d3.c
+  pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c
 
 NCNSOURCES = \
   pcstubs/common_fn.c pcstubs/common_dn.c \
@@ -143,6 +142,8 @@ NCNSOURCES = \
   pcstubs/wilson_dslash_fn.c pcstubs/wilson_dslash_dn.c \
   pcstubs/wilson_invert_fn.c pcstubs/wilson_invert_dn.c \
   pcstubs/wilson_force_fn.c pcstubs/wilson_force_dn.c \
+  pcstubs/wilson_mg_fn.c pcstubs/wilson_mg_dn.c \
+  pcstubs/wilson_ops_fn.c pcstubs/wilson_ops_dn.c \
   pcstubs/dw_dslash_fn.c pcstubs/dw_dslash_dn.c \
   pcstubs/dw_invert_fn.c pcstubs/dw_invert_dn.c \
   pcstubs/invert_cg_V_fn.c pcstubs/invert_cg_V_dn.c \
@@ -152,9 +153,14 @@ NCNSOURCES = \
   pcstubs/invert_eigcg_V_fn.c pcstubs/invert_eigcg_V_dn.c \
   pcstubs/invert_eigcg_D_fn.c pcstubs/invert_eigcg_D_dn.c \
   pcstubs/invert_gmres2_D_fn.c pcstubs/invert_gmres2_D_dn.c \
+  pcstubs/invert_bicgstab_fn.c pcstubs/invert_bicgstab_dn.c \
+  pcstubs/invert_cgls_fn.c pcstubs/invert_cgls_dn.c \
+  pcstubs/invert_gcr_fn.c pcstubs/invert_gcr_dn.c \
   pcstubs/invert_utilities_V_fn.c pcstubs/invert_utilities_V_dn.c \
   pcstubs/invert_utilities_D_fn.c pcstubs/invert_utilities_D_dn.c \
   pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c \
+  pcstubs/mg_fn.c pcstubs/mg_dn.c \
+  pcstubs/mg_dslash_fn.c pcstubs/mg_dslash_dn.c \
   pcstubs/vcycle_fn.c pcstubs/vcycle_dn.c
 
 EXTRA_DIST = \

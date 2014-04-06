@@ -29,10 +29,12 @@ for P in F D; do
 done
 
 for C in 1 2 3 N; do
+  c=`echo $C |tr 'A-Z' 'a-z'`
   #./makespecific qop_poc.h F$C >qop_df$c.h
   #./makespecific qop_poc.h D$C >>qop_df$c.h
   ./makespecific qop_poc.h F $C >qop_df$c.h
   ./makespecific qop_poc.h D $C >>qop_df$c.h
-  ./makegeneric qop_poc.h POC FD$C FD >qop_df${c}_color_generic.h
+  ./makegeneric qop_pc.h C $C >qop_df${c}_color_generic.h
+  ./makegeneric qop_poc.h POC FD$C FD >>qop_df${c}_color_generic.h
   ./makegeneric qop_poc.h POC DF$C DF >>qop_df${c}_color_generic.h
 done

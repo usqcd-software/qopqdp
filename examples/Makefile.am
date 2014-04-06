@@ -27,6 +27,10 @@ if NCN
   wilson_invert_bench_f1 wilson_invert_bench_d1 \
   wilson_force_bench_f1 wilson_force_bench_d1 \
   dw_invert_bench_f1 dw_invert_bench_d1
+if NCN
+  check_PROGRAMS += \
+  wilson_mg_test_f1 wilson_mg_test_d1
+endif
 endif
 if NC2
   check_PROGRAMS += \
@@ -41,6 +45,10 @@ if NC2
   wilson_invert_bench_f2 wilson_invert_bench_d2 \
   wilson_force_bench_f2 wilson_force_bench_d2 \
   dw_invert_bench_f2 dw_invert_bench_d2
+if NCN
+  check_PROGRAMS += \
+  wilson_mg_test_f2 wilson_mg_test_d2
+endif
 endif
 if NC3
   check_PROGRAMS += \
@@ -74,6 +82,7 @@ if NCN
   wilson_test_fn wilson_test_dn \
   wilson_invert_bench_fn wilson_invert_bench_dn \
   wilson_force_bench_fn wilson_force_bench_dn \
+  wilson_mg_test_fn wilson_mg_test_dn \
   dw_invert_bench_fn dw_invert_bench_dn
 endif
 
@@ -309,11 +318,29 @@ wilson_invert_bench_dn_SOURCES = test_common.h test_common.c wilson_invert_bench
 wilson_invert_bench_dn_CFLAGS = $(DN_CFLAGS)
 
 
+wilson_mg_test_f1_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_f1_CFLAGS = $(F1_CFLAGS)
+
+wilson_mg_test_d1_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_d1_CFLAGS = $(D1_CFLAGS)
+
+wilson_mg_test_f2_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_f2_CFLAGS = $(F2_CFLAGS)
+
+wilson_mg_test_d2_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_d2_CFLAGS = $(D2_CFLAGS)
+
 wilson_mg_test_f3_SOURCES = test_common.h test_common.c wilson_mg_test.c
 wilson_mg_test_f3_CFLAGS = $(F3_CFLAGS)
 
 wilson_mg_test_d3_SOURCES = test_common.h test_common.c wilson_mg_test.c
 wilson_mg_test_d3_CFLAGS = $(D3_CFLAGS)
+
+wilson_mg_test_fn_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_fn_CFLAGS = $(FN_CFLAGS)
+
+wilson_mg_test_dn_SOURCES = test_common.h test_common.c wilson_mg_test.c
+wilson_mg_test_dn_CFLAGS = $(DN_CFLAGS)
 
 
 wilson_force_bench_f1_SOURCES = test_common.h test_common.c wilson_force_bench.c

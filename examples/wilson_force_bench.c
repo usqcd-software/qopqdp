@@ -98,7 +98,7 @@ start(void)
     coeffs.clov_s = 0;
     coeffs.clov_t = 0;
   }
-  coeffs.aniso = 0;
+  coeffs.aniso = 1;
 
   plaq = get_plaq(u);
   if(QDP_this_node==0) printf("plaquette = %g\n", plaq);

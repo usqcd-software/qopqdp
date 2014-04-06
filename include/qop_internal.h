@@ -196,19 +196,33 @@ extern QOP_hisq_links_t QOP_hisq_links;
 QDP_Subset *QOP_get_sub32(QDP_Lattice *lat);
 QOP_status_t QOP_asqtad_invert_init(void);
 
+#define APPLY(m,...) m(__VA_ARGS__)
+#define CAT4(a,b,c,d) a ## b ## c ## d
+
 #if QOP_Precision == 'F'
 #define QOPP(x) QOP_F_##x
-#define QOPPC(x) QOP_F3_##x
-#define QDPP(x) QDP_F_##x
-#define QDPPC(x) QDP_F3_##x
 #define REAL float
+#if QOP_Colors == 'N'
+#define QOPPC(x) QOP_FN_##x
+#else
+#define QOPPC(x) APPLY(CAT4,QOP_F,QOP_Colors,_,x)
+#endif
 #else
 #define QOPP(x) QOP_D_##x
-#define QOPPC(x) QOP_D3_##x
-#define QDPP(x) QDP_D_##x
-#define QDPPC(x) QDP_D3_##x
 #define REAL double
+#if QOP_Colors == 'N'
+#define QOPPC(x) QOP_DN_##x
+#else
+#define QOPPC(x) APPLY(CAT4,QOP_D,QOP_Colors,_,x)
 #endif
+#endif
+
+#if QOP_Colors == 'N'
+#define QOPFC(x) QOP_FN_##x
+#else
+#define QOPFC(x) APPLY(CAT4,QOP_F,QOP_Colors,_,x)
+#endif
+#define QDPPC(x) QDP_##x
 
 //AB HISQ derivatives, rank-4 tensor
 #if QOP_Precision == 'F'
@@ -242,9 +256,6 @@ QOP_D3_u3_un_der_analytic( QOP_info_t *info,
                            QLA_D3_ColorTensor4 *dwdagdv, int *svd_calls, int *ff_counter );
 QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 
-#define CLOV_REALS (2*6*6) // 2 packed 6x6 Hermitian matrices
-#define CLOV_SIZE (CLOV_REALS*sizeof(REAL)) 
-
 #if QOP_Precision == 'F'
 #  include <qop_f_internal.h>
 #else
@@ -260,10 +271,11 @@ QLA_D_Complex QOP_D3_su3_mat_det( QLA_D3_ColorMatrix *U);
 #elif QOP_Colors == 3
 #include <qop_f3_internal.h>
 #include <qop_d3_internal.h>
-#include <qop_mg_internal.h>
 #elif QOP_Colors == 'N'
 #include <qop_fn_internal.h>
 #include <qop_dn_internal.h>
 #endif
+
+#include <qop_mg_internal.h>
 
 #endif /* _QOP_INTERNAL_H */
