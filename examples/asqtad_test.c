@@ -103,10 +103,10 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     }
     QMP_barrier();
     if(nmass == 1) {
-      //QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
-      QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,&res_arg,&mass,&out,&in,1);
+      QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout[0], qopin);
+      //QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,&res_arg,&mass,&out,&in,1);
     } else {
-#if 0
+#if 1
       QOP_ColorVector **pqo = qopout;
       QOP_asqtad_invert_multi(info,fla,inv_arg,&pra,&pm,&nmass,&pqo,&qopin,1);
 #else

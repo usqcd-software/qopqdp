@@ -42,8 +42,8 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     qopin = QOP_create_V_from_qdp(in);
     QMP_barrier();
     if(nthreads==0) {
-      //QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
-      QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,&res_arg,&mass,&out,&in,1);
+      QOP_asqtad_invert(info, fla, inv_arg, res_arg, mass, qopout, qopin);
+      //QOP_asqtad_solve_multi_qdp(info,fla,inv_arg,&res_arg,&mass,&out,&in,1);
     } else {
       //QOP_asqtad_invert_threaded(info, fla, inv_arg, res_arg, mass, qopout, qopin, nthreads);
     }

@@ -194,8 +194,6 @@ QOP_asqtad_invert_threaded(QOP_info_t *info,
 }
 #endif
 
-
-#if 1
 static void
 QOP_asqtad_solve_multiA(QOP_info_t *info,
 			QOP_FermionLinksAsqtad *fla,
@@ -277,7 +275,7 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
       d = Ax2[kx] + m2[ko]*x2[kx];
       //QOP_printf0("d: %g\n", d);
     }
-    VERB(LOW, "REFINE: d: %g\n", d);
+    VERB(MED, "REFINE: d: %g\n", d);
     if(d!=0) {
       double di = 1/d;
       double dim2 = di*m2[ko];
@@ -296,7 +294,7 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
     QDP_r_eq_norm2_V(&o2, out[ko], insub);
     QDP_r_eq_norm2_V(&Ao2, Aout[ko], opsub);
     d = Ao2 + m2[kx]*o2;
-    VERB(LOW, "REFINE: d: %g  o2: %g  Ao2: %g\n", d, o2, Ao2);
+    VERB(MED, "REFINE: d: %g  o2: %g  Ao2: %g\n", d, o2, Ao2);
     if(d!=0) {
       double di = 1/d;
       QLA_c_eq_r_times_c(s, di, z);
@@ -412,7 +410,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     // find least converged (or smaller mass if tie)
     int imax = 0;
     double r2max=1, r2stopmax=1, in2max=1;
-    VERB(LOW, "SOLVE: its: %i\n", iter);
+    VERB(MED, "SOLVE: its: %i\n", iter);
     for(int i=0; i<nsolve; i++) {
       // find the stopping criterion that is closer to convergence for this 'i'
       double r2i = r2[i];
@@ -432,10 +430,12 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 	r2stopmax = r2stopi;
 	in2max = in2i;
       }
-      VERB(LOW, "SOLVE[%i]: rsq = %g rel = %g\n", i,
+      VERB(MED, "SOLVE[%i]: rsq = %g rel = %g\n", i,
 	   r2[i]/in2[i], res_arg[i]->final_rel);
     }
-    //QOP_printf0("imax: %i\n", imax);
+    VERB(LOW, "SOLVE: its: %i worst: %i mass: %g rsq: %g/%g rel: %g/%g\n",
+	 iter, imax, masses[imax], r2[imax]/in2[imax], res_arg[imax]->rsqmin,
+	 res_arg[imax]->final_rel, res_arg[imax]->relmin);
     // if least converged has converged, we're done
     if( r2max <= r2stopmax ||
 	nrestart >= max_restarts ||
@@ -550,8 +550,6 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   QDP_destroy_V(tv);
 #undef NC
 }
-#endif
-
 
 void
 QOP_asqtad_invert_qdp(QOP_info_t *info,
@@ -562,6 +560,11 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
 		      QDP_ColorVector *out,
 		      QDP_ColorVector *in)
 {
+  if(inv_arg->evenodd!=QOP_EVENODD) {
+    QOP_asqtad_solve_multi_qdp(info, fla, inv_arg, &res_arg,
+			       &mass, &out, &in, 1);
+    return;
+  }
 #define NC QDP_get_nc(in)
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
@@ -741,11 +744,30 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
 			    QOP_FermionLinksAsqtad *fla,
 			    QOP_invert_arg_t *inv_arg,
 			    QOP_resid_arg_t **res_arg[],
-			    REAL *masses[], int nmass[],
+			    QOP_Real *masses[], int nmass[],
 			    QDP_ColorVector **out_pt[],
 			    QDP_ColorVector *in_pt[],
 			    int nsrc)
 {
+  if(inv_arg->evenodd!=QOP_EVENODD) {
+    int nsolve = 0;
+    for(int i=0; i<nsrc; i++) nsolve += nmass[i];
+    QOP_resid_arg_t *ra[nsolve];
+    QOP_Real ms[nsolve];
+    QDP_ColorVector *out[nsolve], *in[nsolve];
+    int k = 0;
+    for(int i=0; i<nsrc; i++) {
+      for(int j=0; j<nmass[i]; j++) {
+	ra[k] = res_arg[i][j];
+	ms[k] = masses[i][j];
+	out[k] = out_pt[i][j];
+	in[k] = in_pt[i];
+	k++;
+      }
+    }
+    QOP_asqtad_solve_multi_qdp(info, fla, inv_arg, ra, ms, out, in, nsolve);
+    return;
+  }
 #define NC QDP_get_nc(in_pt[0])
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */

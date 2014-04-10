@@ -185,9 +185,9 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
   }
 
   rsqstop = res_arg[imin]->rsqmin * insq;
-  VERB(LOW, "CGMS: rsqmin = %g relmin = %g\n", res_arg[imin]->rsqmin,
+  VERB(MED, "CGMS: rsqmin = %g relmin = %g\n", res_arg[imin]->rsqmin,
        res_arg[imin]->relmin);
-  VERB(LOW, "CGMS: rsqstop = %g\n", rsqstop);
+  VERB(MED, "CGMS: rsqstop = %g\n", rsqstop);
   rsq = insq;
   relnorm2 = 1;
   //printf("start %g\n", rsq);
@@ -278,7 +278,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
     res_arg[i]->final_iter = iteration;
     res_arg[i]->final_restart = 0;
   }
-  VERB(LOW, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
+  VERB(MED, "CGMS: done: iter %i rsq = %g\n", iteration, rsq);
 
   return QOP_SUCCESS;
 #undef NC

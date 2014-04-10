@@ -98,7 +98,8 @@ init_level(QOP_WilMgLevel l[], int n)
     l[n].scale = 1;
     l[n].fnc = l[n-1].nvecs;
   }
-  for(int i=0; i<l[n].ndim; i++) if(l[n].lattice_size[i]<1) l[n].lattice_size[i]=1;
+  for(int i=0; i<l[n].ndim; i++)
+    if(l[n].lattice_size[i]<1) l[n].lattice_size[i] = 1;
 #ifdef SPLIT_CHIRALITIES
   l[n].nv = 2;
 #else
@@ -113,6 +114,17 @@ init_level(QOP_WilMgLevel l[], int n)
   l[n].setup_maxit = 100;
   l[n].setup_nvecs = 0;
   l[n].verbose = 1;
+  l[n].lattice = NULL;
+  l[n].mgblock = NULL;
+  l[n].mgargs = NULL;
+  l[n].vca = NULL;
+  l[n].cfoa = NULL;
+  l[n].dargs = NULL;
+  l[n].gcrc = NULL;
+  l[n].sa = NULL;
+  l[n].fcoa = NULL;
+  l[n].gcrf = NULL;
+  l[n].vca = NULL;
 }
 
 static QLA_Real
@@ -258,7 +270,7 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
     if(i==0) {
       for(int j=0; j<nv; j++) QDP_FN_V_eq_gaussian_S(pv[i][j], rs, allf);
     }
-  TRACE;
+    TRACE;
     //if(i==1) maxit /= 2;
     QLA_Real sv2=FLT_MAX, sv2o;
     int nhits=0;
@@ -271,15 +283,15 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
         QLA_Complex z = dotV(pv[k], pv[i], nv);
         for(int j=0; j<nv; j++) { QDP_FN_V_meq_c_times_V(pv[i][j], &z, pv[k][j], allf); }
       }
-  TRACE;
+      TRACE;
       //prn(pv[i]);
       nits += smoother(tv, pv[i], 1, sargs);
-  TRACE;
+      TRACE;
       //prn(tv);
       QLA_Real nrm = norm2V(tv, nv);
-  TRACE;
+      TRACE;
       op(pv[i], tv, 1, opargs);
-  TRACE;
+      TRACE;
       QLA_Real nrm2 = norm2V(pv[i], nv);
       sv2o = sv2;
       sv2 = nrm2/nrm;
@@ -289,7 +301,7 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
       for(int j=0; j<nv; j++) { QDP_FN_V_eq_r_times_V(pv[i][j], &scale, tv[j], allf); }
       if(verbose>0) QOP_printf0("%i %g\n", i, sv2);
       if(i>0 && nhits==4) break;
-  TRACE;
+      TRACE;
     } while(sv2<change_fac*sv2o);
     tnits += nits;
     QOP_printf0("%-3i %-3i %-5i  %-10g  %-10g", i, nhits, nits, sqrt(sv2), sqrt(sv2o));
@@ -407,26 +419,37 @@ create_level(QOP_WilsonMg *wmg, int n)
   }
 
   // create coarse lattice, MgBlock and MgArgs
-  QOP_printf0("creating lattice:");
-  for(int i=0; i<l[n].ndim; i++) QOP_printf0(" %i", l[n].lattice_size[i]);
-  QOP_printf0("\n");
-  l[n].lattice = QDP_create_lattice(QDP_get_default_layout(), NULL,
-				    l[n].ndim, l[n].lattice_size);
-
-  QOP_printf0("\ncreating block\n");
-  l[n].mgblock = QOP_mgCreateBlockFromLattice(lat0, l[n].lattice);
-
-  QOP_printf0("creating args\n");
-  l[n].mgargs = QOP_mgCreateArgs(l[n].mgblock, l[n].nvecs, l[n].fnc, l[n].nv, NULL, NULL);
+  if(l[n].lattice==NULL) {
+    QOP_printf0("creating lattice:");
+    for(int i=0; i<l[n].ndim; i++) QOP_printf0(" %i", l[n].lattice_size[i]);
+    QOP_printf0("\n");
+    l[n].lattice = QDP_create_lattice(QDP_get_default_layout(), NULL,
+				      l[n].ndim, l[n].lattice_size);
+  }
+  if(l[n].mgblock==NULL) {
+    QOP_printf0("\ncreating block\n");
+    l[n].mgblock = QOP_mgCreateBlockFromLattice(lat0, l[n].lattice);
+  }
+  if(l[n].mgargs==NULL) {
+    QOP_printf0("creating args\n");
+    l[n].mgargs = QOP_mgCreateArgs(l[n].mgblock, l[n].nvecs, l[n].fnc, l[n].nv, NULL, NULL);
+  }
 
   // create some vectors for the vcycle and also used in setup
-  QDP_FN_ColorVector **QOP_malloc(fr, QDP_FN_ColorVector *, nv);
-  QDP_FN_ColorVector **QOP_malloc(fp, QDP_FN_ColorVector *, nv);
-  QDP_FN_ColorVector **QOP_malloc(fAp, QDP_FN_ColorVector *, nv);
-  for(int i=0; i<nv; i++) {
-    fr[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
-    fp[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
-    fAp[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+  QDP_FN_ColorVector **fr, **fp, **fAp;
+  if(l[n].vca==NULL) {
+    QOP_malloc(fr, QDP_FN_ColorVector *, nv);
+    QOP_malloc(fp, QDP_FN_ColorVector *, nv);
+    QOP_malloc(fAp, QDP_FN_ColorVector *, nv);
+    for(int i=0; i<nv; i++) {
+      fr[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+      fp[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+      fAp[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+    }
+  } else {
+    fr = l[n].vca->r;
+    fp = l[n].vca->p;
+    fAp = l[n].vca->Ap;
   }
 
   // get nullvecs
@@ -502,132 +525,145 @@ create_level(QOP_WilsonMg *wmg, int n)
   TRACE;
 
   // create coarse Dslash
-  QDP_FN_ColorVector **QOP_malloc(fin, QDP_FN_ColorVector *, nv);
-  QDP_FN_ColorVector **QOP_malloc(fout, QDP_FN_ColorVector *, nv);
-  for(int i=0; i<nv; i++) {
-    fin[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
-    fout[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+  if(l[n].cfoa==NULL) {
+    QDP_FN_ColorVector **QOP_malloc(fin, QDP_FN_ColorVector *, nv);
+    QDP_FN_ColorVector **QOP_malloc(fout, QDP_FN_ColorVector *, nv);
+    for(int i=0; i<nv; i++) {
+      fin[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+      fout[i] = QDP_FN_create_V_L(l[n].fnc, lat0);
+    }
+    QOP_F_MgC2fOpArgs *QOP_malloc(cfoa, QOP_F_MgC2fOpArgs, 1);
+    l[n].cfoa = cfoa;
+    cfoa->mga = l[n].mgargs;
+    cfoa->op = l[n].cfop;
+    cfoa->opargs = l[n].cfopargs;
+    cfoa->fin = fin;
+    cfoa->fout = fout;
+    cfoa->fpar = QOP_EVENODD;
   }
-  QOP_F_MgC2fOpArgs *QOP_malloc(cfoa, QOP_F_MgC2fOpArgs, 1);
-  l[n].cfoa = cfoa;
-  cfoa->mga = l[n].mgargs;
-  cfoa->op = l[n].cfop;
-  cfoa->opargs = l[n].cfopargs;
-  cfoa->fin = fin;
-  cfoa->fout = fout;
-  cfoa->fpar = QOP_EVENODD;
 
   TRACE;
   // create true coarse op
-  QOP_printf0("\ncreating true coarse operator\n");
+  if(l[n].dargs==NULL) {
+    QOP_printf0("\ncreating true coarse operator\n");
 #if 0
-  QOP_F_MgDslashArgs *dargs =
-    QOP_F_mgCreateDslash(l[n].nv, l[n].nvecs, l[n].lattice);
-  QOP_F_mgCloneOp(QOP_F_mgC2fOp, cfoa, 1, dargs);
+    QOP_F_MgDslashArgs *dargs =
+      QOP_F_mgCreateDslash(l[n].nv, l[n].nvecs, l[n].lattice);
+    QOP_F_mgCloneOp(QOP_F_mgC2fOp, cfoa, 1, dargs);
 #else
-  int npaths = 9;
-  int paths[npaths][4];
-  for(int j=0; j<4; j++) paths[0][j] = 0;
-  for(int i=0; i<4; i++) {
-    for(int j=0; j<4; j++) paths[i+1][j] = 0;
-    paths[i+1][i] = 1;
-    for(int j=0; j<4; j++) paths[i+5][j] = 0;
-    paths[i+5][i] = -1;
-  }
-  QOP_F_MgDslashArgs *dargs =
-    QOP_F_mgCreateDslash(l[n].nv, l[n].nv, l[n].nvecs,
-			 npaths, paths[0], l[n].lattice);
-  QOP_F_mgCloneOp(QOP_F_mgC2fOp, cfoa, dargs);
+    int npaths = 9;
+    int paths[npaths][4];
+    for(int j=0; j<4; j++) paths[0][j] = 0;
+    for(int i=0; i<4; i++) {
+      for(int j=0; j<4; j++) paths[i+1][j] = 0;
+      paths[i+1][i] = 1;
+      for(int j=0; j<4; j++) paths[i+5][j] = 0;
+      paths[i+5][i] = -1;
+    }
+    QOP_F_MgDslashArgs *dargs =
+      QOP_F_mgCreateDslash(l[n].nv, l[n].nv, l[n].nvecs,
+			   npaths, paths[0], l[n].lattice);
 #endif
-  l[n].dargs = dargs;
+    l[n].dargs = dargs;
+  }
+  QOP_F_mgCloneOp(QOP_F_mgC2fOp, l[n].cfoa, l[n].dargs);
 
   // coarse solver
-  QOP_F_Gcr *gcrc = QOP_F_gcrInit(l[n].lattice, nv, l[n].nvecs, l[n].ngcr);
-  QOP_F_gcrSet(gcrc, "verbose", l[n].verbose);
-  QOP_F_gcrSet(gcrc, "indent", 2*(n+2));
-  l[n].gcrc = gcrc;
-
-  QDP_FN_ColorVector **QOP_malloc(cv2ineo, QDP_FN_ColorVector *, nv);
-  QDP_FN_ColorVector **QOP_malloc(cv2outeo, QDP_FN_ColorVector *, nv);
-  for(int i=0; i<nv; i++) {
-    cv2ineo[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
-    cv2outeo[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
+  if(l[n].gcrc==NULL) {
+    QOP_F_Gcr *gcrc = QOP_F_gcrInit(l[n].lattice, nv, l[n].nvecs, l[n].ngcr);
+    QOP_F_gcrSet(gcrc, "verbose", l[n].verbose);
+    QOP_F_gcrSet(gcrc, "indent", 2*(n+2));
+    l[n].gcrc = gcrc;
   }
-  QOP_F_GcrSolveArgs *QOP_malloc(sa, QOP_F_GcrSolveArgs, 1);
-  l[n].sa = sa;
+  if(l[n].sa==NULL) {
+    QDP_FN_ColorVector **QOP_malloc(cv2ineo, QDP_FN_ColorVector *, nv);
+    QDP_FN_ColorVector **QOP_malloc(cv2outeo, QDP_FN_ColorVector *, nv);
+    for(int i=0; i<nv; i++) {
+      cv2ineo[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
+      cv2outeo[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
+    }
+    QOP_F_GcrSolveArgs *QOP_malloc(sa, QOP_F_GcrSolveArgs, 1);
+    l[n].sa = sa;
 #ifdef EO_PREC
-  sa->op = QOP_F_mgDslashEo;
-  sa->sub = QDP_even_L(l[n].lattice);
+    sa->op = QOP_F_mgDslashEo;
+    sa->sub = QDP_even_L(l[n].lattice);
 #else
-  sa->op = QOP_F_mgDslashAll;
-  sa->sub = QDP_all_L(l[n].lattice);
+    sa->op = QOP_F_mgDslashAll;
+    sa->sub = QDP_all_L(l[n].lattice);
 #endif
-  sa->opargs = dargs;
-  sa->pop = NULL;
-  sa->popargs = NULL;
-  sa->res = l[n].cres;
-  sa->itmax = l[n].itmax;
-  sa->ngcr = l[n].ngcr;
-  sa->gcr = l[n].gcrc;
-  sa->ineo = cv2ineo;
-  sa->outeo = cv2outeo;
-  sa->project = QOP_F_mgDslashEoProject;
-  sa->reconstruct = QOP_F_mgDslashEoReconstruct;
+    sa->opargs = l[n].dargs;
+    sa->pop = NULL;
+    sa->popargs = NULL;
+    sa->res = l[n].cres;
+    sa->itmax = l[n].itmax;
+    sa->ngcr = l[n].ngcr;
+    sa->gcr = l[n].gcrc;
+    sa->ineo = cv2ineo;
+    sa->outeo = cv2outeo;
+    sa->project = QOP_F_mgDslashEoProject;
+    sa->reconstruct = QOP_F_mgDslashEoReconstruct;
+  }
 
   // fine to coarse solver
-  QDP_FN_ColorVector **QOP_malloc(cin, QDP_FN_ColorVector *, nv);
-  QDP_FN_ColorVector **QOP_malloc(cout, QDP_FN_ColorVector *, nv);
-  for(int i=0; i<nv; i++) {
-    cin[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
-    cout[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
-  }
-  QOP_MgF2cOpArgs *QOP_malloc(mgoa2, QOP_MgF2cOpArgs, 1);
-  l[n].fcoa = mgoa2;
-  mgoa2->mga = l[n].mgargs;
+  if(l[n].fcoa==NULL) {
+    QDP_FN_ColorVector **QOP_malloc(cin, QDP_FN_ColorVector *, nv);
+    QDP_FN_ColorVector **QOP_malloc(cout, QDP_FN_ColorVector *, nv);
+    for(int i=0; i<nv; i++) {
+      cin[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
+      cout[i] = QDP_FN_create_V_L(l[n].nvecs, l[n].lattice);
+    }
+    QOP_MgF2cOpArgs *QOP_malloc(mgoa2, QOP_MgF2cOpArgs, 1);
+    l[n].fcoa = mgoa2;
+    mgoa2->mga = l[n].mgargs;
 #ifdef EO_PREC
-  mgoa2->op = QOP_F_gcrSolveEo;
-  mgoa2->fpar = QOP_EVEN;
+    mgoa2->op = QOP_F_gcrSolveEo;
+    mgoa2->fpar = QOP_EVEN;
 #else
-  mgoa2->op = QOP_F_gcrSolveA;
-  mgoa2->fpar = QOP_EVENODD;
+    mgoa2->op = QOP_F_gcrSolveA;
+    mgoa2->fpar = QOP_EVENODD;
 #endif
-  mgoa2->opargs = sa;
-  mgoa2->cin = cin;
-  mgoa2->cout = cout;
+    mgoa2->opargs = l[n].sa;
+    mgoa2->cin = cin;
+    mgoa2->cout = cout;
+  }
 
   // smoother and vcycle
+  if(l[n].gcrf==NULL) {
 #define MAX(a,b) ((a)<(b)?(b):(a));
-  int ngcrf = MAX(l[n].npre, l[n].npost);
-  QOP_F_Gcr *gcrf = QOP_F_gcrInit(lat0, nv, l[n].fnc, ngcrf);
-  QOP_F_gcrSet(gcrf, "verbose", l[n].verbose);
-  QOP_F_gcrSet(gcrf, "indent", 2*(n+1));
-  l[n].gcrf = gcrf;
-  QOP_F_MgVcycleArgs *QOP_malloc(vc, QOP_F_MgVcycleArgs, 1);
-  l[n].vca = vc;
-  vc->op = l[n].vcop;
-  vc->opargs = l[n].vcopargs;
-  vc->cop = QOP_F_mgF2cOp;
-  vc->copargs = mgoa2;
-  vc->nv = l[n].nv;
-  vc->npre = l[n].npre;
-  vc->npost = l[n].npost;
-  vc->verbose = l[n].verbose;
-  vc->indent = 2*(n+1);
+    int ngcrf = MAX(l[n].npre, l[n].npost);
+    QOP_F_Gcr *gcrf = QOP_F_gcrInit(lat0, nv, l[n].fnc, ngcrf);
+    QOP_F_gcrSet(gcrf, "verbose", l[n].verbose);
+    QOP_F_gcrSet(gcrf, "indent", 2*(n+1));
+    l[n].gcrf = gcrf;
+  }
+  if(l[n].vca==NULL) {
+    QOP_F_MgVcycleArgs *QOP_malloc(vc, QOP_F_MgVcycleArgs, 1);
+    l[n].vca = vc;
+    vc->op = l[n].vcop;
+    vc->opargs = l[n].vcopargs;
+    vc->cop = QOP_F_mgF2cOp;
+    vc->copargs = l[n].fcoa;
+    vc->nv = l[n].nv;
+    vc->npre = l[n].npre;
+    vc->npost = l[n].npost;
+    vc->verbose = l[n].verbose;
+    vc->indent = 2*(n+1);
 #ifdef EO_PREC
-  vc->sub = QDP_even_L(lat0);
+    vc->sub = QDP_even_L(lat0);
 #else
-  vc->sub = QDP_all_L(lat0);
+    vc->sub = QDP_all_L(lat0);
 #endif
-  vc->gcr = l[n].gcrf;
-  vc->r = fr;
-  vc->p = fp;
-  vc->Ap = fAp;
-  vc->s = l[n].scale;
+    vc->gcr = l[n].gcrf;
+    vc->r = fr;
+    vc->p = fp;
+    vc->Ap = fAp;
+    vc->s = l[n].scale;
+  }
 
   if(n>0) {
     // need to set vc as preconditioner for prev solver    
     l[n-1].sa->pop = QOP_F_mgVcycle;
-    l[n-1].sa->popargs = vc;
+    l[n-1].sa->popargs = l[n].vca;
   }
 #undef NC
 }

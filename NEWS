@@ -1,3 +1,7 @@
+2014-04-10:	James Osborn
+	Made multigrid setup rerunnable.
+	Changed verbose output in asqtad solver.
+
 2014-04-05:	James Osborn
 	Added new more stable mixed precision version of asqtad solver.
 	Made clover term and wilson multigrid work for any Nc.
