@@ -201,6 +201,17 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 
     //r_eq_re_V_dot_V(&pkp, p, Mp, subset);
     if(pkp<=0) break;  // loss of precision in calculating pkp
+    int doReliable = (iteration%50==0);
+    if(doReliable) { // reliable update
+      linop(r, out[imin], subset);
+      V_eq_V_minus_V(r, in, r, subset);
+      //QOP_printf0("rsq: %g\n", rsq);
+      //r_eq_norm2_V(&rsq, r, subset);
+      //QOP_printf0("rsq: %g\n", rsq);
+      r_eq_re_V_dot_V(&rsq, p, r, subset);
+      //QOP_printf0("rsq2: %g\n", rsq);
+      iteration++;
+    }
     b[imin] = rsq / pkp;
     zn[imin] = 1;
     for(int i=0; i<nshifts; i++) {
@@ -231,8 +242,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       relnorm2 = relnorm2_V(r, out[imax], subset);
     }
 
-    VERB(HI, "CGMS: iter %i rsq = %g rel = %g\n", iteration, rsq,
-	 relnorm2);
+    VERB(HI, "CGMS: iter %i rsq = %g rel = %g\n", iteration, rsq, relnorm2);
 
     if( (iteration%inv_arg->restart==0) ||
 	(iteration>=inv_arg->max_iter) ||
@@ -242,7 +252,13 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       break;
     }
 
-    a[imin] = rsq / oldrsq;
+    if(doReliable) {
+      double pAr;
+      r_eq_re_V_dot_V(&pAr, Mp, r, subset);
+      a[imin] = -pAr / pkp;
+    } else {
+      a[imin] = rsq / oldrsq;
+    }
     for(int i=0; i<nshifts; i++) {
       if(i!=imin) {
 	double c2 = z[i]*b[imin];

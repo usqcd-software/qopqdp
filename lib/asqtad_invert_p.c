@@ -361,8 +361,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   gl_fla = fla;
   gl_mass = 0;
   gl_eo = ineo;
-  gl_tmp2 = QOP_asqtad_dslash_get_tmp(fla, ineo, 1);
-  QDP_ColorVector *cgp = QOP_asqtad_dslash_get_tmp(fla, opeo, 1);
+  //gl_tmp2 = QOP_asqtad_dslash_get_tmp(fla, ineo, 1);
+  QDP_ColorVector *cgp = QOP_asqtad_dslash_get_tmp(fla, opeo, 2);
 
   QDP_r_veq_norm2_V(in2, in, insub, nsolve);
 
