@@ -191,6 +191,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
   rsq = insq;
   relnorm2 = 1;
   //printf("start %g\n", rsq);
+  double enrm=0, oldenrm;
 
   while(1) {
     oldrsq = rsq;
@@ -201,17 +202,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 
     //r_eq_re_V_dot_V(&pkp, p, Mp, subset);
     if(pkp<=0) break;  // loss of precision in calculating pkp
-    int doReliable = (iteration%50==0);
-    if(doReliable) { // reliable update
-      linop(r, out[imin], subset);
-      V_eq_V_minus_V(r, in, r, subset);
-      //QOP_printf0("rsq: %g\n", rsq);
-      //r_eq_norm2_V(&rsq, r, subset);
-      //QOP_printf0("rsq: %g\n", rsq);
-      r_eq_re_V_dot_V(&rsq, p, r, subset);
-      //QOP_printf0("rsq2: %g\n", rsq);
-      iteration++;
-    }
+
     b[imin] = rsq / pkp;
     zn[imin] = 1;
     for(int i=0; i<nshifts; i++) {
@@ -252,10 +243,44 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       break;
     }
 
-    if(doReliable) {
-      double pAr;
-      r_eq_re_V_dot_V(&pAr, Mp, r, subset);
-      a[imin] = -pAr / pkp;
+    if(iteration%100==0) {
+      double xAx = linop(Mp, out[imin], subset);
+      double xb;
+      r_eq_re_V_dot_V(&xb, out[imin], in, subset);
+      oldenrm = enrm;
+      enrm = 2*xb - xAx;
+      VERB(MED, "enrm: %g\n", enrm);
+      if(enrm<oldenrm) {
+	VERB(LOW, "enrm: %g < oldenrm: %g\n", enrm, oldenrm);
+	break;
+      }
+    }
+
+    int doReliable = (iteration%20==-1);
+    if(doReliable) { // reliable update
+      linop(r, out[imin], subset);
+      iteration++;
+      V_eq_V_minus_V(r, in, r, subset);
+      //QOP_printf0("rsq: %g\n", rsq);
+      r_eq_norm2_V(&rsq, r, subset);
+      //QOP_printf0("rsq: %g\n", rsq);
+      //r_eq_re_V_dot_V(&rsq, p, r, subset);
+      //QOP_printf0("rsq2: %g\n", rsq);
+      // make p orthogonal to r, p <- p + c r, c = -r.p/r.r
+      QLA_D_Complex rp, c;
+      c_eq_V_dot_V(&rp, r, p, subset);
+      QLA_c_eq_c_div_r(c, rp, -rsq);
+      V_peq_c_times_V(p, &c, r, subset);
+      //c_eq_V_dot_V(&rp, r, p, subset);
+      //QOP_printf0("rp: %g %g\n", QLA_real(rp), QLA_imag(rp));
+      //QLA_c_eq_c_div_r(c, rp, -rsq);
+      //V_peq_c_times_V(p, &c, r, subset);
+      //c_eq_V_dot_V(&rp, r, p, subset);
+      //QOP_printf0("rp: %g %g\n", QLA_real(rp), QLA_imag(rp));
+      //double pAr;
+      //r_eq_re_V_dot_V(&pAr, Mp, r, subset);
+      //a[imin] = -pAr / pkp;
+      a[imin] = rsq / oldrsq;
     } else {
       a[imin] = rsq / oldrsq;
     }

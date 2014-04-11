@@ -468,7 +468,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 	xf[i] = QDP_F_create_V();
 	//QDP_FD_V_eq_V(xf[i], x[i], insub);
       }
-      QDP_F_ColorVector *cgpf = QOPFC(asqtad_dslash_get_tmp)(flaf, opeo, 1);
+      QDP_F_ColorVector *cgpf = QOPFC(asqtad_dslash_get_tmp)(flaf, opeo, 2);
       if(mixedrsq>rsqminold) {
 	res_arg[imax]->rsqmin = mixedrsq*in2max/r2max;
       }
