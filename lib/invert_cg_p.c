@@ -259,8 +259,9 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 	V_peq_c_times_V(out[imin], &c, y, subset);
       }
       {  // y += c * x, r -= c A x  (c = x.r/x.A.x)
-	QLA_D_Complex xr, c;
 	double xAx = linop(Mp, out[imin], subset);
+	if(xAx<=0) break;
+	QLA_D_Complex xr, c;
 	c_eq_V_dot_V(&xr, out[imin], ry, subset);
 	QLA_c_eq_c_div_r(c, xr, xAx);
 	//QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
@@ -343,12 +344,16 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
     V_peq_c_times_V(out[imin], &c, y, subset);
   }
   {  // y += c * x, r -= c A x  (c = x.r/x.A.x)
-    QLA_D_Complex xr, c;
     double xAx = linop(Mp, out[imin], subset);
-    c_eq_V_dot_V(&xr, out[imin], ry, subset);
-    QLA_c_eq_c_div_r(c, xr, xAx);
-    //QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
-    V_peq_c_times_V(y, &c, out[imin], subset);
+    if(xAx>0) {
+      QLA_D_Complex xr, c;
+      c_eq_V_dot_V(&xr, out[imin], ry, subset);
+      QLA_c_eq_c_div_r(c, xr, xAx);
+      //QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
+      V_peq_c_times_V(y, &c, out[imin], subset);
+    } else {
+      VERB(LOW, "xAx<=0: %g\n", xAx);
+    }
   }
   V_eq_V(out[imin], y, subset);
   destroy_V(y);
