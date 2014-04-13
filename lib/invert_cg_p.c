@@ -192,10 +192,11 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
   relnorm2 = 1;
   //printf("start %g\n", rsq);
   double enrm=0, oldenrm, yAy = 0;
-  Vector *y, *Ay, *ry;
+  Vector *y, *Ay, *ry, *x;
   create_V(y);
   create_V(Ay);
   create_V(ry);
+  create_V(x);
   V_eq_zero(y, subset);
   V_eq_zero(Ay, subset);
   V_eq_V(ry, in, subset);
@@ -256,21 +257,28 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 	c_eq_V_dot_V(&yAx, Ay, out[imin], subset);
 	QLA_c_eq_c_div_r(c, yAx, -yAy);
 	//QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
-	V_peq_c_times_V(out[imin], &c, y, subset);
+	//V_peq_c_times_V(out[imin], &c, y, subset);
+	V_eq_c_times_V_plus_V(x, &c, y, out[imin], subset);
+      } else {
+	V_eq_V(x, out[imin], subset);
       }
       {  // y += c * x, r -= c A x  (c = x.r/x.A.x)
-	double xAx = linop(Mp, out[imin], subset);
+	double xAx = linop(Mp, x, subset);
 	if(xAx<=0) break;
 	QLA_D_Complex xr, c;
-	c_eq_V_dot_V(&xr, out[imin], ry, subset);
+	c_eq_V_dot_V(&xr, x, ry, subset);
 	QLA_c_eq_c_div_r(c, xr, xAx);
 	//QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
-	V_peq_c_times_V(y, &c, out[imin], subset);
+	V_peq_c_times_V(y, &c, x, subset);
 	QLA_c_eqm_c(c, c);
 	V_peq_c_times_V(ry, &c, Mp, subset);
-	V_eq_zero(out[imin], subset);
+	//V_eq_zero(out[imin], subset);
 	r_eq_norm2_V(&xAx, ry, subset);
-	VERB(MED, "ry2: %g  r2: %g\n", xAx, rsq);
+	linop(Mp, out[imin], subset);
+	V_meq_V(Mp, in, subset);
+	double tr2;
+	r_eq_norm2_V(&tr2, Mp, subset);
+	VERB(MED, "ry2: %g  r2: %g  tr2: %g\n", xAx, rsq, tr2);
       }
       {
 	yAy = linop(Ay, y, subset);
@@ -278,9 +286,9 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 	r_eq_re_V_dot_V(&yb, y, in, subset);
 	oldenrm = enrm;
 	enrm = 2*yb - yAy;
-	VERB(MED, "enrm: %g\n", enrm);
-	if(enrm<oldenrm) {
-	  VERB(LOW, "enrm: %g < oldenrm: %g\n", enrm, oldenrm);
+	VERB(MED, "enrm: %.6f  diff: %g\n", enrm, enrm-oldenrm);
+	if(enrm<=oldenrm) {
+	  VERB(LOW, "enrm: %.6f < oldenrm: %.6f\n", enrm, oldenrm);
 	  break;
 	}
       }
@@ -359,6 +367,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
   destroy_V(y);
   destroy_V(Ay);
   destroy_V(ry);
+  destroy_V(x);
 
   destroy_V(r);
   destroy_V(Mp);

@@ -46,6 +46,7 @@
 #define V_peq_c_times_V(r,a,b,s)  { QLA_Complex _a; QLA_c_eq_c(_a,*(a)); QDP_D_peq_c_times_D(r,&_a,b,s); }
 #define V_meq_c_times_V(r,a,b,s)  { QLA_Complex _a; QLA_c_eq_c(_a,*(a)); QDP_D_meq_c_times_D(r,&_a,b,s); }
 #define V_eq_r_times_V_plus_V(r,a,b,c,s)  { QLA_Real _a = *(a); QDP_D_eq_r_times_D_plus_D(r,&_a,b,c,s); }
+#define V_eq_c_times_V_plus_V(r,a,b,c,s)  { QLA_Complex _a; QLA_c_eq_c(_a,*(a)); QDP_D_eq_c_times_D_plus_D(r,&_a,b,c,s); }
 
 // for vectorized routines, scalar arrays must be of the correct precision
 
