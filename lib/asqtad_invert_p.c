@@ -386,6 +386,9 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     while(j<nm-1 && m2s[j]!=mass2[i]) j++;
     xi[i] = j;
   }
+  QOP_resid_arg_t resarg0 = QOP_RESID_ARG_DEFAULT;
+  resarg0.rsqmin = 0;
+  resarg0.relmin = 0;
   QOP_resid_arg_t *xresarg[nm];
   QDP_ColorVector *x[nm];
   double m20 = m2s[0];
@@ -443,7 +446,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 
     // solve
     for(int i=0; i<nm; i++) {
-      xresarg[i] = res_arg[imax];
+      if(m2s[i]==mass2[imax]) xresarg[i] = res_arg[imax];
+      else xresarg[i] = &resarg0;
       QDP_V_eq_zero(x[i], QDP_all);
     }
     double rsqminold = res_arg[imax]->rsqmin;

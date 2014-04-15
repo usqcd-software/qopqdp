@@ -36,6 +36,7 @@ typedef QDP_DiracFermion * Vector;
 #define V_eq_r_times_V(r,a,b,s)  { QLA_Real _a[_n]; for(int _i=0; _i<_n; _i++) _a[_i] = *(a); QDP_D_veq_r_times_D(r,_a,b,s,_n); }
 #define V_peq_r_times_V(r,a,b,s)  { QLA_Real _a[_n]; for(int _i=0; _i<_n; _i++) _a[_i] = *(a); QDP_D_vpeq_r_times_D(r,_a,b,s,_n); }
 #define V_meq_r_times_V(r,a,b,s)  { QLA_Real _a[_n]; for(int _i=0; _i<_n; _i++) _a[_i] = *(a); QDP_D_vmeq_r_times_D(r,_a,b,s,_n); }
+#define V_eq_c_times_V(r,a,b,s)  { QLA_Complex _a[_n]; for(int _i=0; _i<_n; _i++) QLA_c_eq_c(_a[_i],*(a)); QDP_D_veq_c_times_D(r,_a,b,s,_n); }
 #define V_peq_c_times_V(r,a,b,s)  { QLA_Complex _a[_n]; for(int _i=0; _i<_n; _i++) QLA_c_eq_c(_a[_i],*(a)); QDP_D_vpeq_c_times_D(r,_a,b,s,_n); }
 #define V_eq_r_times_V_plus_V(r,a,b,c,s)  { QLA_Real _a[_n]; for(int _i=0; _i<_n; _i++) _a[_i] = *(a); QDP_D_veq_r_times_D_plus_D(r,_a,b,c,s,_n); }
 #define V_eq_c_times_V_plus_V(r,a,b,c,s)  { QLA_Complex _a[_n]; for(int _i=0; _i<_n; _i++) QLA_c_eq_c(_a[_i],*(a)); QDP_D_veq_c_times_D_plus_D(r,_a,b,c,s,_n); }

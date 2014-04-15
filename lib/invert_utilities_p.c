@@ -4,7 +4,6 @@
 static double g_rel;
 static QLA_Real *g_r;
 
-#define NC nc
 static void
 relnorm_func(NCPROT1 vector(*x), int i)
 {
@@ -19,7 +18,6 @@ relnorm_func(NCPROT1 vector(*x), int i)
     g_rel += rnrm2/xnrm2;
   }
 }
-#undef NC
 
 QLA_Real
 QOPPCV(relnorm2)(Vector2 **rsd, Vector2 **out, QDP_Subset subset, int nv)
