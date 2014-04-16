@@ -275,7 +275,7 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
       d = Ax2[kx] + m2[ko]*x2[kx];
       //QOP_printf0("d: %g\n", d);
     }
-    VERB(MED, "REFINE: d: %g\n", d);
+    //VERB(MED, "REFINE: d: %g\n", d);
     if(d!=0) {
       double di = 1/d;
       double dim2 = di*m2[ko];
@@ -294,7 +294,7 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
     QDP_r_eq_norm2_V(&o2, out[ko], insub);
     QDP_r_eq_norm2_V(&Ao2, Aout[ko], opsub);
     d = Ao2 + m2[kx]*o2;
-    VERB(MED, "REFINE: d: %g  o2: %g  Ao2: %g\n", d, o2, Ao2);
+    //VERB(MED, "REFINE: d: %g  o2: %g  Ao2: %g\n", d, o2, Ao2);
     if(d!=0) {
       double di = 1/d;
       QLA_c_eq_r_times_c(s, di, z);
@@ -410,10 +410,17 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 #endif
 
   while(1) {
+    for(int i=0; i<nsolve; i++) {
+      if(res_arg[i]->relmin>0) {
+	res_arg[i]->final_rel = QOP_relnorm2_V(&tv, &out[i], insub, 1);
+      } else {
+	res_arg[i]->final_rel = 1;
+      }
+    }
     // find least converged (or smaller mass if tie)
     int imax = 0;
     double r2max=1, r2stopmax=1, in2max=1;
-    VERB(MED, "SOLVE: its: %i\n", iter);
+    //VERB(MED, "SOLVE: its: %i\n", iter);
     for(int i=0; i<nsolve; i++) {
       // find the stopping criterion that is closer to convergence for this 'i'
       double r2i = r2[i];
@@ -446,7 +453,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 
     // solve
     for(int i=0; i<nm; i++) {
-      if(m2s[i]==mass2[imax]) xresarg[i] = res_arg[imax];
+      if(i==xi[imax]) xresarg[i] = res_arg[imax];
       else xresarg[i] = &resarg0;
       QDP_V_eq_zero(x[i], QDP_all);
     }
@@ -513,13 +520,6 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 
     refine(out, in, r, r2, mass2, scale, nsolve, ineo, x, x, nm,
 	   oi, xi, nsolve, tv);
-    for(int i=0; i<nsolve; i++) {
-      if(res_arg[i]->relmin>0) {
-	res_arg[i]->final_rel = QOP_relnorm2_V(&tv, &out[i], insub, 1);
-      } else {
-	res_arg[i]->final_rel = 1;
-      }
-    }
   }
 
   inv_arg->max_iter = max_iter;
@@ -544,6 +544,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   info->final_sec = dtime;
   info->final_flop = (nflop+nflopm*(nm-1))*iter*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+  VERB(LOW,"SOLVE: its: %i  sec: %g  mflops: %g\n",
+       iter, dtime, info->final_flop*1e-6/dtime);
 
   for(int i=0; i<nm; i++) {
     QDP_destroy_V(x[i]);

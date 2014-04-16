@@ -143,7 +143,7 @@ static void
 reset_temps(NCPROTVOID)
 {
   TRACE;
-  printf("nc: %i\n", QLA_Nc);
+  //printf("nc: %i\n", QLA_Nc);
   free_temps();
   for(int i=0; i<NTMP; i++) {
     tin[i] = QDP_create_D();

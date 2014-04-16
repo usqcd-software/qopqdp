@@ -77,7 +77,7 @@ static QDP_HalfFermion *hin=NULL, *hout=NULL;
 static void
 setup_temps(NCPROTVOID)
 {
-  QOP_printf0("nc: %i\n", QLA_Nc);
+  //QOP_printf0("nc: %i\n", QLA_Nc);
   din = QDP_create_D();
   dout = QDP_create_D();
   hin = QDP_create_H();

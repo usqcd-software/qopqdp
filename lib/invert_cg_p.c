@@ -250,7 +250,8 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       double en;
       r_eq_re_V_dot_V(&en, out[irsq], Mp, subset);
       en = -en;
-      VERB(MED, "%i: rsq: %g  tr2: %g  enrm: %g\n", iteration, rsq, tr2, en);
+      VERB(MED, "CGMS: %i: rsq: %g  tr2: %g  enrm: %.16g\n",
+	   iteration, rsq, tr2, en);
       if(tr2<=rsqstop) { rsq=tr2; break; }
       if(tr2>1.4*rsq) break;
       trueRsqFac = tr2/rsq;
