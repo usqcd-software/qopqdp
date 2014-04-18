@@ -287,18 +287,22 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       }
       {  // y += c * x, r -= c A x  (c = x.r/x.A.x)
 	double xAx = linop(Mp, out[imin], subset);
+	iteration++;
 	if(xAx<=0) break;
 	QLA_D_Complex xr, c;
 	c_eq_V_dot_V(&xr, out[imin], ry, subset);
 	QLA_c_eq_c_div_r(c, xr, xAx);
-	QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
+	//QLA_c_eq_r(c, 1);
+	//QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
 	V_peq_c_times_V(y, &c, out[imin], subset);
 	//V_meq_c_times_V(ry, &c, Mp, subset);
 	yAy = linop(Ay, y, subset);
+	iteration++;
 	V_eq_V_minus_V(ry, in, Ay, subset);
       }
       V_eq_zero(out[imin], subset);
     }
+
     if(nextRsqCheck<=iteration) {
       // calculate true residual
       double tr2, en;
@@ -355,7 +359,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       }
     }
 
-    V_eq_r_times_V_plus_V(p, a+imin, p, r, subset);
+    //V_eq_r_times_V_plus_V(p, a+imin, p, r, subset);
     for(int i=0; i<nshifts; i++) {
       if(i!=imin) {
 	V_eq_r_times_V(Mp, zn+i, r, subset);
