@@ -194,6 +194,15 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
   int nextRelCheck = relCheckInterval;
   double trueRelFac = 1;
 
+  double yAy = 0;
+  Vector *y, *Ay, *ry;
+  create_V(y);
+  create_V(Ay);
+  create_V(ry);
+  V_eq_zero(y, subset);
+  V_eq_zero(Ay, subset);
+  V_eq_V(ry, in, subset);
+
   while(1) {
     oldrsq = rsq;
 
@@ -204,7 +213,21 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
     //r_eq_re_V_dot_V(&pkp, p, Mp, subset);
     if(pkp<=0) break;  // loss of precision in calculating pkp
 
+    //#define CGMS_FLEX1
+#ifndef CGMS_FLEX1
     b[imin] = rsq / pkp;
+    V_peq_r_times_V(out[imin], b+imin, p, subset);
+    V_meq_r_times_V(r, b+imin, Mp, subset);
+#else
+    {
+      QLA_D_Complex pr, bb;
+      c_eq_V_dot_V(&pr, p, r, subset);
+      QLA_c_eq_c_div_r(bb, pr, pkp);
+      V_peq_c_times_V(out[imin], &bb, p, subset);
+      V_meq_c_times_V(r, &bb, Mp, subset);
+      b[imin] = QLA_real(bb);
+    }
+#endif
     zn[imin] = 1;
     for(int i=0; i<nshifts; i++) {
       if(i!=imin) {
@@ -220,11 +243,24 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
     }
 
     for(int i=0; i<nshifts; i++) {
-      V_peq_r_times_V(out[i], b+i, pm[i], subset);
+      if(i!=imin) {
+	V_peq_r_times_V(out[i], b+i, pm[i], subset);
+      }
     }
 
-    V_meq_r_times_V(r, b+imin, Mp, subset);
+    //#define CGMS_FLEX2
+#ifndef CGMS_FLEX2
     r_eq_norm2_V(&rsq, r, subset);
+#else
+    QLA_D_Complex aa;
+    {
+      QLA_Complex ca[2];
+      Vector *va[2] = {r, Mp}, *ra[2] = {r, r};
+      c_veq_V_dot_V(ca, va, ra, subset, 2);
+      rsq = QLA_real(ca[0]);
+      QLA_c_eq_c_div_r(aa, ca[1], -pkp);
+    }
+#endif
     double rsqc = zn[irsq]*zn[irsq]*rsq;
 
     if(relstop > 0) { /* compute FNAL norm if requested */
@@ -237,23 +273,54 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
     if( rsqc*trueRsqFac<rsqstop ) nextRsqCheck = iteration;
     if( relnorm2*trueRelFac<relstop ) nextRelCheck = iteration;
 
+    if(nextRsqCheck<=iteration || (relstop>0 && nextRelCheck<=iteration)) {
+      // update improved solution
+      if(yAy>0) {  // A-orthogonalize x to y: x = x - (y.A.x/y.A.y) y
+	QLA_D_Complex yAx, c;
+	c_eq_V_dot_V(&yAx, Ay, out[imin], subset);
+	QLA_c_eq_c_div_r(c, yAx, -yAy);
+	//QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
+	V_peq_c_times_V(out[imin], &c, y, subset);
+	//V_eq_c_times_V_plus_V(x, &c, y, out[imin], subset);
+      } else {
+	//V_eq_V(y, out[irsq], subset);
+      }
+      {  // y += c * x, r -= c A x  (c = x.r/x.A.x)
+	double xAx = linop(Mp, out[imin], subset);
+	if(xAx<=0) break;
+	QLA_D_Complex xr, c;
+	c_eq_V_dot_V(&xr, out[imin], ry, subset);
+	QLA_c_eq_c_div_r(c, xr, xAx);
+	QOP_printf0("c: %g %g\n", QLA_real(c), QLA_imag(c));
+	V_peq_c_times_V(y, &c, out[imin], subset);
+	//V_meq_c_times_V(ry, &c, Mp, subset);
+	yAy = linop(Ay, y, subset);
+	V_eq_V_minus_V(ry, in, Ay, subset);
+      }
+      V_eq_zero(out[imin], subset);
+    }
     if(nextRsqCheck<=iteration) {
       // calculate true residual
-      double xAx = linop(Mp, out[irsq], subset);
-      iteration++;
-      if(xAx<=0) break;
-      V_meq_V(Mp, in, subset);
-      double tr2;
-      r_eq_norm2_V(&tr2, Mp, subset);
-      // calculate energy norm of residual
-      V_meq_V(Mp, in, subset);
-      double en;
-      r_eq_re_V_dot_V(&en, out[irsq], Mp, subset);
-      en = -en;
+      double tr2, en;
+      if(irsq==imin) {
+	r_eq_norm2_V(&tr2, ry, subset);
+	V_eq_V_plus_V(Mp, in, ry, subset);
+	r_eq_re_V_dot_V(&en, y, Mp, subset);
+      } else {
+	double xAx = linop(Mp, out[irsq], subset);
+	iteration++;
+	if(xAx<=0) break;
+	V_meq_V(Mp, in, subset);
+	r_eq_norm2_V(&tr2, Mp, subset);
+	// calculate energy norm of residual
+	V_meq_V(Mp, in, subset);
+	r_eq_re_V_dot_V(&en, out[irsq], Mp, subset);
+	en = -en;
+      }
       VERB(MED, "CGMS: %i: rsq: %g  tr2: %g  enrm: %.16g\n",
 	   iteration, rsq, tr2, en);
       if(tr2<=rsqstop) { rsq=tr2; break; }
-      if(tr2>1.4*rsq) break;
+      if(tr2>2*rsq) break;
       trueRsqFac = tr2/rsq;
       nextRsqCheck += rsqCheckInterval;
     }
@@ -272,7 +339,14 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       relnorm2 = rel2;
     }
 
+#ifndef CGMS_FLEX2
     a[imin] = rsq / oldrsq;
+    V_eq_r_times_V_plus_V(p, a+imin, p, r, subset);
+#else
+    a[imin] = QLA_real(aa);
+    V_eq_c_times_V(Mp, &aa, p, subset);
+    V_eq_V_plus_V(p, r, Mp, subset);
+#endif
     for(int i=0; i<nshifts; i++) {
       if(i!=imin) {
 	double c2 = z[i]*b[imin];
@@ -295,6 +369,11 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
       z[i] = zn[i];
     }
   }
+  V_eq_V(out[imin], y, subset);
+
+  destroy_V(y);
+  destroy_V(Ay);
+  destroy_V(ry);
 
   destroy_V(r);
   destroy_V(Mp);
@@ -304,8 +383,8 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 
   for(int i=0; i<nshifts; i++) {
     double s = zn[i]*zn[i];
-    res_arg[i]->final_rsq = s*rsq/insq;
-    res_arg[i]->final_rel = s*relnorm2;
+    res_arg[i]->final_rsq = s*trueRsqFac*rsq/insq;
+    res_arg[i]->final_rel = s*trueRelFac*relnorm2;
     res_arg[i]->final_iter = iteration;
     res_arg[i]->final_restart = 0;
   }

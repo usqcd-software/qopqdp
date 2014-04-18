@@ -52,6 +52,7 @@
 
 #define r_veq_norm2_V     QDP_r_veq_norm2_V
 #define r_veq_re_V_dot_V  QDP_r_veq_re_V_dot_V
+#define c_veq_V_dot_V     QDP_c_veq_V_dot_V
 
 #define V_vpeq_r_times_V  QDP_V_vpeq_r_times_V
 #define V_vmeq_r_times_V  QDP_V_vmeq_r_times_V
