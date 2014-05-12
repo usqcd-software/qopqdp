@@ -1,5 +1,8 @@
 /* conventions for raw packed clover term
 
+// -0.5*[cs*F01*S01+ct*F23*S23+cs*F12*S12+ct*F03*S03+cs*F02*S02+ct*F13*S13]
+// Fmn = [ U_mu(x) U_nu(x+mu) U^d_mu(x+nu) U^d_nu(x) + refl. - herm ]/8
+
 the clover term is a REAL array of length 72*QDP_sites_on_node
 on each site are 72 REALs made of 2 packed Hermitian matrices of 36 REALs each
 each packed Hermitian matrix has the following structure:
@@ -211,8 +214,6 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[],
 	int mu, int nu)
 {
 #define NC QDP_get_nc(fmn)
-  int order_flag;
-
   QDP_ColorMatrix *temp1,*temp2,*temp3,*temp4,*tmat4;
   QDP_ColorMatrix *pqt0,*pqt1,*pqt2,*pqt3;
   QDP_ColorMatrix *pqt4;
@@ -228,13 +229,12 @@ f_mu_nu(QDP_ColorMatrix *fmn, QLA_Real scale, QDP_ColorMatrix *link[],
   pqt3  = QDP_create_M();
   pqt4  = QDP_create_M();
 
+  int order_flag = 0;
   if(mu>nu) {
     int i = mu;
     mu = nu;
     nu = i;
     order_flag=1;
-  } else {
-    order_flag=0;
   }
 
   /* Get pqt0 = U_nu(x+mu) : U_nu(x) from mu direction    */
@@ -362,7 +362,6 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   QLA_ColorMatrix(*A[2]);
   A[0] = QDP_expose_M(a0);
   A[1] = QDP_expose_M(a1);
-
   // is,js = 0,0 and 1,1
   for(int s=0; s<QDP_sites_on_node; s++) {
     for(int b=0; b<2; b++) { // block
@@ -413,7 +412,6 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   QLA_ColorMatrix(*B[2]);
   B[0] = QDP_expose_M(b0);
   B[1] = QDP_expose_M(b1);
-
   // is,js = 1,0 (or 0,1)
   for(int s=0; s<QDP_sites_on_node; s++) {
     for(int b=0; b<2; b++) { // block
@@ -636,7 +634,6 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   }
 
   /* get the clover coefficients and put them in flw->clow */
-  /* Usage : get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real csw) */
   if(coeffs->clov_s != 0 || coeffs->clov_t != 0) {
     int nreals = QDP_sites_on_node*CLOV_REALS;
     QOP_malloc(flw->clov, REAL, nreals);

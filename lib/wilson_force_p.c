@@ -228,3 +228,49 @@ QOP_wilson_force_prec_multi_qdp(QOP_info_t *info,
   info->final_sec = QOP_time() - dtime;
 #undef NC
 }
+
+#if 0
+
+static void
+fmunu_deriv(QOP_info_t *info,
+	    QDP_ColorMatrix *links[],
+	    QDP_ColorMatrix *deriv[],
+	    QDP_ColorMatrix *mid,
+	    QLA_Real scale,
+	    int mu, int nu)
+{
+  // deriv[mu] += (scale/8) [ mid Unu Umufnu Unufmu+ + Unu mid+ Umufnu Unufmu+
+  //  + Unu Umufnu mid Unufmu+ + Unu Umufnu Unufmu+ mid+
+  //  + mid Unubnu+ Umubnu Unufmubnu + Unubnu+ mid+ Umubnu Unufmubnu
+  //  + Unubnu+ Umubnu mid Unufmubnu + Unubnu+ Umubnu Unufmubnu mid+ ]
+}
+
+void
+QOP_wilson_clover_deriv_multi_qdp(QOP_info_t *info,
+				  QOP_FermionLinksWilson *flw,
+				  QDP_ColorMatrix *deriv[],
+				  QLA_Real kappa[],
+				  QLA_Real eps[],
+				  QDP_DiracFermion *x[],
+				  QDP_DiracFermion *y[],
+				  int n)
+{
+#define NC QDP_get_nc(flw->links[0])
+  double dtime = QOP_time();
+
+  QLA_Real teps[n];
+  for(int i=0; i<n; i++) {
+    QOP_wilson_dslash_qdp(info, flw, kappa[i], -1, x[i], x[i], QOP_ODD, QOP_EVEN);
+    QOP_wilson_dslash_qdp(info, flw, kappa[i],  1, y[i], y[i], QOP_ODD, QOP_EVEN);
+    teps[i] = -4*kappa[i]*kappa[i]*eps[i];
+  }
+  QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n);
+
+  double nflop = 8*(16*QLA_Nc+9)*QLA_Nc;
+  //if(flw->clov!=NULL) nflop += 32*(2*QLA_Nc-1)*QLA_Nc;
+  info->final_flop += nflop*n*QDP_sites_on_node; 
+  info->final_sec = QOP_time() - dtime;
+#undef NC
+}
+
+#endif

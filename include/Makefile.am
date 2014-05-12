@@ -70,6 +70,8 @@ qop_qdp.h \
 qop_mg.h \
 qop_mg_internal.h
 
+nobase_include_HEADERS = qop_config.h
+
 EXTRA_DIST = \
 qop_p.h qop_p_internal.h \
 qop_pc.h qop_poc.h qop_pc_internal.h \
