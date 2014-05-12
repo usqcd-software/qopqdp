@@ -14,6 +14,7 @@ static int verb=0;
 static double naik=0.1;
 static int nthreads=0;
 static double mixedrsq=1e9;
+static int profile=0;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -37,6 +38,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
   QOP_ColorVector *qopout, *qopin;
 
   for(i=0; i<=nit; i++) {
+    if(profile && i>0) QDP_profcontrol(1);
     QDP_V_eq_zero(out, QDP_all);
     qopout = QOP_create_V_from_qdp(out);
     qopin = QOP_create_V_from_qdp(in);
@@ -59,6 +61,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     QOP_destroy_V(qopout);
     QOP_destroy_V(qopin);
   }
+  QDP_profcontrol(0);
   mf = 1;
   QMP_sum_double(&mf);
   QMP_sum_double(&sec);
@@ -193,9 +196,11 @@ start(void)
   QOP_asqtad_invert_set_opts(&optns, 1);
   QOP_asqtad_invert_set_opts(&optnm, 1);
   QDP_set_block_size(best_bs);
-  QDP_profcontrol(1);
+  //QDP_profcontrol(1);
+  profile = 1;
   mf = bench_inv(&info, &inv_arg, &res_arg, out, in);
-  QDP_profcontrol(0);
+  profile = 0;
+  //QDP_profcontrol(0);
   printf0("prof: CONGRAD: st%2i ns%2i nm%2i bs%5i iter%5i sec%7.4f mflops = %g\n",
           best_st, best_ns, best_nm, best_bs,
           res_arg.final_iter, info.final_sec, mf);
