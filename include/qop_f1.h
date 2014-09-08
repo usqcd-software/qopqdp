@@ -228,6 +228,12 @@ QOP_F1_FermionLinksAsqtad *
 				QOP_asqtad_coeffs_t *coeffs,
 				QOP_F1_GaugeField *gauge);
 
+QOP_F1_FermionLinksAsqtad *
+  QOP_F1_asqtad_create_L_from_G2(QOP_info_t *info,
+				 QOP_asqtad_coeffs_t *coeffs,
+				 QOP_F1_GaugeField *gFat,
+				 QOP_F1_GaugeField *gLong);
+
 void QOP_F1_asqtad_extract_L_to_raw(QOP_F_Real *fatlinks[],
 				    QOP_F_Real *longlinks[],
 				    QOP_F1_FermionLinksAsqtad *src,
@@ -254,6 +260,12 @@ void QOP_F1_asqtad_load_L_from_G(QOP_info_t *info,
 				 QOP_F1_FermionLinksAsqtad *asqtad,
 				 QOP_asqtad_coeffs_t *coeffs,
 				 QOP_F1_GaugeField *gauge);
+
+void QOP_F1_asqtad_load_L_from_G2(QOP_info_t *info,
+				  QOP_F1_FermionLinksAsqtad *asqtad,
+				  QOP_asqtad_coeffs_t *coeffs,
+				  QOP_F1_GaugeField *gFat,
+				  QOP_F1_GaugeField *gLong);
 
 void QOP_F1_asqtad_rephase_L(QOP_F1_FermionLinksAsqtad *fla,
 			     int *r0,

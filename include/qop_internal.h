@@ -201,6 +201,12 @@ QOP_status_t QOP_asqtad_invert_init(void);
 
 #if QOP_Precision == 'F'
 #define QOPP(x) QOP_F_##x
+#define QOPO(x) QOP_D_##x
+#define QOPPO(x) QOP_FD_##x
+#define QOPOP(x) QOP_DF_##x
+#define QDPO(x) QDP_D_##x
+#define QDPPO(x) QDP_FD_##x
+#define QDPOP(x) QDP_DF_##x
 #define REAL float
 #if QOP_Colors == 'N'
 #define QOPPC(x) QOP_FN_##x
@@ -209,6 +215,12 @@ QOP_status_t QOP_asqtad_invert_init(void);
 #endif
 #else
 #define QOPP(x) QOP_D_##x
+#define QOPO(x) QOP_F_##x
+#define QOPPO(x) QOP_DF_##x
+#define QOPOP(x) QOP_FD_##x
+#define QDPO(x) QDP_F_##x
+#define QDPPO(x) QDP_DF_##x
+#define QDPOP(x) QDP_FD_##x
 #define REAL double
 #if QOP_Colors == 'N'
 #define QOPPC(x) QOP_DN_##x

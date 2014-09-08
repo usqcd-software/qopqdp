@@ -10,6 +10,9 @@ extern "C" {
   /* create QOP object from one of different precision */
 
 QOP_F3_GaugeField *
+QOP_FD3_create_G_from_qdp(QDP_D3_ColorMatrix *links[]);
+
+QOP_F3_GaugeField *
 QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double);
 
 QOP_F3_FermionLinksWilson *
@@ -42,6 +45,9 @@ extern "C" {
 #endif
 
   /* create QOP object from one of different precision */
+
+QOP_D3_GaugeField *
+QOP_DF3_create_G_from_qdp(QDP_F3_ColorMatrix *links[]);
 
 QOP_D3_GaugeField *
 QOP_DF3_create_G_from_G(QOP_F3_GaugeField *qopgf_double);

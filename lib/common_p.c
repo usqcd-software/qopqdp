@@ -308,6 +308,19 @@ QOP_create_G_from_qdp(QDP_ColorMatrix *links[])
 }
 #undef NC
 
+#define NC QDP_get_nc(links[i])
+QOP_GaugeField *
+QOPPO(create_G_from_qdp)(QDPO(ColorMatrix) *links[])
+{
+  QOP_GaugeField *qopgf = QOP_new_G();
+  for(int i=0; i<QOP_common.ndim; i++) {
+    qopgf->links[i] = QDP_create_M();
+    QDPPO(M_eq_M)(qopgf->links[i], links[i], QDP_all);
+  }
+  return qopgf;
+}
+#undef NC
+
 #define NC QDP_get_nc(force[i])
 QOP_Force *
 QOP_create_F_from_qdp(QDP_ColorMatrix *force[])

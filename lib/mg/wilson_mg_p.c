@@ -226,7 +226,7 @@ static void
 get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
 	     QLA_Real change_fac, int maxit, int nvecs, int verbose,
 	     int (smoother)(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in,
-			    int sign, void *args), void *sargs)
+			    int sign, void *args), void *sargs, int update)
 {
   int nv = mgargs->nv;
   int fnc = mgargs->fnc;
@@ -267,7 +267,7 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
   int maxhits=20;
   double svhist[maxhits];
   for(int i=0; i<cnc; i++) {
-    if(i==0) {
+    if(i==0 && !update) {
       for(int j=0; j<nv; j++) QDP_FN_V_eq_gaussian_S(pv[i][j], rs, allf);
     }
     TRACE;
@@ -297,7 +297,7 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
       sv2 = nrm2/nrm;
       svhist[nhits-1] = sv2;
       QLA_Real scale = 1/sqrt(nrm);
-      if(i+1<cnc) for(int j=0; j<nv; j++) { QDP_FN_V_eq_V(pv[i+1][j], pv[i][j], allf); }
+      if(i+1<cnc && !update) for(int j=0; j<nv; j++) { QDP_FN_V_eq_V(pv[i+1][j], pv[i][j], allf); }
       for(int j=0; j<nv; j++) { QDP_FN_V_eq_r_times_V(pv[i][j], &scale, tv[j], allf); }
       if(verbose>0) QOP_printf0("%i %g\n", i, sv2);
       if(i>0 && nhits==4) break;
@@ -355,6 +355,7 @@ create_level(QOP_WilsonMg *wmg, int n)
   QOP_WilMgLevel *l = wmg->mg;
   QDP_Lattice *lat0;
   int nv = l[n].nv;
+  int update = 0;
 
   wmg->nvwaF.kappa = wmg->kappanv;
   wmg->vcwaF.kappa = wmg->kappa;
@@ -433,6 +434,8 @@ create_level(QOP_WilsonMg *wmg, int n)
   if(l[n].mgargs==NULL) {
     QOP_printf0("creating args\n");
     l[n].mgargs = QOP_mgCreateArgs(l[n].mgblock, l[n].nvecs, l[n].fnc, l[n].nv, NULL, NULL);
+  } else {
+    update = 1;
   }
 
   // create some vectors for the vcycle and also used in setup
@@ -510,7 +513,7 @@ create_level(QOP_WilsonMg *wmg, int n)
     //#ifdef EO_PREC
     //get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveEo, nvsa);
   TRACE;
-    get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveEo, nvsa);
+  get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveEo, nvsa, update);
   TRACE;
     //#else
     //get_nullvecs(l[n].mgargs, l[n].nvop, l[n].nvopargs, l[n].setup_res, l[n].setup_change_fac, l[n].setup_maxit, l[n].setup_nvecs, l[n].verbose, QOP_F_bicgstabSolveA, nvsa);

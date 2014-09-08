@@ -415,10 +415,12 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
 
 static void
 make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
-	       QOP_asqtad_coeffs_t *coef, QDP_ColorMatrix *gf[])
+	       QOP_asqtad_coeffs_t *coef, QDP_ColorMatrix *gf[],
+	       QDP_ColorMatrix *gfLong[])
 {
 #define NC QDP_get_nc(gf[0])
-  QDP_ColorMatrix *staple=NULL, *tempmat1=NULL, *t1=NULL, *t2=NULL, *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
+  QDP_ColorMatrix *staple=NULL, *tempmat1=NULL, *t1=NULL, *t2=NULL,
+    *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
   double nflop = 0;
   double dtime;
 
@@ -449,17 +451,19 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
     nflop = 61632;
     staple = QDP_create_M();
     tempmat1 = QDP_create_M();
-    t1 = QDP_create_M();
-    t2 = QDP_create_M();
-    for(int dir=0; dir<4; dir++) {
-      tsl[dir] = QDP_create_M();
-      ts1[dir] = QDP_create_M();
-      ts2[dir] = QDP_create_M();
-      for(int nu=0; nu<4; nu++) {
-	tsg[dir][nu] = NULL;
-	if(dir!=nu) {
-	  tsg[dir][nu] = QDP_create_M();
-	  QDP_M_eq_sM(tsg[dir][nu], gf[dir], QDP_neighbor[nu], QDP_forward, QDP_all);
+    if(have3) {
+      t1 = QDP_create_M();
+      t2 = QDP_create_M();
+      for(int dir=0; dir<4; dir++) {
+	tsl[dir] = QDP_create_M();
+	ts1[dir] = QDP_create_M();
+	ts2[dir] = QDP_create_M();
+	for(int nu=0; nu<4; nu++) {
+	  tsg[dir][nu] = NULL;
+	  if(dir!=nu) {
+	    tsg[dir][nu] = QDP_create_M();
+	    QDP_M_eq_sM(tsg[dir][nu], gf[dir], QDP_neighbor[nu], QDP_forward, QDP_all);
+	  }
 	}
       }
     }
@@ -499,10 +503,10 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   if(ll) {
     QLA_Real naik = coef->naik;
     for(int dir=0; dir<4; dir++) {
-      QDP_M_eq_sM(staple, gf[dir], QDP_neighbor[dir], QDP_forward, QDP_all);
-      QDP_M_eq_M_times_M(tempmat1, gf[dir], staple, QDP_all);
-      QDP_M_eq_sM(ts1[dir], tempmat1, QDP_neighbor[dir], QDP_forward, QDP_all);
-      QDP_M_eq_M_times_M(ll[dir], gf[dir], ts1[dir], QDP_all);
+      QDP_M_eq_sM(staple, gfLong[dir], QDP_neighbor[dir], QDP_forward,QDP_all);
+      QDP_M_eq_M_times_M(tempmat1, gfLong[dir], staple, QDP_all);
+      QDP_M_eq_sM(staple, tempmat1, QDP_neighbor[dir], QDP_forward, QDP_all);
+      QDP_M_eq_M_times_M(ll[dir], gfLong[dir], staple, QDP_all);
       QDP_M_eq_r_times_M(ll[dir], &naik, ll[dir], QDP_all);
     }
   }
@@ -510,15 +514,17 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   if(have3 || coef->naik) {
     QDP_destroy_M(staple);
     QDP_destroy_M(tempmat1);
-    QDP_destroy_M(t1);
-    QDP_destroy_M(t2);
-    for(int dir=0; dir<4; dir++) {
-      QDP_destroy_M(tsl[dir]);
-      QDP_destroy_M(ts1[dir]);
-      QDP_destroy_M(ts2[dir]);
-      for(int nu=0; nu<4; nu++) {
-	//if(dir!=nu) QDP_destroy_M(tsg[dir][nu]);
-	if(tsg[dir][nu]!=NULL) QDP_destroy_M(tsg[dir][nu]);
+    if(have3) {
+      QDP_destroy_M(t1);
+      QDP_destroy_M(t2);
+      for(int dir=0; dir<4; dir++) {
+	QDP_destroy_M(tsl[dir]);
+	QDP_destroy_M(ts1[dir]);
+	QDP_destroy_M(ts2[dir]);
+	for(int nu=0; nu<4; nu++) {
+	  //if(dir!=nu) QDP_destroy_M(tsg[dir][nu]);
+	  if(tsg[dir][nu]!=NULL) QDP_destroy_M(tsg[dir][nu]);
+	}
       }
     }
   }
@@ -537,7 +543,7 @@ void
 QOP_smear_fat7l_qdp(QOP_info_t *info, QDP_ColorMatrix *sg[],
 		    QDP_ColorMatrix *g[], QOP_asqtad_coeffs_t *coeffs)
 {
-  make_imp_links(info, sg, NULL, coeffs, g);
+  make_imp_links(info, sg, NULL, coeffs, g, NULL);
 }
 
 QOP_FermionLinksAsqtad *
@@ -556,7 +562,32 @@ QOP_asqtad_create_L_from_G(QOP_info_t *info,
     fl[i] = QDP_create_M();
     if(lp) ll[i] = QDP_create_M();
   }
-  make_imp_links(info, fl, lp, coeffs, gauge->links);
+  make_imp_links(info, fl, lp, coeffs, gauge->links, gauge->links);
+  fla = QOP_asqtad_convert_L_from_qdp(fl, lp);
+
+  ASQTAD_DSLASH_END;
+  return fla;
+#undef NC
+}
+
+  // fatlinks and longlinks are created from different gauge fields
+QOP_FermionLinksAsqtad *
+QOP_asqtad_create_L_from_G2(QOP_info_t *info,
+			    QOP_asqtad_coeffs_t *coeffs,
+			    QOP_GaugeField *gFat, QOP_GaugeField *gLong)
+{
+#define NC QDP_get_nc(gFat->links[0])
+  QOP_FermionLinksAsqtad *fla;
+  QDP_ColorMatrix *fl[4], *ll[4], **lp;
+  ASQTAD_DSLASH_BEGIN;
+
+  lp = ll;
+  if(coeffs->naik==0) lp = NULL;
+  for(int i=0; i<4; i++) {
+    fl[i] = QDP_create_M();
+    if(lp) ll[i] = QDP_create_M();
+  }
+  make_imp_links(info, fl, lp, coeffs, gFat->links, gLong->links);
   fla = QOP_asqtad_convert_L_from_qdp(fl, lp);
 
   ASQTAD_DSLASH_END;
@@ -734,7 +765,28 @@ QOP_asqtad_load_L_from_G(QOP_info_t *info,
 #define NC QDP_get_nc(gauge->links[0])
   ASQTAD_DSLASH_BEGIN;
   int nl = fla->nlinks;
-  make_imp_links(info, fla->fatlinks, fla->longlinks, coeffs, gauge->links);
+  make_imp_links(info, fla->fatlinks, fla->longlinks, coeffs, gauge->links, gauge->links);
+  fla->dblstored = 0;
+  // scale links
+  for(int i=0; i<nl/2; i++) {
+    QLA_Real f = 0.5;
+    QDP_M_eq_r_times_M(fla->fwdlinks[i], &f, fla->fwdlinks[i], QDP_all);
+  }
+  check_setup(fla);
+  ASQTAD_DSLASH_END;
+#undef NC
+}
+
+void
+QOP_asqtad_load_L_from_G2(QOP_info_t *info,
+			  QOP_FermionLinksAsqtad *fla,
+			  QOP_asqtad_coeffs_t *coeffs,
+			  QOP_GaugeField *gFat, QOP_GaugeField *gLong)
+{
+#define NC QDP_get_nc(gFat->links[0])
+  ASQTAD_DSLASH_BEGIN;
+  int nl = fla->nlinks;
+  make_imp_links(info, fla->fatlinks, fla->longlinks, coeffs, gFat->links, gLong->links);
   fla->dblstored = 0;
   // scale links
   for(int i=0; i<nl/2; i++) {
