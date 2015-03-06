@@ -409,4 +409,16 @@ struct QOP_N_WilsonMgStruct {
 #  endif
 #endif
 
+#ifdef HAVE_QLL
+
+void setup_qll_solverDN(QOP_FermionLinksAsqtad *fla);
+void free_qll_solverDN(void);
+void solve_qllDN(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
+		    QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg);
+void solveMulti_qllDN(QDP_ColorVector *dest[], QDP_ColorVector *src,
+			 double ms[], int nm,  QOP_invert_arg_t *invarg,
+			 QOP_resid_arg_t *resargs[]);
+
+#endif // HAVE_QLL
+
 #endif /* _QOP_DN_INTERNAL_H */

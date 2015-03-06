@@ -71,6 +71,14 @@ AC_ARG_ENABLE(
 )
 
 AC_ARG_WITH(
+  qll,
+  AC_HELP_STRING([--with-qll=<QLL dir>],
+    [location of QLL library]),
+  [QLLDIR="$with_qll"; WITH_QLL=1]
+)
+AC_SUBST(QLLDIR)
+
+AC_ARG_WITH(
   qdp,
   AC_HELP_STRING([--with-qdp=<QDP dir>],
     [location of QDP libraries]),
@@ -101,6 +109,12 @@ AC_ARG_WITH(
   [QMPDIR="$with_qmp"; WITH_QMP=1]
 )
 AC_SUBST(QMPDIR)
+
+if test -n "$WITH_QLL"; then
+  AC_DEFINE(HAVE_QLL, [], [use qll])
+  AC_SUBST(QLL_CFLAGS, "-I${QLLDIR}/include")
+  AC_SUBST(QLL_LIBS, "${QLLDIR}/lib/libqll.a")
+fi
 
 AC_SUBST(QDP_CFLAGS, "-I${QDPDIR}/include")
 AC_SUBST(QDP_LDFLAGS, "-L${QDPDIR}/lib")
@@ -153,9 +167,9 @@ else
     before configure])
 fi
 
-CFLAGS="$CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
+CFLAGS="$CFLAGS $QLL_CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
 LDFLAGS="$LDFLAGS $QDP_LDFLAGS $QLA_LDFLAGS $QIO_LDFLAGS $QMP_LDFLAGS"
-LIBS="$LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS"
+LIBS="$LIBS $QLL_LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS"
 
 # Checks for programs.
 AC_PROG_RANLIB

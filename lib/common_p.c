@@ -537,3 +537,302 @@ QOP_rephase_G_qdp(QDP_ColorMatrix *links[],
   copyarray(g.sign.signmask, sign->signmask, int, nd);
   scale(links, &g, 0);
 }
+
+// qll routines
+#ifdef HAVE_QLL
+
+#include <qll.h>
+
+#if QOP_Precision == 'F'
+#define P(x) x ## F
+#if QOP_Colors == 'N'
+#define PC(x) APPLY(CAT3,x,F,N)
+#else
+#define PC(x) APPLY(CAT3,x,F,QOP_Colors)
+#endif
+typedef float real;
+#else
+#define P(x) x ## D
+#if QOP_Colors == 'N'
+#define PC(x) APPLY(CAT3,x,D,N)
+#else
+#define PC(x) APPLY(CAT3,x,D,QOP_Colors)
+#endif
+typedef double real;
+#endif
+
+#if QOP_Colors == 3
+
+static int setup = 0;
+static Layout layout;
+
+static void
+get_rankGeom(QDP_Lattice *lat, int myrank, int nd, int *ls, int *rg)
+{
+  int n = QDP_numsites_L(lat, myrank);
+  int xmin[nd], xmax[nd];
+  for(int i=0; i<nd; i++) {
+    xmin[i] = ls[i];
+    xmax[i] = 0;
+  }
+  for(int i=0; i<n; i++) {
+    int x[nd];
+    QDP_get_coords(x, myrank, i);
+    for(int j=0; j<nd; j++) {
+      if(x[j]<xmin[j]) xmin[j] = x[j];
+      if(x[j]>xmax[j]) xmax[j] = x[j];
+    }
+  }
+  for(int i=0; i<nd; i++) {
+    rg[i] = ls[i]/(1+xmax[i]-xmin[i]);
+  }
+}
+
+void
+setup_qll(QDP_Lattice *lat)
+{
+  if(!setup) {
+    setup = 1;
+    layout.nranks = QMP_get_number_of_nodes();
+    layout.myrank = QMP_get_node_number();
+    int nd = QDP_ndim_L(lat);
+    int ls[nd], rg[nd];
+    QDP_latsize_L(lat, ls);
+    get_rankGeom(lat, layout.myrank, nd, ls, rg);
+    P(stagDslashSetup)(&layout, nd, ls, rg);
+    //printf("done %s\n", __func__);
+  }
+}
+
+void *
+get_qll_layout(void)
+{
+  return (void *)&layout;
+}
+
+void
+toQDP(real *xx, QDP_Lattice *lat, real *yy, void *ll, int nelem)
+{
+  Layout *l = (Layout *)ll;
+  int nd = l->nDim;
+  int nl = l->nSitesInner;
+  int ysize = nelem * nl;
+  //double n2=0;
+  int nsites = l->nSites;
+  if(nsites!=QDP_sites_on_node_L(lat)) {
+    printf("%s: nsites(%i) != QDP_sites_on_node_L(lat)(%i)\n",
+           __func__, nsites, QDP_sites_on_node_L(lat));
+    QDP_abort(-1);
+  }
+#pragma omp parallel for
+  for(int i=0; i<nsites; i++) { // QDP sites
+    int x[nd];
+    LayoutIndex li;
+    QDP_get_coords_L(lat, x, QDP_this_node, i);
+    layoutIndex(l, &li, x);
+    if(li.rank==l->myrank) {
+      int oi = li.index / l->nSitesInner;
+      int ii = li.index % l->nSitesInner;
+      real *yi = yy + (ysize*oi + ii);
+      for(int e=0; e<nelem; e++) {
+        xx[i*nelem+e] = yi[nl*e];
+        //n2 += er*er + ei*ei;
+      }
+    } else {
+      printf("unpack: site on wrong node!\n");
+      QDP_abort(-1);
+    }
+  }
+  //printf("unpack2: %g\n", n2);
+}
+
+void
+fromQDP(real *yy, void *ll, real *xx, QDP_Lattice *lat, int nelem)
+{
+  Layout *l = (Layout *)ll;
+  int nd = l->nDim;
+  int nl = l->nSitesInner;
+  int ysize = nelem * nl;
+  //double n2=0;
+  int nsites = l->nSites;
+  if(nsites!=QDP_sites_on_node_L(lat)) {
+    printf("%s: nsites(%i) != QDP_sites_on_node_L(lat)(%i)\n",
+           __func__, nsites, QDP_sites_on_node_L(lat));
+    QDP_abort(-1);
+  }
+#pragma omp parallel for
+  for(int j=0; j<nsites; j++) { // qll sites
+    int x[nd];
+    LayoutIndex li;
+    li.rank = l->myrank;
+    li.index = j;
+    layoutCoord(l, x, &li);
+    int r = QDP_node_number_L(lat, x);
+    if(r==QDP_this_node) {
+      int i = QDP_index_L(lat, x);
+      int oi = j / l->nSitesInner;
+      int ii = j % l->nSitesInner;
+      real *yi = yy + (ysize*oi + ii);
+      for(int e=0; e<nelem; e++) {
+        yi[nl*e] = xx[i*nelem+e];
+        //n2 += er*er + ei*ei;
+      }
+    } else {
+      printf("unpack: site on wrong node!\n");
+      QDP_abort(-1);
+    }
+  }
+  //printf("unpack2: %g\n", n2);
+}
+
+#endif // QOP_Colors == 3
+
+void
+PC(unpackV)(Layout *l, QDP_ColorVector *xx, real *y)
+{
+  QDP_Lattice *lat = QDP_get_lattice_V(xx);
+  real *x = QDP_expose_V(xx);
+  P(toQDP)(x, lat, y, l, 6);
+  QDP_reset_V(xx);
+}
+
+void
+PC(unpackM)(Layout *l, QDP_ColorMatrix *m, real *y)
+{
+#define NC 3
+  QDP_Lattice *lat = QDP_get_lattice_M(m);
+  QDP_ColorMatrix *xx = QDP_create_M_L(lat);
+  real *x = QDP_expose_M(xx);
+  int nelem = 2*QDP_Nc*QDP_Nc;
+  P(toQDP)(x, lat, y, l, nelem);
+  QDP_reset_M(xx);
+  //QDP_M_eq_M(m, xx, QDP_all_L(lat));
+  QDP_M_eq_transpose_M(m, xx, QDP_all_L(lat));
+  QDP_destroy_M(xx);
+}
+
+void
+PC(packV)(Layout *l, real *x, QDP_ColorVector *yy)
+{
+  QDP_Lattice *lat = QDP_get_lattice_V(yy);
+  real *y = QDP_expose_V(yy);
+  P(fromQDP)(x, l, y, lat, 6);
+  QDP_reset_V(yy);
+}
+
+void
+PC(packM)(Layout *l, real *y, QDP_ColorMatrix *m)
+{
+  QDP_Lattice *lat = QDP_get_lattice_M(m);
+  QDP_ColorMatrix *xx = QDP_create_M_L(lat);
+  //QDP_M_eq_M(xx, m, QDP_all_L(lat));
+  QDP_M_eq_transpose_M(xx, m, QDP_all_L(lat));
+  real *x = QDP_expose_M(xx);
+  int nelem = 2*QDP_Nc*QDP_Nc;
+  P(fromQDP)(y, l, x, lat, nelem);
+  QDP_reset_M(xx);
+  QDP_destroy_M(xx);
+}
+
+static P(StaggeredSolver) sse;
+static QLA_Real **u=NULL, **u3=NULL;
+static int nl = 0;
+
+void
+setup_qll_solver(QOP_FermionLinksAsqtad *fla)
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  if(!fla->dblstored) {
+    if(layout->myrank==0) printf("error: links not double stored\n");
+  }
+  nl = fla->nlinks;
+  //printf("nl: %i\n", nl);
+  if(nl==8) { // no naik
+    u = myalloc(nl*sizeof(QLA_Real*));
+    u3 = NULL;
+    for(int i=0; i<nl; i++) {
+      u[i] = myalloc(layout->nSites*18*sizeof(QLA_Real));
+      PC(packM)(layout, u[i], fla->dbllinks[i]);
+    }
+  } else { // naik
+    nl /= 2;
+    u = myalloc(nl*sizeof(QLA_Real*));
+    u3 = myalloc(nl*sizeof(QLA_Real*));
+    for(int i=0; i<nl; i++) {
+      u[i] = myalloc(layout->nSites*18*sizeof(QLA_Real));
+      u3[i] = myalloc(layout->nSites*18*sizeof(QLA_Real));
+      PC(packM)(layout, u[i], fla->dbllinks[2*i]);
+      PC(packM)(layout, u3[i], fla->dbllinks[2*i+1]);
+    }
+  }
+  P(createStaggeredSolver)(&sse, layout, u, u3, "even");
+  sse.noscale = 1;
+}
+
+void
+free_qll_solver(void)
+{
+  P(freeStaggeredSolver)(&sse);
+  //printf("nl: %i\n", nl);
+  //printf("u: %p\n", u);
+  if(u) {
+    for(int i=0; i<nl; i++) {
+      free(u[i]);
+    }
+    free(u);
+    u = NULL;
+  }
+  if(u3) {
+    for(int i=0; i<nl; i++) {
+      free(u3[i]);
+    }
+    free(u3);
+    u3 = NULL;
+  }
+  //printf("done %s\n", __func__);
+}
+
+void
+solve_qll(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
+	  QOP_invert_arg_t *inv_arg, QOP_resid_arg_t *res_arg)
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  QLA_Real *s = myalloc(layout->nSites*6*sizeof(QLA_Real));
+  QLA_Real *d = myalloc(layout->nSites*6*sizeof(QLA_Real));
+  PC(packV)(layout, s, src);
+  PC(packV)(layout, d, dest);
+  double rsq = res_arg->rsqmin;
+  int maxits = inv_arg->max_iter;
+  int its = P(solve2)(&sse, d, mass, s, rsq, maxits, "even");
+  res_arg->final_iter = its;
+  PC(unpackV)(layout, dest, d);
+  free(s);
+  free(d);
+}
+
+void
+solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
+	       int nm,  QOP_invert_arg_t *invarg,
+		  QOP_resid_arg_t *resargs[])
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  QLA_Real *s = myalloc(layout->nSites*6*sizeof(QLA_Real));
+  PC(packV)(layout, s, src);
+  QLA_Real *d[nm];
+  for(int i=0; i<nm; i++) {
+    d[i] = myalloc(layout->nSites*6*sizeof(QLA_Real));
+    PC(packV)(layout, d[i], dest[i]);
+  }
+  double rsq = resargs[0]->rsqmin;
+  int maxits = invarg->max_iter;
+  int its = P(solveMulti2)(&sse, d, ms, nm, s, rsq, maxits, "even");
+  resargs[0]->final_iter = its;
+  free(s);
+  for(int i=0; i<nm; i++) {
+    PC(unpackV)(layout, dest[i], d[i]);
+    free(d[i]);
+  }
+  //printf("done %s\n", __func__);
+}
+
+#endif // HAVE_QLL

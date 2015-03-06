@@ -75,6 +75,31 @@ check_op(QDP_ColorVector *out, QDP_ColorVector *in)
   QDP_destroy_V(s1);
 }
 
+void
+check_resids(QDP_ColorVector *out[], QDP_ColorVector *in, QLA_Real ms[],
+	     QOP_resid_arg_t *ra[], int nm)
+{
+  QLA_Real in2, chk2;
+  QDP_r_eq_norm2_V(&in2, in, QDP_even);
+  //printf("in2: %g\n", nrm2);
+  QDP_ColorVector *t = QDP_create_V();
+  QDP_ColorVector *chk = QDP_create_V();
+  for(int i=0; i<nm; i++) {
+    double m = ms[i];
+    double rsq = ra[i]->rsqmin;
+    QOP_asqtad_dslash_qdp(NULL, fla, m, t, out[i], QOP_EVENODD, QOP_EVEN);
+    QOP_asqtad_dslash_qdp(NULL, fla, -m, chk, t, QOP_EVEN, QOP_EVENODD);
+    QLA_Real mi = 1.0/m;
+    QDP_V_eq_r_times_V_plus_V(chk, &mi, chk, in, QDP_even);
+    QDP_r_eq_norm2_V(&chk2, chk, QDP_even);
+    if(chk2>rsq*in2) {
+      printf("trsq: %g  rsq: %g\n", chk2/in2, rsq);
+    }
+  }
+  QDP_destroy_V(t);
+  QDP_destroy_V(chk);
+}
+
 double
 bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
 	  QOP_resid_arg_t *res_arg, QDP_ColorVector *out, QDP_ColorVector *in)
@@ -129,6 +154,7 @@ bench_inv(QOP_info_t *info, QOP_invert_arg_t *inv_arg,
     }
     QOP_destroy_V(qopin);
   }
+  check_resids(qout, in, masses, ra, nmass);
   for(int i=1; i<nmass; i++) {
     QDP_destroy_V(qout[i]);
   }

@@ -213,4 +213,13 @@ void QOP_F_mgVcycle(QDP_FN_ColorVector **out, QDP_FN_ColorVector **in, int sign,
 #  include <qop_f_internal_generic.h>
 #endif
 
+#ifdef HAVE_QLL
+
+void setup_qllF(QDP_Lattice *lat);
+void * get_qll_layoutF(void);
+void toQDPF(QLA_Real *xx, QDP_Lattice *lat, QLA_Real *yy, void *l, int nelem);
+void fromQDPF(QLA_Real *yy, void *l, QLA_Real *xx, QDP_Lattice *lat, int nelem);
+
+#endif // HAVE_QLL
+
 #endif /* _QOP_F_INTERNAL_H */

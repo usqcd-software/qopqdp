@@ -18,6 +18,9 @@
 /* build Nc=N libraries */
 #undef HAVE_NCN
 
+/* use qll */
+#undef HAVE_QLL
+
 /* Name of package */
 #undef PACKAGE
 

@@ -3,6 +3,7 @@
 #ifndef _QOP_F1__IPC_GENERIC_H
 #define _QOP_F1__IPC_GENERIC_H
 
+#define free_qll_solver free_qll_solverF1
 #define QOP_asqtad_create_L_from_L QOP_F1_asqtad_create_L_from_L
 #define QOP_asqtad_create_L_from_r_times_L QOP_F1_asqtad_create_L_from_r_times_L
 #define QOP_asqtad_deriv_multi_fnmat_qdp QOP_F1_asqtad_deriv_multi_fnmat_qdp
@@ -77,5 +78,8 @@
 #define QOP_wilson_dslash_get_tmp QOP_F1_wilson_dslash_get_tmp
 #define QOP_wilsonDslash QOP_F1_wilsonDslash
 #define QOP_wilson_initialize_gauge_L QOP_F1_wilson_initialize_gauge_L
+#define setup_qll_solver setup_qll_solverF1
+#define solveMulti_qll solveMulti_qllF1
+#define solve_qll solve_qllF1
 
 #endif // _QOP_F1__IPC_GENERIC_H

@@ -15,6 +15,10 @@ makengen() {
  sed -n '/.*QOP_'$t'_[^(]*(NCPROT/{s/.*QOP_'$t'_\([^(]*\)(NCPROT.*/#define QOP'$uo'_\1(...) QOP_'$n'_\1(QOP_Nc, __VA_ARGS__)/;p;}'
 }
 
+makeqgen() {
+ sed -n '/ '$t'([^)]*)/{s/.* '$t'(\([^)]*\)).*/#define \1 \1'$n'/g;p;}'
+}
+
 makegen() {
  if ! expr "X$o" : '.*N.*' >/dev/null && expr $n : '.*N.*' >/dev/null; then
   grep -v NCPROT $f |makecgen
@@ -22,6 +26,7 @@ makegen() {
  else
   cat $f |makecgen
  fi
+ cat $f |makeqgen
 }
 
 def="_QOP_${n}_${o}_${t}_GENERIC_H"

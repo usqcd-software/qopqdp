@@ -197,6 +197,7 @@ QDP_Subset *QOP_get_sub32(QDP_Lattice *lat);
 QOP_status_t QOP_asqtad_invert_init(void);
 
 #define APPLY(m,...) m(__VA_ARGS__)
+#define CAT3(a,b,c) a ## b ## c
 #define CAT4(a,b,c,d) a ## b ## c ## d
 
 #if QOP_Precision == 'F'

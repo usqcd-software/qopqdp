@@ -49,4 +49,6 @@ cat $f |sed '
   s/QLA_PC_/QLA_'$PC'_/g;
   s/QLA_P_/QLA_'$P'_/g;
   s/NCPROT/'"$NCPROT"'/g;
+  s/IP(\([^)]*\))/\1'"$P"'/g;
+  s/IPC(\([^)]*\))/\1'"$PC"'/g;
 '

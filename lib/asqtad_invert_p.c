@@ -347,6 +347,11 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   QLA_Real r2stop[nsolve];
   QLA_Real mass2[nsolve];
   QLA_Real m2s[nsolve];
+#ifdef HAVE_QLL
+#if QOP_Colors == 3
+  double ms[nsolve];
+#endif
+#endif
   int oi[nsolve], xi[nsolve];
   int nm = 0;
   int iter = 0, nrestart = -1;
@@ -375,6 +380,11 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     while(j>0 && mass2[i]<m2s[j-1]) j--;
     if(j==nm || m2s[j]!=mass2[i]) {
       for(int k=nm; k>j; k--) m2s[k] = m2s[k-1];
+#ifdef HAVE_QLL
+#if QOP_Colors == 3
+      ms[j] = masses[i];
+#endif
+#endif
       m2s[j] = mass2[i];
       nm++;
     }
@@ -407,6 +417,19 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     refine(out+i, in+i, r+i, r2+i, mass2+i, scale+i, 1, ineo, in+i, &tv, 1,
 	   &oi, &oi, 1, tv);
   }
+#endif
+
+#ifdef HAVE_QLL
+#if QOP_Colors == 3
+	//printf("ineo: %i  nm: %i\n", ineo, nm);
+	if(QOP_asqtad.cgtype == 2 && ineo == QOP_EVEN) {
+	  QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
+	  setup_qll(lat);
+	  setup_qll_solver(fla);
+	  //P(solve_qll)(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+	  //P(free_qll_solver)();
+	}
+#endif
 #endif
 
   while(1) {
@@ -497,8 +520,21 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 #endif
       {
 	dtime -= QOP_time();
-	QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, xresarg,
-			  m2s, nm, x, r[imax], cgp, insub);
+#ifdef HAVE_QLL
+#if QOP_Colors == 3
+	//printf("ineo: %i  nm: %i\n", ineo, nm);
+	if(QOP_asqtad.cgtype == 2 && ineo == QOP_EVEN) {
+	  //QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
+	  //setup_qll(lat);
+	  //P(setup_qll_solver)(fla);
+	  //solve_qll(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+	  solveMulti_qll(x, r[imax], ms, nm, inv_arg, xresarg);
+	  //P(free_qll_solver)();
+	} else
+#endif
+#endif
+	  QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, xresarg,
+			    m2s, nm, x, r[imax], cgp, insub);
 	dtime += QOP_time();
       }
     iter += res_arg[imax]->final_iter;
@@ -538,6 +574,19 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
       QOP_printf0("SOLVE[%i]: in2: %g  out2: %g\n", i, in2[i], o2);
     }
   }
+
+#ifdef HAVE_QLL
+#if QOP_Colors == 3
+  //printf("ineo: %i  nm: %i\n", ineo, nm);
+  if(QOP_asqtad.cgtype == 2 && ineo == QOP_EVEN) {
+    //QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
+    //setup_qll(lat);
+    //P(setup_qll_solver)(fla);
+    //P(solve_qll)(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+    free_qll_solver();
+  }
+#endif
+#endif
 
   double nflop = 0.5 * (20*QLA_Nc+2*8*QLA_Nc*QLA_Nc*fla->nlinks);
   double nflopm = 0.5 * 10*QLA_Nc; /* per extra mass */

@@ -211,4 +211,13 @@ void QOP_IP_mgVcycle(QDP_N_ColorVector **out, QDP_N_ColorVector **in, int sign, 
 #  include <qop_p_internal_generic.h>
 #endif
 
+#ifdef HAVE_QLL
+
+void IP(setup_qll)(QDP_Lattice *lat);
+void * IP(get_qll_layout)(void);
+void IP(toQDP)(QLA_Real *xx, QDP_Lattice *lat, QLA_Real *yy, void *l, int nelem);
+void IP(fromQDP)(QLA_Real *yy, void *l, QLA_Real *xx, QDP_Lattice *lat, int nelem);
+
+#endif // HAVE_QLL
+
 #endif /* _QOP_P_INTERNAL_H */
