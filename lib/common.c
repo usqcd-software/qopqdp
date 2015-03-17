@@ -75,6 +75,10 @@ QOP_init(QOP_layout_t *layout)
     if(error) retval = QOP_FAIL;
   }
 
+#ifdef _OPENMP
+  QDP_set_block_size(1024*1024*1024);
+#endif
+
   return retval;
 }
 
