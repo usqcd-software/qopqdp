@@ -383,14 +383,13 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
     {
       int svd_callst = 0;
       int ff_countert = 0;
-      QOP_info_t infot;
-      infot.final_flop = 0.0;
+      QOP_info_t infot = QOP_INFO_ZERO;
 #pragma omp for
       for(int j=0; j<QDP_sites_on_node; j++ ) {
 	QLA_ColorTensor4 dwdv, dwdagdv;
 	// derivative with respect to V and V^+
-	QOPPC(u3_un_der_analytic)( &infot, &( Vlinks[j] ),
-				   &dwdv, &dwdagdv, &svd_calls, &ff_countert );
+	QOPPC(u3_un_der_analytic)(&infot, &(Vlinks[j]),
+				  &dwdv, &dwdagdv, &svd_callst, &ff_countert);
 	// adjoint piece of force from the previous level
 	QLA_ColorMatrix ff_old_adj;
 	QLA_M_eq_Ma( &ff_old_adj, &( ff_old[j] ) );
@@ -411,12 +410,12 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
 	    }
 	  }
 	}
+      }
 #pragma omp critical
-	{
-	  info->final_flop += infot.final_flop;
-	  svd_calls += svd_callst;
-	  ff_counter += ff_countert;
-	}
+      {
+	info->final_flop += infot.final_flop;
+	svd_calls += svd_callst;
+	ff_counter += ff_countert;
       }
     }
     // resume QDP operations on links
@@ -430,6 +429,5 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
   QMP_sum_int(&ff_counter);
   QOP_info_hisq_svd_counter(info) += svd_calls;
   QOP_info_hisq_force_filter_counter(info) += ff_counter;
-  // not sure why, but the accumulated flop count seems too large
-  info->final_flop = ((double)(198 + 81*16))*QDP_sites_on_node;
+  info->final_flop += ((double)(198 + 81*16))*QDP_sites_on_node;
 }
