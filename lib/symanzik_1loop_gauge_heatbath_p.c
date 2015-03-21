@@ -296,7 +296,7 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
 	  QDP_M_eq_zero(staple, subset);
 	  QOP_symanzik_1loop_gauge_staple_qdp(info, links, staple, mu, coeffs, cbs, cb);
 	  QDP_M_eq_M_times_Ma(v, links[mu], staple, subset);
-	  QDP_M_eq_funci(v, hb_func, subset);
+	  QDP_M_eq_funcit(v, hb_func, subset);
 	  QDP_M_eq_M_times_M(tmp, v, links[mu], subset);
 	  QDP_M_eq_M(links[mu], tmp, subset);
 	}
@@ -309,7 +309,7 @@ QOP_symanzik_1loop_gauge_heatbath_qdp(QOP_info_t *info,
 	  QDP_M_eq_zero(staple, subset);
 	  QOP_symanzik_1loop_gauge_staple_qdp(info, links, staple, mu, coeffs, cbs, cb);
 	  QDP_M_eq_M_times_Ma(v, links[mu], staple, subset);
-	  QDP_M_eq_funci(v, over_func, subset);
+	  QDP_M_eq_funcit(v, over_func, subset);
 	  QDP_M_eq_M_times_M(tmp, v, links[mu], subset);
 	  QDP_M_eq_M(links[mu], tmp, subset);
 	}

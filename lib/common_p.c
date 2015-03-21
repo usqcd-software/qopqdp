@@ -501,7 +501,7 @@ scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
     if(g->sign.signmask) {
       staggered_sign_bits = g->sign.signmask[i];
     }
-    QDP_M_eq_func(l[i], rephase_func, QDP_all);
+    QDP_M_eq_funct(l[i], rephase_func, QDP_all);
   }
 }
 

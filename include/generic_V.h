@@ -12,6 +12,7 @@
 #define reset_V                 QDP_reset_V
 
 #define V_eq_funci              QDP_V_eq_funci
+#define V_eq_funcit             QDP_V_eq_funcit
 
 #define relnorm2_V(r,o,s)       QOP_relnorm2_V(&r, &o, s, 1);
 

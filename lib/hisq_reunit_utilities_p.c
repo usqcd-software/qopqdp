@@ -95,8 +95,9 @@ QOPPC(su3_mat_det)( QLA_ColorMatrix *U)
 #endif
 
 // Analytic reunitarization
-int QOPPC(u3_un_analytic)( QOP_info_t *info, 
-			   QLA_ColorMatrix *V, QLA_ColorMatrix *W ) {
+int
+QOPPC(u3_un_analytic)(QOP_info_t *info, QLA_ColorMatrix *V, QLA_ColorMatrix *W)
+{
   QLA_Real c0, c1, c2, S, S3, R, /*R2, CQ3,*/ RoS, theta, theta3, pi23, denom;
   QLA_Real g0, g1, g2, g0sq, g1sq, g2sq, f0, f1, f2, us, vs, ws, det_check=0;
   QLA_Real sigma[3];
@@ -193,7 +194,6 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
     nflops += 21;
   }
 
-
   if(QOP_hisq_links.reunit_allow_svd){
     
     if(!QOP_hisq_links.reunit_svd_only){
@@ -219,7 +219,6 @@ int QOPPC(u3_un_analytic)( QOP_info_t *info,
   } /* reunit_allow_svd */
 
   if( 0!=perform_svd ) {
-    
     /* call SVD */
     QOPPC(svd3x3)( info, V, sigma, &Uleft, &Vright);
     
@@ -482,7 +481,7 @@ void QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
       }
       QLA_M_eq_M_times_M( &Q2, &Q, &Q );
       nflops += 3+198;
-      QOP_info_hisq_force_filter_counter(info)++;
+      //QOP_info_hisq_force_filter_counter(info)++;
     }
   }
 

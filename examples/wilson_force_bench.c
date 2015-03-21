@@ -12,7 +12,11 @@ static int nsrcmax=8;
 static QLA_Real kappa=0.136;
 static int clover=0;
 static int verb=0;
+#ifdef _OPENMP
+static int bsmin=(512*1024*1024), bsmax=(512*1024*1024), *bsa, bsn;
+#else
 static int bsmin=32, bsmax=8192, *bsa, bsn;
+#endif
 static int check=0;
 
 double

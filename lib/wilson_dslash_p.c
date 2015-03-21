@@ -363,6 +363,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   A[0] = QDP_expose_M(a0);
   A[1] = QDP_expose_M(a1);
   // is,js = 0,0 and 1,1
+#pragma omp parallel for
   for(int s=0; s<QDP_sites_on_node; s++) {
     for(int b=0; b<2; b++) { // block
       int k0 = bsize*(2*s+b);
@@ -413,6 +414,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   B[0] = QDP_expose_M(b0);
   B[1] = QDP_expose_M(b1);
   // is,js = 1,0 (or 0,1)
+#pragma omp parallel for
   for(int s=0; s<QDP_sites_on_node; s++) {
     for(int b=0; b<2; b++) { // block
       int k0 = bsize*(2*s+b);
@@ -869,39 +871,38 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   if(clov!=NULL) {
     int size = QDP_sites_on_node*CLOV_REALS;
     QOP_malloc(flw->clov, REAL, size);
-    {
-      QLA_DiracPropagator(*dp);
-      int x, b, i, ic, j, jc, is, js, k=0;
-      dp = QDP_expose_P(clov);
-      for(x=0; x<QDP_sites_on_node; x++) {
-	for(b=0; b<2; b++) { // two chiral blocks
-	  // first the diagonal
-	  for(i=0; i<2*QLA_Nc; i++) {
-	    ic = i/2;
-	    is = 2*b + i%2;
-	    flw->clov[k++] = QLA_real(QLA_elem_P(dp[x], ic, is, ic, is));
-	  }
-	  // now the offdiagonal
-	  for(i=0; i<2*QLA_Nc; i++) {
-	    ic = i/2;
-	    is = 2*b + i%2;
-	    for(j=i+1; j<2*QLA_Nc; j++) {
-	      QLA_Complex z1, z2;
-	      jc = j/2;
-	      js = 2*b + j%2;
-	      //QLA_c_eq_c_plus_ca(z1, QLA_elem_P(dp[x], ic, is, jc, js),
-	      //                   QLA_elem_P(dp[x], jc, js, ic, is));
-	      QLA_c_eq_c(z1, QLA_elem_P(dp[x], ic, is, jc, js));
-	      QLA_c_peq_ca(z1, QLA_elem_P(dp[x], jc, js, ic, is));
-	      QLA_c_eq_r_times_c(z2, 0.5, z1);
-	      flw->clov[k++] = QLA_real(z2);
-	      flw->clov[k++] = -QLA_imag(z2); // - since we now store lower tri
-	    }
+    QLA_DiracPropagator(*dp);
+    dp = QDP_expose_P(clov);
+#pragma omp parallel for
+    for(int x=0; x<QDP_sites_on_node; x++) {
+      for(int b=0; b<2; b++) { // two chiral blocks
+	int k = (2*x+b)*(QLA_Nc*(2*QLA_Nc+1));
+	// first the diagonal
+	for(int i=0; i<2*QLA_Nc; i++) {
+	  int ic = i/2;
+	  int is = 2*b + i%2;
+	  flw->clov[k++] = QLA_real(QLA_elem_P(dp[x], ic, is, ic, is));
+	}
+	// now the offdiagonal
+	for(int i=0; i<2*QLA_Nc; i++) {
+	  int ic = i/2;
+	  int is = 2*b + i%2;
+	  for(int j=i+1; j<2*QLA_Nc; j++) {
+	    QLA_Complex z1, z2;
+	    int jc = j/2;
+	    int js = 2*b + j%2;
+	    //QLA_c_eq_c_plus_ca(z1, QLA_elem_P(dp[x], ic, is, jc, js),
+	    //                   QLA_elem_P(dp[x], jc, js, ic, is));
+	    QLA_c_eq_c(z1, QLA_elem_P(dp[x], ic, is, jc, js));
+	    QLA_c_peq_ca(z1, QLA_elem_P(dp[x], jc, js, ic, is));
+	    QLA_c_eq_r_times_c(z2, 0.5, z1);
+	    flw->clov[k++] = QLA_real(z2);
+	    flw->clov[k++] = -QLA_imag(z2); // - since we now store lower tri
 	  }
 	}
       }
-      QDP_reset_P(clov);
     }
+    QDP_reset_P(clov);
   } else {
     flw->clov = NULL;
   }
@@ -1086,6 +1087,7 @@ apply_clov_qla(NCPROT REAL *clov, QLA_Real m4,
   else start = 0;
   end = start + QDP_subset_len(subset);
   int nc2 = 2*QLA_Nc;
+#pragma omp parallel for
   for(int x=start; x<end; x++) {
     for(int b=0; b<2; b++) {
       int xb = nc2*nc2*(2*x+b);  // chiral block offset (in REALs)

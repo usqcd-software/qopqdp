@@ -95,18 +95,27 @@ QOPPC(u3reunit)(QOP_into_t *info, QDP_ColorMatrix *U, QDP_ColorMatrix *Ur)
 void
 QOP_u3reunit(QOP_info_t *info, QDP_ColorMatrix *V, QDP_ColorMatrix *W)
 {
-  QLA_ColorMatrix *Vlinks;
-  QLA_ColorMatrix *Wlinks;
   int svd_calls = 0;
   double dtime = -QOP_time();
-
   // stop QDP operations and expose QDP links
-  Vlinks = QDP_expose_M(V);
-  Wlinks = QDP_expose_M(W);
-
+  QLA_ColorMatrix *Vlinks = QDP_expose_M(V);
+  QLA_ColorMatrix *Wlinks = QDP_expose_M(W);
   info->final_flop = 0.0;
-  for(int i=0; i<QDP_sites_on_node; i++) {
-    svd_calls += QOP_u3_un_analytic(info, &(Vlinks[i]), &(Wlinks[i]));
+
+#pragma omp parallel
+  {
+    int svd_callst = 0;
+    QOP_info_t infot;
+    infot.final_flop = 0.0;
+#pragma omp for
+    for(int i=0; i<QDP_sites_on_node; i++) {
+      svd_callst += QOP_u3_un_analytic(&infot, &(Vlinks[i]), &(Wlinks[i]));
+    }
+#pragma omp critical
+    {
+      info->final_flop += infot.final_flop;
+      svd_calls += svd_callst;
+    }
   }
 
   // Tally across all nodes and update global counter
@@ -359,70 +368,61 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
 			    QDP_ColorMatrix *Force[4],
 			    QDP_ColorMatrix *Force_old[4])
 {
-  int i, j, k, l, m, n, nd;
-  QLA_ColorMatrix *Vlinks;
-  QLA_ColorMatrix *ff_new, *ff_old, ff_old_adj;
-  QLA_Complex ftmp;
-  QLA_ColorTensor4 dwdv, dwdagdv;
   int svd_calls = 0;
   int ff_counter = 0;
-
   info->final_flop = 0.0;
+  int nd = QDP_ndim();
 
-  nd = QDP_ndim();
-
-  for( i=0; i<nd; i++ ) {
+  for(int i=0; i<nd; i++ ) {
     // stop QDP operations and expose QDP links
-    Vlinks = QDP_expose_M( V[i] );
-    ff_new = QDP_expose_M( Force[i] );
-    ff_old = QDP_expose_M( Force_old[i] );
-
+    QLA_ColorMatrix *Vlinks = QDP_expose_M( V[i] );
+    QLA_ColorMatrix *ff_new = QDP_expose_M( Force[i] );
+    QLA_ColorMatrix *ff_old = QDP_expose_M( Force_old[i] );
     //AB NO NEED TO REPHASE V LINKS???
-
-    for( j=0; j<QDP_sites_on_node; j++ ) {
-      // derivative with respect to V and V^+
-      QOPPC(u3_un_der_analytic)( info, &( Vlinks[j] ),
-				 &dwdv, &dwdagdv, &svd_calls, &ff_counter );
-    
-//      if( j==0 ) {
-//        printf("FORCE REUNIT V link at site 0\n");
-//        PrintMone( Vlinks[j] );
-//        printf("FORCE REUNIT derivative at site 0\n");
-//        PrintT4(dwdv);
-//        PrintT4(dwdagdv);
-//      }
-
-      // adjoint piece of force from the previous level
-      QLA_M_eq_Ma( &ff_old_adj, &( ff_old[j] ) );
-
-      // see LONG COMMENT in fermion_force_fn_multi_hisq
-      QLA_M_eq_zero( &( ff_new[j] ) );
-      for( m=0; m<3; m++) {
-        for( n=0; n<3; n++) {
-          for( k=0; k<3; k++) {
-            for( l=0; l<3; l++) {
-              // direct part
-              QLA_c_eq_c_times_c( ftmp, dwdv.t4[k][m][n][l], QLA_elem_M(ff_old[j],l,k) );
-              QLA_c_peq_c( QLA_elem_M(ff_new[j],n,m), ftmp );
-              // adjoint part
-              QLA_c_eq_c_times_c( ftmp, dwdagdv.t4[k][m][n][l], QLA_elem_M(ff_old_adj,l,k) );
-              QLA_c_peq_c( QLA_elem_M(ff_new[j],n,m), ftmp );
-            }
-          }
-        }
+#pragma omp parallel
+    {
+      int svd_callst = 0;
+      int ff_countert = 0;
+      QOP_info_t infot;
+      infot.final_flop = 0.0;
+#pragma omp for
+      for(int j=0; j<QDP_sites_on_node; j++ ) {
+	QLA_ColorTensor4 dwdv, dwdagdv;
+	// derivative with respect to V and V^+
+	QOPPC(u3_un_der_analytic)( &infot, &( Vlinks[j] ),
+				   &dwdv, &dwdagdv, &svd_calls, &ff_countert );
+	// adjoint piece of force from the previous level
+	QLA_ColorMatrix ff_old_adj;
+	QLA_M_eq_Ma( &ff_old_adj, &( ff_old[j] ) );
+	// see LONG COMMENT in fermion_force_fn_multi_hisq
+	QLA_M_eq_zero( &( ff_new[j] ) );
+	for(int m=0; m<3; m++) {
+	  for(int n=0; n<3; n++) {
+	    for(int k=0; k<3; k++) {
+	      for(int l=0; l<3; l++) {
+		// direct part
+		QLA_Complex ftmp;
+		QLA_c_eq_c_times_c( ftmp, dwdv.t4[k][m][n][l], QLA_elem_M(ff_old[j],l,k) );
+		QLA_c_peq_c( QLA_elem_M(ff_new[j],n,m), ftmp );
+		// adjoint part
+		QLA_c_eq_c_times_c( ftmp, dwdagdv.t4[k][m][n][l], QLA_elem_M(ff_old_adj,l,k) );
+		QLA_c_peq_c( QLA_elem_M(ff_new[j],n,m), ftmp );
+	      }
+	    }
+	  }
+	}
+#pragma omp critical
+	{
+	  info->final_flop += infot.final_flop;
+	  svd_calls += svd_callst;
+	  ff_counter += ff_countert;
+	}
       }
-//      if( j==0 ) {
-//        printf("FORCE REUNIT old force\n");
-//        PrintMone( ff_old[j] );
-//        printf("FORCE REUNIT new force\n");
-//        PrintMone( ff_new[j] );
-//      }
+      // resume QDP operations on links
+      QDP_reset_M( V[i] );
+      QDP_reset_M( Force[i] );
+      QDP_reset_M( Force_old[i] );
     }
-
-    // resume QDP operations on links
-    QDP_reset_M( V[i] );
-    QDP_reset_M( Force[i] );
-    QDP_reset_M( Force_old[i] );
   }
 
   // Tally across all nodes and update global counter
@@ -430,6 +430,5 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
   QMP_sum_int(&ff_counter);
   QOP_info_hisq_svd_counter(info) += svd_calls;
   QOP_info_hisq_force_filter_counter(info) += ff_counter;
-
-  info->final_flop += ((double)(198 + 81*16))*QDP_sites_on_node;
+  //info->final_flop += ((double)(198 + 81*16))*QDP_sites_on_node;
 }

@@ -1370,12 +1370,12 @@ QOP_asqtad_rephase_L(QOP_FermionLinksAsqtad *fla,
     if(sign || bc_dir >= 0){
       if(nl2 == 8) {
 	/* Forward fat links */
-	QDP_M_eq_func(fla->fwdlinks[2*i], rephase_fat_bdry_func, QDP_all);
+	QDP_M_eq_funct(fla->fwdlinks[2*i], rephase_fat_bdry_func, QDP_all);
 	/* Forward long links */
-	QDP_M_eq_func(fla->fwdlinks[2*i+1], rephase_long_bdry_func, QDP_all);
+	QDP_M_eq_funct(fla->fwdlinks[2*i+1], rephase_long_bdry_func, QDP_all);
       } else {
 	/* Forward fat links only in this case */
-	QDP_M_eq_func(fla->fwdlinks[i], rephase_fat_bdry_func, QDP_all);
+	QDP_M_eq_funct(fla->fwdlinks[i], rephase_fat_bdry_func, QDP_all);
       }
     }
   }

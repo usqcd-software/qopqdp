@@ -467,11 +467,11 @@ QOPP(mgSetDiaginv)(QOPP(MgDslashArgs) *da)
 
   int ns = QDP_sites_on_node_L(lat);
   int n = nv*nc;
-  QLAN(ColorMatrix)(n, m1);
-  QLAN(ColorMatrix)(n, m2);
-  QLAN(ColorMatrix)(n, m3);
 
+#pragma omp parallel for
   for(int s=0; s<ns; s++) {
+    QLAN(ColorMatrix)(n, m1);
+    QLAN(ColorMatrix)(n, m2);
     links2zmat(n, &m1, nc, nv, qs, s);
     QLAN(M_eq_inverse_M)(n, &m2, &m1);
     zmat2links(nc, nv, qd, s, n, &m2);
@@ -506,7 +506,11 @@ QOPP(mgSetDiaginv)(QOPP(MgDslashArgs) *da)
       }
     }
 
+#pragma omp parallel for
     for(int s=0; s<ns; s++) {
+      QLAN(ColorMatrix)(n, m1);
+      QLAN(ColorMatrix)(n, m2);
+      QLAN(ColorMatrix)(n, m3);
       links2zmat(n, &m1, nc, nv, qs, s);
       links2zmat(n, &m2, nc, nv, qs2, s);
       QLAN(M_eq_M_times_M)(n, &m3, &m1, &m2);
@@ -587,7 +591,7 @@ QOPP(mgTestDslash)(void op(QDPN(ColorVector) *Ax[], QDPN(ColorVector) *x[],
     out3[i] = QDPN(create_V_L)(nc, lat);
   }
 
-  QDPN(V_eq_funci)(in[0], vpfunc, all);
+  QDPN(V_eq_funcit)(in[0], vpfunc, all);
 
   op(out1, in, 1, args);
   QOPP(mgDslash)(out2, in, 1, da, QOP_EVENODD, QOP_EVENODD);

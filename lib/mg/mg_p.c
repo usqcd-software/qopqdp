@@ -42,7 +42,7 @@ QDPN(V_eq_elem_c_multi)(QDPN(ColorVector) *v, int nc, int ic,
     g_z = &z[s];
     //QOP_printf0("g_z = %p\n", g_z);
     //QOP_printf0("z[s] = %g %g\n", QLA_real(z[s]), QLA_imag(z[s]));
-    QDPN(V_eq_funci)(v, V_eq_elem_c, subs[s]);
+    QDPN(V_eq_funcit)(v, V_eq_elem_c, subs[s]);
   }
 }
 
@@ -256,7 +256,7 @@ QOPP(mgOrtho)(QDPN(ColorVector) *cv[], int nv, QOP_MgBlock *mgb)
     //QDPN(r_eq_norm2_V_multi)(r, cv[i], mgb->fs, ns);
     QOPP(mgRestrict)(&z, &cv[i], 1, &cv[i], 1, fnc, mgb, QOP_EVENODD);
     //for(int j=0; j<ns; j++) r[j] = 1/sqrt(r[j]);
-    QDPN(V_eq_funci)(z, inv_sqrt_re, QDP_all_L(mgb->coarse));
+    QDPN(V_eq_funcit)(z, inv_sqrt_re, QDP_all_L(mgb->coarse));
     //QDPN(V_eq_r_times_V_multi)(cv[i], r, cv[i], mgb->fs, ns);
     QOPP(mgProlong)(&t, &z, 1, &cv[i], 1, fnc, mgb, QOP_EVENODD);
     QDPN(V_eq_V)(cv[i], t, QDP_all_L(mgb->fine));
@@ -300,6 +300,7 @@ get_index_larger(QDPN(ColorVector) *zk, QDPN(ColorVector) *zn, QDPN(ColorVector)
   QLAN(ColorVector)(1, (*qzk)) = QDPN(expose_V)(zk);
   QLAN(ColorVector)(1, (*qzn)) = QDPN(expose_V)(zn);
   QLAN(ColorVector)(1, (*qz)) = QDPN(expose_V)(z);
+#pragma omp parallel for
   for(int i=0; i<n; i++) {
     QLA_Real rzn = QLA_real(QLA_elem_V(qzn[i],0));
     QLA_Real rz = QLA_real(QLA_elem_V(qz[i],0));
@@ -334,6 +335,7 @@ swap_sites(QDPN(ColorVector) *cv[], int nv, int nc, QDPN(ColorVector) *tk, int j
   QLAN(ColorVector)(1, (*qtk)) = QDPN(expose_V)(tk);
   QLAN(ColorVector)(nc, (*qcv[nv]));
   for(int i=0; i<nv; i++) qcv[i] = QDPN(expose_V)(cv[i]);
+#pragma omp parallel for
   for(int i=0; i<n; i++) {
     int k = round(QLA_real(QLA_elem_V(qtk[i],0)));
     if(k!=j) {
@@ -403,7 +405,7 @@ QOPP(mgOrthoSort)(QDPN(ColorVector) *cv[], int imin, int n, QOP_MgBlock *mgb,
   QDPN(ColorVector) *zn = QDPN(create_V_L)(1, mgb->coarse);
   QDPN(V_eq_zero)(t, QDP_all_L(mgb->fine));
   QDPN(V_eq_zero)(z, QDP_all_L(mgb->coarse));
-  QDPN(V_eq_funci)(ones, ones_func, QDP_all_L(mgb->fine));
+  QDPN(V_eq_funcit)(ones, ones_func, QDP_all_L(mgb->fine));
   for(int i=0; i<imin; i++) {
     for(int j=imin; j<n; j++) {
       QOPP(mgRestrict)(&z, &cv[j], 1, &cv[i], 1, fnc, mgb, QOP_EVENODD);
@@ -433,7 +435,7 @@ QOPP(mgOrthoSort)(QDPN(ColorVector) *cv[], int imin, int n, QOP_MgBlock *mgb,
     }
 
     // normalize
-    QDPN(V_eq_funci)(zn, inv_sqrt_re, QDP_all_L(mgb->coarse));
+    QDPN(V_eq_funcit)(zn, inv_sqrt_re, QDP_all_L(mgb->coarse));
     QOPP(mgProlong)(&t, &zn, 1, &cv[i], 1, fnc, mgb, QOP_EVENODD);
     QDPN(V_eq_V)(cv[i], t, QDP_all_L(mgb->fine));
     {
@@ -481,7 +483,7 @@ QOPP(mgOrthoVec)(QDPN(ColorVector) *cv[], int nv, QOP_MgBlock *mgb, int norm)
       //QDPN(r_eq_norm2_V_multi)(r, cv[i], mgb->fs, ns);
       QOPP(mgRestrict)(&z, &cv[i], 1, &cv[i], 1, fnc, mgb, QOP_EVENODD);
       //for(int j=0; j<ns; j++) r[j] = 1/sqrt(r[j]);
-      QDPN(V_eq_funci)(z, inv_sqrt_re, QDP_all_L(mgb->coarse));
+      QDPN(V_eq_funcit)(z, inv_sqrt_re, QDP_all_L(mgb->coarse));
       //QDPN(V_eq_r_times_V_multi)(cv[i], r, cv[i], mgb->fs, ns);
       QOPP(mgProlong)(&t, &z, 1, &cv[i], 1, fnc, mgb, QOP_EVENODD);
       QDPN(V_eq_V)(cv[i], t, QDP_all_L(mgb->fine));

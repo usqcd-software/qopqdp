@@ -50,7 +50,7 @@ QOP_projectU_qdp(QOP_info_t *info, QDP_ColorMatrix *pU, QDP_ColorMatrix *U)
 #define NC QDP_get_nc(U)
   double dtime = -QOP_time();
   QLA_ColorMatrix(*Uq) = QDP_expose_M(U);
-  QDP_M_eq_funcia(pU, projectU_site, (void *)Uq, QDP_all);
+  QDP_M_eq_funciat(pU, projectU_site, (void *)Uq, QDP_all);
   QDP_reset_M(U);
   dtime += QOP_time();
   info->final_sec = dtime;

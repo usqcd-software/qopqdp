@@ -27,7 +27,11 @@ static int verb=0;
 //static const int nmn = sizeof(nma)/sizeof(int);
 //static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 //static const int bsn = sizeof(bsa)/sizeof(int);
+#ifdef _OPENMP
+static int bsmin=(512*1024*1024), bsmax=(512*1024*1024), *bsa, bsn;
+#else
 static int bsmin=32, bsmax=8192, *bsa, bsn;
+#endif
 QOP_FermionLinksWilson *flw;
 QOP_WilsonMg *wilmg;
 

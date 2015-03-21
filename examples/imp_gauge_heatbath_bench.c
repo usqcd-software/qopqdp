@@ -17,8 +17,13 @@ static int nit=5;
 //static const int nma[] = {2, 4, 8, 16};
 //static const int nma[] = {0};
 //static const int nmn = sizeof(nma)/sizeof(int);
+#ifdef _OPENMP
+static const int bsa[] = {512*1024*1024};
+static const int bsn = sizeof(bsa)/sizeof(int);
+#else
 static const int bsa[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 static const int bsn = sizeof(bsa)/sizeof(int);
+#endif
 static QDP_ColorMatrix **u, **cm;
 static QOP_GaugeField *gauge;
 static double flops, secs;

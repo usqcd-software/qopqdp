@@ -200,10 +200,8 @@ print_norms(QDP_FN_ColorVector *vv[], int nv, int fnc, int cnc,
 static void
 lex_int(QLA_Int *li, int coords[])
 {
-  int i,t;
-
-  t = coords[0];
-  for(i=1; i<QDP_ndim(); i++) {
+  int t = coords[0];
+  for(int i=1; i<QDP_ndim(); i++) {
     t = t*QDP_coord_size(i) + coords[i];
   }
   *li = t;
@@ -216,8 +214,11 @@ QOP_randSeed(QDP_RandomState *rs, int seed)
 
   li = QDP_create_I();
 
-  QDP_I_eq_func(li, lex_int, QDP_all);
+  TRACE;
+  QDP_I_eq_funct(li, lex_int, QDP_all);
+  TRACE;
   QDP_S_eq_seed_i_I(rs, seed, li, QDP_all);
+  TRACE;
 
   QDP_destroy_I(li);
 }
@@ -569,7 +570,9 @@ create_level(QOP_WilsonMg *wmg, int n)
 #endif
     l[n].dargs = dargs;
   }
+  TRACE;
   QOP_F_mgCloneOp(QOP_F_mgC2fOp, l[n].cfoa, l[n].dargs);
+  TRACE;
 
   // coarse solver
   if(l[n].gcrc==NULL) {
