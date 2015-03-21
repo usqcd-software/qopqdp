@@ -1,5 +1,7 @@
 2015-03-21:	James Osborn
 	Added OpenMP threading to parts not covered by QLA.
+    	Set large QDP block size if compiled with OpenMP.
+    	Added initial qll support.
 
 ===========================================================================
 2014-09-08      version 0.20.0

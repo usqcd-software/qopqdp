@@ -435,6 +435,8 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
       }
     }
   }
+  QDP_reset_M(b0);
+  QDP_reset_M(b1);
   QDP_destroy_M(b0);
   QDP_destroy_M(b1);
 

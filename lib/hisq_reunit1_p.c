@@ -418,11 +418,11 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
 	  ff_counter += ff_countert;
 	}
       }
-      // resume QDP operations on links
-      QDP_reset_M( V[i] );
-      QDP_reset_M( Force[i] );
-      QDP_reset_M( Force_old[i] );
     }
+    // resume QDP operations on links
+    QDP_reset_M( V[i] );
+    QDP_reset_M( Force[i] );
+    QDP_reset_M( Force_old[i] );
   }
 
   // Tally across all nodes and update global counter
