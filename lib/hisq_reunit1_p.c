@@ -430,5 +430,6 @@ QOP_hisq_force_multi_reunit(QOP_info_t *info,
   QMP_sum_int(&ff_counter);
   QOP_info_hisq_svd_counter(info) += svd_calls;
   QOP_info_hisq_force_filter_counter(info) += ff_counter;
-  //info->final_flop += ((double)(198 + 81*16))*QDP_sites_on_node;
+  // not sure why, but the accumulated flop count seems too large
+  info->final_flop = ((double)(198 + 81*16))*QDP_sites_on_node;
 }

@@ -684,7 +684,7 @@ void QOPPC(u3_un_der_analytic)( QOP_info_t *info, QLA_ColorMatrix *V,
 /*#define QOP_SVD3x3_DEBUG*/
 
 /* define precision for chopping small values */
-#if ( QOP_Precision==1 )
+#if ( QOP_PrecisionInt==2 )
 #define QOP_SVD3x3_PREC 5e-16
 #else
 #define QOP_SVD3x3_PREC 5e-7
