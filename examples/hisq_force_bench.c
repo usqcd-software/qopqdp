@@ -25,6 +25,39 @@ static QOP_GaugeField *gauge;
 static double flops, secs;
 
 double
+sumElem(QDP_ColorMatrix *mm)
+{
+  QLA_Real n2;
+  QLA_ColorMatrix m;
+  //QDP_r_eq_norm2_M(&n2, fl[i], QDP_all);
+  QDP_m_eq_sum_M(&m, mm, QDP_all);
+  n2 = 0;
+  for(int j=0; j<2*QDP_Nc*QDP_Nc; j++) n2 += ((QLA_Real*)&m)[j];
+  return n2;
+}
+
+void
+linkCksum(QOP_FermionLinksHisq *flh)
+{
+  QOP_FermionLinksAsqtad *fla;
+  fla = QOP_get_asqtad_links_from_hisq(flh)[0];
+  QDP_ColorMatrix *fl[ndim], *ll[ndim];
+  for(int i=0; i<ndim; i++) {
+    fl[i] = QDP_create_M();
+    ll[i] = QDP_create_M();
+  }
+  QOP_asqtad_extract_L_to_qdp(fl, ll, fla);
+  for(int i=0; i<ndim; i++) {
+    double n2;
+    n2 = sumElem(fl[i]);
+    printf0("fl2[%i]: %g\n", i, n2);
+    n2 = sumElem(ll[i]);
+    printf0("ll2[%i]: %g\n", i, n2);
+  }
+  //exit(0);
+}
+
+double
 bench_force(QOP_FermionLinksHisq *flh, QOP_hisq_coeffs_t *coeffs,
 	    QDP_ColorMatrix *cm[], QDP_ColorVector *in, int nsrc)
 {
@@ -139,13 +172,19 @@ start(void)
   coeffs.asqtad_naik = 0.1;
   coeffs.difference_one_link = 1;
   coeffs.difference_naik = 1;
-#if 0
-  //coeffs.asqtad_one_link = 0;
+#if 1
+  //coeffs.fat7_one_link = 1;
+  //coeffs.fat7_three_staple = 0;
+  //coeffs.fat7_five_staple = 0;
+  //coeffs.fat7_seven_staple = 0;
+  //coeffs.asqtad_one_link = 1;
   //coeffs.asqtad_three_staple = 0;
   //coeffs.asqtad_five_staple = 0;
   //coeffs.asqtad_seven_staple = 0;
-  coeffs.asqtad_lepage = 0;
+  //coeffs.asqtad_lepage = 0;
   //coeffs.asqtad_naik = 0;
+  //coeffs.difference_one_link = 0;
+  //coeffs.difference_naik = 0;
 #endif
 
   QOP_info_t info = QOP_INFO_ZERO;
@@ -155,10 +194,14 @@ start(void)
   //gf = QOP_convert_G_from_qdp(u);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
   //fla = QOP_asqtad_create_L_from_qdp(fatlinks, longlinks);
+  QDP_profcontrol(0);
+  flh = QOP_hisq_create_L_from_G(&info, &coeffs, gauge);
+  QOP_hisq_destroy_L(flh);
   QDP_profcontrol(1);
   //{ QOP_opt_t ol = {.tag="reunit_allow_svd_only",.value=0}; QOP_hisq_links_set_opts(&ol,1); }
   //{ QOP_opt_t ol = {.tag="reunit_svd_only",.value=1}; QOP_hisq_links_set_opts(&ol,1); }
   flh = QOP_hisq_create_L_from_G(&info, &coeffs, gauge);
+  if(check) linkCksum(flh);
   //fla = QOP_get_asqtad_links_from_hisq(flh)[0];
   QDP_profcontrol(0);
   if(QDP_this_node==0) { printf("load links: secs = %g\t mflops = %g\n", info.final_sec, info.final_flop/(1e6*info.final_sec)); }

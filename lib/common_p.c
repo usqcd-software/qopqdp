@@ -690,16 +690,18 @@ fromQDP(real *yy, void *ll, real *xx, QDP_Lattice *lat, int nelem)
 void
 PC(unpackV)(Layout *l, QDP_ColorVector *xx, real *y)
 {
+#define NC QDP_get_nc(xx)
   QDP_Lattice *lat = QDP_get_lattice_V(xx);
   real *x = QDP_expose_V(xx);
-  P(toQDP)(x, lat, y, l, 6);
+  P(toQDP)(x, lat, y, l, 2*QDP_Nc);
   QDP_reset_V(xx);
+#undef NC
 }
 
 void
 PC(unpackM)(Layout *l, QDP_ColorMatrix *m, real *y)
 {
-#define NC 3
+#define NC QDP_get_nc(m)
   QDP_Lattice *lat = QDP_get_lattice_M(m);
   QDP_ColorMatrix *xx = QDP_create_M_L(lat);
   real *x = QDP_expose_M(xx);
@@ -709,20 +711,24 @@ PC(unpackM)(Layout *l, QDP_ColorMatrix *m, real *y)
   //QDP_M_eq_M(m, xx, QDP_all_L(lat));
   QDP_M_eq_transpose_M(m, xx, QDP_all_L(lat));
   QDP_destroy_M(xx);
+#undef NC
 }
 
 void
 PC(packV)(Layout *l, real *x, QDP_ColorVector *yy)
 {
+#define NC QDP_get_nc(yy)
   QDP_Lattice *lat = QDP_get_lattice_V(yy);
   real *y = QDP_expose_V(yy);
-  P(fromQDP)(x, l, y, lat, 6);
+  P(fromQDP)(x, l, y, lat, 2*QDP_Nc);
   QDP_reset_V(yy);
+#undef NC
 }
 
 void
 PC(packM)(Layout *l, real *y, QDP_ColorMatrix *m)
 {
+#define NC QDP_get_nc(m)
   QDP_Lattice *lat = QDP_get_lattice_M(m);
   QDP_ColorMatrix *xx = QDP_create_M_L(lat);
   //QDP_M_eq_M(xx, m, QDP_all_L(lat));
@@ -732,6 +738,80 @@ PC(packM)(Layout *l, real *y, QDP_ColorMatrix *m)
   P(fromQDP)(y, l, x, lat, nelem);
   QDP_reset_M(xx);
   QDP_destroy_M(xx);
+#undef NC
+}
+
+void *
+create_qll_gauge(int nc)
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  int nd = layout->nDim;
+  int nelemM = 2*nc*nc;
+  P(Field) *f;
+  QOP_malloc(f, P(Field), nd);
+  for(int i=0; i<nd; i++) {
+    P(fieldNew)(&f[i], layout, nelemM);
+  }
+  return (void *)f;
+}
+
+void *
+create_qll_from_gauge(QDP_ColorMatrix *g[])
+{
+#define NC QDP_get_nc(g[0])
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  int nd = layout->nDim;
+  int nelemM = 2*QDP_Nc*QDP_Nc;
+  P(Field) *f;
+  QOP_malloc(f, P(Field), nd);
+  for(int i=0; i<nd; i++) {
+    P(fieldNew)(&f[i], layout, nelemM);
+    PC(packM)(layout, f[i].f, g[i]);
+  }
+  return (void *)f;
+#undef NC
+}
+
+void
+copy_gauge_from_qll(QDP_ColorMatrix *g[], void *ff)
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  int nd = layout->nDim;
+  P(Field) *f = (P(Field)*)ff;
+  for(int i=0; i<nd; i++) {
+    PC(unpackM)(layout, g[i], f[i].f);
+  }
+}
+
+void
+free_qll_gauge(void *ff)
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  int nd = layout->nDim;
+  P(Field) *f = (P(Field)*)ff;
+  for(int i=0; i<nd; i++) {
+    P(fieldFree)(&f[i]);
+  }
+}
+
+void
+fat7_qll(void *qllfl, void *qllll, QOP_asqtad_coeffs_t *coef,
+	 void *qllu, void *qllul)
+{
+  Layout *layout = (Layout *)P(get_qll_layout)();
+  int nd = layout->nDim;
+  P(Field) *fl[nd], *ll[nd], *u[nd], *ul[nd], **llp=NULL, **ulp=NULL;
+  for(int i=0; i<nd; i++) {
+    fl[i] = i + ((P(Field)*)qllfl);
+    u[i] = i + ((P(Field)*)qllu);
+    ll[i] = i + ((P(Field)*)qllll);
+    ul[i] = i + ((P(Field)*)qllul);
+  }
+  if(qllll) {
+    llp = ll;
+    ulp = ul;
+  }
+  P(smearFat7)(fl, llp, (Fat7Coeffs*)coef, u, ulp);
 }
 
 static P(StaggeredSolver) sse;

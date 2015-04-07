@@ -3,6 +3,11 @@
 #ifndef _QOP_F3__IPC_GENERIC_H
 #define _QOP_F3__IPC_GENERIC_H
 
+#define copy_gauge_from_qll copy_gauge_from_qllF3
+#define create_qll_from_gauge create_qll_from_gaugeF3
+#define create_qll_gauge create_qll_gaugeF3
+#define fat7_qll fat7_qllF3
+#define free_qll_gauge free_qll_gaugeF3
 #define free_qll_solver free_qll_solverF3
 #define QOP_asqtad_create_L_from_L QOP_F3_asqtad_create_L_from_L
 #define QOP_asqtad_create_L_from_r_times_L QOP_F3_asqtad_create_L_from_r_times_L

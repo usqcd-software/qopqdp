@@ -97,7 +97,7 @@ check_resids(QDP_ColorVector *out[], QDP_ColorVector *in, QLA_Real ms[],
     QLA_Real mi = 1.0/m;
     QDP_V_eq_r_times_V_plus_V(chk, &mi, chk, in, QDP_even);
     QDP_r_eq_norm2_V(&chk2, chk, QDP_even);
-    if(chk2>rsq*in2) {
+    if(chk2>rsq*in2*0) {
       printf("trsq: %g  rsq: %g\n", chk2/in2, rsq);
     }
   }

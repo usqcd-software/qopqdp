@@ -350,6 +350,25 @@ QOP_asqtad_load_L_from_raw(QOP_FermionLinksAsqtad *fla,
 #undef NC
 }
 
+#if 0
+static double
+sumElem(QDP_ColorMatrix *mm)
+{
+#define NC QDP_get_nc(mm)
+  QLA_Real n2;
+  QLA_ColorMatrix m;
+  //QDP_r_eq_norm2_M(&n2, fl[i], QDP_all);
+  QDP_m_eq_sum_M(&m, mm, QDP_all);
+  n2 = 0;
+  for(int j=0; j<2*QDP_Nc*QDP_Nc; j++) n2 += ((QLA_Real*)&m)[j];
+  return n2;
+#undef NC
+}
+  //#define printnorm(x) {QLA_Real n2; QDP_r_eq_norm2_M(&n2,x,QDP_all); QOP_printf0("%s2: %g\n", #x, n2);}
+#define printnorm(x) {QLA_Real n2=sumElem(x); QOP_printf0("%s2: %g\n", #x, n2);}
+#endif
+
+#ifndef HAVE_QLL
 /* Computes the staple :
                  mu
               +-------+
@@ -386,9 +405,22 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
     QDP_M_eq_M_times_Ma(tmat1, ts0, ts1, QDP_all);
     QDP_M_eq_M_times_M(staple, gauge[nu], tmat1, QDP_all);
   } else {  /* No need to save the staple. Add it to the fatlinks */
+#if 1
+    //printnorm(ts1);
+    //printnorm(ts0);
     QDP_M_eq_M_times_Ma(tmat1, ts0, ts1, QDP_all);
+    //printnorm(tmat1);
+    //printnorm(gauge[nu]);
     QDP_M_eq_M_times_M(tmat2, gauge[nu], tmat1, QDP_all);
+#else
+    //QDP_M_eq_M_times_M(tmat1, gauge[nu], ts0, QDP_all);
+    //printnorm(ts1);
+    //printnorm(tmat1);
+    //QDP_M_eq_M_times_Ma(tmat2, tmat1, ts1, QDP_all);
+#endif
+    //printnorm(tmat2);
     QDP_M_peq_r_times_M(fl[mu], &coef, tmat2, QDP_all);
+    //printnorm(fl[mu]);
   }
 
   /* lower staple */
@@ -412,6 +444,7 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
   //QDP_destroy_M(tmat1);
   //QDP_destroy_M(tmat2);
 } /* compute_gen_staple */
+#endif
 
 static void
 make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
@@ -419,6 +452,47 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
 	       QDP_ColorMatrix *gfLong[])
 {
 #define NC QDP_get_nc(gf[0])
+  //printnorm(gf[0]);
+#ifdef HAVE_QLL
+  double nflop = 0;
+  double dtime;
+  if(coef->three_staple || coef->naik) {
+    nflop = 61632;
+  }
+  QDP_Lattice *lat = QDP_get_lattice_M(gf[0]);
+  //int nd = QDP_ndim_L(lat);
+  setup_qll(lat);
+  void *qllu = create_qll_from_gauge(gf);
+  void *qllfl = create_qll_gauge(QDP_Nc);
+  void *qllul = NULL, *qllll = NULL;
+  //printf("%p\n", ll);
+  if(ll) {
+    qllul = create_qll_from_gauge(gfLong);
+    qllll = create_qll_gauge(QDP_Nc);
+  }
+
+  dtime = -QOP_time();
+  fat7_qll(qllfl, qllll, coef, qllu, qllul);
+  dtime += QOP_time();
+
+  copy_gauge_from_qll(fl, qllfl);
+  free_qll_gauge(qllu);
+  free_qll_gauge(qllfl);
+  //printf("%p\n", ll);
+  if(ll) {
+    copy_gauge_from_qll(ll, qllll);
+    free_qll_gauge(qllul);
+    free_qll_gauge(qllll);
+  }
+
+  info->final_sec = dtime;
+  info->final_flop = nflop*QDP_sites_on_node;
+  info->status = QOP_SUCCESS;
+  //QOP_printf0("LLTIME(Fat): time = %g (Asqtad opt) mflops = %g\n", dtime,
+  //info->final_flop/(1e6*dtime));
+
+#else // not HAVE_QLL
+
   QDP_ColorMatrix *staple=NULL, *tempmat1=NULL, *t1=NULL, *t2=NULL,
     *tsl[4], *tsg[4][4], *ts1[4], *ts2[4];
   double nflop = 0;
@@ -472,19 +546,26 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   dtime = -QOP_time();
 
   for(int dir=0; dir<4; dir++) {
+    //printnorm(gf[dir]);
     QDP_M_eq_r_times_M(fl[dir], &coef1, gf[dir], QDP_all);
+    //printnorm(fl[dir]);
     if(have3) {
       for(int nu=0; nu<4; nu++) if(nu!=dir) {
 	  compute_gen_staple(staple, dir, nu, gf[dir], coef3, gf, fl,
 			     tsg[dir][nu], tsg[nu][dir], t1, t2, ts2[nu]);
+	  //printnorm(staple);
+	  //printnorm(fl[dir]);
 	  if(coefL) {
 	    compute_gen_staple(NULL, dir, nu, staple, coefL, gf, fl,
 			       tsl[nu], tsg[nu][dir], t1, t2, ts2[nu]);
+	    //printnorm(fl[dir]);
 	  }
 	  if(coef5 || coef7) {
 	    for(int rho=0; rho<4; rho++) if((rho!=dir)&&(rho!=nu)) {
 		compute_gen_staple(tempmat1, dir, rho, staple, coef5, gf, fl,
 				   tsl[rho], tsg[rho][dir], t1, t2, ts2[rho]);
+		//printnorm(tempmat1);
+		//printnorm(fl[dir]);
 		if(coef7) {
 		  for(int sig=0; sig<4; sig++) {
 		    if((sig!=dir)&&(sig!=nu)&&(sig!=rho)) {
@@ -536,6 +617,7 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
+#endif // HAVE_QLL
 #undef NC
 }
 

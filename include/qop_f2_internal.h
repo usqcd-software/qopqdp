@@ -418,6 +418,12 @@ void solve_qllF2(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
 void solveMulti_qllF2(QDP_ColorVector *dest[], QDP_ColorVector *src,
 			 double ms[], int nm,  QOP_invert_arg_t *invarg,
 			 QOP_resid_arg_t *resargs[]);
+void * create_qll_gaugeF2(int nc);
+void * create_qll_from_gaugeF2(QDP_ColorMatrix *g[]);
+void copy_gauge_from_qllF2(QDP_ColorMatrix *g[], void *ff);
+void free_qll_gaugeF2(void *ff);
+void fat7_qllF2(void *qllfl, void *qllll, QOP_asqtad_coeffs_t *coef,
+		   void *qllu, void *qllul);
 
 #endif // HAVE_QLL
 

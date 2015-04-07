@@ -416,6 +416,12 @@ void IPC(solve_qll)(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
 void IPC(solveMulti_qll)(QDP_ColorVector *dest[], QDP_ColorVector *src,
 			 double ms[], int nm,  QOP_invert_arg_t *invarg,
 			 QOP_resid_arg_t *resargs[]);
+void * IPC(create_qll_gauge)(int nc);
+void * IPC(create_qll_from_gauge)(QDP_ColorMatrix *g[]);
+void IPC(copy_gauge_from_qll)(QDP_ColorMatrix *g[], void *ff);
+void IPC(free_qll_gauge)(void *ff);
+void IPC(fat7_qll)(void *qllfl, void *qllll, QOP_asqtad_coeffs_t *coef,
+		   void *qllu, void *qllul);
 
 #endif // HAVE_QLL
 
