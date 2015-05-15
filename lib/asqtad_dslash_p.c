@@ -444,7 +444,7 @@ compute_gen_staple(QDP_ColorMatrix *staple, int mu, int nu,
   //QDP_destroy_M(tmat1);
   //QDP_destroy_M(tmat2);
 } /* compute_gen_staple */
-#endif
+#endif // HAVE_QLL
 
 static void
 make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
@@ -463,12 +463,12 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   //int nd = QDP_ndim_L(lat);
   setup_qll(lat);
   void *qllu = create_qll_from_gauge(gf);
-  void *qllfl = create_qll_gauge(QDP_Nc);
+  void *qllfl = create_qll_gauge(NC);
   void *qllul = NULL, *qllll = NULL;
   //printf("%p\n", ll);
   if(ll) {
     qllul = create_qll_from_gauge(gfLong);
-    qllll = create_qll_gauge(QDP_Nc);
+    qllll = create_qll_gauge(NC);
   }
 
   dtime = -QOP_time();

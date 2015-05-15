@@ -103,6 +103,7 @@ QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts)
   QOP_asqtad.eigcg_nev = nev;
   QOP_asqtad.eigcg_m = m;
   QOP_asqtad.eigcg_numax = numax;
+  //QOP_printf0("QOP_asqtad.cgtype: %i\n", QOP_asqtad.cgtype);
 
   ASQTAD_INVERT_END;
   return QOP_SUCCESS;

@@ -533,8 +533,10 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 	} else
 #endif
 #endif
-	  QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, xresarg,
-			    m2s, nm, x, r[imax], cgp, insub);
+	  {
+	    QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, xresarg,
+			      m2s, nm, x, r[imax], cgp, insub);
+	  }
 	dtime += QOP_time();
       }
     iter += res_arg[imax]->final_iter;

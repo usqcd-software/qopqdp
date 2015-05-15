@@ -904,7 +904,8 @@ solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
     PC(packV)(layout, d[i], dest[i]);
   }
   double rsq = resargs[0]->rsqmin;
-  int maxits = invarg->max_iter;
+  //int maxits = invarg->max_iter;
+  int maxits = invarg->restart;
   int its = P(solveMulti2)(&sse, d, ms, nm, s, rsq, maxits, "even");
   resargs[0]->final_iter = its;
   free(s);
