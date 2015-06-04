@@ -340,11 +340,11 @@ QOP_dw_EO_project( QOP_FermionLinksDW *fldw,
   QLA_Real M0 = 5-M5;
   QDP_Subset  eosub = (eo==QOP_EVEN?QDP_even:QDP_odd),
              oppsub = (eo==QOP_EVEN?QDP_odd:QDP_even);
-  //QOP_Qxxinv(fldw,  tdv,  in, M0, mq, ls, 1, oppsub);
-  //QOP_Qxy   (fldw, tdv2, tdv, M0, mq, ls, 1, eosub, oppsub);
-  //for (int s=0; s<ls; s++) QDP_D_eq_D_minus_D(out[s], in[s], tdv2[s], eosub);
-  //for (int s=0; s<ls; s++) QDP_D_eq_D(out[s], in[s], oppsub);
-  QOP_Qxy   (fldw, out, in, M0, mq, ls, 1, eosub, oppsub);
+  QOP_Qxxinv(fldw,  tdv,  in, M0, mq, ls, 1, oppsub);
+  QOP_Qxy   (fldw, tdv2, tdv, M0, mq, ls, 1, eosub, oppsub);
+  for (int s=0; s<ls; s++) QDP_D_eq_D_minus_D(out[s], in[s], tdv2[s], eosub);
+  for (int s=0; s<ls; s++) QDP_D_eq_D(out[s], in[s], oppsub);
+  //QOP_Qxy   (fldw, out, in, M0, mq, ls, 1, eosub, oppsub);
 #undef NC
 }
 

@@ -231,6 +231,9 @@ QOP_status_t QOP_init(QOP_layout_t *layout);
 QOP_status_t QOP_finalize(void);
 int QOP_is_initialized(void);
 
+#define QOP_HAS_VERSION
+const char *QOP_version_str(void);
+int QOP_version_int(void);
 int QOP_verbose(int level);
 int QOP_profcontrol(int level);
 

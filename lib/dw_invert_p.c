@@ -178,7 +178,7 @@ QOP_dw_invert_qdp(QOP_info_t *info,
     rsqin += t;
   }
   res_arg->final_rsq = rsq/rsqin;
-  printf0("final rsq = %g/%g = %g  (%g)\n", rsq, rsqin, res_arg->final_rsq, res_arg->rsqmin);
+  QOP_printf0("final rsq = %g/%g = %g  (%g)\n", rsq, rsqin, res_arg->final_rsq, res_arg->rsqmin);
 #endif
 
   for (int s=0; s<ls; s++) {

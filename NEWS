@@ -1,3 +1,7 @@
+2015-06-04:	James Osborn
+	Fixes to staggered and DW solvers.
+	Added version routines.
+
 2015-03-21:	James Osborn
 	Added OpenMP threading to parts not covered by QLA.
     	Set large QDP block size if compiled with OpenMP.

@@ -99,6 +99,22 @@ QOP_is_initialized(void)
   return QOP_common.inited;
 }
 
+static const char *vs = VERSION;
+
+const char *
+QOP_version_str(void)
+{
+  return vs;
+}
+
+int
+QOP_version_int(void)
+{
+  int maj, min, bug;
+  sscanf(vs, "%i.%i.%i", &maj, &min, &bug);
+  return ((maj*1000)+min)*1000 + bug;
+}
+
 int
 QOP_verbose(int level)
 {

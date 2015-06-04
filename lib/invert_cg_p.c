@@ -167,7 +167,10 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
     if(res_arg[i]->rsqmin>=res_arg[irsq]->rsqmin) irsq = i;
     if(res_arg[i]->relmin>res_arg[irel]->relmin) irel = i;
   }
+  //irsq = imin;
+  //irel = imin;
   double rsqstop = res_arg[irsq]->rsqmin * insq;
+  //double rsqstop = 0.9 * res_arg[irsq]->rsqmin * insq;
   double relstop = res_arg[irel]->relmin;
 
   create_V(r);

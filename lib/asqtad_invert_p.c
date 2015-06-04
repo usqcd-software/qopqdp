@@ -375,6 +375,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   for(int i=0; i<nsolve; i++) {
     r2stop[i] = res_arg[i]->rsqmin * in2[i];
     mass2[i] = masses[i]*masses[i];
+    VERB(MED, "SOLVE: %i mass: %g rsqmin: %g rsqstop: %g relmin: %g\n",
+	 i, masses[i], res_arg[i]->rsqmin, r2stop[i], res_arg[i]->relmin);
     oi[i] = i;
     int j = nm;
     while(j>0 && mass2[i]<m2s[j-1]) j--;
@@ -442,7 +444,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     }
     // find least converged (or smaller mass if tie)
     int imax = 0;
-    double r2max=1, r2stopmax=1, in2max=1;
+    double r2max=0, r2stopmax=1, in2max=1;
     //VERB(MED, "SOLVE: its: %i\n", iter);
     for(int i=0; i<nsolve; i++) {
       // find the stopping criterion that is closer to convergence for this 'i'
@@ -457,7 +459,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
       // update if less converged
       double a = r2i*r2stopmax;
       double b = r2max*r2stopi;
-      if(a>b || (a==b && mass2[i]<mass2[imax])) {
+      if(a>b*1.01 || (a*1.01>=b && mass2[i]<mass2[imax])) {
 	imax = i;
 	r2max = r2i;
 	r2stopmax = r2stopi;
@@ -619,7 +621,7 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
 {
   if(inv_arg->evenodd!=QOP_EVENODD) {
     QOP_asqtad_solve_multi_qdp(info, fla, inv_arg, &res_arg,
-			       &mass, &out, &in, 1);
+  			       &mass, &out, &in, 1);
     return;
   }
 #define NC QDP_get_nc(in)
@@ -806,6 +808,12 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
 			    QDP_ColorVector *in_pt[],
 			    int nsrc)
 {
+  VERB(LOW, "%s: nsrc: %i  nmass[0]: %i  rsqmin[0][0]: %g  relmin[0][0]: %g\n",
+       __func__, nsrc, nmass[0], res_arg[0][0]->rsqmin, res_arg[0][0]->relmin);
+  VERB(LOW, "  max_iter: %i  restart: %i  max_restarts: %i  evenodd: %i \n",
+       inv_arg->max_iter, inv_arg->restart, inv_arg->max_restarts,
+       inv_arg->evenodd);
+#if 1
   if(inv_arg->evenodd!=QOP_EVENODD) {
     int nsolve = 0;
     for(int i=0; i<nsrc; i++) nsolve += nmass[i];
@@ -825,6 +833,7 @@ QOP_asqtad_invert_multi_qdp(QOP_info_t *info,
     QOP_asqtad_solve_multi_qdp(info, fla, inv_arg, ra, ms, out, in, nsolve);
     return;
   }
+#endif
 #define NC QDP_get_nc(in_pt[0])
   /* cg has 5 * 12 = 60 flops/site/it */
   /* MdagM -> 2*(66+72*15)+12 = 2304 flops/site */
