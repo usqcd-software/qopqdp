@@ -54,7 +54,7 @@ QOP_init(QOP_layout_t *layout)
     QDP_set_latsize(layout->latdim, layout->latsize);
     QDP_create_layout();
     QOP_common.we_inited_qdp = 1;
-  } else {
+  } else if (layout->latdim != NULL) {
     int error;
     int qdplatdim = QDP_ndim();
     int qdplatsize[qdplatdim];
