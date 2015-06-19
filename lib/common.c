@@ -48,7 +48,6 @@ QOP_init(QOP_layout_t *layout)
   QOP_common.we_inited_qdp = 0;
   QOP_common.ndim = layout->latdim;
 
-  printf("XXXX layout->latsize = %p\n", layout->latsize);
   if(!QDP_is_initialized()) {
     QDP_initialize(NULL, NULL);
     QDP_set_default_layout(QOP_layout_user);
