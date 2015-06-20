@@ -5,7 +5,8 @@ typedef QDP_DiracFermion * Vector;
 #define Vector2			QDP_DiracFermion
 #define _N                      _n
 #define vIndexDef               , int _n
-#define create_V(r)		{ r = malloc(_n*sizeof(Vector)); for(int _i=0; _i<_n; _i++) r[_i] = QDP_create_D(); }
+#define get_lattice_V(v)        QDP_get_lattice_D(v[0])
+#define create_V(r)		{ r = malloc(_n*sizeof(Vector)); for(int _i=0; _i<_n; _i++) r[_i] = QDP_create_D_L(lat); }
 #define destroy_V(r)		{ for(int _i=0; _i<_n; _i++) QDP_destroy_D(r[_i]); free(r); }
 #define insert_packed_V(r,a,s)  { int _s=QDP_subset_len(s)*4*QLA_Nc; for(int _i=0; _i<_n; _i++) QDP_insert_packed_D((r)[_i],(void*)((a)+_s*_i),s); }
 #define extract_packed_V(r,a,s)  { int _s=QDP_subset_len(s)*4*QLA_Nc; for(int _i=0; _i<_n; _i++) QDP_extract_packed_D((void*)((r)+_s*_i),(a)[_i],s); }

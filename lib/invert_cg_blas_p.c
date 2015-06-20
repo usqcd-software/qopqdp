@@ -336,6 +336,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 		  QDP_Subset subset
 		  vIndexDef)
 {
+  QDP_Lattice *lat = QDP_get_lattice_V(p);
   QLA_Complex *bout, *bin;
   linop_args_t args;
   int n = QDP_subset_len(subset)*csize_V;
@@ -389,6 +390,7 @@ QOPPCV(invert_cgms)(QOPPCV(linop_t) *linop,
 		    QDP_Subset subset
 		    vIndexDef)
 {
+  QDP_Lattice *lat = get_lattice_V(p);
   QLA_Complex **bout, *bin;
   linop_args_t args;
   int n = QDP_subset_len(subset)*csize_V;

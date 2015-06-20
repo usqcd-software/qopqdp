@@ -6,7 +6,8 @@
 #define vector			QLA_ColorVector
 #define _N                      1
 #define vIndexDef
-#define create_V(r)		r = QDP_create_V()
+#define get_lattice_V(v)        QDP_get_lattice_V(v)
+#define create_V(r)		r = QDP_create_V_L(lat)
 #define destroy_V		QDP_destroy_V
 #define expose_V                QDP_expose_V
 #define reset_V                 QDP_reset_V

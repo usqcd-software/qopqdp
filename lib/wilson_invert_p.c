@@ -225,6 +225,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   int max_restarts_old = inv_arg->max_restarts;
   int nrestart = -1, max_restarts = inv_arg->max_restarts;
   QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   if(max_restarts<=0) max_restarts = 5;
 
   WILSON_INVERT_BEGIN;
@@ -416,7 +417,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   res_arg->final_restart = nrestart;
 
   info->final_sec = dtime;
-  info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
+  info->final_flop = nflop*res_arg->final_iter*sites_on_node;
   info->status = QOP_SUCCESS;
 
   WILSON_INVERT_END;
@@ -434,6 +435,8 @@ QOP_wilson_invert_multi(QOP_info_t *info,
 			QOP_DiracFermion *in_pt[],
 			int nsrc)
 {
+  QDP_Lattice *lat = QDP_get_lattice_M(links->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   QDP_DiracFermion *in[nsrc], **out[nsrc];
   for(int i=0; i<nsrc; i++) {
     in[i] = in_pt[i]->df;
@@ -686,7 +689,7 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
   res_arg->final_restart = nrestart;
 
   info->final_sec = dtime;
-  info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
+  info->final_flop = nflop*res_arg->final_iter*sites_on_node;
   info->status = QOP_SUCCESS;
 
   WILSON_INVERT_END;

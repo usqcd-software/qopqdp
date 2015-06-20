@@ -351,6 +351,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   QDP_ColorMatrix *f_mn;
   QDP_ColorMatrix *xm,*ym;
   QDP_Lattice *lat = QDP_get_lattice_M(link[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   QDP_Subset all = QDP_all_L(lat);
   int nc = NC;
   int bsize = 4*nc*nc;
@@ -377,7 +378,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   A[1] = QDP_expose_M(a1);
   // is,js = 0,0 and 1,1
 #pragma omp parallel for
-  for(int s=0; s<QDP_sites_on_node; s++) {
+  for(int s=0; s<sites_on_node; s++) {
     for(int b=0; b<2; b++) { // block
       int k0 = bsize*(2*s+b);
       for(int ic=0; ic<QLA_Nc; ic++) {
@@ -428,7 +429,7 @@ get_clov(QLA_Real *clov, QDP_ColorMatrix *link[], QLA_Real cs, QLA_Real ct)
   B[1] = QDP_expose_M(b1);
   // is,js = 1,0 (or 0,1)
 #pragma omp parallel for
-  for(int s=0; s<QDP_sites_on_node; s++) {
+  for(int s=0; s<sites_on_node; s++) {
     for(int b=0; b<2; b++) { // block
       int k0 = bsize*(2*s+b);
       for(int ic=0; ic<QLA_Nc; ic++) {
@@ -555,10 +556,12 @@ get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
 {
 #define NC QDP_get_nc(flw->links[0])
   QLA_Real m4 = 0.5/kappa;
+  QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   int i, j;
   if(flw->clovinv==NULL)
-    QOP_malloc(flw->clovinv, REAL, QDP_sites_on_node*CLOV_REALS);
-  for(i=0; i<2*QDP_sites_on_node; i++) {
+    QOP_malloc(flw->clovinv, REAL, sites_on_node*CLOV_REALS);
+  for(i=0; i<2*sites_on_node; i++) {
     QLA_Complex cu[2*QLA_Nc][2*QLA_Nc], ciu[2*QLA_Nc][2*QLA_Nc];
     clov_unpack(NCARG cu, flw->clov+(CLOV_REALS/2)*i);
     for(j=0; j<2*QLA_Nc; j++) QLA_c_peq_r(cu[j][j], m4);
@@ -582,15 +585,16 @@ QOP_wilson_create_L_from_raw(QDP_Lattice *lat, REAL *links[], REAL *clov, QOP_ev
 #define NC nc
   QOP_FermionLinksWilson *flw;
   QOP_GaugeField *gf;
-
+  int sites_on_node = QDP_sites_on_node_L(lat);
+  
   WILSON_INVERT_BEGIN;
 
   gf = QOP_create_G_from_raw(lat, links, evenodd);
   flw = QOP_wilson_convert_L_from_qdp(gf->links, NULL);
 
   if(clov!=NULL) {
-    QOP_malloc(flw->clov, REAL, QDP_sites_on_node*CLOV_REALS);
-    memcpy(flw->clov, clov, QDP_sites_on_node*CLOV_SIZE);
+    QOP_malloc(flw->clov, REAL, sites_on_node*CLOV_REALS);
+    memcpy(flw->clov, clov, sites_on_node*CLOV_SIZE);
   } else {
     flw->clov = NULL;
   }
@@ -639,6 +643,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix        *newlinks[4];
   QDP_Lattice *lat = QDP_get_lattice_M(gauge->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   QDP_Subset all = QDP_all_L(lat);
 
   WILSON_INVERT_BEGIN;
@@ -654,7 +659,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 
   /* get the clover coefficients and put them in flw->clow */
   if(coeffs->clov_s != 0 || coeffs->clov_t != 0) {
-    int nreals = QDP_sites_on_node_L(lat) * CLOV_REALS;
+    int nreals = sites_on_node * CLOV_REALS;
     QOP_malloc(flw->clov, REAL, nreals);
     get_clov(flw->clov, newlinks, 0.5*coeffs->clov_s, 0.5*coeffs->clov_t);
   }
@@ -694,6 +699,7 @@ QOP_FD_wilson_create_L_from_L(QOP_D_FermionLinksWilson *flw_double)
 #define NC QDP_get_nc(flw_double->links[0])
   QOP_F_FermionLinksWilson *flw_single;
   QDP_Lattice *lat = QDP_D_get_lattice_M(flw_double->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   QDP_Subset all = QDP_all_L(lat);
 
   /* Create the parent struct */
@@ -739,7 +745,7 @@ QOP_FD_wilson_create_L_from_L(QOP_D_FermionLinksWilson *flw_double)
 
   /* Create and copy the clover term */
   if(flw_double->clov != NULL) {
-    int size = QDP_sites_on_node*CLOV_REALS;
+    int size = sites_on_node*CLOV_REALS;
     QOP_malloc(flw_single->clov, QLA_Real, size);
     for(int k=0; k<size; k++) {
       flw_single->clov[k] = flw_double->clov[k];
@@ -750,7 +756,7 @@ QOP_FD_wilson_create_L_from_L(QOP_D_FermionLinksWilson *flw_double)
 
   /* Create and copy clovinv term */
   if(flw_double->clovinv != NULL){
-    int size = QDP_sites_on_node*CLOV_REALS;
+    int size = sites_on_node*CLOV_REALS;
     QOP_malloc(flw_single->clovinv, QLA_Real, size);
     for(int k=0; k<size; k++) {
       flw_single->clovinv[k] = flw_double->clovinv[k];
@@ -889,15 +895,16 @@ QOP_wilson_convert_L_from_qdp(QDP_ColorMatrix *links[],
   WILSON_INVERT_BEGIN;
   QOP_FermionLinksWilson *flw = QOP_wilson_initialize_gauge_L();
   QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   QDP_Subset all = QDP_all_L(lat);
 
   if(clov!=NULL) {
-    int size = QDP_sites_on_node*CLOV_REALS;
+    int size = sites_on_node*CLOV_REALS;
     QOP_malloc(flw->clov, REAL, size);
     QLA_DiracPropagator(*dp);
     dp = QDP_expose_P(clov);
 #pragma omp parallel for
-    for(int x=0; x<QDP_sites_on_node; x++) {
+    for(int x=0; x<sites_on_node; x++) {
       for(int b=0; b<2; b++) { // two chiral blocks
 	int k = (2*x+b)*(QLA_Nc*(2*QLA_Nc+1));
 	// first the diagonal

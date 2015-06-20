@@ -11,9 +11,10 @@ static QDP_ColorMatrix *
 cacheshift(QDP_ColorMatrix **tmp, QDP_ColorMatrix *in, int mu, QDP_ShiftDir dir, int redo)
 {
 #define NC QDP_get_nc(in)
+  QDP_Lattice *lat = QDP_get_lattice_M(in);
   QDP_ColorMatrix *r = *tmp;
   if(r==NULL) {
-    r = *tmp = QDP_create_M();
+    r = *tmp = QDP_create_M_L(lat);
     redo = 1;
   }
   if(redo) {
@@ -33,6 +34,8 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
 	    int *toplinknum[], int *sidelinknum[], QLA_Real *coef[])
 {
 #define NC QDP_get_nc(in[0])
+  QDP_Lattice *lat = QDP_get_lattice_M(in[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   double dtime = QOP_time();
   double nflops = 0;
   int nd = QDP_ndim();
@@ -41,8 +44,8 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
     for(int j=0; j<nd; j++)
       ftmps[i][j] = NULL;
   for(int i=0; i<nd; i++) bt2[i] = NULL;
-  t1 = QDP_create_M();
-  t2 = QDP_create_M();
+  t1 = QDP_create_M_L(lat);
+  t2 = QDP_create_M_L(lat);
 
   for(int io=0; io<nout; io++) {
     //QOP_printf0("%i: ns: %i\n", io, nstaples[io]);
@@ -101,7 +104,7 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
   QDP_destroy_M(t1);
   QDP_destroy_M(t2);
   info->final_sec = QOP_time() - dtime;
-  info->final_flop = nflops*QDP_sites_on_node; 
+  info->final_flop = nflops*sites_on_node; 
   info->status = QOP_SUCCESS;
 #undef NC
 }
@@ -117,6 +120,8 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
 		  int *toplinknum[], int *sidelinknum[], QLA_Real *coef[])
 {
 #define NC QDP_get_nc(in[0])
+  QDP_Lattice *lat = QDP_get_lattice_M(in[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   double dtime = QOP_time();
   double nflops = 0;
   int nd = QDP_ndim();
@@ -126,11 +131,11 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
     for(int j=0; j<nd; j++)
       ftmps[i][j] = NULL;
   for(int i=0; i<nd; i++) bt2[i] = bt3[i] = ctmps[i] = NULL;
-  t1 = QDP_create_M();
-  t2 = QDP_create_M();
-  t3 = QDP_create_M();
-  t4 = QDP_create_M();
-  tc = QDP_create_M();
+  t1 = QDP_create_M_L(lat);
+  t2 = QDP_create_M_L(lat);
+  t3 = QDP_create_M_L(lat);
+  t4 = QDP_create_M_L(lat);
+  tc = QDP_create_M_L(lat);
 
   // process in reverse in case calculated staples used as input for others
   for(int io=nout-1; io>=0; io--) {
@@ -221,7 +226,7 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
   QDP_destroy_M(t4);
   QDP_destroy_M(tc);
   info->final_sec = QOP_time() - dtime;
-  info->final_flop = nflops*QDP_sites_on_node; 
+  info->final_flop = nflops*sites_on_node; 
   info->status = QOP_SUCCESS;
 #undef NC
 }

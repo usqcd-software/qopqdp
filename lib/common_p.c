@@ -223,7 +223,7 @@ QOP_Real *
 QOP_convert_V_to_raw(QDP_Lattice *lat, QOP_ColorVector *src, QOP_evenodd_t evenodd)
 {
   QOP_Real *ret = src->raw;
-  if(!ret) QOP_malloc(ret, QOP_Real, QOP_sites_on_node_raw_V(evenodd));
+  if(!ret) QOP_malloc(ret, QOP_Real, QOP_sites_on_node_raw_V(lat, evenodd));
   QOP_extract_V_to_raw(ret, src, evenodd);
   QOP_destroy_V(src);
   return ret;
@@ -233,7 +233,7 @@ QOP_Real *
 QOP_convert_D_to_raw(QDP_Lattice *lat, QOP_DiracFermion *src, QOP_evenodd_t evenodd)
 {
   QOP_Real *ret = src->raw;
-  if(!ret) QOP_malloc(ret, QOP_Real, QOP_sites_on_node_raw_D(evenodd));
+  if(!ret) QOP_malloc(ret, QOP_Real, QOP_sites_on_node_raw_D(lat, evenodd));
   QOP_extract_D_to_raw(ret, src, evenodd);
   QOP_destroy_D(src);
   return ret;
@@ -247,7 +247,7 @@ QOP_convert_G_to_raw(QDP_Lattice *lat, QOP_GaugeField *src, QOP_evenodd_t evenod
     int i;
     QOP_malloc(ret, QOP_Real *, QOP_common.ndim);
     for(i=0; i<QOP_common.ndim; i++) {
-      QOP_malloc(ret[i], QOP_Real, QOP_sites_on_node_raw_G(evenodd));
+      QOP_malloc(ret[i], QOP_Real, QOP_sites_on_node_raw_G(lat, evenodd));
     }
   }
   QOP_extract_G_to_raw(ret, src, evenodd);
@@ -263,7 +263,7 @@ QOP_convert_F_to_raw(QDP_Lattice *lat, QOP_Force *src, QOP_evenodd_t evenodd)
     int i;
     QOP_malloc(ret, QOP_Real *, QOP_common.ndim);
     for(i=0; i<QOP_common.ndim; i++) {
-      QOP_malloc(ret[i], QOP_Real, QOP_sites_on_node_raw_F(evenodd));
+      QOP_malloc(ret[i], QOP_Real, QOP_sites_on_node_raw_F(lat, evenodd));
     }
   }
   QOP_extract_F_to_raw(ret, src, evenodd);

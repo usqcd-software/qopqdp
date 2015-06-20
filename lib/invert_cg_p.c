@@ -10,6 +10,7 @@ QOPPCV(invert_cg)(QOPPCV(linop_t) *linop,
 		  vIndexDef)
 {
 #define NC QDP_get_nc(first_qdp_object(in))
+  QDP_Lattice *lat = get_lattice_V(in);
   QLA_D_Real a, b;
   QLA_D_Real rsq, oldrsq, pkp, relnorm2;
   QLA_D_Real insq;
@@ -141,6 +142,7 @@ QOPPCV(invert_cgms)(QOPPCV(linopn_t) *linop,
 		    vIndexDef)
 {
 #define NC QDP_get_nc(first_qdp_object(in))
+  QDP_Lattice *lat = get_lattice_V(in);
   QLA_D_Real a[nshifts], b[nshifts];
   QLA_D_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
   QLA_D_Real rsq, oldrsq, pkp, relnorm2;
@@ -416,6 +418,7 @@ QOPPCV(invert_cgms2)(QOPPCV(linopn_t) *linop,
 		    vIndexDef)
 {
 #define NC QDP_get_nc(first_qdp_object(in))
+  QDP_Lattice *lat = get_lattice_V(in);
   QLA_D_Real a[nshifts], b[nshifts];
   QLA_D_Real bo[nshifts], z[nshifts], zo[nshifts], zn[nshifts];
   QLA_D_Real rsq, oldrsq, pkp, relnorm2;

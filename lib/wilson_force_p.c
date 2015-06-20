@@ -54,6 +54,7 @@ wilson_deriv_multi_qdp(QOP_info_t *info,
 #define NC QDP_get_nc(flw->links[0])
   QDP_DiracFermion *x2[4], *y2[4], *ys[4];
   QDP_Lattice *lat = QDP_get_lattice_D(x[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   for(int mu=0; mu<4; mu++) {
     x2[mu] = QDP_create_D_L(lat);
     y2[mu] = QDP_create_D_L(lat);
@@ -71,7 +72,7 @@ wilson_deriv_multi_qdp(QOP_info_t *info,
       QDP_discard_D(ys[mu]);
     }
   }
-  info->final_flop = (4.*n*(32*QLA_Nc+34*QLA_Nc*QLA_Nc))*QDP_sites_on_node; 
+  info->final_flop = (4.*n*(32*QLA_Nc+34*QLA_Nc*QLA_Nc))*sites_on_node; 
   for(int mu=0; mu<4; mu++) {
     QDP_destroy_D(x2[mu]);
     QDP_destroy_D(y2[mu]);
@@ -94,6 +95,7 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
 #if 0
   QDP_ColorMatrix *d[4];
   QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   if(0) {
     //if(flw->gauge && flw->gauge->chained &&
     //(flw->gauge->nparents || doLastScale)) { // apply chain rule
@@ -137,6 +139,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
 #define NC QDP_get_nc(flw->links[0])
   QDP_ColorMatrix *deriv[4];
   QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   for(int mu=0; mu<4; mu++) {
     deriv[mu] = QDP_create_M_L(lat);
     QDP_M_eq_zero(deriv[mu], QDP_all);
@@ -163,7 +166,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
     QDP_M_peq_M(force[mu], deriv[mu], QDP_all);
     QDP_destroy_M(deriv[mu]);
   }
-  info->final_flop += (4.*(QLA_Nc*QLA_Nc*(8*QLA_Nc+2)))*QDP_sites_on_node; 
+  info->final_flop += (4.*(QLA_Nc*QLA_Nc*(8*QLA_Nc+2)))*sites_on_node; 
   QDP_destroy_M(t);
 #undef NC
 }
@@ -186,6 +189,8 @@ QOP_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
 {
 #define NC QDP_get_nc(flw->links[0])
   double dtime = QOP_time();
+  QDP_Lattice *lat = QDP_get_lattice_D(x[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
 
   QLA_Real teps[n];
   for(int i=0; i<n; i++) {
@@ -197,7 +202,7 @@ QOP_wilson_deriv_prec_multi_qdp(QOP_info_t *info,
 
   double nflop = 8*(16*QLA_Nc+9)*QLA_Nc;
   //if(flw->clov!=NULL) nflop += 32*(2*QLA_Nc-1)*QLA_Nc;
-  info->final_flop += nflop*n*QDP_sites_on_node; 
+  info->final_flop += nflop*n*sites_on_node; 
   info->final_sec = QOP_time() - dtime;
 #undef NC
 }
@@ -216,6 +221,8 @@ QOP_wilson_force_prec_multi_qdp(QOP_info_t *info,
 {
 #define NC QDP_get_nc(flw->links[0])
   double dtime = QOP_time();
+  QDP_Lattice *lat = QDP_get_lattice_D(x[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
 
   QLA_Real teps[n];
   for(int i=0; i<n; i++) {
@@ -227,7 +234,7 @@ QOP_wilson_force_prec_multi_qdp(QOP_info_t *info,
 
   double nflop = 8*(16*QLA_Nc+9)*QLA_Nc;
   //if(flw->clov!=NULL) nflop += 32*(2*QLA_Nc-1)*QLA_Nc;
-  info->final_flop += nflop*n*QDP_sites_on_node; 
+  info->final_flop += nflop*n*sites_on_node; 
   info->final_sec = QOP_time() - dtime;
 #undef NC
 }
@@ -260,6 +267,8 @@ QOP_wilson_clover_deriv_multi_qdp(QOP_info_t *info,
 {
 #define NC QDP_get_nc(flw->links[0])
   double dtime = QOP_time();
+  QDP_Lattice *lat = QDP_get_lattice_D(x[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
 
   QLA_Real teps[n];
   for(int i=0; i<n; i++) {
@@ -271,7 +280,7 @@ QOP_wilson_clover_deriv_multi_qdp(QOP_info_t *info,
 
   double nflop = 8*(16*QLA_Nc+9)*QLA_Nc;
   //if(flw->clov!=NULL) nflop += 32*(2*QLA_Nc-1)*QLA_Nc;
-  info->final_flop += nflop*n*QDP_sites_on_node; 
+  info->final_flop += nflop*n*sites_on_node; 
   info->final_sec = QOP_time() - dtime;
 #undef NC
 }

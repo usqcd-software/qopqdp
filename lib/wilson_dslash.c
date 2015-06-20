@@ -15,6 +15,7 @@ QOP_F3_GaugeField *
 QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
   QOP_F3_GaugeField *qopgf_single;
   QDP_Lattice *lat = QDP_D_get_lattice_M(qopgf_double->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   int i,x;
 
   QOP_malloc(qopgf_single, QOP_F3_GaugeField, 1);
@@ -32,8 +33,8 @@ QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
     QOP_printf0("QOP_FD3_create_G_from_G: Warning: raw member is not supported\n");
     QOP_malloc(qopgf_single->raw, QLA_F_Real *, QOP_common.ndim);
     for(i=0; i<QOP_common.ndim; i++) {
-      QOP_malloc(qopgf_single->raw[i], QLA_F_Real, 18*QDP_sites_on_node);
-      for(x=0; x<18*QDP_sites_on_node; x++)
+      QOP_malloc(qopgf_single->raw[i], QLA_F_Real, 18*sites_on_node);
+      for(x=0; x<18*sites_on_node; x++)
 	  QLA_FD_R_eq_R(qopgf_single->raw[i]+x, qopgf_double->raw[i]+x);
     }
   }
@@ -49,6 +50,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   QOP_F3_FermionLinksWilson *flw_single;
   QDP_Lattice *lat = QDP_D_get_lattice_M(qopgf_double->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   int i;
 
   /* Create the parent struct */
@@ -96,7 +98,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   /* Create and copy the clover term */
   if(flw_double->clov != NULL){
-    int size = QDP_sites_on_node*CLOV_REALS;
+    int size = sites_on_node*CLOV_REALS;
     int k;
     QOP_malloc(flw_single->clov, float, size);
     for(k=0; k<size; k++){
@@ -108,7 +110,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   /* Create and copy clovinv term */
   if(flw_double->clovinv != NULL){
-    int size = QDP_sites_on_node*CLOV_REALS;
+    int size = sites_on_node*CLOV_REALS;
     int k;
     QOP_malloc(flw_single->clovinv, float, size);
     for(k=0; k<size; k++){

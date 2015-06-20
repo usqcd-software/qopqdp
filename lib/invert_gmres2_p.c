@@ -51,7 +51,7 @@ combine(int n, QDP_Subset subset)
 }
 
 static void
-addvec(QDP_Subset subset)
+addvec(QDP_Subset subset, QDP_Lattice *lat)
 {
   if(nv>1) {
     int n = nv-1;
@@ -124,6 +124,7 @@ QOPPCV(invert_gmres2)(QOPPCV(linop_t) *linop,
 		      QDP_Subset subset
 		      vIndexDef)
 {
+  QDP_Lattice *lat = get_lattice_V(r);
   QLA_D_Real rsq, insq, rsqstop, relnorm2=0;
   int iteration=0, total_iterations=0;//, nrestart=-1;
   //int restart_iterations=inv_arg->restart;
@@ -158,7 +159,7 @@ QOPPCV(invert_gmres2)(QOPPCV(linop_t) *linop,
   while(rsq>rsqstop && total_iterations<max_iterations) {
     iteration++;
     total_iterations++;
-    addvec(subset);
+    addvec(subset, lat);
     V_eq_V(vec[nv-1], r, subset);
     linop(Avec[nv-1], r, subset);
     orth(subset);

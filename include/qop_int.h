@@ -1,6 +1,8 @@
 #ifndef _QOP_INT_H
 #define _QOP_INT_H
 
+#include "qdp.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -242,10 +244,10 @@ int QOP_node_index_raw_V(int coords[], QOP_evenodd_t evenodd);
 int QOP_node_index_raw_D(int coords[], QOP_evenodd_t evenodd);
 int QOP_node_index_raw_G(int coords[], QOP_evenodd_t evenodd);
 int QOP_node_index_raw_F(int coords[], QOP_evenodd_t evenodd);
-int QOP_sites_on_node_raw_V(QOP_evenodd_t evenodd);
-int QOP_sites_on_node_raw_D(QOP_evenodd_t evenodd);
-int QOP_sites_on_node_raw_G(QOP_evenodd_t evenodd);
-int QOP_sites_on_node_raw_F(QOP_evenodd_t evenodd);
+int QOP_sites_on_node_raw_V(QDP_Lattice *lat, QOP_evenodd_t evenodd);
+int QOP_sites_on_node_raw_D(QDP_Lattice *lat, QOP_evenodd_t evenodd);
+int QOP_sites_on_node_raw_G(QDP_Lattice *lat, QOP_evenodd_t evenodd);
+int QOP_sites_on_node_raw_F(QDP_Lattice *lat, QOP_evenodd_t evenodd);
 
 
 QOP_status_t QOP_asqtad_invert_set_opts(QOP_opt_t opts[], int nopts);

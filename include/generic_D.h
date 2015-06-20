@@ -6,7 +6,8 @@
 #define vector			QLA_DiracFermion
 #define _N                      1
 #define vIndexDef
-#define create_V(r)		r = QDP_create_D()
+#define get_lattice_V(v)        QDP_get_lattice_D(v)
+#define create_V(r)		r = QDP_create_D_L(lat)
 #define destroy_V		QDP_destroy_D
 #define expose_V                QDP_expose_D
 #define reset_V                 QDP_reset_D

@@ -167,27 +167,27 @@ QOP_node_index_raw_F(int coords[], QOP_evenodd_t evenodd)
 }
 
 int
-QOP_sites_on_node_raw_V(QOP_evenodd_t evenodd)
+QOP_sites_on_node_raw_V(QDP_Lattice *lat, QOP_evenodd_t evenodd)
 {
-  return QDP_sites_on_node;
+  return QDP_sites_on_node_L(lat);
 }
 
 int
-QOP_sites_on_node_raw_D(QOP_evenodd_t evenodd)
+QOP_sites_on_node_raw_D(QDP_Lattice *lat, QOP_evenodd_t evenodd)
 {
-  return QDP_sites_on_node;
+  return QDP_sites_on_node_L(lat);
 }
 
 int
-QOP_sites_on_node_raw_G(QOP_evenodd_t evenodd)
+QOP_sites_on_node_raw_G(QDP_Lattice *lat, QOP_evenodd_t evenodd)
 {
-  return QDP_sites_on_node;
+  return QDP_sites_on_node_L(lat);
 }
 
 int
-QOP_sites_on_node_raw_F(QOP_evenodd_t evenodd)
+QOP_sites_on_node_raw_F(QDP_Lattice *lat, QOP_evenodd_t evenodd)
 {
-  return QDP_sites_on_node;
+  return QDP_sites_on_node_L(lat);
 }
 
 static int

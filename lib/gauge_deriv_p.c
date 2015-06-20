@@ -22,6 +22,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
 			  int n, int doLastScale)
 {
 #define NC QDP_get_nc(deriv[0])
+  QDP_Lattice *lat = QDP_get_lattice_M(*chain[0]);
   int ndim = QDP_ndim();
   int k=0;
   while(k<n && (g[k]->chained==0 || g[k]->nparents==0)) k++;
@@ -66,7 +67,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
 	 (gk->parents[i]->nparents || doLastScale)) {
 	QOP_malloc(d[i], QDP_ColorMatrix *, ndim);
 	for(int mu=0; mu<ndim; mu++) {
-	  d[i][mu] = QDP_create_M();
+	  d[i][mu] = QDP_create_M_L(lat);
 	  QDP_M_eq_zero(d[i][mu], QDP_all);
 	}
       } else {
@@ -122,6 +123,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
 			  int n)
 {
 #define NC QDP_get_nc(f[0])
+  QDP_Lattice *lat = QDP_get_lattice_M(*chain[0]);
   int ndim = QDP_ndim();
   QDP_ColorMatrix *d[ndim];
   int cr = 0;
@@ -133,7 +135,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
   }
   if(cr) { // apply chain rule
     for(int mu=0; mu<ndim; mu++) {
-      d[mu] = QDP_create_M();
+      d[mu] = QDP_create_M_L(lat);
       QDP_M_eq_zero(d[mu], QDP_all);
     }
     QOP_gauge_deriv_multi_qdp(info, d, g, chain, n, 0);
@@ -151,7 +153,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
   QOP_GaugeField *top = g[0];
   while(top->chained && top->nparents) top = top->parents[0];
 
-  QDP_ColorMatrix *m = QDP_create_M();
+  QDP_ColorMatrix *m = QDP_create_M_L(lat);
   QLA_Real s = -2;
   for(int i=0; i<ndim; i++) {
     QDP_M_eq_M_times_Ma(m, top->links[i], d[i], QDP_all);

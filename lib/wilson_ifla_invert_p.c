@@ -59,6 +59,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
   QOP_evenodd_t ineo, cgeo;
 
   QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
+  int sites_on_node = QDP_sites_on_node_L(lat);
   
   int iter             =  0;
   int max_iter_old     = inv_arg->max_iter;    /* Max. # of iteration   */
@@ -234,7 +235,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
   res_arg->final_restart = nrestart;
   /* -------------------------------------- */
   info->final_sec  = dtime;
-  info->final_flop = nflop*res_arg->final_iter*QDP_sites_on_node;
+  info->final_flop = nflop*res_arg->final_iter*sites_on_node;
   info->status = QOP_SUCCESS;
   /* -------------------------------------- */
 

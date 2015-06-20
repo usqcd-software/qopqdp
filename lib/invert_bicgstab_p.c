@@ -12,6 +12,7 @@ QOPPCV(invert_bicgstab)(QOPPCV(linop_t) *linop,
 			vIndexDef)
 {
 #define NC QDP_get_nc(first_qdp_object(in))
+  QDP_Lattice *lat = get_lattice_V(r);
   QLA_D_Complex rho0, rho1;
   QLA_D_Complex alpha, beta, omega;
   QLA_D_Complex ctmp1, ctmp2;
