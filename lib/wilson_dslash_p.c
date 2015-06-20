@@ -625,6 +625,8 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 #define NC QDP_get_nc(gauge->links[0])
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix        *newlinks[4];
+  QDP_Lattice *lat = QDP_get_lattice_M(gasuge->links[0]);
+  QDP_Subset all = QDP_all_L(lat);
 
   WILSON_INVERT_BEGIN;
 
@@ -633,8 +635,8 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 
   /* First create QDP Color Matrices */
   for(int i=0; i<4; i++) {
-    newlinks[i] = QDP_create_M();
-    QDP_M_eq_M(newlinks[i], gauge->links[i], QDP_all);
+    newlinks[i] = QDP_create_M_L(lat);
+    QDP_M_eq_M(newlinks[i], gauge->links[i], all);
   }
 
   /* get the clover coefficients and put them in flw->clow */
@@ -648,14 +650,14 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   if(coeffs->aniso != 0. && coeffs->aniso != 1.) {
     for(int i=0; i<3; i++) {
       QLA_Real f = coeffs->aniso;
-      QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], QDP_all);
+      QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], all);
     }
   }
 
   /* Scale the links ------------------------------------- */
   for(int i=0; i<4; i++) {
     QLA_Real f    = -0.5;
-    QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], QDP_all);
+    QDP_M_eq_r_times_M(newlinks[i], &f, newlinks[i], all);
   }
 
   /* newlinks go to flw->links --------------------------- */
