@@ -642,6 +642,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
   /* get the clover coefficients and put them in flw->clow */
   if(coeffs->clov_s != 0 || coeffs->clov_t != 0) {
     int nreals = QDP_sites_on_node*CLOV_REALS;
+    printf("XXXXX nreals = %d, sites_on_node = %d\n", nreals,  QDP_sites_on_node);
     QOP_malloc(flw->clov, REAL, nreals);
     get_clov(flw->clov, newlinks, 0.5*coeffs->clov_s, 0.5*coeffs->clov_t);
   }
