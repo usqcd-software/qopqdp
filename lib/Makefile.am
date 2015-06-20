@@ -18,8 +18,6 @@ NC1SOURCES = \
   pcstubs/wilson_force_f1.c pcstubs/wilson_force_d1.c \
   pcstubs/wilson_mg_f1.c pcstubs/wilson_mg_d1.c \
   pcstubs/wilson_ops_f1.c pcstubs/wilson_ops_d1.c \
-  pcstubs/dw_dslash_f1.c pcstubs/dw_dslash_d1.c \
-  pcstubs/dw_invert_f1.c pcstubs/dw_invert_d1.c \
   pcstubs/invert_cg_V_f1.c pcstubs/invert_cg_V_d1.c \
   pcstubs/invert_cg_D_f1.c pcstubs/invert_cg_D_d1.c \
   pcstubs/invert_cg_vD_f1.c pcstubs/invert_cg_vD_d1.c \
