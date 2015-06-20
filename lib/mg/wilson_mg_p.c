@@ -212,13 +212,14 @@ QOP_randSeed(QDP_RandomState *rs, int seed)
 {
   QDP_Int *li;
   QDP_Lattice *lat = QDP_get_lattice_S(rs);
+  QDP_Subset all = QDP_all_L(lat);
 
   li = QDP_create_I_L(lat);
 
   TRACE;
-  QDP_I_eq_funct(li, lex_int, QDP_all);
+  QDP_I_eq_funct(li, lex_int, all);
   TRACE;
-  QDP_S_eq_seed_i_I(rs, seed, li, QDP_all);
+  QDP_S_eq_seed_i_I(rs, seed, li, all);
   TRACE;
 
   QDP_destroy_I(li);
@@ -784,11 +785,12 @@ void
 QOP_wilsonMgSetVecs(QOP_WilsonMg *wmg, int nv, QDP_DiracFermion *vv[nv])
 {
   QDP_Lattice *lat = QDP_get_lattice_D(vv[0]);
+  QDP_Subset all = QDP_all_L(lat);
   QOP_malloc(wmg->v, QDP_DiracFermion *, nv);
   wmg->nv = nv;
   for(int i=0; i<nv; i++) {
     wmg->v[i] = QDP_create_D_L(lat);
-    QDP_D_eq_D(wmg->v[i], vv[i], QDP_all);
+    QDP_D_eq_D(wmg->v[i], vv[i], all);
   }
   //mgorth(wmg, vv);
 }
@@ -861,6 +863,7 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
 {
 #define NC QDP_get_nc(out)
   QDP_Lattice *lat = QDP_get_lattice_D(in);
+  QDP_Subset all = QDP_all_L(lat);
   QOP_WilArgs wa;
   wa.wil = flw;
   wa.kappa = kappa;
@@ -891,9 +894,9 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
   int ngcr = wmg->ngcr;
   QDP_Lattice *lat0 = QDP_get_lattice_D(in);
 #ifdef EO_PREC
-  QDP_Subset ssub = QDP_even;
+  QDP_Subset ssub = QDP_even_L(lat);
 #else
-  QDP_Subset ssub = QDP_all;
+  QDP_Subset ssub = QDP_all_L(lat);
 #endif
 
   QDP_DiracFermion *r = QDP_create_D_L(lat);
@@ -944,7 +947,7 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
   //QOP_gcrSet(gcro, "reuse", 1);
 
   QLA_Real norm2in, rsqstop, rsq;
-  QDP_r_eq_norm2_D(&norm2in, in, QDP_all);
+  QDP_r_eq_norm2_D(&norm2in, in, all);
   rsqstop = res_arg->rsqmin*norm2in;
   double gcrres = -sqrt(res_arg->rsqmin*norm2in);
 
@@ -952,15 +955,15 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
   int its = 0;
   while(1) {
     QOP_wilsonDslash(r, out, flw, kappa, 1, QOP_EVENODD, QOP_EVENODD);
-    QDP_D_eq_D_minus_D(r, in, r, QDP_all);
-    QDP_r_eq_norm2_D(&rsq, r, QDP_all);
+    QDP_D_eq_D_minus_D(r, in, r, all);
+    QDP_r_eq_norm2_D(&rsq, r, all);
     if(its>0) QOP_printf0("iters = %4i  secs = %8f  rsq = %g\n", its, secs, rsq/norm2in);
     if(rsq<rsqstop || its>=itmax) break;
 
 #ifdef EO_PREC
     QOP_wilEoProjectD(eovec, r, &wa);
 #else
-    QDP_D_eq_D(eovec, r, QDP_all);
+    QDP_D_eq_D(eovec, r, all);
 #endif
 #ifdef SPLIT_CHIRALITIES
     QOP_V2eqD(v2in, eovec, ssub);
@@ -973,15 +976,15 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
     secs -= QDP_time();
 #ifdef EO_PREC
 #ifdef SPLIT_CHIRALITIES
-    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilEoV2, &wa, pop, popargs, gcrres, itmax, ngcr, QDP_even);
+    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilEoV2, &wa, pop, popargs, gcrres, itmax, ngcr, QDP_even_L(lat));
 #else
-    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilEoV1, &wa, pop, popargs, gcrres, itmax, ngcr, QDP_even);
+    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilEoV1, &wa, pop, popargs, gcrres, itmax, ngcr, QDP_even_L(lat));
 #endif
 #else
 #ifdef SPLIT_CHIRALITIES
-    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilDV2, &wa, pop, popargs, gcrres, itmax, ngcr, QDP_all);
+    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilDV2, &wa, pop, popargs, gcrres, itmax, ngcr, all);
 #else
-    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilDV1, &wa, pop, popargs, gcrres, itmax, ngcr, QDP_all);
+    its += QOP_gcrSolve(gcro, v2out, v2in, QOP_wilDV1, &wa, pop, popargs, gcrres, itmax, ngcr, all);
 #endif
 #endif
     secs += QDP_time();
@@ -995,9 +998,9 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
     //QOP_wilEoReconstructD(out, eovec, in, &wa);
     QOP_wilEoReconstructD(out2, eovec, r, &wa);
 #else
-    QDP_D_eq_D(out2, eovec, QDP_all);
+    QDP_D_eq_D(out2, eovec, all);
 #endif
-    QDP_D_peq_D(out, out2, QDP_all);
+    QDP_D_peq_D(out, out2, all);
   }
 
   //QOP_gcrFree(gcro);

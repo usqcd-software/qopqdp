@@ -41,7 +41,7 @@ QOP_create_V_from_raw(QDP_Lattice *lat, QOP_Real *src, QOP_evenodd_t evenodd)
 
   QOP_malloc(qopcv, QOP_ColorVector, 1);
   qopcv->cv = QDP_create_V_L(lat);
-  QOP_qdp_eq_raw(V, qopcv->cv, src, evenodd);
+  QOP_qdp_eq_raw(V, qopcv->cv, src, evenodd, lat);
   qopcv->raw = NULL;
   return qopcv;
 }
@@ -57,7 +57,7 @@ QOP_create_D_from_raw(QDP_Lattice *lat, QOP_Real *src, QOP_evenodd_t evenodd)
 
   QOP_malloc(qopdf, QOP_DiracFermion, 1);
   qopdf->df = QDP_create_D_L(lat);
-  QOP_qdp_eq_raw(D, qopdf->df, src, evenodd);
+  QOP_qdp_eq_raw(D, qopdf->df, src, evenodd, lat);
   qopdf->raw = NULL;
   return qopdf;
 }
@@ -73,7 +73,7 @@ QOP_create_G_from_raw(QDP_Lattice *lat, QOP_Real *links[], QOP_evenodd_t evenodd
 
   for(int i=0; i<QOP_common.ndim; i++) {
     qopgf->links[i] = QDP_create_M_L(lat);
-    QOP_qdp_eq_raw(M, qopgf->links[i], links[i], evenodd);
+    QOP_qdp_eq_raw(M, qopgf->links[i], links[i], evenodd, lat);
   }
   return qopgf;
 }
@@ -91,7 +91,7 @@ QOP_create_F_from_raw(QDP_Lattice *lat, QOP_Real *force[], QOP_evenodd_t evenodd
   QOP_malloc(qopf->force, QDP_ColorMatrix *, QOP_common.ndim);
   for(i=0; i<QOP_common.ndim; i++) {
     qopf->force[i] = QDP_create_M_L(lat);
-    QOP_qdp_eq_raw(M, qopf->force[i], force[i], evenodd);
+    QOP_qdp_eq_raw(M, qopf->force[i], force[i], evenodd, lat);
   }
   qopf->raw = NULL;
   return qopf;
@@ -99,35 +99,35 @@ QOP_create_F_from_raw(QDP_Lattice *lat, QOP_Real *force[], QOP_evenodd_t evenodd
 #undef NC
 
 void
-QOP_extract_V_to_raw(QOP_Real *dest, QOP_ColorVector *src,
+QOP_extract_V_to_raw(QDP_Lattice *lat, QOP_Real *dest, QOP_ColorVector *src,
 			QOP_evenodd_t evenodd)
 {
-  QOP_raw_eq_qdp(V, dest, src->cv, evenodd);
+  QOP_raw_eq_qdp(V, dest, src->cv, evenodd, lat);
 }
 
 void
-QOP_extract_D_to_raw(QOP_Real *dest, QOP_DiracFermion *src,
+QOP_extract_D_to_raw(QDP_Lattice *lat, QOP_Real *dest, QOP_DiracFermion *src,
 			QOP_evenodd_t evenodd)
 {
-  QOP_raw_eq_qdp(D, dest, src->df, evenodd);
+  QOP_raw_eq_qdp(D, dest, src->df, evenodd, lat);
 }
 
 void
-QOP_extract_G_to_raw(QOP_Real *dest[], QOP_GaugeField *src,
+QOP_extract_G_to_raw(QDP_Lattice *lat, QOP_Real *dest[], QOP_GaugeField *src,
 		     QOP_evenodd_t evenodd)
 {
   int i;
   for(i=0; i<QOP_common.ndim; i++) {
-    QOP_raw_eq_qdp(M, dest[i], src->links[i], evenodd);
+    QOP_raw_eq_qdp(M, dest[i], src->links[i], evenodd, lat);
   }
 }
 
 void
-QOP_extract_F_to_raw(QOP_Real *dest[], QOP_Force *src, QOP_evenodd_t evenodd)
+QOP_extract_F_to_raw(QDP_Lattice *lat, QOP_Real *dest[], QOP_Force *src, QOP_evenodd_t evenodd)
 {
   int i;
   for(i=0; i<QOP_common.ndim; i++) {
-    QOP_raw_eq_qdp(M, dest[i], src->force[i], evenodd);
+    QOP_raw_eq_qdp(M, dest[i], src->force[i], evenodd, lat);
   }
 }
 
@@ -224,7 +224,7 @@ QOP_convert_V_to_raw(QDP_Lattice *lat, QOP_ColorVector *src, QOP_evenodd_t eveno
 {
   QOP_Real *ret = src->raw;
   if(!ret) QOP_malloc(ret, QOP_Real, QOP_sites_on_node_raw_V(lat, evenodd));
-  QOP_extract_V_to_raw(ret, src, evenodd);
+  QOP_extract_V_to_raw(lat, ret, src, evenodd);
   QOP_destroy_V(src);
   return ret;
 }
@@ -234,7 +234,7 @@ QOP_convert_D_to_raw(QDP_Lattice *lat, QOP_DiracFermion *src, QOP_evenodd_t even
 {
   QOP_Real *ret = src->raw;
   if(!ret) QOP_malloc(ret, QOP_Real, QOP_sites_on_node_raw_D(lat, evenodd));
-  QOP_extract_D_to_raw(ret, src, evenodd);
+  QOP_extract_D_to_raw(lat, ret, src, evenodd);
   QOP_destroy_D(src);
   return ret;
 }
@@ -250,7 +250,7 @@ QOP_convert_G_to_raw(QDP_Lattice *lat, QOP_GaugeField *src, QOP_evenodd_t evenod
       QOP_malloc(ret[i], QOP_Real, QOP_sites_on_node_raw_G(lat, evenodd));
     }
   }
-  QOP_extract_G_to_raw(ret, src, evenodd);
+  QOP_extract_G_to_raw(lat, ret, src, evenodd);
   QOP_destroy_G(src);
   return ret;
 }
@@ -266,7 +266,7 @@ QOP_convert_F_to_raw(QDP_Lattice *lat, QOP_Force *src, QOP_evenodd_t evenodd)
       QOP_malloc(ret[i], QOP_Real, QOP_sites_on_node_raw_F(lat, evenodd));
     }
   }
-  QOP_extract_F_to_raw(ret, src, evenodd);
+  QOP_extract_F_to_raw(lat, ret, src, evenodd);
   QOP_destroy_F(src);
   return ret;
 }
@@ -280,10 +280,11 @@ QOP_create_V_from_qdp(QDP_ColorVector *src)
 {
   QOP_ColorVector *qopcv;
   QDP_Lattice *lat = QDP_get_lattice_V(src);
+  QDP_Subset all = QDP_all_L(lat);
 
   QOP_malloc(qopcv, QOP_ColorVector, 1);
   qopcv->cv = QDP_create_V_L(lat);
-  QDP_V_eq_V(qopcv->cv, src, QDP_all);
+  QDP_V_eq_V(qopcv->cv, src, all);
   qopcv->raw = NULL;
   return qopcv;
 }
@@ -293,10 +294,11 @@ QOP_create_D_from_qdp(QDP_DiracFermion *src)
 {
   QOP_DiracFermion *qopdf;
   QDP_Lattice *lat = QDP_get_lattice_D(src);
+  QDP_Subset all = QDP_all_L(lat);
 
   QOP_malloc(qopdf, QOP_DiracFermion, 1);
   qopdf->df = QDP_create_D_L(lat);
-  QDP_D_eq_D(qopdf->df, src, QDP_all);
+  QDP_D_eq_D(qopdf->df, src, all);
   qopdf->raw = NULL;
   return qopdf;
 }
@@ -323,10 +325,11 @@ QOPPO(create_G_from_qdp)(QDPO(ColorMatrix) *links[])
 {
   QOP_GaugeField *qopgf = QOP_new_G();
   QDP_Lattice *lat = QDPO(get_lattice_M)(links[0]);
+  QDP_Subset all = QDP_all_L(lat);
 
   for(int i=0; i<QOP_common.ndim; i++) {
     qopgf->links[i] = QDP_create_M_L(lat);
-    QDPPO(M_eq_M)(qopgf->links[i], links[i], QDP_all);
+    QDPPO(M_eq_M)(qopgf->links[i], links[i], all);
   }
   return qopgf;
 }
@@ -338,12 +341,14 @@ QOP_create_F_from_qdp(QDP_ColorMatrix *force[])
 {
   QOP_Force *qopf;
   QDP_Lattice *lat = QDP_get_lattice_M(force[0]);
+  QDP_Subset all = QDP_all_L(lat);
+
   int i;
   QOP_malloc(qopf, QOP_Force, 1);
   QOP_malloc(qopf->force, QDP_ColorMatrix *, QOP_common.ndim);
   for(i=0; i<QOP_common.ndim; i++) {
     qopf->force[i] = QDP_create_M_L(lat);
-    QDP_M_eq_M(qopf->force[i], force[i], QDP_all);
+    QDP_M_eq_M(qopf->force[i], force[i], all);
   }
   qopf->raw = NULL;
   return qopf;
@@ -353,30 +358,38 @@ QOP_create_F_from_qdp(QDP_ColorMatrix *force[])
 void
 QOP_extract_V_to_qdp(QDP_ColorVector *dest, QOP_ColorVector *src)
 {
-  QDP_V_eq_V(dest, src->cv, QDP_all);
+  QDP_Lattice *lat = QDP_get_lattice_V(dest);
+  QDP_Subset all = QDP_all_L(lat);
+  QDP_V_eq_V(dest, src->cv, all);
 }
 
 void
 QOP_extract_D_to_qdp(QDP_DiracFermion *dest, QOP_DiracFermion *src)
 {
-  QDP_D_eq_D(dest, src->df, QDP_all);
+  QDP_Lattice *lat = QDP_get_lattice_D(dest);
+  QDP_Subset all = QDP_all_L(lat);
+  QDP_D_eq_D(dest, src->df, all);
 }
 
 void
 QOP_extract_G_to_qdp(QDP_ColorMatrix *d[], QOP_GaugeField *src)
 {
+  QDP_Lattice *lat = QDP_get_lattice_M(d[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int i;
   for(i=0; i<QOP_common.ndim; i++) {
-    QDP_M_eq_M(d[i], src->links[i], QDP_all);
+    QDP_M_eq_M(d[i], src->links[i], all);
   }
 }
 
 void
 QOP_extract_F_to_qdp(QDP_ColorMatrix *d[], QOP_Force *src)
 {
+  QDP_Lattice *lat = QDP_get_lattice_M(d[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int i;
   for(i=0; i<QOP_common.ndim; i++) {
-    QDP_M_eq_M(d[i], src->force[i], QDP_all);
+    QDP_M_eq_M(d[i], src->force[i], all);
   }
 }
 
@@ -494,6 +507,8 @@ rephase_func(NCPROT1 QLA_ColorMatrix(*m), int coords[])
 static void
 scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
 {
+  QDP_Lattice *lat = QDP_get_lattice_M(l[0]);
+  QDP_Subset all = QDP_all_L(lat);
   nd = QDP_ndim();
   for(int i=0; i<nd; i++) {
     bc_dir = -1;
@@ -513,7 +528,7 @@ scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
     if(g->sign.signmask) {
       staggered_sign_bits = g->sign.signmask[i];
     }
-    QDP_M_eq_funct(l[i], rephase_func, QDP_all);
+    QDP_M_eq_funct(l[i], rephase_func, all);
   }
 }
 
@@ -715,13 +730,14 @@ PC(unpackM)(Layout *l, QDP_ColorMatrix *m, real *y)
 {
 #define NC QDP_get_nc(m)
   QDP_Lattice *lat = QDP_get_lattice_M(m);
+  QDP_Subset all = QDP_all_L(lat);
   QDP_ColorMatrix *xx = QDP_create_M_L(lat);
   real *x = QDP_expose_M(xx);
   int nelem = 2*QDP_Nc*QDP_Nc;
   P(toQDP)(x, lat, y, l, nelem);
   QDP_reset_M(xx);
-  //QDP_M_eq_M(m, xx, QDP_all_L(lat));
-  QDP_M_eq_transpose_M(m, xx, QDP_all_L(lat));
+  //QDP_M_eq_M(m, xx, all);
+  QDP_M_eq_transpose_M(m, xx, all);
   QDP_destroy_M(xx);
 #undef NC
 }
@@ -742,9 +758,10 @@ PC(packM)(Layout *l, real *y, QDP_ColorMatrix *m)
 {
 #define NC QDP_get_nc(m)
   QDP_Lattice *lat = QDP_get_lattice_M(m);
+  QDP_Subset all = QDP_all_L(lat);
   QDP_ColorMatrix *xx = QDP_create_M_L(lat);
-  //QDP_M_eq_M(xx, m, QDP_all_L(lat));
-  QDP_M_eq_transpose_M(xx, m, QDP_all_L(lat));
+  //QDP_M_eq_M(xx, m, all);
+  QDP_M_eq_transpose_M(xx, m, all);
   real *x = QDP_expose_M(xx);
   int nelem = 2*QDP_Nc*QDP_Nc;
   P(fromQDP)(y, l, x, lat, nelem);

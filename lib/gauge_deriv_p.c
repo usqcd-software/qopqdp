@@ -23,6 +23,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
 {
 #define NC QDP_get_nc(deriv[0])
   QDP_Lattice *lat = QDP_get_lattice_M(*chain[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int ndim = QDP_ndim();
   int k=0;
   while(k<n && (g[k]->chained==0 || g[k]->nparents==0)) k++;
@@ -46,7 +47,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
     for(int i=k+1; i<n; i++) {
       if(gg[i]==gk) {
 	for(int mu=0; mu<ndim; mu++) {
-	  QDP_M_peq_M(cc[k][mu], cc[i][mu], QDP_all);
+	  QDP_M_peq_M(cc[k][mu], cc[i][mu], all);
 	}
 	for(int j=i+1; j<n; j++) {
 	  gg[j-1] = gg[j];
@@ -68,7 +69,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
 	QOP_malloc(d[i], QDP_ColorMatrix *, ndim);
 	for(int mu=0; mu<ndim; mu++) {
 	  d[i][mu] = QDP_create_M_L(lat);
-	  QDP_M_eq_zero(d[i][mu], QDP_all);
+	  QDP_M_eq_zero(d[i][mu], all);
 	}
       } else {
 	d[i] = deriv;
@@ -109,7 +110,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
     }
     for(int mu=0; mu<ndim; mu++) {
       for(int i=0; i<n; i++) {
-	QDP_M_peq_M(deriv[mu], chain[i][mu], QDP_all);
+	QDP_M_peq_M(deriv[mu], chain[i][mu], all);
       }
     }
   }
@@ -124,6 +125,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
 {
 #define NC QDP_get_nc(f[0])
   QDP_Lattice *lat = QDP_get_lattice_M(*chain[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int ndim = QDP_ndim();
   QDP_ColorMatrix *d[ndim];
   int cr = 0;
@@ -136,7 +138,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
   if(cr) { // apply chain rule
     for(int mu=0; mu<ndim; mu++) {
       d[mu] = QDP_create_M_L(lat);
-      QDP_M_eq_zero(d[mu], QDP_all);
+      QDP_M_eq_zero(d[mu], all);
     }
     QOP_gauge_deriv_multi_qdp(info, d, g, chain, n, 0);
   } else{
@@ -145,7 +147,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
     }
     for(int mu=0; mu<ndim; mu++) {
       for(int i=1; i<n; i++) {
-	QDP_M_peq_M(d[mu], chain[i][mu], QDP_all);
+	QDP_M_peq_M(d[mu], chain[i][mu], all);
       }
     }
   }
@@ -156,9 +158,9 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
   QDP_ColorMatrix *m = QDP_create_M_L(lat);
   QLA_Real s = -2;
   for(int i=0; i<ndim; i++) {
-    QDP_M_eq_M_times_Ma(m, top->links[i], d[i], QDP_all);
-    QDP_M_eq_antiherm_M(d[i], m, QDP_all);
-    QDP_M_peq_r_times_M(f[i], &s, d[i], QDP_all);
+    QDP_M_eq_M_times_Ma(m, top->links[i], d[i], all);
+    QDP_M_eq_antiherm_M(d[i], m, all);
+    QDP_M_peq_r_times_M(f[i], &s, d[i], all);
     QDP_destroy_M(d[i]);
   }
   QDP_destroy_M(m);

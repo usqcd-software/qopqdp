@@ -59,6 +59,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
   QOP_evenodd_t ineo, cgeo;
 
   QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int sites_on_node = QDP_sites_on_node_L(lat);
   
   int iter             =  0;
@@ -112,7 +113,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
 #endif
   
   ineo   = inv_arg->evenodd; /* subset of source vectors */
-  insub  = qdpsub(ineo);
+  insub  = qdpsub(ineo, lat);
 
   qdpin  = QDP_create_D_L(lat); 
   qdpout = QDP_create_D_L(lat);
@@ -133,7 +134,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
  
   cgeo = QOP_EVENODD;
   
-  cgsub = qdpsub(cgeo);
+  cgsub = qdpsub(cgeo, lat);
   gl_eo = cgeo;
 
   cgp = QOP_wilson_dslash_get_tmp(flw, oppsub(cgeo), 1);
@@ -142,7 +143,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
 
   gl_tmp = cgr;
 
-  QDP_D_eq_zero(qdpin, QDP_all);
+  QDP_D_eq_zero(qdpin, all);
 
   gl_tmp2 = cgr;
   if(QOP_wilson_cgtype==1) {
@@ -185,7 +186,7 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
     dtime += QOP_time();
 
     // get final residual
-    //QDP_r_eq_norm2_D(&rsq, qdpout, QDP_all);
+    //QDP_r_eq_norm2_D(&rsq, qdpout, all);
     //printf("nrm = %g\n", rsq);
 
     

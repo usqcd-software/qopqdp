@@ -53,10 +53,10 @@ QOP_PC_GaugeField   *QOP_PC_create_G_from_raw(NCPROT QOP_P_Real *links[], QOP_ev
 QOP_PC_Force        *QOP_PC_create_F_from_raw(NCPROT QOP_P_Real *force[], QOP_evenodd_t evenodd);
 
 /* copy QOP field into a raw field */
-void QOP_PC_extract_V_to_raw(QOP_P_Real *dest, QOP_PC_ColorVector *src, QOP_evenodd_t evenodd);
-void QOP_PC_extract_D_to_raw(QOP_P_Real *dest, QOP_PC_DiracFermion *src, QOP_evenodd_t evenodd);
-void QOP_PC_extract_G_to_raw(QOP_P_Real *dest[], QOP_PC_GaugeField *src, QOP_evenodd_t evenodd);
-void QOP_PC_extract_F_to_raw(QOP_P_Real *dest[], QOP_PC_Force *src, QOP_evenodd_t evenodd);
+void QOP_PC_extract_V_to_raw(QDP_Lattice *lat, QOP_P_Real *dest, QOP_PC_ColorVector *src, QOP_evenodd_t evenodd);
+void QOP_PC_extract_D_to_raw(QDP_Lattice *lat, QOP_P_Real *dest, QOP_PC_DiracFermion *src, QOP_evenodd_t evenodd);
+void QOP_PC_extract_G_to_raw(QDP_Lattice *lat, QOP_P_Real *dest[], QOP_PC_GaugeField *src, QOP_evenodd_t evenodd);
+void QOP_PC_extract_F_to_raw(QDP_Lattice *lat, QOP_P_Real *dest[], QOP_PC_Force *src, QOP_evenodd_t evenodd);
 
 /* destroy a QOP field */
 /* if the QOP field was created with a convert from raw function then

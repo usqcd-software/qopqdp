@@ -988,7 +988,7 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
 	       QDP_DiracFermion *dest, QDP_DiracFermion *src,
 	       int sign, QOP_evenodd_t eo, int n);
 
-#define wilson_hop(flw, dest, src, sign, eo) \
+#define wilson_hop(flw, dest, src, sign, eo,lat)	\
 { \
   QDP_DiracFermion *tsrc = src; \
   int _n = 1; \
@@ -997,7 +997,7 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
     if(_n==NTMPSUB) { \
       _n = 1; \
       tsrc = tmpsub(eo,_n); \
-      QDP_D_eq_D(tsrc, src, qdpsub(oppsub(eo))); \
+      QDP_D_eq_D(tsrc, src, qdpsub(oppsub(eo),lat));	\
       break; \
     } \
     _n++; \
@@ -1043,7 +1043,7 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
 
   if(eo_in==eo_out) {
     if(eo_out==QOP_EVENODD) {
-      wilson_hop(flw, out, in, sign, QOP_EVENODD);
+      wilson_hop(flw, out, in, sign, QOP_EVENODD, lat);
       clov(flw, kappa, out, in, all, 1);
     } else if(eo_out==QOP_EVEN) {
       clov(flw, kappa, out, in, even, 0);
@@ -1053,21 +1053,21 @@ QOP_wilson_dslash_qdp(QOP_info_t *info,
   } else {
     if(eo_out==QOP_EVEN || eo_out==QOP_EVENODD) {
       if(eo_in==QOP_ODD) {
-	wilson_hop(flw, out, in, sign, QOP_EVEN);
+	wilson_hop(flw, out, in, sign, QOP_EVEN, lat);
       } else if(eo_in==QOP_EVEN) {
 	clov(flw, kappa, out, in, even, 0);
       } else {
-	wilson_hop(flw, out, in, sign, QOP_EVEN);
+	wilson_hop(flw, out, in, sign, QOP_EVEN, lat);
 	clov(flw, kappa, out, in, even, 1);
       }
     }
     if(eo_out==QOP_ODD || eo_out==QOP_EVENODD) {
       if(eo_in==QOP_EVEN) {
-	wilson_hop(flw, out, in, sign, QOP_ODD);
+	wilson_hop(flw, out, in, sign, QOP_ODD, lat);
       } else if(eo_in==QOP_ODD) {
 	clov(flw, kappa, out, in, odd, 0);
       } else {
-	wilson_hop(flw, out, in, sign, QOP_ODD);
+	wilson_hop(flw, out, in, sign, QOP_ODD, lat);
 	clov(flw, kappa, out, in, odd, 1);
       }
     }
@@ -1095,15 +1095,16 @@ QOP_wilson_diaginv_qdp(QOP_info_t *info,
 		       QOP_evenodd_t eo)
 {
 #define NC QDP_get_nc(flw->links[0])
+  QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
   if(flw->clov==NULL) {
     QLA_Real f = 2*kappa;
-    QDP_D_eq_r_times_D(out, &f, in, qdpsub(eo));
+    QDP_D_eq_r_times_D(out, &f, in, qdpsub(eo,lat));
   } else {
     if( flw->clovinv==NULL || flw->clovinvkappa!=kappa ) {
       get_clovinv(flw, kappa);
     }
-    QDP_D_eq_zero(out, qdpsub(eo));
-    apply_clov(flw->clovinv, 0, out, in, qdpsub(eo));
+    QDP_D_eq_zero(out, qdpsub(eo,lat));
+    apply_clov(flw->clovinv, 0, out, in, qdpsub(eo,lat));
   }
 #undef NC
 }
@@ -1277,8 +1278,8 @@ wilson_dslash0(QOP_FermionLinksWilson *flw,
   QDP_Subset odd = QDP_odd_L(lat);
   QDP_Shift *neighbor = QDP_neighbor_L(lat);
 
-  subset = qdpsub(eo);
-  othersubset = qdpsub(oppsub(eo));
+  subset = qdpsub(eo,lat);
+  othersubset = qdpsub(oppsub(eo),lat);
   ntmp = tmpnum(eo,n);
 
   sign = -sign;
@@ -1414,8 +1415,8 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
   QDP_Lattice *lat = QDP_get_lattice_D(src);
   QDP_Shift *neighbor = QDP_neighbor_L(lat);
 
-  subset = qdpsub(eo);
-  othersubset = qdpsub(oppsub(eo));
+  subset = qdpsub(eo,lat);
+  othersubset = qdpsub(oppsub(eo),lat);
   ntmp = tmpnum(eo,n);
 
   sign = -sign;

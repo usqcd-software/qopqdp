@@ -62,7 +62,7 @@
 #endif
 
 #define oppsub(eo) ((4-(eo))%3)
-#define qdpsub(eo) ((eo)==2 ? QDP_all : QDP_even_and_odd[eo])
+#define qdpsub(eo,lat) ((eo)==2 ? QDP_all_L(lat) : QDP_even_and_odd_L(lat)[eo])
 
 #define CHECK_INIT							\
   if(!QOP_common.inited) {						\
@@ -122,22 +122,22 @@
 #define QLATYPE_D QLA_DiracFermion
 #define QLATYPE_M QLA_ColorMatrix
 
-#define QOP_qdp_eq_raw(abbr, qdp, raw, evenodd)		\
+#define QOP_qdp_eq_raw(abbr, qdp, raw, evenodd,lat)		\
   if(evenodd==QOP_EVEN) {					\
-    QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_even);	\
+    QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_even_L(lat));	\
   } else if(evenodd==QOP_ODD) {					\
-    QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_odd);	\
+    QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_odd_L(lat));	\
   } else {							\
-    QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_all);	\
+    QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_all_L(lat));	\
   }
 
-#define QOP_raw_eq_qdp(abbr, raw, qdp, evenodd)	      \
+#define QOP_raw_eq_qdp(abbr, raw, qdp, evenodd,lat)	      \
   if(evenodd==QOP_EVEN) {				      \
-    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_even);	\
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_even_L(lat));	\
   } else if(evenodd==QOP_ODD) {				      \
-    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_odd);	\
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_odd_L(lat));	\
   } else {						      \
-    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_all);	\
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_all_L(lat));	\
   }
 
 typedef struct {

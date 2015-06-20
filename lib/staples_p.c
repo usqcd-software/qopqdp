@@ -12,13 +12,14 @@ cacheshift(QDP_ColorMatrix **tmp, QDP_ColorMatrix *in, int mu, QDP_ShiftDir dir,
 {
 #define NC QDP_get_nc(in)
   QDP_Lattice *lat = QDP_get_lattice_M(in);
+  QDP_Subset all = QDP_all_L(lat);
   QDP_ColorMatrix *r = *tmp;
   if(r==NULL) {
     r = *tmp = QDP_create_M_L(lat);
     redo = 1;
   }
   if(redo) {
-    QDP_M_eq_sM(r, in, QDP_neighbor[mu], dir, QDP_all);
+    QDP_M_eq_sM(r, in, QDP_neighbor[mu], dir, all);
   }
   return r;
 #undef NC
@@ -35,6 +36,7 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
 {
 #define NC QDP_get_nc(in[0])
   QDP_Lattice *lat = QDP_get_lattice_M(in[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int sites_on_node = QDP_sites_on_node_L(lat);
   double dtime = QOP_time();
   double nflops = 0;
@@ -56,10 +58,10 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
       //QOP_printf0(" %i:  sdir: %i  c: %g\n", s, sdir, c);
       if(sdir==0) {
 	if(c==1) {
-	  QDP_M_peq_M(out[io], in[tn], QDP_all);
+	  QDP_M_peq_M(out[io], in[tn], all);
 	  nflops += PEQM;
 	} else {
-	  QDP_M_peq_r_times_M(out[io], &c, in[tn], QDP_all);
+	  QDP_M_peq_r_times_M(out[io], &c, in[tn], all);
 	  nflops += 2*PEQM;
 	}
       } else if(sdir>0) {
@@ -68,13 +70,13 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
 	int sn = sidelinknum[io][s];
 	QDP_ColorMatrix *Umunu = getU(tn, mu, nu);
 	QDP_ColorMatrix *Unumu = getU(sn, nu, mu);
-	QDP_M_eq_M_times_M(t1, in[sn], Umunu, QDP_all);
+	QDP_M_eq_M_times_M(t1, in[sn], Umunu, all);
 	if(c==1) {
-	  QDP_M_peq_M_times_Ma(out[io], t1, Unumu, QDP_all);
+	  QDP_M_peq_M_times_Ma(out[io], t1, Unumu, all);
 	  nflops += EQMTM+PEQMTM;
 	} else {
-	  QDP_M_eq_M_times_Ma(t2, t1, Unumu, QDP_all);
-	  QDP_M_peq_r_times_M(out[io], &c, t2, QDP_all);
+	  QDP_M_eq_M_times_Ma(t2, t1, Unumu, all);
+	  QDP_M_peq_r_times_M(out[io], &c, t2, all);
 	  nflops += 2*EQMTM+2*PEQM;
 	}
       } else {
@@ -82,14 +84,14 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
 	int mu = topdir[io][s]-1;
 	int sn = sidelinknum[io][s];
 	QDP_ColorMatrix *Unumu = getU(sn, nu, mu);
-	QDP_M_eq_M_times_M(t1, in[tn], Unumu, QDP_all);
-	QDP_M_eq_Ma_times_M(t2, in[sn], t1, QDP_all);
+	QDP_M_eq_M_times_M(t1, in[tn], Unumu, all);
+	QDP_M_eq_Ma_times_M(t2, in[sn], t1, all);
 	QDP_ColorMatrix *tb = shiftb(t2, nu);
 	if(c==1) {
-	  QDP_M_peq_M(out[io], tb, QDP_all);
+	  QDP_M_peq_M(out[io], tb, all);
 	  nflops += 2*EQMTM+PEQM;
 	} else {
-	  QDP_M_peq_r_times_M(out[io], &c, tb, QDP_all);
+	  QDP_M_peq_r_times_M(out[io], &c, tb, all);
 	  nflops += 2*EQMTM+2*PEQM;
 	}
 	QDP_discard_M(tb);
@@ -121,6 +123,7 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
 {
 #define NC QDP_get_nc(in[0])
   QDP_Lattice *lat = QDP_get_lattice_M(in[0]);
+  QDP_Subset all = QDP_all_L(lat);
   int sites_on_node = QDP_sites_on_node_L(lat);
   double dtime = QOP_time();
   double nflops = 0;
@@ -143,7 +146,7 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
       if(ctmps[i]) QDP_discard_M(ctmps[i]);
       ctn[i] = 0;
     }
-    QDP_M_eq_M(tc, chain[io], QDP_all);
+    QDP_M_eq_M(tc, chain[io], all);
     for(int s=0; s<nstaples[io]; s++) {
       QLA_Real c = coef[io][s];
       int tn = toplinknum[io][s];
@@ -151,10 +154,10 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
       //QOP_printf0("io: %i  s: %i  sdir: %i  tn: %i  c: %g\n", io, s, sdir, tn, c);
       if(sdir==0) {
 	if(c==1) {
-	  QDP_M_peq_M(deriv[tn], tc, QDP_all);
+	  QDP_M_peq_M(deriv[tn], tc, all);
 	  nflops += PEQM;
 	} else {
-	  QDP_M_peq_r_times_M(deriv[tn], &c, tc, QDP_all);
+	  QDP_M_peq_r_times_M(deriv[tn], &c, tc, all);
 	  nflops += 2*PEQM;
 	}
       } else if(sdir>0) {
@@ -164,22 +167,22 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
 	//QOP_printf0("  mu: %i  nu: %i  sn: %i\n", mu, nu, sn);
 	QDP_ColorMatrix *Umunu = getU(tn, mu, nu);
 	QDP_ColorMatrix *Unumu = getU(sn, nu, mu);
-	QDP_M_eq_M_times_M(t1, in[sn], Umunu, QDP_all);
-	QDP_M_eq_Ma_times_M(t2, tc, t1, QDP_all);
+	QDP_M_eq_M_times_M(t1, in[sn], Umunu, all);
+	QDP_M_eq_Ma_times_M(t2, tc, t1, all);
 	QDP_ColorMatrix *tb2 = shiftb(t2, mu);
-	QDP_M_eq_M_times_M(t1, tc, Unumu, QDP_all);
-	QDP_M_eq_Ma_times_M(t3, in[sn], t1, QDP_all);
+	QDP_M_eq_M_times_M(t1, tc, Unumu, all);
+	QDP_M_eq_Ma_times_M(t3, in[sn], t1, all);
 	QDP_ColorMatrix *tb3 = shiftb(t3, nu);
 	if(c==1) {
-	  QDP_M_peq_M_times_Ma(deriv[sn], t1, Umunu, QDP_all);
-	  QDP_M_peq_M(deriv[sn], tb2, QDP_all);
-	  QDP_M_peq_M(deriv[tn], tb3, QDP_all);
+	  QDP_M_peq_M_times_Ma(deriv[sn], t1, Umunu, all);
+	  QDP_M_peq_M(deriv[sn], tb2, all);
+	  QDP_M_peq_M(deriv[tn], tb3, all);
 	  nflops += 4*EQMTM+PEQMTM+2*PEQM;
 	} else {
-	  QDP_M_eq_M_times_Ma(t4, t1, Umunu, QDP_all);
-	  QDP_M_peq_r_times_M(deriv[sn], &c, t4, QDP_all);
-	  QDP_M_peq_r_times_M(deriv[sn], &c, tb2, QDP_all);
-	  QDP_M_peq_r_times_M(deriv[tn], &c, tb3, QDP_all);
+	  QDP_M_eq_M_times_Ma(t4, t1, Umunu, all);
+	  QDP_M_peq_r_times_M(deriv[sn], &c, t4, all);
+	  QDP_M_peq_r_times_M(deriv[sn], &c, tb2, all);
+	  QDP_M_peq_r_times_M(deriv[tn], &c, tb3, all);
 	  nflops += 5*EQMTM+6*PEQM;
 	}
 	QDP_discard_M(tb2);
@@ -190,21 +193,21 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
 	int sn = sidelinknum[io][s];
 	QDP_ColorMatrix *Cmunu = getC(nu);
 	QDP_ColorMatrix *Unumu = getU(sn, nu, mu);
-	QDP_M_eq_M_times_M(t1, in[sn], Cmunu, QDP_all);
-	QDP_M_eq_Ma_times_M(t2, in[tn], t1, QDP_all);
+	QDP_M_eq_M_times_M(t1, in[sn], Cmunu, all);
+	QDP_M_eq_Ma_times_M(t2, in[tn], t1, all);
 	QDP_ColorMatrix *tb2 = shiftb(t2, mu);
-	QDP_M_eq_M_times_M(t3, in[tn], Unumu, QDP_all);
+	QDP_M_eq_M_times_M(t3, in[tn], Unumu, all);
 	if(c==1) {
-	  QDP_M_peq_M_times_Ma(deriv[tn], t1, Unumu, QDP_all);
-	  QDP_M_peq_M_times_Ma(deriv[sn], t3, Cmunu, QDP_all);
-	  QDP_M_peq_M(deriv[sn], tb2, QDP_all);
+	  QDP_M_peq_M_times_Ma(deriv[tn], t1, Unumu, all);
+	  QDP_M_peq_M_times_Ma(deriv[sn], t3, Cmunu, all);
+	  QDP_M_peq_M(deriv[sn], tb2, all);
 	  nflops += 3*EQMTM+2*PEQMTM+PEQM;
 	} else {
-	  QDP_M_eq_M_times_Ma(t4, t1, Unumu, QDP_all);
-	  QDP_M_peq_r_times_M(deriv[tn], &c, t4, QDP_all);
-	  QDP_M_eq_M_times_Ma(t4, t3, Cmunu, QDP_all);
-	  QDP_M_peq_r_times_M(deriv[sn], &c, t4, QDP_all);
-	  QDP_M_peq_r_times_M(deriv[sn], &c, tb2, QDP_all);
+	  QDP_M_eq_M_times_Ma(t4, t1, Unumu, all);
+	  QDP_M_peq_r_times_M(deriv[tn], &c, t4, all);
+	  QDP_M_eq_M_times_Ma(t4, t3, Cmunu, all);
+	  QDP_M_peq_r_times_M(deriv[sn], &c, t4, all);
+	  QDP_M_peq_r_times_M(deriv[sn], &c, tb2, all);
 	  nflops += 5*EQMTM+6*PEQM;
 	}
 	QDP_discard_M(tb2);

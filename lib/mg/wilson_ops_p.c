@@ -40,14 +40,16 @@ QOP_wilsonDslashEO(QDP_DiracFermion *out, QDP_DiracFermion *in,
 {
 #define NC QDP_get_nc(out)
   QDP_Lattice *lat = QDP_get_lattice_M(wil->links[0]);
+  QDP_Subset even = QDP_even_L(lat);
+  QDP_Subset odd = QDP_odd_L(lat);
   check_glv;
   QOP_evenodd_t paro = QOP_ODD;
-  QDP_Subset sub = QDP_even;
+  QDP_Subset sub = even;
   QDP_DiracFermion *tv = glv;
   QDP_DiracFermion *tvo = glv2;
   if(par == QOP_ODD) {
     paro = QOP_EVEN;
-    sub = QDP_odd;
+    sub = odd;
     tv = glv2;
     tvo = glv;
   }
@@ -91,16 +93,17 @@ QCDPC(wilEoProjectD)(QDP_DiracFermion *ineo, QDP_DiracFermion *in,
 {
 #define NC QDP_get_nc(ineo)
   QDP_Lattice *lat = QDP_get_lattice_D(in);
+  QDP_Subset even = QDP_even_L(lat);
   SETUP;
 #if 0
   QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
   QOP_wilsonDslash(dout, din, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
-  QDP_D_eq_D_minus_D(dout, in, dout, QDP_even);
+  QDP_D_eq_D_minus_D(dout, in, dout, even);
   QOP_wilsonDiaginv(ineo, dout, w->wil, w->kappa, QOP_EVEN);
 #else
   QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
   QOP_wilsonDslash(ineo, din, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
-  QDP_D_eq_D_minus_D(ineo, in, ineo, QDP_even);
+  QDP_D_eq_D_minus_D(ineo, in, ineo, even);
 #endif
 #undef NC
 }
@@ -111,15 +114,16 @@ QCDPC(wilEoReconstructD)(QDP_DiracFermion *out, QDP_DiracFermion *outeo,
 {
 #define NC QDP_get_nc(out)
   QDP_Lattice *lat = QDP_get_lattice_D(in);
+  QDP_Subset odd = QDP_odd_L(lat);
   SETUP;
 #if 0
   QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
-  QDP_D_eq_D_minus_D(dout, in, dout, QDP_odd);
+  QDP_D_eq_D_minus_D(dout, in, dout, odd);
   QOP_wilsonDiaginv(out, dout, w->wil, w->kappa, QOP_ODD);
 #else
   QOP_wilsonDiaginv(out, outeo, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
-  QDP_D_eq_D_minus_D(dout, in, dout, QDP_odd);
+  QDP_D_eq_D_minus_D(dout, in, dout, odd);
   QOP_wilsonDiaginv(out, dout, w->wil, w->kappa, QOP_ODD);
 #endif
 #undef NC
@@ -174,10 +178,11 @@ QCDPC(V2eqD)(QDP_N_ColorVector *v[2], QDP_DiracFermion *d, QDP_Subset sub)
   int g5[2] = {4,4};
   int pm[2] = {1,-1};
   QDP_Lattice *lat = QDP_get_lattice_D(d);
+  // QDP_Subset all = QDP_all_L(lat);
 #if QDP_Colors == 2 || QDP_Colors == 3
   QDP_H_veq_spproj_D((QDP_HalfFermion **)v, d2, g5, pm, sub, 2);
-  //QDP_H_eq_spproj_D((QDP_HalfFermion *)v[0], d, 4, 1, QDP_all);
-  //QDP_H_eq_spproj_D((QDP_HalfFermion *)v[1], d, 4, -1, QDP_all);
+  //QDP_H_eq_spproj_D((QDP_HalfFermion *)v[0], d, 4, 1, all);
+  //QDP_H_eq_spproj_D((QDP_HalfFermion *)v[1], d, 4, -1, all);
 #else
 #define NC QDP_get_nc(d)
   SETUP;
@@ -307,13 +312,14 @@ QCDPC(wilPNEV2)(QDP_N_ColorVector *out[2], QDP_N_ColorVector *in[2],
 {
 #define NC (QDP_get_nc(out[0])/2)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset all = QDP_all_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV2)(dout, in, allVN(in[0]));
   QOP_wilsonDiaginv(din, dout, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDiaginv(din, dout, w->wil, w->kappa, QOP_ODD);
   QOP_wilsonDslash(dout, din, w->wil, w->kappa, 1, QOP_EVENODD, QOP_EVENODD);
-  QDP_D_eq_D(din, dout, QDP_all);
+  QDP_D_eq_D(din, dout, all);
   QOP_wilsonDslash(din, dout, w->wil, w->kappa, -1, QOP_EVENODD, QOP_EVENODD);
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_ODD);
@@ -363,12 +369,13 @@ QCDPC(wilEoProjectV1)(QDP_N_ColorVector *ineo[1], QDP_N_ColorVector *in[1],
 {
 #define NC (QDP_get_nc(ineo[0])/4)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset even = QDP_even_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV1)(din, in, allVN(in[0]));
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_ODD);
   QOP_wilsonDslash(dout, dout, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
-  QDP_D_eq_D_minus_D(dout, din, dout, QDP_even);
+  QDP_D_eq_D_minus_D(dout, din, dout, even);
   QCDPC(V1eqD)(ineo, dout, evenVN(ineo[0]));
 #undef NC
 }
@@ -380,13 +387,14 @@ QCDPC(wilEoReconstructV1)(QDP_N_ColorVector *out[1],
 {
 #define NC (QDP_get_nc(out[0])/4)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset odd = QDP_odd_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV1)(din, outeo, evenVN(outeo[0]));
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDslash(din, dout, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
   QCDPC(DeqV1)(dout, in, oddVN(in[0]));
-  QDP_D_eq_D_minus_D(din, dout, din, QDP_odd);
+  QDP_D_eq_D_minus_D(din, dout, din, odd);
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_ODD);
   QCDPC(V1eqD)(out, dout, allVN(out[0]));
 #undef NC
@@ -400,13 +408,14 @@ QCDPC(wilEoReconstructPV1)(QDP_N_ColorVector *out[1],
 {
 #define NC (QDP_get_nc(out[0])/4)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset odd = QDP_odd_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV1)(dout, outeo, evenVN(outeo[0]));
   QOP_wilsonDiaginv(din, dout, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDslash(dout, din, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
   QCDPC(DeqV1)(din, in, oddVN(in[0]));
-  QDP_D_eq_D_minus_D(dout, din, dout, QDP_odd);
+  QDP_D_eq_D_minus_D(dout, din, dout, odd);
   QCDPC(V1eqD)(out, dout, allVN(out[0]));
 #undef NC
 }
@@ -417,12 +426,13 @@ QCDPC(wilEoProjectV2)(QDP_N_ColorVector *ineo[2], QDP_N_ColorVector *in[2],
 {
 #define NC (QDP_get_nc(ineo[0])/2)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset even = QDP_even_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV2)(din, in, allVN(in[0]));
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_ODD);
   QOP_wilsonDslash(dout, dout, w->wil, w->kappa, 1, QOP_EVEN, QOP_ODD);
-  QDP_D_eq_D_minus_D(dout, din, dout, QDP_even);
+  QDP_D_eq_D_minus_D(dout, din, dout, even);
   QCDPC(V2eqD)(ineo, dout, evenVN(ineo[0]));
 #undef NC
 }
@@ -434,13 +444,14 @@ QCDPC(wilEoReconstructV2)(QDP_N_ColorVector *out[2],
 {
 #define NC (QDP_get_nc(out[0])/2)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset odd = QDP_all_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV2)(din, outeo, evenVN(outeo[0]));
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDslash(din, dout, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
   QCDPC(DeqV2)(dout, in, oddVN(in[0]));
-  QDP_D_eq_D_minus_D(din, dout, din, QDP_odd);
+  QDP_D_eq_D_minus_D(din, dout, din, odd);
   QOP_wilsonDiaginv(dout, din, w->wil, w->kappa, QOP_ODD);
   QCDPC(V2eqD)(out, dout, allVN(out[0]));
 #undef NC
@@ -454,13 +465,14 @@ QCDPC(wilEoReconstructPV2)(QDP_N_ColorVector *out[2],
 {
 #define NC (QDP_get_nc(out[0])/2)
   QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
+  QDP_Subset odd = QDP_odd_L(lat);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV2)(dout, outeo, evenVN(outeo[0]));
   QOP_wilsonDiaginv(din, dout, w->wil, w->kappa, QOP_EVEN);
   QOP_wilsonDslash(dout, din, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
   QCDPC(DeqV2)(din, in, oddVN(in[0]));
-  QDP_D_eq_D_minus_D(dout, din, dout, QDP_odd);
+  QDP_D_eq_D_minus_D(dout, din, dout, odd);
   QCDPC(V2eqD)(out, dout, allVN(out[0]));
 #undef NC
 }
