@@ -57,6 +57,8 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
   
   QDP_Subset insub, cgsub;
   QOP_evenodd_t ineo, cgeo;
+
+  QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
   
   int iter             =  0;
   int max_iter_old     = inv_arg->max_iter;    /* Max. # of iteration   */
@@ -111,9 +113,9 @@ QOP_wilson_ifla_invert(QOP_info_t *info,
   ineo   = inv_arg->evenodd; /* subset of source vectors */
   insub  = qdpsub(ineo);
 
-  qdpin  = QDP_create_D(); 
-  qdpout = QDP_create_D();
-  if(flw->clov!=NULL) ctmp = QDP_create_D();
+  qdpin  = QDP_create_D_L(lat); 
+  qdpout = QDP_create_D_L(lat);
+  if(flw->clov!=NULL) ctmp = QDP_create_D_L(lat);
   
 
   gl_flw   = flw;   /* FermionLinksWilson */

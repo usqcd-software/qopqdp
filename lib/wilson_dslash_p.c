@@ -576,7 +576,7 @@ get_clovinv(QOP_FermionLinksWilson *flw, REAL kappa)
 
 #define NC int nc
 QOP_FermionLinksWilson *
-QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
+QOP_wilson_create_L_from_raw(QDP_Lattice *lat, REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 #undef NC
 {
 #define NC nc
@@ -585,7 +585,7 @@ QOP_wilson_create_L_from_raw(REAL *links[], REAL *clov, QOP_evenodd_t evenodd)
 
   WILSON_INVERT_BEGIN;
 
-  gf = QOP_create_G_from_raw(links, evenodd);
+  gf = QOP_create_G_from_raw(lat, links, evenodd);
   flw = QOP_wilson_convert_L_from_qdp(gf->links, NULL);
 
   if(clov!=NULL) {
@@ -1462,7 +1462,7 @@ wilson_dslash1(QOP_FermionLinksWilson *flw,
       //QDP_D_eq_zero(vdest[mu], subset);
       //TRACE;
       //QDP_M_eq_zero(flw->dbllinks[mu], subset);
-      //QDP_ColorMatrix *m = QDP_create_M();
+      //QDP_ColorMatrix *m = QDP_create_M_L(lat);
       //QDP_M_eq_M(m, flw->dbllinks[mu], subset);
       //QDP_destroy_M(m);
       //TRACE;

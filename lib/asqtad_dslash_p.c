@@ -295,7 +295,7 @@ QOP_asqtad_convert_L_from_raw(REAL *fatlinks[], REAL *longlinks[],
 
 #define NC int nc
 QOP_FermionLinksAsqtad *
-QOP_asqtad_create_L_from_raw(REAL *fatlinks[], REAL *longlinks[],
+QOP_asqtad_create_L_from_raw(QDP_Lattice *lat, REAL *fatlinks[], REAL *longlinks[],
 			     QOP_evenodd_t evenodd)
 #undef NC
 {

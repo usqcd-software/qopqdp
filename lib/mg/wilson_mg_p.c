@@ -211,8 +211,9 @@ static void
 QOP_randSeed(QDP_RandomState *rs, int seed)
 {
   QDP_Int *li;
+  QDP_Lattice *lat = QDP_get_lattice_S(rs);
 
-  li = QDP_create_I();
+  li = QDP_create_I_L(lat);
 
   TRACE;
   QDP_I_eq_funct(li, lex_int, QDP_all);
@@ -235,7 +236,7 @@ get_nullvecs(QOP_F_MgArgs *mgargs, QOPP(MgOp) *op, void *opargs, QLA_Real res,
   QDP_Lattice *fine = mgargs->mgb->fine;
   QDP_Subset allf = QDP_all_L(fine);
   TRACE;
-  QDP_RandomState *rs = QDP_create_S(); // hack: lives on fine lattice
+  QDP_RandomState *rs = QDP_create_S_L(fine); // hack: lives on fine lattice
   TRACE;
   QOP_randSeed(rs, 987654321); // needs to be fixed to use any lattice
   TRACE;
@@ -782,10 +783,11 @@ QOP_wilsonMgSetLinks(QOP_WilsonMg *wmg, QOP_FermionLinksWilson *wil)
 void
 QOP_wilsonMgSetVecs(QOP_WilsonMg *wmg, int nv, QDP_DiracFermion *vv[nv])
 {
+  QDP_Lattice *lat = QDP_get_lattice_D(vv[0]);
   QOP_malloc(wmg->v, QDP_DiracFermion *, nv);
   wmg->nv = nv;
   for(int i=0; i<nv; i++) {
-    wmg->v[i] = QDP_create_D();
+    wmg->v[i] = QDP_create_D_L(lat);
     QDP_D_eq_D(wmg->v[i], vv[i], QDP_all);
   }
   //mgorth(wmg, vv);
@@ -858,6 +860,7 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
 		  QDP_DiracFermion *out, QDP_DiracFermion *in)
 {
 #define NC QDP_get_nc(out)
+  QDP_Lattice *lat = QDP_get_lattice_D(in);
   QOP_WilArgs wa;
   wa.wil = flw;
   wa.kappa = kappa;
@@ -893,13 +896,13 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
   QDP_Subset ssub = QDP_all;
 #endif
 
-  QDP_DiracFermion *r = QDP_create_D();
-  QDP_DiracFermion *out2 = QDP_create_D();
-  QDP_DiracFermion *eovec = QDP_create_D();
+  QDP_DiracFermion *r = QDP_create_D_L(lat);
+  QDP_DiracFermion *out2 = QDP_create_D_L(lat);
+  QDP_DiracFermion *eovec = QDP_create_D_L(lat);
   QDPN(ColorVector) *v2in[nv], *v2out[nv];
   for(int i=0; i<nv; i++) {
-    v2in[i] = QDPN(create_V)(fnc);
-    v2out[i] = QDPN(create_V)(fnc);
+    v2in[i] = QDPN(create_V_L)(fnc,lat);
+    v2out[i] = QDPN(create_V_L)(fnc,lat);
   }
 
   QOPP(MgOp) *pop;
@@ -910,8 +913,8 @@ QOP_wilsonMgSolve(QOP_info_t *info, QOP_WilsonMg *wmg,
 #else
   QDP_FN_ColorVector *v2inf[nv], *v2outf[nv];
   for(int i=0; i<nv; i++) {
-    v2inf[i] = QDP_FN_create_V(fnc);
-    v2outf[i] = QDP_FN_create_V(fnc);
+    v2inf[i] = QDP_FN_create_V_L(fnc,lat);
+    v2outf[i] = QDP_FN_create_V_L(fnc,lat);
   }
   d2fArgs da;
   da.op = QOP_F_mgVcycle;

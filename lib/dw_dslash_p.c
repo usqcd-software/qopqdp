@@ -79,7 +79,7 @@ reset_temps(NCPROT int ls)
 
 #define NC int nc
 QOP_FermionLinksDW *
-QOP_dw_create_L_from_raw(REAL *links[], QOP_evenodd_t evenodd )
+QOP_dw_create_L_from_raw(QDP_Lattice *lat, REAL *links[], QOP_evenodd_t evenodd )
 #undef NC
 {
 #define NC nc
@@ -87,7 +87,7 @@ QOP_dw_create_L_from_raw(REAL *links[], QOP_evenodd_t evenodd )
   QOP_malloc(fldw, QOP_FermionLinksDW, 1);
   REAL noclov = 0.0; // No clover term
 
-  fldw->flw = QOP_wilson_create_L_from_raw(links, &noclov, evenodd);
+  fldw->flw = QOP_wilson_create_L_from_raw(lat, links, &noclov, evenodd);
 
   return fldw;
 #undef NC

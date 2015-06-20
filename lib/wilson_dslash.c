@@ -14,6 +14,7 @@
 QOP_F3_GaugeField *
 QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
   QOP_F3_GaugeField *qopgf_single;
+  QDP_Lattice *lat = QDP_D_get_lattice_M(qopgf_double->links[0]);
   int i,x;
 
   QOP_malloc(qopgf_single, QOP_F3_GaugeField, 1);
@@ -23,7 +24,7 @@ QOP_FD3_create_G_from_G(QOP_D3_GaugeField *qopgf_double){
     qopgf_single->raw = NULL;
     QOP_malloc(qopgf_single->links, QDP_F3_ColorMatrix *, QOP_common.ndim);
     for(i=0; i<QOP_common.ndim; i++) {
-      qopgf_single->links[i] = QDP_F3_create_M();
+      qopgf_single->links[i] = QDP_F3_create_M_L(lat);
       QDP_FD3_M_eq_M(qopgf_single->links[i], qopgf_double->links[i], QDP_all);
     }
   } else {
@@ -47,6 +48,7 @@ QOP_F3_FermionLinksWilson *
 QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
 
   QOP_F3_FermionLinksWilson *flw_single;
+  QDP_Lattice *lat = QDP_D_get_lattice_M(qopgf_double->links[0]);
   int i;
 
   /* Create the parent struct */
@@ -61,7 +63,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
   if(flw_double->links != NULL) {
     QOP_malloc(flw_single->links, QDP_F3_ColorMatrix *, 4);
     for(i=0; i<4; i++){
-      flw_single->links[i] = QDP_F3_create_M();
+      flw_single->links[i] = QDP_F3_create_M_L(lat);
       QDP_FD3_M_eq_M(flw_single->links[i], flw_double->links[i], QDP_all);
     }
   } else {
@@ -72,7 +74,7 @@ QOP_FD3_wilson_create_L_from_L(QOP_D3_FermionLinksWilson *flw_double){
   QOP_malloc(flw_single->bcklinks, QDP_F3_ColorMatrix *, 4);
   for(i=0; i<4; i++){
     if(flw_double->dblstored != 0 && flw_double->bcklinks[i] != NULL){
-      flw_single->bcklinks[i] = QDP_F3_create_M();
+      flw_single->bcklinks[i] = QDP_F3_create_M_L(lat);
       QDP_FD3_M_eq_M(flw_single->bcklinks[i], 
 		     flw_double->bcklinks[i], QDP_all);
     } else {

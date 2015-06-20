@@ -53,10 +53,11 @@ wilson_deriv_multi_qdp(QOP_info_t *info,
 {
 #define NC QDP_get_nc(flw->links[0])
   QDP_DiracFermion *x2[4], *y2[4], *ys[4];
+  QDP_Lattice *lat = QDP_get_lattice_D(x[0]);
   for(int mu=0; mu<4; mu++) {
-    x2[mu] = QDP_create_D();
-    y2[mu] = QDP_create_D();
-    ys[mu] = QDP_create_D();
+    x2[mu] = QDP_create_D_L(lat);
+    y2[mu] = QDP_create_D_L(lat);
+    ys[mu] = QDP_create_D_L(lat);
   }
   for(int i=0; i<n; i++) {
     for(int mu=0; mu<4; mu++) {
@@ -92,11 +93,12 @@ QOP_wilson_deriv_multi_qdp(QOP_info_t *info,
 {
 #if 0
   QDP_ColorMatrix *d[4];
+  QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
   if(0) {
     //if(flw->gauge && flw->gauge->chained &&
     //(flw->gauge->nparents || doLastScale)) { // apply chain rule
     for(int mu=0; mu<4; mu++) {
-      d[mu] = QDP_create_M();
+      d[mu] = QDP_create_M_L(lat);
       QDP_M_eq_zero(d[mu], QDP_all);
     }
   } else {
@@ -134,8 +136,9 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
 {
 #define NC QDP_get_nc(flw->links[0])
   QDP_ColorMatrix *deriv[4];
+  QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
   for(int mu=0; mu<4; mu++) {
-    deriv[mu] = QDP_create_M();
+    deriv[mu] = QDP_create_M_L(lat);
     QDP_M_eq_zero(deriv[mu], QDP_all);
   }
   // factor of -2 for GL -> U
@@ -153,7 +156,7 @@ QOP_wilson_force_multi_qdp(QOP_info_t *info,
   QLA_Real teps[n];
   for(int i=0; i<n; i++) teps[i] = s*eps[i];
   QOP_wilson_deriv_multi_qdp(info, flw, deriv, teps, x, y, n);
-  QDP_ColorMatrix *t = QDP_create_M();
+  QDP_ColorMatrix *t = QDP_create_M_L(lat);
   for(int mu=0; mu<4; mu++) {
     QDP_M_eq_M_times_Ma(t, links[mu], deriv[mu], QDP_all);
     QDP_M_eq_antiherm_M(deriv[mu], t, QDP_all);

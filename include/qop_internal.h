@@ -122,7 +122,7 @@
 #define QLATYPE_D QLA_DiracFermion
 #define QLATYPE_M QLA_ColorMatrix
 
-#define QOP_qdp_eq_raw(abbr, qdp, raw, evenodd)			\
+#define QOP_qdp_eq_raw(abbr, qdp, raw, evenodd)		\
   if(evenodd==QOP_EVEN) {					\
     QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_even);	\
   } else if(evenodd==QOP_ODD) {					\
@@ -131,13 +131,13 @@
     QDP_insert_##abbr(qdp, (QLATYPE_##abbr *)raw, QDP_all);	\
   }
 
-#define QOP_raw_eq_qdp(abbr, raw, qdp, evenodd)		      \
+#define QOP_raw_eq_qdp(abbr, raw, qdp, evenodd)	      \
   if(evenodd==QOP_EVEN) {				      \
-    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_even); \
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_even);	\
   } else if(evenodd==QOP_ODD) {				      \
-    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_odd);  \
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_odd);	\
   } else {						      \
-    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_all);  \
+    QDP_extract_##abbr((QLATYPE_##abbr *)raw, qdp, QDP_all);	\
   }
 
 typedef struct {

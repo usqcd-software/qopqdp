@@ -10,8 +10,8 @@
 // FIXME: avoid globals
 static QDP_DiracFermion *glv=NULL, *glv2=NULL/*, *et1=NULL, *et2=NULL*/;
 
-#define check_glv if(glv==NULL) { glv = QDP_create_D(); glv2 = QDP_create_D(); }
-#define check_et if(et1==NULL) { et1 = QDP_create_D(); et2 = QDP_create_D(); }
+#define check_glv if(glv==NULL) { glv = QDP_create_D_L(lat); glv2 = QDP_create_D_L(lat); }
+#define check_et if(et1==NULL) { et1 = QDP_create_D_L(lat); et2 = QDP_create_D_L(lat); }
 
 #define allVN(v) QDP_all_L(QDPN(get_lattice_V)(v))
 #define evenVN(v) QDP_even_L(QDPN(get_lattice_V)(v))
@@ -39,6 +39,7 @@ QOP_wilsonDslashEO(QDP_DiracFermion *out, QDP_DiracFermion *in,
 		   QOP_evenodd_t par)
 {
 #define NC QDP_get_nc(out)
+  QDP_Lattice *lat = QDP_get_lattice_M(wil->links[0]);
   check_glv;
   QOP_evenodd_t paro = QOP_ODD;
   QDP_Subset sub = QDP_even;
@@ -68,20 +69,20 @@ QOP_wilsonDslashEO(QDP_DiracFermion *out, QDP_DiracFermion *in,
 
 // MG operators
 
-#define SETUP if(din==NULL) setup_temps(NCARGVOID)
+#define SETUP if(din==NULL) setup_temps(NCARG lat)
 
 // FIXME: avoid globals
 static QDP_DiracFermion *din=NULL, *dout=NULL;
 static QDP_HalfFermion *hin=NULL, *hout=NULL;
 
 static void
-setup_temps(NCPROTVOID)
+setup_temps(NCPROT QDP_Lattice *lat)
 {
   //QOP_printf0("nc: %i\n", QLA_Nc);
-  din = QDP_create_D();
-  dout = QDP_create_D();
-  hin = QDP_create_H();
-  hout = QDP_create_H();
+  din = QDP_create_D_L(lat);
+  dout = QDP_create_D_L(lat);
+  hin = QDP_create_H_L(lat);
+  hout = QDP_create_H_L(lat);
 }
 
 void
@@ -89,6 +90,7 @@ QCDPC(wilEoProjectD)(QDP_DiracFermion *ineo, QDP_DiracFermion *in,
 		     QCDPC(WilArgs) *w)
 {
 #define NC QDP_get_nc(ineo)
+  QDP_Lattice *lat = QDP_get_lattice_D(in);
   SETUP;
 #if 0
   QOP_wilsonDiaginv(din, in, w->wil, w->kappa, QOP_ODD);
@@ -108,6 +110,7 @@ QCDPC(wilEoReconstructD)(QDP_DiracFermion *out, QDP_DiracFermion *outeo,
 			 QDP_DiracFermion *in, QCDPC(WilArgs) *w)
 {
 #define NC QDP_get_nc(out)
+  QDP_Lattice *lat = QDP_get_lattice_D(in);
   SETUP;
 #if 0
   QOP_wilsonDslash(dout, out, w->wil, w->kappa, 1, QOP_ODD, QOP_EVEN);
@@ -146,6 +149,7 @@ QCDPC(DeqV1)(QDP_DiracFermion *d, QDP_N_ColorVector *v[1], QDP_Subset sub)
 static void
 QCDPC(V1eqDg5)(QDP_N_ColorVector *v[1], QDP_DiracFermion *d, QDP_Subset sub)
 {
+  QDP_Lattice *lat = QDP_get_lattice_D(d);
 #if QDP_Colors == 2 || QDP_Colors == 3
   QDP_D_eq_gamma_times_D((QDP_DiracFermion *)v[0], d, 15, sub);
 #else
@@ -169,6 +173,7 @@ QCDPC(V2eqD)(QDP_N_ColorVector *v[2], QDP_DiracFermion *d, QDP_Subset sub)
   QDP_DiracFermion *d2[2] = {d,d};
   int g5[2] = {4,4};
   int pm[2] = {1,-1};
+  QDP_Lattice *lat = QDP_get_lattice_D(d);
 #if QDP_Colors == 2 || QDP_Colors == 3
   QDP_H_veq_spproj_D((QDP_HalfFermion **)v, d2, g5, pm, sub, 2);
   //QDP_H_eq_spproj_D((QDP_HalfFermion *)v[0], d, 4, 1, QDP_all);
@@ -198,6 +203,7 @@ QCDPC(V2eqDg5)(QDP_N_ColorVector *v[2], QDP_DiracFermion *d, QDP_Subset sub)
   QDP_H_eqm_spproj_D((QDP_HalfFermion *)v[1], d, 4, -1, sub);
 #else
 #define NC QDP_get_nc(d)
+  QDP_Lattice *lat = QDP_get_lattice_D(d);
   SETUP;
   QDP_H_eq_spproj_D(hout, d, 4, 1, sub);
   QDP_N_V_eq_V(v[0], (QDP_N_ColorVector *)hout, sub);
@@ -219,6 +225,7 @@ QCDPC(wilDV1)(QDP_N_ColorVector *out[1], QDP_N_ColorVector *in[1],
 	      int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/4)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV1)(din, in, allVN(in[0]));
@@ -232,6 +239,7 @@ QCDPC(wilDV2)(QDP_N_ColorVector *out[2], QDP_N_ColorVector *in[2],
 	      int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV2)(din, in, allVN(in[0]));
@@ -245,6 +253,7 @@ QCDPC(wilPV1)(QDP_N_ColorVector *out[1], QDP_N_ColorVector *in[1],
 	      int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/4)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV1)(dout, in, allVN(in[0]));
@@ -266,6 +275,7 @@ QCDPC(wilPV2)(QDP_N_ColorVector *out[2], QDP_N_ColorVector *in[2],
 	      int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   TRACE;
   SETUP;
   TRACE;
@@ -296,6 +306,7 @@ QCDPC(wilPNEV2)(QDP_N_ColorVector *out[2], QDP_N_ColorVector *in[2],
 		int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV2)(dout, in, allVN(in[0]));
@@ -315,6 +326,7 @@ QCDPC(wilEoV1)(QDP_N_ColorVector *out[1], QDP_N_ColorVector *in[1],
 	       int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/4)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV1g5)(din, in, evenVN(in[0]));
@@ -332,6 +344,7 @@ QCDPC(wilEoV2)(QDP_N_ColorVector *out[2], QDP_N_ColorVector *in[2],
 	       int sign, void *args)
 {
 #define NC (QDP_get_nc(out[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *)args;
   QCDPC(DeqV2g5)(din, in, evenVN(in[0]));
@@ -349,6 +362,7 @@ QCDPC(wilEoProjectV1)(QDP_N_ColorVector *ineo[1], QDP_N_ColorVector *in[1],
 		      void *args)
 {
 #define NC (QDP_get_nc(ineo[0])/4)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV1)(din, in, allVN(in[0]));
@@ -365,6 +379,7 @@ QCDPC(wilEoReconstructV1)(QDP_N_ColorVector *out[1],
 			  QDP_N_ColorVector *in[1], void *args)
 {
 #define NC (QDP_get_nc(out[0])/4)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV1)(din, outeo, evenVN(outeo[0]));
@@ -384,6 +399,7 @@ QCDPC(wilEoReconstructPV1)(QDP_N_ColorVector *out[1],
 			   QDP_N_ColorVector *in[1], void *args)
 {
 #define NC (QDP_get_nc(out[0])/4)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV1)(dout, outeo, evenVN(outeo[0]));
@@ -400,6 +416,7 @@ QCDPC(wilEoProjectV2)(QDP_N_ColorVector *ineo[2], QDP_N_ColorVector *in[2],
 		      void *args)
 {
 #define NC (QDP_get_nc(ineo[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV2)(din, in, allVN(in[0]));
@@ -416,6 +433,7 @@ QCDPC(wilEoReconstructV2)(QDP_N_ColorVector *out[2],
 			  QDP_N_ColorVector *in[2], void *args)
 {
 #define NC (QDP_get_nc(out[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV2)(din, outeo, evenVN(outeo[0]));
@@ -435,6 +453,7 @@ QCDPC(wilEoReconstructPV2)(QDP_N_ColorVector *out[2],
 			   QDP_N_ColorVector *in[2], void *args)
 {
 #define NC (QDP_get_nc(out[0])/2)
+  QDP_Lattice *lat = QDP_N_get_lattice_V(in[0]);
   SETUP;
   QCDPC(WilArgs) *w = (QCDPC(WilArgs) *) args;
   QCDPC(DeqV2)(dout, outeo, evenVN(outeo[0]));

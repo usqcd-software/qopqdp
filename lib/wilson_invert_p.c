@@ -224,6 +224,7 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   int max_iter_old = inv_arg->max_iter;
   int max_restarts_old = inv_arg->max_restarts;
   int nrestart = -1, max_restarts = inv_arg->max_restarts;
+  QDP_Lattice *lat = QDP_get_lattice_M(flw->links[0]);
   if(max_restarts<=0) max_restarts = 5;
 
   WILSON_INVERT_BEGIN;
@@ -237,10 +238,10 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
 
-  qdpin = QDP_create_D();
-  qdpout = QDP_create_D();
-  if(flw->clov!=NULL) ctmp = QDP_create_D();
-  if(QOP_wilson_cgtype==0) gtmp = QDP_create_D();
+  qdpin = QDP_create_D_L(lat);
+  qdpout = QDP_create_D_L(lat);
+  if(flw->clov!=NULL) ctmp = QDP_create_D_L(lat);
+  if(QOP_wilson_cgtype==0) gtmp = QDP_create_D_L(lat);
 
   gl_flw = flw;
   gl_kappa = kappa;
@@ -501,10 +502,10 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
   ineo = inv_arg->evenodd;
   insub = qdpsub(ineo);
 
-  qdpin = QDP_create_D();
-  qdpout = QDP_create_D();
-  if(flw->clov!=NULL) ctmp = QDP_create_D();
-  if(QOP_wilson_cgtype==0) gtmp = QDP_create_D();
+  qdpin = QDP_create_D_L(lat);
+  qdpout = QDP_create_D_L(lat);
+  if(flw->clov!=NULL) ctmp = QDP_create_D_L(lat);
+  if(QOP_wilson_cgtype==0) gtmp = QDP_create_D_L(lat);
 
   gl_flw = flw;
   gl_kappa = kappa;

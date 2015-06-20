@@ -2,4 +2,13 @@ aclocal.m4
 autom4te.cache
 configure
 Makefile.in
+Makefile
+config.log
+config.status
+include/qop_config.h
+.dirstamp
+stamp-h1
+.deps
 *~
+*.o
+*.a

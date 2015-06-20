@@ -49,10 +49,10 @@ typedef struct QOP_DN_FermionLinksDW_struct      QOP_DN_FermionLinksDW;
 #define QOP_DN_raw_get_G(re, im, raw, evenodd, i, ic, jc) QOP_DN_set(M, re, im, raw, i, ic, jc)
 
 /* create a QOP field with a copy of the raw source field */
-QOP_DN_ColorVector  *QOP_DN_create_V_from_raw(int nc, QOP_D_Real *src, QOP_evenodd_t evenodd);
-QOP_DN_DiracFermion *QOP_DN_create_D_from_raw(int nc, QOP_D_Real *src, QOP_evenodd_t evenodd);
-QOP_DN_GaugeField   *QOP_DN_create_G_from_raw(int nc, QOP_D_Real *links[], QOP_evenodd_t evenodd);
-QOP_DN_Force        *QOP_DN_create_F_from_raw(int nc, QOP_D_Real *force[], QOP_evenodd_t evenodd);
+QOP_DN_ColorVector  *QOP_DN_create_V_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *src, QOP_evenodd_t evenodd);
+QOP_DN_DiracFermion *QOP_DN_create_D_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *src, QOP_evenodd_t evenodd);
+QOP_DN_GaugeField   *QOP_DN_create_G_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *links[], QOP_evenodd_t evenodd);
+QOP_DN_Force        *QOP_DN_create_F_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *force[], QOP_evenodd_t evenodd);
 
 /* copy QOP field into a raw field */
 void QOP_DN_extract_V_to_raw(QOP_D_Real *dest, QOP_DN_ColorVector *src, QOP_evenodd_t evenodd);
@@ -71,18 +71,18 @@ void QOP_DN_destroy_F(QOP_DN_Force *field);
 /* create a QOP field using the raw source field */
 /* the raw source is not freed and the user must not change or free it until
    the QOP field has been converted back to raw or destroyed */
-QOP_DN_ColorVector  *QOP_DN_convert_V_from_raw(int nc, QOP_D_Real *src, QOP_evenodd_t evenodd);
-QOP_DN_DiracFermion *QOP_DN_convert_D_from_raw(int nc, QOP_D_Real *src, QOP_evenodd_t evenodd);
-QOP_DN_GaugeField   *QOP_DN_convert_G_from_raw(int nc, QOP_D_Real *links[], QOP_evenodd_t evenodd);
-QOP_DN_Force        *QOP_DN_convert_F_from_raw(int nc, QOP_D_Real *force[], QOP_evenodd_t evenodd);
+QOP_DN_ColorVector  *QOP_DN_convert_V_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *src, QOP_evenodd_t evenodd);
+QOP_DN_DiracFermion *QOP_DN_convert_D_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *src, QOP_evenodd_t evenodd);
+QOP_DN_GaugeField   *QOP_DN_convert_G_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *links[], QOP_evenodd_t evenodd);
+QOP_DN_Force        *QOP_DN_convert_F_from_raw(int nc, QDP_Lattice *lat, QOP_D_Real *force[], QOP_evenodd_t evenodd);
 
 /* create a raw field from the data in the QOP field and destroy it */
 /* if the QOP field was created with a convert from raw function then
    this will return the same raw source used as input */
-QOP_D_Real  *QOP_DN_convert_V_to_raw(QOP_DN_ColorVector *src, QOP_evenodd_t evenodd);
-QOP_D_Real  *QOP_DN_convert_D_to_raw(QOP_DN_DiracFermion *src, QOP_evenodd_t evenodd);
-QOP_D_Real **QOP_DN_convert_G_to_raw(QOP_DN_GaugeField *src, QOP_evenodd_t evenodd);
-QOP_D_Real **QOP_DN_convert_F_to_raw(QOP_DN_Force *src, QOP_evenodd_t evenodd);
+QOP_D_Real  *QOP_DN_convert_V_to_raw(QDP_Lattice *lat, QOP_DN_ColorVector *src, QOP_evenodd_t evenodd);
+QOP_D_Real  *QOP_DN_convert_D_to_raw(QDP_Lattice *lat, QOP_DN_DiracFermion *src, QOP_evenodd_t evenodd);
+QOP_D_Real **QOP_DN_convert_G_to_raw(QDP_Lattice *lat, QOP_DN_GaugeField *src, QOP_evenodd_t evenodd);
+QOP_D_Real **QOP_DN_convert_F_to_raw(QDP_Lattice *lat, QOP_DN_Force *src, QOP_evenodd_t evenodd);
 
 QOP_DN_ColorVector  *QOP_DN_create_V_from_qdp(QDP_DN_ColorVector *src);
 QOP_DN_DiracFermion *QOP_DN_create_D_from_qdp(QDP_DN_DiracFermion *src);
@@ -219,7 +219,8 @@ void QOP_DN_staples_deriv(QOP_info_t *info, int nout, int nin,
   /* fermion matrix link routines */
 
 QOP_DN_FermionLinksAsqtad *
-  QOP_DN_asqtad_create_L_from_raw(int nc, QOP_D_Real *fatlinks[],
+  QOP_DN_asqtad_create_L_from_raw(int nc, QDP_Lattice *lat,
+				  QOP_D_Real *fatlinks[],
 				  QOP_D_Real *longlinks[],
 				  QOP_evenodd_t evenodd);
 
@@ -519,7 +520,8 @@ void QOP_DN_hisq_force_multi_qdp(QOP_info_t *info,
   /* fermion matrix link routines */
 
 QOP_DN_FermionLinksWilson *
-  QOP_DN_wilson_create_L_from_raw(int nc, QOP_D_Real *links[], QOP_D_Real *clov,
+  QOP_DN_wilson_create_L_from_raw(int nc, QDP_Lattice *lat, 
+				  QOP_D_Real *links[], QOP_D_Real *clov,
 				  QOP_evenodd_t evenodd);
 
 QOP_DN_FermionLinksWilson *
@@ -742,7 +744,8 @@ void QOP_DN_wilsonMgSolve(QOP_info_t *info, QOP_N_WilsonMg *wmg,
   /* fermion matrix link routines */
 
 QOP_DN_FermionLinksDW *
-  QOP_DN_dw_create_L_from_raw(int nc, QOP_D_Real *links[],
+  QOP_DN_dw_create_L_from_raw(int nc, QDP_Lattice *lat, 
+			      QOP_D_Real *links[],
 			      QOP_evenodd_t evenodd);
 
 QOP_DN_FermionLinksDW *
