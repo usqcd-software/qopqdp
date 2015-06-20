@@ -625,7 +625,7 @@ QOP_wilson_create_L_from_G(QOP_info_t *info,
 #define NC QDP_get_nc(gauge->links[0])
   QOP_FermionLinksWilson *flw;
   QDP_ColorMatrix        *newlinks[4];
-  QDP_Lattice *lat = QDP_get_lattice_M(gasuge->links[0]);
+  QDP_Lattice *lat = QDP_get_lattice_M(gauge->links[0]);
   QDP_Subset all = QDP_all_L(lat);
 
   WILSON_INVERT_BEGIN;
