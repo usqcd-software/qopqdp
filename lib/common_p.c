@@ -304,7 +304,6 @@ QOP_create_G_from_qdp(QDP_ColorMatrix *links[])
   QDP_Subset all = QDP_all_L(lat);
   for(int i=0; i<QOP_common.ndim; i++) {
     qopgf->links[i] = QDP_create_M_L(lat);
-    printf("XXXX create_G_from_qdp: i=%d, links[i]=%p, qopgf->links[i]=%p\n", i,  links[i], qopgf->links[i]);
     QDP_M_eq_M(qopgf->links[i], links[i], all);
   }
   return qopgf;
