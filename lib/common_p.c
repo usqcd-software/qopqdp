@@ -300,8 +300,9 @@ QOP_GaugeField *
 QOP_create_G_from_qdp(QDP_ColorMatrix *links[])
 {
   QOP_GaugeField *qopgf = QOP_new_G();
+  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
   for(int i=0; i<QOP_common.ndim; i++) {
-    qopgf->links[i] = QDP_create_M();
+    qopgf->links[i] = QDP_create_M_L(lat);
     QDP_M_eq_M(qopgf->links[i], links[i], QDP_all);
   }
   return qopgf;
