@@ -509,13 +509,13 @@ scale(QDP_ColorMatrix *l[], QOP_GaugeField *g, int inv)
 {
   QDP_Lattice *lat = QDP_get_lattice_M(l[0]);
   QDP_Subset all = QDP_all_L(lat);
-  nd = QDP_ndim();
+  nd = QDP_ndim_L(lat);
   for(int i=0; i<nd; i++) {
     bc_dir = -1;
     staggered_sign_bits = 0;
     if(g->bc.phase && (g->bc.phase[i].re!=1. || g->bc.phase[i].im!=0.)) {
       bc_dir = i;
-      bc_coord = QDP_coord_size(i);
+      bc_coord = QDP_coord_size_L(lat, i);
       bc_origin = g->r0[i];
       if(inv) {
 	QLA_Complex z;
@@ -538,7 +538,8 @@ QOP_rephase_G(QOP_GaugeField *links,
 	      QOP_bc_t *bc,
 	      QOP_staggered_sign_t *sign)
 {
-  nd = QDP_ndim();
+  QDP_Lattice *lat = QDP_get_lattice_M(links->links[0]);
+  nd = QDP_ndim_L(lat);
   //links->scale = scale;
   //links->chained = 1;
 #define copyarray(d,s,t,n) do{ QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t)); }while(0)
@@ -554,7 +555,8 @@ QOP_rephase_G_qdp(QDP_ColorMatrix *links[],
 		  QOP_bc_t *bc,
 		  QOP_staggered_sign_t *sign)
 {
-  nd = QDP_ndim();
+  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
+  nd = QDP_ndim_L(lat);
   QOP_GaugeField g;
   //links->scale = scale;
   //links->chained = 1;

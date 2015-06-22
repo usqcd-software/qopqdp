@@ -56,7 +56,7 @@ QOP_init(QOP_layout_t *layout)
     QOP_common.we_inited_qdp = 1;
   } else if (layout->latsize != NULL) {
     int error;
-    int qdplatdim = QDP_ndim();
+    int qdplatdim = QDP_ndim(); /* ugly, but I don't see how to improve it */
     int qdplatsize[qdplatdim];
     QDP_latsize(qdplatsize);
     error = compare_sizes(layout->latdim, layout->latsize, "QOP lattice",

@@ -40,7 +40,7 @@ QOP_staples(QOP_info_t *info, int nout, int nin,
   int sites_on_node = QDP_sites_on_node_L(lat);
   double dtime = QOP_time();
   double nflops = 0;
-  int nd = QDP_ndim();
+  int nd = QDP_ndim_L(lat);
   QDP_ColorMatrix *ftmps[nin][nd], *t1, *t2, *bt2[nd];
   for(int i=0; i<nin; i++)
     for(int j=0; j<nd; j++)
@@ -127,7 +127,7 @@ QOP_staples_deriv(QOP_info_t *info, int nout, int nin,
   int sites_on_node = QDP_sites_on_node_L(lat);
   double dtime = QOP_time();
   double nflops = 0;
-  int nd = QDP_ndim();
+  int nd = QDP_ndim_L(lat);
   QDP_ColorMatrix *ftmps[nin][nd], *t1, *t2, *t3, *t4, *tc, *bt2[nd], *bt3[nd], *ctmps[nd];
   int ctn[nd];
   for(int i=0; i<nin; i++)

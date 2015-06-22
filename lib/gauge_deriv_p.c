@@ -24,7 +24,7 @@ QOP_gauge_deriv_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *deriv[],
 #define NC QDP_get_nc(deriv[0])
   QDP_Lattice *lat = QDP_get_lattice_M(*chain[0]);
   QDP_Subset all = QDP_all_L(lat);
-  int ndim = QDP_ndim();
+  int ndim = QDP_ndim_L(lat);
   int k=0;
   while(k<n && (g[k]->chained==0 || g[k]->nparents==0)) k++;
   if(k<n) { // has parents
@@ -126,7 +126,7 @@ QOP_gauge_force_multi_qdp(QOP_info_t *info, QDP_ColorMatrix *f[],
 #define NC QDP_get_nc(f[0])
   QDP_Lattice *lat = QDP_get_lattice_M(*chain[0]);
   QDP_Subset all = QDP_all_L(lat);
-  int ndim = QDP_ndim();
+  int ndim = QDP_ndim_L(lat);
   QDP_ColorMatrix *d[ndim];
   int cr = 0;
   for(int i=0; i<n; i++) {

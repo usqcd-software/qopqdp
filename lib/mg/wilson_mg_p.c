@@ -31,6 +31,8 @@
 
 #if QDP_Precision == 1 || QDP_Precision == 'F'
 
+static QDP_Lattice *theLat = NULL;
+
 QOP_WilsonMg *
 QOP_wilsonMgNew(void)
 {
@@ -60,16 +62,16 @@ QOP_wilsonMgNew(void)
 }
 
 static void
-init_level(QOP_WilMgLevel l[], int n)
+init_level(QOP_WilMgLevel l[], int n, QDP_Lattice *lat)
 {
   QOP_printf0("init_level %i\n", n);
   l[n].ndim = 4;
   QOP_malloc(l[n].lattice_size, int, l[n].ndim);
   if(n==0) {
-    l[n].lattice_size[0] = QDP_coord_size(0)/3;
-    l[n].lattice_size[1] = QDP_coord_size(1)/3;
-    l[n].lattice_size[2] = QDP_coord_size(2)/3;
-    l[n].lattice_size[3] = QDP_coord_size(3)/8;
+    l[n].lattice_size[0] = QDP_coord_size_L(lat, 0)/3;
+    l[n].lattice_size[1] = QDP_coord_size_L(lat, 1)/3;
+    l[n].lattice_size[2] = QDP_coord_size_L(lat, 2)/3;
+    l[n].lattice_size[3] = QDP_coord_size_L(lat, 3)/8;
     l[n].nvecs = 24;
     l[n].npre = 0;
     l[n].npost = 5;
@@ -201,8 +203,8 @@ static void
 lex_int(QLA_Int *li, int coords[])
 {
   int t = coords[0];
-  for(int i=1; i<QDP_ndim(); i++) {
-    t = t*QDP_coord_size(i) + coords[i];
+  for(int i=1; i<QDP_ndim_L(theLat); i++) {
+    t = t*QDP_coord_size_L(theLat, i) + coords[i];
   }
   *li = t;
 }
@@ -217,7 +219,9 @@ QOP_randSeed(QDP_RandomState *rs, int seed)
   li = QDP_create_I_L(lat);
 
   TRACE;
+  theLat = lat;
   QDP_I_eq_funct(li, lex_int, all);
+  theLat = NULL;
   TRACE;
   QDP_S_eq_seed_i_I(rs, seed, li, all);
   TRACE;
@@ -688,13 +692,15 @@ static void
 setNumLevels(QOP_WilsonMg *wmg, int nlevels)
 {
   //int ret = wmg->nlevels;
+  QDP_Lattice *lat = QDP_D_get_lattice_M(wmg->wilD->links[0]);
+
   if(nlevels>0) {
     for(int i=nlevels; i<wmg->nlevels; i++) {
       free_level(&wmg->mg[i]);
     }
     wmg->mg = realloc(wmg->mg, nlevels*sizeof(QOP_WilMgLevel));
     for(int i=wmg->nlevels; i<nlevels; i++) {
-      init_level(wmg->mg, i);
+      init_level(wmg->mg, i, lat);
     }
     wmg->nlevels = nlevels;
   }
