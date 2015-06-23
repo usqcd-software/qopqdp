@@ -723,7 +723,7 @@ void QOP_F1_wilson_ifla_dslash_qdp(QOP_info_t *info,
 #ifndef _QOP_1_MG
 #define _QOP_1_MG
 typedef struct QOP_1_WilsonMgStruct QOP_1_WilsonMg;
-QOP_1_WilsonMg *QOP_1_wilsonMgNew(void);
+QOP_1_WilsonMg *QOP_1_wilsonMgNew(QDP_Lattice *lat);
 void QOP_1_wilsonMgFree(QOP_1_WilsonMg *wmg);
 void QOP_1_wilsonMgSet(QOP_1_WilsonMg *wmg, int l, char *s, double val);
 void QOP_1_wilsonMgSetArray(QOP_1_WilsonMg *wmg, int l, char *s, double *vals, int nval);

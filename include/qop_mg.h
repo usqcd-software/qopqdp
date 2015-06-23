@@ -1,6 +1,6 @@
 typedef struct QOP_WilsonMgStruct QOP_WilsonMg;
 
-QOP_WilsonMg *QOP_wilsonMgNew(void);
+QOP_WilsonMg *QOP_wilsonMgNew(QDP_Lattice *lat);
 void QOP_wilsonMgFree(QOP_WilsonMg *wmg);
 void QOP_wilsonMgSet(QOP_WilsonMg *wmg, int l, char *s, double val);
 void QOP_wilsonMgSetArray(QOP_WilsonMg *wmg, int l, char *s, double *vals, int nval);

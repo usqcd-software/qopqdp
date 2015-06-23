@@ -542,11 +542,12 @@ QOP_rephase_G(QOP_GaugeField *links,
   nd = QDP_ndim_L(lat);
   //links->scale = scale;
   //links->chained = 1;
-#define copyarray(d,s,t,n) do{ QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t)); }while(0)
+#define copyarray(d,s,t,n) do{ if (s) {QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t));} else d = NULL; }while(0)
   copyarray(links->r0, r0, int, nd);
   copyarray(links->bc.phase, bc->phase, QOP_Complex, nd);
   copyarray(links->sign.signmask, sign->signmask, int, nd);
   scale(links->links, links, 0);
+#undef copyarray
 }
 
 void
@@ -560,11 +561,12 @@ QOP_rephase_G_qdp(QDP_ColorMatrix *links[],
   QOP_GaugeField g;
   //links->scale = scale;
   //links->chained = 1;
-#define copyarray(d,s,t,n) do{ QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t)); }while(0)
+#define copyarray(d,s,t,n) do{ if (s) {QOP_malloc(d,t,n); memcpy(d,s,(n)*sizeof(t));} else d = NULL; }while(0)
   copyarray(g.r0, r0, int, nd);
   copyarray(g.bc.phase, bc->phase, QOP_Complex, nd);
   copyarray(g.sign.signmask, sign->signmask, int, nd);
   scale(links, &g, 0);
+#undef copyarray
 }
 
 // qll routines

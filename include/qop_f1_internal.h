@@ -384,6 +384,7 @@ void QOP_F1_wilEoReconstructPV2(QDP_FN_ColorVector *out[2], QDP_FN_ColorVector *
 //struct QOP_WilMgLevel;
 
 struct QOP_1_WilsonMgStruct {
+  QDP_Lattice *qdp_lattice;
   QOP_F1_FermionLinksWilson *wilF;
   QOP_D1_FermionLinksWilson *wilD;
   QLA_F_Real kappa;

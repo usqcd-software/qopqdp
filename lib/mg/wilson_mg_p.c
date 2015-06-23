@@ -34,7 +34,7 @@
 static QDP_Lattice *theLat = NULL;
 
 QOP_WilsonMg *
-QOP_wilsonMgNew(void)
+QOP_wilsonMgNew(QDP_Lattice *lat)
 {
   QOP_WilsonMg *QOP_malloc(wmg, QOP_WilsonMg, 1);
   wmg->wilD = NULL;
@@ -53,6 +53,7 @@ QOP_wilsonMgNew(void)
   wmg->gcrF = NULL;
   wmg->gcrD = NULL;
   wmg->ngcr = 8;
+  wmg->qdp_lattice = lat; /* Ugly */
 #if QOP_Colors == 'N'
   wmg->nc = -1;
 #else
@@ -382,7 +383,7 @@ create_level(QOP_WilsonMg *wmg, int n)
       }
     }
 
-    lat0 = QDP_get_default_lattice();
+    lat0 = wmg->qdp_lattice;
 #ifdef SPLIT_CHIRALITIES
 #ifdef EO_PREC
     l[n].vcop = QOPFC(wilEoV2);
@@ -692,7 +693,7 @@ static void
 setNumLevels(QOP_WilsonMg *wmg, int nlevels)
 {
   //int ret = wmg->nlevels;
-  QDP_Lattice *lat = QDP_D_get_lattice_M(wmg->wilD->links[0]);
+  QDP_Lattice *lat = wmg->qdp_lattice;
 
   if(nlevels>0) {
     for(int i=nlevels; i<wmg->nlevels; i++) {
