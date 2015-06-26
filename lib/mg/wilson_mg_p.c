@@ -684,7 +684,7 @@ create_level(QOP_WilsonMg *wmg, int n)
 static void
 free_level(QOP_WilMgLevel *l)
 {
-  QOP_printf0("*** freeing level %p ***\n", l);
+  //QOP_printf0("*** freeing level %p ***\n", l);
   QOP_free(l->lattice_size);
   // FIXME
 }
