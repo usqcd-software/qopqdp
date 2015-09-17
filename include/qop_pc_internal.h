@@ -371,8 +371,6 @@ void QOP_IPC_wilEoProjectV2(QDP_N_ColorVector *ineo[2], QDP_N_ColorVector *in[2]
 void QOP_IPC_wilEoReconstructV2(QDP_N_ColorVector *out[2], QDP_N_ColorVector *outeo[2], QDP_N_ColorVector *in[2], void *args);
 void QOP_IPC_wilEoReconstructPV2(QDP_N_ColorVector *out[2], QDP_N_ColorVector *outeo[2], QDP_N_ColorVector *in[2], void *args);
 
-#endif // HAVE_NCN
-
 #ifndef _QOP_C_MG_INTERNAL
 #define _QOP_C_MG_INTERNAL
 
@@ -400,6 +398,8 @@ struct QOP_C_WilsonMgStruct {
 };
 
 #endif // _QOP_C_MG_INTERNAL
+
+#endif // HAVE_NCN
 
 #if QOP_Precision == _QOP_Precision
 #  if QOP_Colors == _QOP_Colors
