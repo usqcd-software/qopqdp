@@ -416,7 +416,8 @@ QOP_wilson_invert_qdp(QOP_info_t *info,
   res_arg->rsqmin = rsqminold;
   res_arg->relmin = relminold;
   res_arg->final_iter = iter;
-  res_arg->final_rsq = rsq/insq;
+  if(insq == 0.)res_arg->final_rsq = 0;
+  else res_arg->final_rsq = rsq/insq;
   res_arg->final_rel = relnorm2;
   res_arg->final_restart = nrestart;
 
@@ -690,7 +691,8 @@ QOP_wilson_invert_multi_ne_qdp(QOP_info_t *info,
   res_arg->rsqmin = rsqminold;
   res_arg->relmin = relminold;
   res_arg->final_iter = iter;
-  res_arg->final_rsq = rsq/insq;
+  if(insq == 0.)res_arg->final_rsq = 0;
+  else res_arg->final_rsq = rsq/insq;
   res_arg->final_rel = relnorm2;
   res_arg->final_restart = nrestart;
 

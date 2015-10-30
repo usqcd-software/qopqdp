@@ -373,8 +373,6 @@ void QOP_D3_wilEoProjectV2(QDP_DN_ColorVector *ineo[2], QDP_DN_ColorVector *in[2
 void QOP_D3_wilEoReconstructV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *outeo[2], QDP_DN_ColorVector *in[2], void *args);
 void QOP_D3_wilEoReconstructPV2(QDP_DN_ColorVector *out[2], QDP_DN_ColorVector *outeo[2], QDP_DN_ColorVector *in[2], void *args);
 
-#endif // HAVE_NCN
-
 #ifndef _QOP_3_MG_INTERNAL
 #define _QOP_3_MG_INTERNAL
 
@@ -403,6 +401,8 @@ struct QOP_3_WilsonMgStruct {
 };
 
 #endif // _QOP_3_MG_INTERNAL
+
+#endif // HAVE_NCN
 
 #if QOP_Precision == 'D'
 #  if QOP_Colors == 3
