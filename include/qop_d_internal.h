@@ -222,4 +222,10 @@ void fromQDPD(QLA_Real *yy, void *l, QLA_Real *xx, QDP_Lattice *lat, int nelem);
 
 #endif // HAVE_QLL
 
+#ifdef HAVE_QUDA
+
+void setup_qudaD(QDP_Lattice *lat);
+
+#endif // HAVE_QUDA
+
 #endif /* _QOP_D_INTERNAL_H */

@@ -427,4 +427,17 @@ void fat7_qllD3(void *qllfl, void *qllll, QOP_asqtad_coeffs_t *coef,
 
 #endif // HAVE_QLL
 
+#ifdef HAVE_QUDA
+
+void setup_quda_solverD3(QOP_FermionLinksAsqtad *fla);
+void free_quda_solverD3(void);
+void solve_qudaD3(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
+		     QOP_invert_arg_t *invarg, QOP_resid_arg_t *resarg,
+		     QOP_evenodd_t eo);
+void solveMulti_qudaD3(QDP_ColorVector *dest[], QDP_ColorVector *src,
+			  double ms[], int nm,  QOP_invert_arg_t *invarg,
+			  QOP_resid_arg_t *resargs[]);
+
+#endif // HAVE_QUDA
+
 #endif /* _QOP_D3_INTERNAL_H */

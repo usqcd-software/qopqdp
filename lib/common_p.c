@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <qop_internal.h>
+#include <math.h>
 
 // helpers
 
@@ -538,6 +539,28 @@ QOP_rephase_G_qdp(QDP_ColorMatrix *links[],
   scale(links, &g, 0);
 }
 
+static void
+get_rankGeom(QDP_Lattice *lat, int myrank, int nd, int *ls, int *rg)
+{
+  int n = QDP_numsites_L(lat, myrank);
+  int xmin[nd], xmax[nd];
+  for(int i=0; i<nd; i++) {
+    xmin[i] = ls[i];
+    xmax[i] = 0;
+  }
+  for(int i=0; i<n; i++) {
+    int x[nd];
+    QDP_get_coords(x, myrank, i);
+    for(int j=0; j<nd; j++) {
+      if(x[j]<xmin[j]) xmin[j] = x[j];
+      if(x[j]>xmax[j]) xmax[j] = x[j];
+    }
+  }
+  for(int i=0; i<nd; i++) {
+    rg[i] = ls[i]/(1+xmax[i]-xmin[i]);
+  }
+}
+
 // qll routines
 #ifdef HAVE_QLL
 
@@ -563,36 +586,14 @@ typedef double real;
 
 #if QOP_Colors == 3
 
-static int setup = 0;
-static Layout layout;
-
-static void
-get_rankGeom(QDP_Lattice *lat, int myrank, int nd, int *ls, int *rg)
-{
-  int n = QDP_numsites_L(lat, myrank);
-  int xmin[nd], xmax[nd];
-  for(int i=0; i<nd; i++) {
-    xmin[i] = ls[i];
-    xmax[i] = 0;
-  }
-  for(int i=0; i<n; i++) {
-    int x[nd];
-    QDP_get_coords(x, myrank, i);
-    for(int j=0; j<nd; j++) {
-      if(x[j]<xmin[j]) xmin[j] = x[j];
-      if(x[j]>xmax[j]) xmax[j] = x[j];
-    }
-  }
-  for(int i=0; i<nd; i++) {
-    rg[i] = ls[i]/(1+xmax[i]-xmin[i]);
-  }
-}
+static int qll_setup = 0;
+static Layout qll_layout;
 
 void
 setup_qll(QDP_Lattice *lat)
 {
-  if(!setup) {
-    setup = 1;
+  if(!qll_setup) {
+    qll_setup = 1;
     layout.nranks = QMP_get_number_of_nodes();
     layout.myrank = QMP_get_node_number();
     int nd = QDP_ndim_L(lat);
@@ -893,7 +894,7 @@ solve_qll(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
 void
 solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
 	       int nm,  QOP_invert_arg_t *invarg,
-		  QOP_resid_arg_t *resargs[])
+	       QOP_resid_arg_t *resargs[])
 {
   Layout *layout = (Layout *)P(get_qll_layout)();
   QLA_Real *s = myalloc(layout->nSites*6*sizeof(QLA_Real));
@@ -917,3 +918,127 @@ solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
 }
 
 #endif // HAVE_QLL
+
+#ifdef HAVE_QUDA
+#include <quda_milc_interface.h>
+
+static int quda_setup = 0;
+static QOP_FermionLinksAsqtad *quda_fla = NULL;
+
+void
+setup_quda(QDP_Lattice *lat)
+{
+  if(!quda_setup) {
+    quda_setup = 1;
+    //int nranks = QMP_get_number_of_nodes();
+    int myrank = QMP_get_node_number();
+    //int nd = QDP_ndim_L(lat);
+    static int ls[4], rg[4];
+    QDP_latsize_L(lat, ls);
+    get_rankGeom(lat, myrank, 4, ls, rg);
+
+    QudaInitArgs_t init_args;
+    switch(QOP_common.verbosity) {
+    case QOP_VERB_OFF: init_args.verbosity = QUDA_SILENT; break;
+    case QOP_VERB_LOW: init_args.verbosity = QUDA_SUMMARIZE; break;
+    case QOP_VERB_MED: init_args.verbosity = QUDA_VERBOSE; break;
+    case QOP_VERB_HI: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
+    case QOP_VERB_DEBUG: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
+    }
+    init_args.layout.device = 0; // only valid for single-gpu build
+    init_args.layout.latsize = ls;
+    init_args.layout.machsize = rg;
+    qudaInit(init_args);
+    //printf("done %s\n", __func__);
+  }
+}
+
+void
+setup_quda_solver(QOP_FermionLinksAsqtad *fla)
+{
+  quda_fla = fla;
+}
+
+void
+free_quda_solver(void)
+{
+}
+
+static QLA_Real *
+getLinks(QDP_ColorMatrix *links[])
+{
+#define NC QDP_get_nc(links[0])
+  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
+  int lv = QDP_subset_len(QDP_all_L(lat));
+  int len = 4*lv;
+  QLA_ColorMatrix *r, *l[4];
+  QOP_malloc(r, QLA_ColorMatrix, len);
+  for(int mu=0; mu<4; mu++) {
+    l[mu] = QDP_expose_M(links[mu]);
+  }
+  QLA_Real two = 2.0;
+  for(int s=0; s<lv; s++) {
+    for(int mu=0; mu<4; mu++) {
+      QLA_M_eq_r_times_M(&r[4*s+mu], &two, &l[mu][s]);
+    }
+  }
+  for(int mu=0; mu<4; mu++) {
+    QDP_reset_M(links[mu]);
+  }
+  return (QLA_Real*) r;
+#undef NC
+}
+
+void
+solve_quda(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
+	   QOP_invert_arg_t *invarg, QOP_resid_arg_t *resarg, QOP_evenodd_t eo)
+{
+  QudaInvertArgs_t inv_args;
+  if(eo==QOP_EVEN) {
+    inv_args.evenodd = QUDA_EVEN_PARITY;
+  } else {
+    inv_args.evenodd = QUDA_ODD_PARITY;
+  }
+
+  inv_args.max_iter = invarg->max_iter;
+  //inv_args.mixed_precision = 1;
+  inv_args.mixed_precision = 0;
+
+  QLA_Real *fatlink = getLinks(quda_fla->fatlinks);
+  QLA_Real *longlink = getLinks(quda_fla->longlinks);
+  QLA_Real *t_src = QDP_expose_V(src);
+  QLA_Real *t_dest = QDP_expose_V(dest);
+
+  const int quda_precision = QOP_PrecisionInt;
+  double u0 = 1;
+  double residual, relative_residual;
+  int num_iters;
+
+  qudaInvert(QOP_PrecisionInt,
+             quda_precision, 
+             mass,
+             inv_args,
+             sqrt(resarg->rsqmin),
+             resarg->relmin,
+             fatlink, 
+             longlink,
+             u0,
+             t_src, 
+             t_dest,
+             &residual,
+             &relative_residual, 
+             &num_iters);
+
+  resarg->final_rsq = residual*residual;
+  //qic->final_relrsq = relative_residual*relative_residual;
+  resarg->final_iter = num_iters;
+
+  free(fatlink);
+  free(longlink);
+  QDP_reset_V(src);
+  QDP_reset_V(dest);
+  QLA_Real four = 4.0;
+  QDP_V_eq_r_times_V(dest, &four, dest, QDP_all_L(QDP_get_lattice_V(dest)));
+}
+
+#endif // HAVE_QUDA

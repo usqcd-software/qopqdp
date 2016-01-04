@@ -10,6 +10,7 @@
 #define QOP_MgVcycleArgs QOP_D_MgVcycleArgs
 #define QOP_mgVcycle QOP_D_mgVcycle
 #define setup_qll setup_qllD
+#define setup_quda setup_qudaD
 #define toQDP toQDPD
 
 #endif // _QOP_D__IP_GENERIC_H

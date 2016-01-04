@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.20.0, [osborn at alcf.anl.gov])
+AC_INIT(qopqdp, 0.20.1, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 #AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])
@@ -71,6 +71,22 @@ AC_ARG_ENABLE(
 )
 
 AC_ARG_WITH(
+  quda,
+  AC_HELP_STRING([--with-quda=<QUDA dir>],
+    [location of QUDA library]),
+  [QUDADIR="$with_quda"; WITH_QUDA=1]
+)
+AC_SUBST(QUDADIR)
+
+AC_ARG_WITH(
+  cuda,
+  AC_HELP_STRING([--with-cuda=<CUDA dir>],
+    [location of CUDA library]),
+  [CUDADIR="$with_cuda"; WITH_CUDA=1]
+)
+AC_SUBST(CUDADIR)
+
+AC_ARG_WITH(
   qll,
   AC_HELP_STRING([--with-qll=<QLL dir>],
     [location of QLL library]),
@@ -109,6 +125,17 @@ AC_ARG_WITH(
   [QMPDIR="$with_qmp"; WITH_QMP=1]
 )
 AC_SUBST(QMPDIR)
+
+if test -n "$WITH_QUDA"; then
+  AC_DEFINE(HAVE_QUDA, [], [use quda])
+  AC_SUBST(QUDA_CFLAGS, "-I${QUDADIR}/include")
+  AC_SUBST(QUDA_LIBS, "${QUDADIR}/lib/libquda.a")
+  AC_SUBST(CUDA_LIBS, "/usr/local/cuda/lib64/libcudart_static.a -ldl")
+fi
+
+if test -n "$WITH_CUDA"; then
+  AC_SUBST(CUDA_LIBS, "${CUDADIR}/lib64/libcudart_static.a -ldl")
+fi
 
 if test -n "$WITH_QLL"; then
   AC_DEFINE(HAVE_QLL, [], [use qll])
@@ -166,10 +193,16 @@ else
   AC_MSG_WARN([Set environment variables QMP_CFLAGS QMP_LDFAGS QMP_LIBS
     before configure])
 fi
+if set | grep -q '^LD=' ; then
+  AC_SUBST(CCLD, "${LD}")
+  AC_MSG_NOTICE([Using linker: ${LD}])
+else
+  AC_SUBST(CCLD, "${CC}")
+fi
 
-CFLAGS="$CFLAGS $QLL_CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
+CFLAGS="$CFLAGS $QUDA_CFLAGS $QLL_CFLAGS $QDP_CFLAGS $QLA_CFLAGS $QIO_CFLAGS $QMP_CFLAGS"
 LDFLAGS="$LDFLAGS $QDP_LDFLAGS $QLA_LDFLAGS $QIO_LDFLAGS $QMP_LDFLAGS"
-LIBS="$LIBS $QLL_LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS"
+LIBS="$LIBS $QUDA_LIBS $QLL_LIBS $QDP_LIBS $QLA_LIBS $QIO_LIBS $QMP_LIBS $CUDA_LIBS"
 
 # Checks for programs.
 AC_PROG_RANLIB

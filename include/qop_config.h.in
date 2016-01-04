@@ -21,6 +21,9 @@
 /* use qll */
 #undef HAVE_QLL
 
+/* use quda */
+#undef HAVE_QUDA
+
 /* Name of package */
 #undef PACKAGE
 

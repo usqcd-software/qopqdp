@@ -425,4 +425,17 @@ void IPC(fat7_qll)(void *qllfl, void *qllll, QOP_asqtad_coeffs_t *coef,
 
 #endif // HAVE_QLL
 
+#ifdef HAVE_QUDA
+
+void IPC(setup_quda_solver)(QOP_FermionLinksAsqtad *fla);
+void IPC(free_quda_solver)(void);
+void IPC(solve_quda)(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
+		     QOP_invert_arg_t *invarg, QOP_resid_arg_t *resarg,
+		     QOP_evenodd_t eo);
+void IPC(solveMulti_quda)(QDP_ColorVector *dest[], QDP_ColorVector *src,
+			  double ms[], int nm,  QOP_invert_arg_t *invarg,
+			  QOP_resid_arg_t *resargs[]);
+
+#endif // HAVE_QUDA
+
 #endif /* _QOP_PC_INTERNAL_H */

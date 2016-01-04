@@ -9,6 +9,7 @@
 #define fat7_qll fat7_qllD3
 #define free_qll_gauge free_qll_gaugeD3
 #define free_qll_solver free_qll_solverD3
+#define free_quda_solver free_quda_solverD3
 #define QOP_asqtad_create_L_from_L QOP_D3_asqtad_create_L_from_L
 #define QOP_asqtad_create_L_from_r_times_L QOP_D3_asqtad_create_L_from_r_times_L
 #define QOP_asqtad_deriv_multi_fnmat_qdp QOP_D3_asqtad_deriv_multi_fnmat_qdp
@@ -84,7 +85,10 @@
 #define QOP_wilsonDslash QOP_D3_wilsonDslash
 #define QOP_wilson_initialize_gauge_L QOP_D3_wilson_initialize_gauge_L
 #define setup_qll_solver setup_qll_solverD3
+#define setup_quda_solver setup_quda_solverD3
 #define solveMulti_qll solveMulti_qllD3
+#define solveMulti_quda solveMulti_qudaD3
 #define solve_qll solve_qllD3
+#define solve_quda solve_qudaD3
 
 #endif // _QOP_D3__IPC_GENERIC_H

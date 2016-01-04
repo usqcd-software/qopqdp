@@ -1,3 +1,9 @@
+===========================================================================
+2016-01-04      version 0.20.1
+===========================================================================
+2016-01-04:	James Osborn
+	Initial support for QUDA.
+
 2015-06-04:	James Osborn
 	Fixes to staggered and DW solvers.
 	Added version routines.

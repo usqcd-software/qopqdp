@@ -672,6 +672,19 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
   // run preconditioned solve on larger input subset
   if(insqe>=insqo) cgeo = QOP_EVEN;
   else cgeo = QOP_ODD;
+#ifdef HAVE_QUDA
+#if QOP_Colors == 3
+  //printf("ineo: %i  nm: %i\n", ineo, nm);
+  if(QOP_asqtad.cgtype == 3) {
+    //cgeo = QOP_EVEN;
+    QDP_Lattice *lat = QDP_get_lattice_V(in);
+    setup_quda(lat);
+    setup_quda_solver(fla);
+    //P(solve_qll)(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+    //P(free_qll_solver)();
+  }
+#endif
+#endif
   cgsub = qdpsub(cgeo);
   gl_eo = cgeo;
 
@@ -719,8 +732,22 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
       QOP_invert_eigcg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
 			 qdpout, qdpin, cgp, cgsub, &fla->eigcg);
     } else {
-      QOP_invert_cg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
-		      qdpout, qdpin, cgp, cgsub);
+#ifdef HAVE_QUDA
+#if QOP_Colors == 3
+      //printf("ineo: %i  nm: %i\n", ineo, nm);
+      if(QOP_asqtad.cgtype == 3) {
+	//QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
+	//setup_qll(lat);
+	//P(setup_qll_solver)(fla);
+	//solve_qll(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+	//solveMulti_quda(qdpout, qdpin, mass, 1, inv_arg, res_arg);
+	solve_quda(qdpout, qdpin, mass, inv_arg, res_arg, cgeo);
+	//P(free_qll_solver)();
+      } else
+#endif
+#endif
+	QOP_invert_cg_V(QOP_asqtad_invert_d2, inv_arg, res_arg,
+			qdpout, qdpin, cgp, cgsub);
     }
     dtime += QOP_time();
     iter += res_arg->final_iter;
@@ -748,6 +775,19 @@ QOP_asqtad_invert_qdp(QOP_info_t *info,
 	   (inv_arg->max_iter>0) &&
 	   (rsq > rsqstop) &&
 	   (relnorm2 > res_arg->relmin) );
+
+#ifdef HAVE_QUDA
+#if QOP_Colors == 3
+  //printf("ineo: %i  nm: %i\n", ineo, nm);
+  if(QOP_asqtad.cgtype == 3) {
+    //QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
+    //setup_qll(lat);
+    //P(setup_qll_solver)(fla);
+    //P(solve_qll)(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+    free_quda_solver();
+  }
+#endif
+#endif
 
   QDP_V_eq_V(out, qdpout, insub);
 

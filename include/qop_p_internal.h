@@ -220,4 +220,10 @@ void IP(fromQDP)(QLA_Real *yy, void *l, QLA_Real *xx, QDP_Lattice *lat, int nele
 
 #endif // HAVE_QLL
 
+#ifdef HAVE_QUDA
+
+void IP(setup_quda)(QDP_Lattice *lat);
+
+#endif // HAVE_QUDA
+
 #endif /* _QOP_P_INTERNAL_H */
