@@ -716,6 +716,15 @@ void QOP_FN_wilson_ifla_dslash_qdp(QOP_info_t *info,
 				   QOP_evenodd_t eo_out,
 				   QOP_evenodd_t eo_in);
 
+void QOP_FN_wilson_ifla_invert(QOP_info_t *info,
+			       QOP_FN_FermionLinksWilson *flw,
+			       QOP_invert_arg_t *inv_arg,
+			       QOP_resid_arg_t *res_arg,
+			       QOP_F_Real kappa,
+			       QOP_wilson_ifla_coeffs_t *coeffs,
+			       QOP_FN_DiracFermion *out,
+			       QOP_FN_DiracFermion *in);
+
   // MULTIGRID STUFF
 
 #ifndef _QOP_N_MG

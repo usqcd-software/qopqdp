@@ -179,6 +179,7 @@
 #define QOP_wilson_force_prec_multi_qdp QOP_F3_wilson_force_prec_multi_qdp
 #define QOP_wilson_ifla_dslash_qdp QOP_F3_wilson_ifla_dslash_qdp
 #define QOP_wilson_ifla_dslash QOP_F3_wilson_ifla_dslash
+#define QOP_wilson_ifla_invert QOP_F3_wilson_ifla_invert
 #define QOP_wilson_invert_multi_qdp QOP_F3_wilson_invert_multi_qdp
 #define QOP_wilson_invert_multi QOP_F3_wilson_invert_multi
 #define QOP_wilson_invert_ne_qdp QOP_F3_wilson_invert_ne_qdp
