@@ -1,5 +1,8 @@
+2016-02-28:	James Osborn
+	Fixed relnorm2 calculation in asqtad solver.
+
 2016-02-16:	James Osborn
-	Added wilson_ifla_invert pretotype.
+	Added wilson_ifla_invert prototype.
 
 ===========================================================================
 2016-01-04      version 0.20.1

@@ -363,6 +363,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   double mixedrsq = inv_arg->mixed_rsq;
 #endif
 
+  //QOP_verbose(QOP_VERB_HI);
+  
   gl_fla = fla;
   gl_mass = 0;
   gl_eo = ineo;
@@ -437,7 +439,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
   while(1) {
     for(int i=0; i<nsolve; i++) {
       if(res_arg[i]->relmin>0) {
-	res_arg[i]->final_rel = QOP_relnorm2_V(&tv, &out[i], insub, 1);
+	res_arg[i]->final_rel = QOP_relnorm2_V(&r[i], &out[i], insub, 1);
       } else {
 	res_arg[i]->final_rel = 1;
       }
@@ -452,9 +454,9 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
       double r2stopi = r2stop[i];
       double in2i = in2[i];
       if(res_arg[i]->final_rel*r2stopi<r2i*res_arg[i]->relmin) {
-	r2i = res_arg[i]->final_rel;
-	r2stopi = res_arg[i]->relmin;
-	in2i = 1;
+        r2i = res_arg[i]->final_rel;
+        r2stopi = res_arg[i]->relmin;
+        in2i = 1;
       }
       // update if less converged
       double a = r2i*r2stopmax;
@@ -483,8 +485,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
       QDP_V_eq_zero(x[i], QDP_all);
     }
     double rsqminold = res_arg[imax]->rsqmin;
-    //res_arg[imax]->rsqmin = r2stop[imax]/r2[imax];
-    res_arg[imax]->rsqmin = r2stopmax/r2max;
+    res_arg[imax]->rsqmin = r2stop[imax]/r2[imax];
+    //res_arg[imax]->rsqmin = r2stopmax/r2max;
     if(res_arg[imax]->rsqmin>=1) {
       res_arg[imax]->rsqmin = in2max*r2stopmax/r2max;
     }
@@ -536,6 +538,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 #endif
 #endif
 	  {
+	    //QOP_printf0("rsqmin: %g  relmin: %g\n", res_arg[0]->rsqmin, res_arg[0]->relmin);
 	    QOP_invert_cgms_V(QOP_asqtad_invert_d2_norm2, inv_arg, xresarg,
 			      m2s, nm, x, r[imax], cgp, insub);
 	  }
