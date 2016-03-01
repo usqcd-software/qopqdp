@@ -574,7 +574,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     QDP_V_eq_V(out[i], tv, insub);
     res_arg[i]->final_iter = iter;
     res_arg[i]->final_rsq = ( in2[i]>0 ? r2[i]/in2[i] : 0 );
-    res_arg[i]->final_restart = nrestart;
+    res_arg[i]->final_restart = ( nrestart>0 ? nrestart : 0 );
     if(QOP_common.verbosity>=QOP_VERB_MED) {
       QLA_Real o2;
       QDP_r_eq_norm2_V(&o2, out[i], insub);
