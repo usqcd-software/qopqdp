@@ -31,7 +31,9 @@ projectU_site_d(NCPROT1 QLA_D_ColorMatrix(*Ur), QLA_D_ColorMatrix(*U))
 static void
 projectU_site(NCPROT1 QLA_ColorMatrix(*Ur), int i, void *args)
 {
-  QLA_ColorMatrix(*U) = &((QLA_ColorMatrix(*))args)[i];
+  //QLA_ColorMatrix(*U) = &((QLA_ColorMatrix(*))args)[i];
+  QLA_ColorMatrix(*Ux) = (QLA_ColorMatrix(*))args;
+  QLA_ColorMatrix(*U) = &(Ux[i]);
 #if QLA_Precision == 'F'
   QLA_D_ColorMatrix(Ud);
   QLA_D_ColorMatrix(Urd);

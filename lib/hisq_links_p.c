@@ -2,6 +2,8 @@
 /* 10/1/2009 A.Bazavov, modified version from Alan Gray,
                         introduced function to allocate FermionLinksHisq */
 /* 4/23/2011 C. DeTar, simplified the HISQ links structure and API */
+#define TIME
+//#define TIME QOP_printf0("%s: %i: %g\n", __func__, __LINE__, QOP_time()+dtime)
 
 #include <qop_internal.h>
 
@@ -111,9 +113,11 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
   acoeffs3.lepage       = 0;
   acoeffs3.naik         = coeffs->difference_naik;
 
+  TIME;
   // smear gauge with fat7 
   fla = QOP_asqtad_create_L_from_G(info, &acoeffs1, gauge);
   final_flop += info->final_flop;
+  TIME;
 
   // convert fla back to gauge to enable further smearing 
   // since fat7 contains only fat links, can just copy fla->fatlinks to gauge
@@ -124,6 +128,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
     }
   QOP_asqtad_destroy_L(fla);
   final_flop += 198 * QDP_sites_on_node;
+  TIME;
 
   //AB CAREFUL HERE: MAY NEED TO REMOVE PHASES, UNITARIZE
   //   AND THEN PUT PHASES BACK IN
@@ -141,6 +146,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
       final_flop += info->final_flop;
     }
   }
+  TIME;
 
   if(!want_aux){
     destroy_4M(flh->V_links);
@@ -184,6 +190,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
     // 3rd path table set
     flh->fn[0] = QOP_asqtad_create_L_from_G(info, &acoeffs3, qopgf_tmp);
     final_flop += info->final_flop;
+  TIME;
 
     // Copy to fn_deps if we want the derivative wrto epsilon
     if(want_deps)
@@ -198,7 +205,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
       else
 	final_flop += 4*18*QDP_sites_on_node*(n_naiks-1);
     }
-    
+  TIME;    
 
     // dispose Asqtad links object
     QOP_asqtad_destroy_L(flh->fn[0]);
@@ -208,6 +215,7 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
     // 2nd path table set 
     flh->fn[0] = QOP_asqtad_create_L_from_G(info, &acoeffs2, qopgf_tmp);
     final_flop += info->final_flop;
+  TIME;
 
     for( inaik = 1; inaik < n_naiks; inaik++) {
       QOP_asqtad_L_peq_L(flh->fn[inaik], flh->fn[0]);
@@ -224,13 +232,16 @@ QOP_hisq_create_L_from_G(QOP_info_t *info,
 
     flh->fn[0] = QOP_asqtad_create_L_from_G(info, &acoeffs2, qopgf_tmp);
     final_flop += info->final_flop;
+  TIME;
     
     if(want_deps){
       flh->fn_deps = QOP_asqtad_create_L_from_G(info, &acoeffs3, qopgf_tmp);
       final_flop += info->final_flop;
+  TIME;
     }
 
   }
+  TIME;
 
   QOP_destroy_G(qopgf_tmp);
 

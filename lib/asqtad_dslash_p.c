@@ -1,5 +1,7 @@
 //#define DO_TRACE
 #include <qop_internal.h>
+#define TIME
+//#define TIME QOP_printf0("%s: %i: %g\n", __func__, __LINE__, QOP_time()+dtime)
 
 #define dblstore_style(x) ((x)&1)
 
@@ -152,6 +154,7 @@ QOP_asqtad_convert_L_from_qdp(QDP_ColorMatrix *fatlinks[],
 #define NC QDP_get_nc(fatlinks[0])
   int i, nl, nl2;
   QOP_FermionLinksAsqtad *fla;
+  double dtime = -QOP_time();
 
   ASQTAD_DSLASH_BEGIN;
   if(!QOP_asqtad.inited) QOP_asqtad_invert_init();
@@ -170,6 +173,7 @@ QOP_asqtad_convert_L_from_qdp(QDP_ColorMatrix *fatlinks[],
   QOP_malloc(fla->bcklinks, QDP_ColorMatrix *, nl2);
   QOP_malloc(fla->dbllinks, QDP_ColorMatrix *, nl);
   TRACE;
+  TIME;
 
   fla->dblstored = 0;
   for(i=0; i<4; i++) {
@@ -191,10 +195,12 @@ QOP_asqtad_convert_L_from_qdp(QDP_ColorMatrix *fatlinks[],
     }
   }
   TRACE;
+  TIME;
   // scale links
   for(i=0; i<nl2; i++) {
     QLA_Real f = 0.5;
     QDP_M_eq_r_times_M(fla->fwdlinks[i], &f, fla->fwdlinks[i], QDP_all);
+  TIME;
   }
 
   //AB Need to set to NULL explicitly if unused
@@ -206,6 +212,7 @@ QOP_asqtad_convert_L_from_qdp(QDP_ColorMatrix *fatlinks[],
   TRACE;
   fla->eigcg.u = NULL;
   //fla->ofla = NULL;
+  TIME;
 
   TRACE;
   ASQTAD_DSLASH_END;
@@ -455,7 +462,8 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
   //printnorm(gf[0]);
 #ifdef HAVE_QLL
   double nflop = 0;
-  double dtime;
+  double dtime, dtime0;
+  //dtime0 = -QOP_time();
   if(coef->three_staple || coef->naik) {
     nflop = 61632;
   }
@@ -485,11 +493,12 @@ make_imp_links(QOP_info_t *info, QDP_ColorMatrix *fl[], QDP_ColorMatrix *ll[],
     free_qll_gauge(qllll);
   }
 
+  //dtime0 += QOP_time();
   info->final_sec = dtime;
   info->final_flop = nflop*QDP_sites_on_node;
   info->status = QOP_SUCCESS;
-  //QOP_printf0("LLTIME(Fat): time = %g (Asqtad opt) mflops = %g\n", dtime,
-  //info->final_flop/(1e6*dtime));
+  //QOP_printf0("LLTIME0: time = %g\n", dtime0);
+  //QOP_printf0("LLTIME: time = %g\n", dtime);
 
 #else // not HAVE_QLL
 
@@ -686,6 +695,7 @@ QOP_asqtad_create_L_from_r_times_L(QLA_D_Real s,
   QDP_ColorMatrix **fl_src = fla_src->fatlinks;
   QDP_ColorMatrix **ll_src = fla_src->longlinks;
   QDP_ColorMatrix *fl_dst[4], *ll_dst[4];
+  double dtime = -QOP_time();
   ASQTAD_DSLASH_BEGIN;
 
   /* Copy and multiply.  Correct for the 1/2 in source */
@@ -693,9 +703,11 @@ QOP_asqtad_create_L_from_r_times_L(QLA_D_Real s,
     QLA_Real two_s = 2.0 * s;
     fl_dst[i] = QDP_create_M();
     QDP_M_eq_r_times_M(fl_dst[i], &two_s, fl_src[i], QDP_all);
+    TIME;
     if(ll_src) {
       ll_dst[i] = QDP_create_M();
       QDP_M_eq_r_times_M(ll_dst[i], &two_s, ll_src[i], QDP_all);
+    TIME;
     }
   }
 
@@ -704,6 +716,7 @@ QOP_asqtad_create_L_from_r_times_L(QLA_D_Real s,
     fla = QOP_asqtad_convert_L_from_qdp(fl_dst, ll_dst);
   else
     fla = QOP_asqtad_convert_L_from_qdp(fl_dst, NULL);
+    TIME;
 
   ASQTAD_DSLASH_END;
   return fla;
