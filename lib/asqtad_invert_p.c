@@ -425,14 +425,14 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 
 #ifdef HAVE_QLL
 #if QOP_Colors == 3
-	//printf("ineo: %i  nm: %i\n", ineo, nm);
-	if(QOP_asqtad.cgtype == 2 && ineo == QOP_EVEN) {
-	  QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
-	  setup_qll(lat);
-	  setup_qll_solver(fla);
-	  //P(solve_qll)(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
-	  //P(free_qll_solver)();
-	}
+  //printf("ineo: %i  nm: %i\n", ineo, nm);
+  if(QOP_asqtad.cgtype == 2 && ineo == QOP_EVEN) {
+    QDP_Lattice *lat = QDP_get_lattice_V(x[0]);
+    setup_qll(lat);
+    setup_qll_solver(fla);
+    //P(solve_qll)(x[0], r[imax], gl_mass, inv_arg, xresarg[0]);
+    //P(free_qll_solver)();
+  }
 #endif
 #endif
 

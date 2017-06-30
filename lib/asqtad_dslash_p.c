@@ -3,6 +3,8 @@
 #define TIME
 //#define TIME QOP_printf0("%s: %i: %g\n", __func__, __LINE__, QOP_time()+dtime)
 
+#undef HAVE_QLL
+
 #define dblstore_style(x) ((x)&1)
 
 extern QOP_asqtad_t QOP_asqtad;

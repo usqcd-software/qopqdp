@@ -594,13 +594,13 @@ setup_qll(QDP_Lattice *lat)
 {
   if(!qll_setup) {
     qll_setup = 1;
-    layout.nranks = QMP_get_number_of_nodes();
-    layout.myrank = QMP_get_node_number();
+    qll_layout.nranks = QMP_get_number_of_nodes();
+    qll_layout.myrank = QMP_get_node_number();
     int nd = QDP_ndim_L(lat);
     int ls[nd], rg[nd];
     QDP_latsize_L(lat, ls);
-    get_rankGeom(lat, layout.myrank, nd, ls, rg);
-    P(stagDslashSetup)(&layout, nd, ls, rg);
+    get_rankGeom(lat, qll_layout.myrank, nd, ls, rg);
+    P(stagDslashSetup)(&qll_layout, nd, ls, rg);
     //printf("done %s\n", __func__);
   }
 }
@@ -608,7 +608,7 @@ setup_qll(QDP_Lattice *lat)
 void *
 get_qll_layout(void)
 {
-  return (void *)&layout;
+  return (void *)&qll_layout;
 }
 
 void
