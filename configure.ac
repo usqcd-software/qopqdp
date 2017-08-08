@@ -1,4 +1,4 @@
-AC_INIT(qopqdp, 0.20.1, [osborn at alcf.anl.gov])
+AC_INIT(qopqdp, 0.21.0, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 #AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])
@@ -15,11 +15,11 @@ AC_ARG_ENABLE(
   AC_SUBST(NC, [$enableval]),
   AC_SUBST(NC, [all])
 )
-if test "X$NC" = X; then NC="all"; fi 
+if test "X$NC" = X; then NC="all"; fi
 #for n in `echo $NC |tr , ' '`; do
 if test "X$NC" = Xn; then NC="N"; fi
 if test `expr $NC : '[0-9]*$' \& $NC \> 3` -ne 0; then NC="N"; fi
-if test "X$NC" != X1 -a "X$NC" != X2 -a "X$NC" != X3 -a "X$NC" != XN; then NC="all"; fi 
+if test "X$NC" != X1 -a "X$NC" != X2 -a "X$NC" != X3 -a "X$NC" != XN; then NC="all"; fi
 AM_CONDITIONAL(NC1, [test "X$NC" = "X1" -o "X$NC" = "Xall"])
 AM_CONDITIONAL(NC2, [test "X$NC" = "X2" -o "X$NC" = "Xall"])
 AM_CONDITIONAL(NC3, [test "X$NC" = "X3" -o "X$NC" = "Xall"])

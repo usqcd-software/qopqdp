@@ -1,3 +1,21 @@
+===========================================================================
+2017-08-08      version 0.21.0
+===========================================================================
+2017-08-08:	James Osborn
+	fix link order for CUDA
+
+2017-06-30:	James Osborn
+    	fix qll solver
+
+2016-11-24:	James Osborn
+	workaround bug in xlc
+
+2016-03-01:	James Osborn
+	Fixed final_restart to not return -1.
+
+2016-02-29:	James Osborn
+    	avoid possible nan in final resid calculation
+
 2016-02-28:	James Osborn
 	Fixed relnorm2 calculation in asqtad solver.
 
