@@ -40,10 +40,12 @@ QOP_asqtad_invert_init(void)
   QOP_asqtad.nsvec = 8;
   QOP_asqtad.nvec = 8;
   QOP_asqtad.optnum = OPTNUM;
+  QOP_asqtad.cgtype = 0;
 #ifdef HAVE_QLL
   QOP_asqtad.cgtype = 2;
-#else
-  QOP_asqtad.cgtype = 0;
+#endif
+#ifdef HAVE_QUDA
+  QOP_asqtad.cgtype = 3;
 #endif
   QOP_asqtad.eigcg_nev = 10;
   QOP_asqtad.eigcg_m = 100;

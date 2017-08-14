@@ -920,6 +920,7 @@ solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
 #endif // HAVE_QLL
 
 #ifdef HAVE_QUDA
+#if QOP_Colors == 3
 #include <quda_milc_interface.h>
 
 static int quda_setup = 0;
@@ -968,22 +969,35 @@ static QLA_Real *
 getLinks(QDP_ColorMatrix *links[])
 {
 #define NC QDP_get_nc(links[0])
-  QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
-  int lv = QDP_subset_len(QDP_all_L(lat));
-  int len = 4*lv;
-  QLA_ColorMatrix *r, *l[4];
-  QOP_malloc(r, QLA_ColorMatrix, len);
-  for(int mu=0; mu<4; mu++) {
-    l[mu] = QDP_expose_M(links[mu]);
-  }
-  QLA_Real two = 2.0;
-  for(int s=0; s<lv; s++) {
+  QLA_ColorMatrix *r;
+  if(links) {
+    QDP_Lattice *lat = QDP_get_lattice_M(links[0]);
+    int lv = QDP_subset_len(QDP_all_L(lat));
+    int len = 4*lv;
+    QLA_ColorMatrix *l[4];
+    QOP_malloc(r, QLA_ColorMatrix, len);
     for(int mu=0; mu<4; mu++) {
-      QLA_M_eq_r_times_M(&r[4*s+mu], &two, &l[mu][s]);
+      l[mu] = QDP_expose_M(links[mu]);
     }
-  }
-  for(int mu=0; mu<4; mu++) {
-    QDP_reset_M(links[mu]);
+    QLA_Real two = 2.0;
+    for(int s=0; s<lv; s++) {
+      for(int mu=0; mu<4; mu++) {
+	QLA_M_eq_r_times_M(&r[4*s+mu], &two, &l[mu][s]);
+      }
+    }
+    for(int mu=0; mu<4; mu++) {
+      QDP_reset_M(links[mu]);
+    }
+  } else {
+    QDP_Lattice *lat = QDP_get_lattice_M(quda_fla->fatlinks[0]);
+    int lv = QDP_subset_len(QDP_all_L(lat));
+    int len = 4*lv;
+    QOP_malloc(r, QLA_ColorMatrix, len);
+    for(int s=0; s<lv; s++) {
+      for(int mu=0; mu<4; mu++) {
+	QLA_M_eq_zero(&r[4*s+mu]);
+      }
+    }
   }
   return (QLA_Real*) r;
 #undef NC
@@ -1015,18 +1029,18 @@ solve_quda(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
   int num_iters;
 
   qudaInvert(QOP_PrecisionInt,
-             quda_precision, 
+             quda_precision,
              mass,
              inv_args,
              sqrt(resarg->rsqmin),
              resarg->relmin,
-             fatlink, 
+             fatlink,
              longlink,
              u0,
-             t_src, 
+             t_src,
              t_dest,
              &residual,
-             &relative_residual, 
+             &relative_residual,
              &num_iters);
 
   resarg->final_rsq = residual*residual;
@@ -1042,3 +1056,4 @@ solve_quda(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
 }
 
 #endif // HAVE_QUDA
+#endif // QOP_Colors == 3
