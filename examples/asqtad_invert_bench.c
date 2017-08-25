@@ -15,6 +15,7 @@ static double naik=0.1;
 static int nthreads=0;
 static double mixedrsq=1e9;
 static int profile=0;
+static int subeven=0;
 
 static const int sta[] = {0, 1};
 //static const int sta[] = {1};
@@ -129,8 +130,8 @@ start(void)
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.max_restarts = 5;
-  inv_arg.evenodd = QOP_EVEN;
-  //inv_arg.evenodd = QOP_EVENODD;
+  inv_arg.evenodd = QOP_EVENODD;
+  if(subeven) inv_arg.evenodd = QOP_EVEN;
   inv_arg.mixed_rsq = mixedrsq;
 
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
@@ -253,6 +254,7 @@ main(int argc, char *argv[])
     case 'b' : bsmin=atoi(&argv[i][1]); break;
     case 'B' : bsmax=atoi(&argv[i][1]); break;
     case 'c' : cgtype=atoi(&argv[i][1]); break;
+    case 'e' : subeven=1; break;
     case 'k' : naik=atof(&argv[i][1]); break;
     case 'm' : mass=atof(&argv[i][1]); break;
     case 'n' : nit=atoi(&argv[i][1]); break;
