@@ -883,7 +883,8 @@ solve_qll(QDP_ColorVector *dest, QDP_ColorVector *src, double mass,
   PC(packV)(layout, s, src);
   PC(packV)(layout, d, dest);
   double rsq = res_arg->rsqmin;
-  int maxits = inv_arg->max_iter;
+  //int maxits = inv_arg->max_iter;
+  int maxits = inv_arg->restart;
   int its = P(solve2)(&sse, d, mass, s, rsq, maxits, "even");
   res_arg->final_iter = its;
   PC(unpackV)(layout, dest, d);
