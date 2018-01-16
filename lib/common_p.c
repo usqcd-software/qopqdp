@@ -153,6 +153,9 @@ QOP_destroy_G(QOP_GaugeField *field)
     QDP_destroy_M(field->links[i]);
   }
   free(field->links);
+  if (field->r0) free(field->r0);
+  if (field->bc.phase) free(field->bc.phase);
+  if (field->sign.signmask) free(field->sign.signmask);
   free(field);
 }
 

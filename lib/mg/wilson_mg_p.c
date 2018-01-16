@@ -688,6 +688,60 @@ free_level(QOP_WilMgLevel *l)
   //QOP_printf0("*** freeing level %p ***\n", l);
   QOP_free(l->lattice_size);
   // FIXME
+
+  if (l->vca) {
+    if (l->vca->r) {
+      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->r[i]);
+      QOP_free(l->vca->r);
+    }
+
+    if (l->vca->p) {
+      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->p[i]);
+      QOP_free(l->vca->p);
+    }
+    if (l->vca->Ap) {
+      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->Ap[i]);
+      QOP_free(l->vca->Ap);
+    }
+    QOP_free(l->vca);
+    l->vca = NULL;
+  }
+
+  if (l->cfoa) {
+    if (l->cfoa->fin) {
+      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->cfoa->fin[i]);
+      QOP_free(l->cfoa->fin);
+    }
+    if (l->cfoa->fout) {
+      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->cfoa->fout[i]);
+      QOP_free(l->cfoa->fout);
+    }
+    QOP_free(l->cfoa);
+    l->cfoa = NULL;
+  }
+
+  if (l->fcoa) {
+    if (l->fcoa->cin) {
+      for (int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->fcoa->cin[i]);
+      QOP_free(l->fcoa->cin);
+    }
+    if (l->fcoa->cout) {
+      for (int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->fcoa->cout[i]);
+      QOP_free(l->fcoa->cout);
+    }
+    QOP_free(l->fcoa);
+    l->fcoa = NULL;
+  }
+
+  if (l->gcrc) {
+    QOP_F_gcrFree(l->gcrc);
+    l->gcrc = NULL;
+  }
+
+  if (l->gcrf) {
+    QOP_F_gcrFree(l->gcrf);
+    l->gcrf = NULL;
+  }
 }
 
 static void
@@ -712,10 +766,10 @@ setNumLevels(QOP_WilsonMg *wmg, int nlevels)
 void
 QOP_wilsonMgFree(QOP_WilsonMg *wmg)
 {
-  for(int i=0; i<wmg->nlevels; i++) {
-    free_level(&wmg->mg[i]);
-  }
   if(wmg->mg) {
+    for(int i=0; i<wmg->nlevels; i++) {
+      free_level(&wmg->mg[i]);
+    }
     QOP_free(wmg->mg);
   }
   if(wmg->wilF_priv) {
