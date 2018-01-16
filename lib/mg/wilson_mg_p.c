@@ -39,6 +39,7 @@ QOP_wilsonMgNew(QDP_Lattice *lat)
   QOP_WilsonMg *QOP_malloc(wmg, QOP_WilsonMg, 1);
   wmg->wilD = NULL;
   wmg->wilF = NULL;
+  wmg->wilF_priv = NULL;
   wmg->kappa = 0;
   wmg->kappanv = 0;
   wmg->vcwaF.wil = NULL;
@@ -717,6 +718,9 @@ QOP_wilsonMgFree(QOP_WilsonMg *wmg)
   if(wmg->mg) {
     QOP_free(wmg->mg);
   }
+  if(wmg->wilF_priv) {
+    QOP_F_wilson_destroy_L(wmg->wilF_priv);
+  }
   //QOP_gcrFree(gcro);
   QOP_free(wmg);
 }
@@ -809,6 +813,9 @@ void
 QOP_wilsonMgSetLinks(QOP_WilsonMg *wmg, QOP_FermionLinksWilson *wild)
 {
   QOP_F_FermionLinksWilson *wil = QOP_FD_wilson_create_L_from_L(wild);
+  if (wmg->wilF_priv)
+    QOP_F_wilson_destroy_L(wmg->wilF_priv);
+  wmg->wilF_priv = wil;
   wmg->wilF = wil;
   wmg->vcwaF.wil = wil;
   wmg->nvwaF.wil = wil;
