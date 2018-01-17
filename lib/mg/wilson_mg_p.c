@@ -689,22 +689,17 @@ free_level(QOP_WilMgLevel *l)
   QOP_free(l->lattice_size);
   // FIXME
 
-  if (l->vca) {
-    if (l->vca->r) {
-      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->r[i]);
-      QOP_free(l->vca->r);
+  if (l->sa) {
+    if (l->sa->ineo) {
+      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->sa->ineo[i]);
+      QOP_free(l->sa->ineo);
     }
-
-    if (l->vca->p) {
-      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->p[i]);
-      QOP_free(l->vca->p);
+    if (l->sa->outeo) {
+      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->sa->outeo[i]);
+      QOP_free(l->sa->outeo);
     }
-    if (l->vca->Ap) {
-      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->Ap[i]);
-      QOP_free(l->vca->Ap);
-    }
-    QOP_free(l->vca);
-    l->vca = NULL;
+    QOP_free(l->sa);
+    l->sa = NULL;
   }
 
   if (l->cfoa) {
@@ -733,6 +728,24 @@ free_level(QOP_WilMgLevel *l)
     l->fcoa = NULL;
   }
 
+  if (l->vca) {
+    if (l->vca->r) {
+      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->r[i]);
+      QOP_free(l->vca->r);
+    }
+
+    if (l->vca->p) {
+      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->p[i]);
+      QOP_free(l->vca->p);
+    }
+    if (l->vca->Ap) {
+      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->Ap[i]);
+      QOP_free(l->vca->Ap);
+    }
+    QOP_free(l->vca);
+    l->vca = NULL;
+  }
+
   if (l->gcrc) {
     QOP_F_gcrFree(l->gcrc);
     l->gcrc = NULL;
@@ -742,6 +755,25 @@ free_level(QOP_WilMgLevel *l)
     QOP_F_gcrFree(l->gcrf);
     l->gcrf = NULL;
   }
+  if (l->mgargs) {
+    QOP_F_mgFreeArgs(l->mgargs);
+    l->mgargs = NULL;
+  }
+
+  if (l->dargs) {
+    QOP_F_mgFreeDslash(l->dargs);
+    l->dargs = NULL;
+  }
+
+  if (l->mgblock) {
+    QOP_mgFreeBlock(l->mgblock);    // also destroys l->lattice
+    l->mgblock = NULL;
+  }
+  // sic! l->lattice is destroyed by QOP_mgFreeBlock
+//  if (l->lattice) {
+//    QDP_destroy_lattice(l->lattice); 
+//    l->lattice = NULL;
+//  }
 }
 
 static void
@@ -776,6 +808,14 @@ QOP_wilsonMgFree(QOP_WilsonMg *wmg)
     QOP_F_wilson_destroy_L(wmg->wilF_priv);
   }
   //QOP_gcrFree(gcro);
+  if (wmg->gcrF) {
+    QOP_F_gcrFree(wmg->gcrF);
+    wmg->gcrF = NULL;
+  }
+  if (wmg->gcrD) {
+    QOP_D_gcrFree(wmg->gcrD);
+    wmg->gcrD = NULL;
+  }
   QOP_free(wmg);
 }
 
