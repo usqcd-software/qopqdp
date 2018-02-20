@@ -128,7 +128,6 @@ init_level(QOP_WilMgLevel l[], int n, QDP_Lattice *lat)
   l[n].sa = NULL;
   l[n].fcoa = NULL;
   l[n].gcrf = NULL;
-  l[n].vca = NULL;
 }
 
 static QLA_Real
@@ -691,11 +690,11 @@ free_level(QOP_WilMgLevel *l)
 
   if (l->sa) {
     if (l->sa->ineo) {
-      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->sa->ineo[i]);
+      for(int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->sa->ineo[i]);
       QOP_free(l->sa->ineo);
     }
     if (l->sa->outeo) {
-      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->sa->outeo[i]);
+      for(int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->sa->outeo[i]);
       QOP_free(l->sa->outeo);
     }
     QOP_free(l->sa);
@@ -704,11 +703,11 @@ free_level(QOP_WilMgLevel *l)
 
   if (l->cfoa) {
     if (l->cfoa->fin) {
-      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->cfoa->fin[i]);
+      for(int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->cfoa->fin[i]);
       QOP_free(l->cfoa->fin);
     }
     if (l->cfoa->fout) {
-      for(int i ; i < l->nv ; i++) QDP_FN_destroy_V(l->cfoa->fout[i]);
+      for(int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->cfoa->fout[i]);
       QOP_free(l->cfoa->fout);
     }
     QOP_free(l->cfoa);
@@ -730,16 +729,16 @@ free_level(QOP_WilMgLevel *l)
 
   if (l->vca) {
     if (l->vca->r) {
-      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->r[i]);
+      for (int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->vca->r[i]);
       QOP_free(l->vca->r);
     }
 
     if (l->vca->p) {
-      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->p[i]);
+      for (int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->vca->p[i]);
       QOP_free(l->vca->p);
     }
     if (l->vca->Ap) {
-      for (int i = 0 ; i < l->nv ; i++) QOP_free(l->vca->Ap[i]);
+      for (int i = 0 ; i < l->nv ; i++) QDP_FN_destroy_V(l->vca->Ap[i]);
       QOP_free(l->vca->Ap);
     }
     QOP_free(l->vca);
