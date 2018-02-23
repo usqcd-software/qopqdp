@@ -152,6 +152,7 @@ QOP_mgCreateBlockFromLattice(QDP_Lattice *fine, QDP_Lattice *coarse)
   mgb->coarse = coarse;
 
   mgb->local = 0;
+  mgb->lb = NULL;
   if(checkLocal(fine, coarse)) {
     mgb->local = 1;
     mgb->nlb = QDP_sites_on_node_L(coarse);
@@ -223,11 +224,14 @@ QOP_mgCreateBlock(QDP_Lattice *fine, int *block)
 }
 
 void
-QOP_freeBlock(QOP_MgBlock *mgb)
+QOP_mgFreeBlock(QOP_MgBlock *mgb)
 {
   if(mgb->local) {
-    QOP_free(mgb->lb[0].sites);
-    QOP_free(mgb->lb);
+    if (mgb->lb) {
+      QOP_free(mgb->lb[0].sites[0]);
+      QOP_free(mgb->lb);
+      mgb->lb = NULL;
+    }
   } else {
     QDP_destroy_subset(mgb->fs);
     QDP_destroy_subset(mgb->cs);

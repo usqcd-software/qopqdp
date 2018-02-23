@@ -767,7 +767,7 @@ QOPP(mgCreateArgs)(QOP_MgBlock *mgb, int cnc, int fnc, int nv,
 }
 
 void
-QOPP(QOP_freeArgs)(QOPP(MgArgs) *mga)
+QOPP(mgFreeArgs)(QOPP(MgArgs) *mga)
 {
   if(mga->we_malloced_rv) {
     for(int i=0; i<mga->maxnv; i++) {

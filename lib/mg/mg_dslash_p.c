@@ -161,6 +161,7 @@ QOPP(mgFreeDslash)(QOPP(MgDslashArgs) *da)
     }
     QOP_free(da->temp[i]);
   }
+  QOP_free(da->temp);
   for(int i=0; i<nl; i++) {
     for(int j=0; j<nvout; j++) {
       for(int k=0; k<nvin; k++) {
@@ -170,12 +171,13 @@ QOPP(mgFreeDslash)(QOPP(MgDslashArgs) *da)
     }
     QOP_free(da->links[i]);
   }
-  QOP_free(da->temp);
   QOP_free(da->links);
   if(da->nshifts) {
+    for(int i=0; i<da->nshifts; i++)
+      QDP_destroy_shift(da->shifts[i]);
     QOP_free(da->shifts);
-    QOP_free(da->fb);
   }
+  if(da->fb) QOP_free(da->fb);
   QOP_free(da->paths);
   QOP_free(da);
 }
