@@ -315,6 +315,7 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
   }
   // get residuals (r <- in - D2 scale out)
   for(int i=0; i<no; i++) {
+    //printf("scale[%i]: %g %g\n", i, QLA_real(scale[i]), QLA_imag(scale[i]));
     QOP_asqtad_dslash_qdp(NULL, gl_fla, 0, tv, Aout[i], ineo, opeo);
     QDP_V_meq_r_times_V(tv, &m2[i], out[i], insub);
     QDP_V_eq_c_times_V_plus_V(r[i], &scale[i], tv, in[i], insub);
@@ -364,7 +365,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 #endif
 
   //QOP_verbose(QOP_VERB_HI);
-  
+
   gl_fla = fla;
   gl_mass = 0;
   gl_eo = ineo;
@@ -485,7 +486,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
       QDP_V_eq_zero(x[i], QDP_all);
     }
     double rsqminold = res_arg[imax]->rsqmin;
-    res_arg[imax]->rsqmin = r2stop[imax]/r2[imax];
+    //res_arg[imax]->rsqmin = r2stop[imax]/r2[imax];
+    res_arg[imax]->rsqmin = r2stopmax/r2max;
     //res_arg[imax]->rsqmin = r2stopmax/r2max;
     if(res_arg[imax]->rsqmin>=1) {
       res_arg[imax]->rsqmin = in2max*r2stopmax/r2max;
