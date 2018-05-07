@@ -263,12 +263,14 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
   QDP_r_veq_norm2_V(Ax2, Ax, opsub, nx);
   for(int i=0; i<ni; i++) {
     int ko = oi[i];
+    //printf("r2[%i]: %g\n", ko, r2[ko]);
     int kx = 0;
     if(nx>0) kx = xi[i];
     QLA_Complex z, Az, s, sx;
     QLA_c_eq_r(sx, 0);
     // A-orthogonalize out[ko] against x[kx]
     double d = 0;
+    QOP_asqtad_dslash_qdp(NULL, gl_fla, 0, Aout[ko], out[ko], opeo, ineo);
     if(nx>0) {
       QDP_c_eq_V_dot_V(&z, x[kx], out[ko], insub);
       QDP_c_eq_V_dot_V(&Az, Ax[kx], Aout[ko], opsub);
@@ -281,6 +283,7 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
       double dim2 = di*m2[ko];
       QLA_c_eq_r_times_c(s, dim2, z);
       QLA_c_peq_r_times_c(s, di, Az);
+      //printf("s[%i]: %g %g\n", i, QLA_real(s), QLA_imag(s));
       QDP_V_meq_c_times_V(out[ko], &s, x[kx], insub);
       QDP_V_meq_c_times_V(Aout[ko], &s, Ax[kx], opsub);
       // get scale factor for x[kx] to minimize the residual
@@ -321,6 +324,9 @@ refine(QDP_ColorVector *out[], QDP_ColorVector *in[], QDP_ColorVector *r[],
     QDP_V_eq_c_times_V_plus_V(r[i], &scale[i], tv, in[i], insub);
   }
   QDP_r_veq_norm2_V(r2, r, insub, no);
+  //for(int i=0; i<no; i++) {
+  //  printf("r2[%i]: %g\n", i, r2[i]);
+  //}
 }
 
 void
@@ -446,18 +452,22 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
       }
     }
     // find least converged (or smaller mass if tie)
-    int imax = 0;
-    double r2max=0, r2stopmax=1, in2max=1;
+    int imax=0, usingrel=0;
+    double r2max=0, r2stopmax=1, in2max=1, rsqminfac=1;
     //VERB(MED, "SOLVE: its: %i\n", iter);
     for(int i=0; i<nsolve; i++) {
       // find the stopping criterion that is closer to convergence for this 'i'
       double r2i = r2[i];
       double r2stopi = r2stop[i];
       double in2i = in2[i];
+      double rsqminfaci = 1;
+      int usingreli = 0;
       if(res_arg[i]->final_rel*r2stopi<r2i*res_arg[i]->relmin) {
         r2i = res_arg[i]->final_rel;
         r2stopi = res_arg[i]->relmin;
         in2i = 1;
+	rsqminfaci = 1e-10;
+	usingreli = 1;
       }
       // update if less converged
       double a = r2i*r2stopmax;
@@ -467,6 +477,8 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
 	r2max = r2i;
 	r2stopmax = r2stopi;
 	in2max = in2i;
+	rsqminfac = rsqminfaci;
+	usingrel = usingreli;
       }
       VERB(MED, "SOLVE[%i]: rsq = %g rel = %g\n", i,
 	   r2[i]/in2[i], res_arg[i]->final_rel);
@@ -492,6 +504,7 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     if(res_arg[imax]->rsqmin>=1) {
       res_arg[imax]->rsqmin = in2max*r2stopmax/r2max;
     }
+    res_arg[imax]->rsqmin *= rsqminfac;
     inv_arg->max_iter = max_iter - iter;
     //QOP_verbose(3);
 #if QOP_Precision == 'D'
@@ -563,8 +576,26 @@ QOP_asqtad_solve_multi_qdp(QOP_info_t *info,
     }
 #endif
 
-    refine(out, in, r, r2, mass2, scale, nsolve, ineo, x, x, nm,
-	   oi, xi, nsolve, tv);
+    if(usingrel) {
+      for(int i=0; i<nsolve; i++) {
+	int ko = oi[i];
+	int kx = xi[i];
+	double s2 = QLA_norm2_c(scale[ko]);
+	if(s2==0.0) {
+	  QDP_V_eq_V(out[ko], x[kx], insub);
+	} else {
+	  QLA_Complex s;
+	  //printf("scale[%i]: %g %g\n", ko, QLA_real(scale[ko]), QLA_imag(scale[ko]));
+	  QLA_c_eq_r_div_c(s, 1.0, scale[ko]);
+	  QDP_V_peq_c_times_V(out[ko], &s, x[kx], insub);
+	}
+      }
+      refine(out, in, r, r2, mass2, scale, nsolve, ineo, NULL, NULL, 0,
+	     oi, NULL, nsolve, tv);
+    } else {
+      refine(out, in, r, r2, mass2, scale, nsolve, ineo, x, x, nm,
+	     oi, xi, nsolve, tv);
+    }
   }
 
   inv_arg->max_iter = max_iter;

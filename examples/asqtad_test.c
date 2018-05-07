@@ -225,7 +225,12 @@ start(void)
     longlinks[i] = QDP_create_M();
     QDP_M_eq_M(longlinks[i], u[i], QDP_all);
   }
-  QDP_V_eq_gaussian_S(in, rs, QDP_all);
+  //QDP_V_eq_gaussian_S(in, rs, QDP_all);
+  QDP_V_eq_zero(in, QDP_all);
+  if(QDP_this_node==0) {
+    QLA_ColorVector *q = QDP_site_ptr_readwrite_V(in, 0);
+    QLA_c_eq_r(QLA_elem_V(*q,0), 1);
+  }
 
   QOP_layout_t qoplayout = QOP_LAYOUT_ZERO;
   qoplayout.latdim = ndim;
@@ -247,9 +252,9 @@ start(void)
   QOP_info_t info = QOP_INFO_ZERO;
   QOP_invert_arg_t inv_arg = QOP_INVERT_ARG_DEFAULT;
   QOP_resid_arg_t res_arg = QOP_RESID_ARG_DEFAULT;
-  //res_arg.rsqmin = 1e-4;
+  //res_arg.rsqmin = 1e-10;
   res_arg.rsqmin = 0;
-  res_arg.relmin = 1e-4;
+  res_arg.relmin = 1e-10;
   inv_arg.max_iter = 600;
   inv_arg.restart = 200;
   inv_arg.max_restarts = 5;
