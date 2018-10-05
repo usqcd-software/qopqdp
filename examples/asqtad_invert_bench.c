@@ -9,7 +9,7 @@ static int seed;
 static int nit=5;
 static QLA_Real mass=-1;
 static int style=-1;
-static int cgtype=0;
+static int cgtype=-1;
 static int verb=0;
 static double naik=0.1;
 static int nthreads=0;
@@ -137,10 +137,12 @@ start(void)
   if(QDP_this_node==0) { printf("begin init\n"); fflush(stdout); }
   QOP_init(&qoplayout);
   QOP_verbose(verb);
-  QOP_opt_t optcg;
-  optcg.tag = "cg";
-  optcg.value = cgtype;
-  QOP_asqtad_invert_set_opts(&optcg, 1);
+  if(cgtype>=0) {
+    QOP_opt_t optcg;
+    optcg.tag = "cg";
+    optcg.value = cgtype;
+    QOP_asqtad_invert_set_opts(&optcg, 1);
+  }
   if(QDP_this_node==0) { printf("convert gauge field\n"); fflush(stdout); }
   gf = QOP_convert_G_from_qdp(u);
   if(QDP_this_node==0) { printf("begin load links\n"); fflush(stdout); }
@@ -298,6 +300,7 @@ main(int argc, char *argv[])
     printf("mass = %g\n", mass);
     printf("seed = %i\n", seed);
     printf("naik = %g\n", naik);
+    printf("cgtype: %i\n", cgtype);
   }
 
   rs = QDP_create_S();

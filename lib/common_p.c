@@ -925,6 +925,7 @@ solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
 
 #ifdef HAVE_QUDA
 #if QOP_Colors == 3
+#include <cuda_runtime.h>
 #include <quda_milc_interface.h>
 
 static int quda_setup = 0;
@@ -950,7 +951,9 @@ setup_quda(QDP_Lattice *lat)
     case QOP_VERB_HI: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
     case QOP_VERB_DEBUG: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
     }
-    init_args.layout.device = 0; // only valid for single-gpu build
+    int n = 1;
+    cudaGetDeviceCount(&n);
+    init_args.layout.device = myrank % n;
     init_args.layout.latsize = ls;
     init_args.layout.machsize = rg;
     qudaInit(init_args);

@@ -78,6 +78,7 @@ AC_ARG_WITH(
 )
 AC_SUBST(QUDADIR)
 
+CUDADIR="/usr/local/cuda"
 AC_ARG_WITH(
   cuda,
   AC_HELP_STRING([--with-cuda=<CUDA dir>],
@@ -128,12 +129,8 @@ AC_SUBST(QMPDIR)
 
 if test -n "$WITH_QUDA"; then
   AC_DEFINE(HAVE_QUDA, [], [use quda])
-  AC_SUBST(QUDA_CFLAGS, "-I${QUDADIR}/include")
+  AC_SUBST(QUDA_CFLAGS, "-I${CUDADIR}/include -I${QUDADIR}/include")
   AC_SUBST(QUDA_LIBS, "${QUDADIR}/lib/libquda.a")
-  AC_SUBST(CUDA_LIBS, "/usr/local/cuda/lib64/libcudart_static.a -ldl")
-fi
-
-if test -n "$WITH_CUDA"; then
   AC_SUBST(CUDA_LIBS, "${CUDADIR}/lib64/libcudart_static.a -ldl")
 fi
 
