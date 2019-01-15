@@ -931,6 +931,26 @@ solveMulti_qll(QDP_ColorVector *dest[], QDP_ColorVector *src, double ms[],
 static int quda_setup = 0;
 static QOP_FermionLinksAsqtad *quda_fla = NULL;
 
+typedef struct {
+  QDP_Lattice *lat;
+  int *ls;
+  int *rg;
+  int nd;
+} RankIndexData;
+
+static int
+get_rankIndex(const int *rcoords, void *fdata)
+{
+  RankIndexData *rid = (RankIndexData *)(fdata);
+  QDP_Lattice *lat = rid->lat;
+  int nd = rid->nd;
+  int *ls = rid->ls;
+  int *rg = rid->rg;
+  int pcoords[nd];
+  for(int i=0; i<nd; i++) pcoords[i] = (rcoords[i]*ls[i])/rg[i];
+  return QDP_node_number_L(lat, pcoords);
+}
+
 void
 setup_quda(QDP_Lattice *lat)
 {
@@ -951,6 +971,12 @@ setup_quda(QDP_Lattice *lat)
     case QOP_VERB_HI: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
     case QOP_VERB_DEBUG: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
     }
+    RankIndexData rid;
+    rid.lat = lat;
+    rid.nd = 4;
+    rid.ls = ls;
+    rid.rg = rg;
+    initCommsGridQuda(4, rg, get_rankIndex, &rid);
     int n = 1;
     cudaGetDeviceCount(&n);
     init_args.layout.device = myrank % n;
