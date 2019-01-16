@@ -979,7 +979,8 @@ setup_quda(QDP_Lattice *lat)
     initCommsGridQuda(4, rg, get_rankIndex, &rid);
     int n = 1;
     cudaGetDeviceCount(&n);
-    init_args.layout.device = myrank % n;
+    //init_args.layout.device = myrank % n;
+    init_args.layout.device = -1;
     init_args.layout.latsize = ls;
     init_args.layout.machsize = rg;
     qudaInit(init_args);
