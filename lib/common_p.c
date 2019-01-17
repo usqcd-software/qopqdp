@@ -963,7 +963,7 @@ setup_quda(QDP_Lattice *lat)
     QDP_latsize_L(lat, ls);
     get_rankGeom(lat, myrank, 4, ls, rg);
 
-    QudaInitArgs_t init_args;
+    static QudaInitArgs_t init_args;
     switch(QOP_common.verbosity) {
     case QOP_VERB_OFF: init_args.verbosity = QUDA_SILENT; break;
     case QOP_VERB_LOW: init_args.verbosity = QUDA_SUMMARIZE; break;
@@ -971,7 +971,7 @@ setup_quda(QDP_Lattice *lat)
     case QOP_VERB_HI: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
     case QOP_VERB_DEBUG: init_args.verbosity = QUDA_DEBUG_VERBOSE; break;
     }
-    RankIndexData rid;
+    static RankIndexData rid;
     rid.lat = lat;
     rid.nd = 4;
     rid.ls = ls;
