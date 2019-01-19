@@ -47,8 +47,7 @@ NC1SOURCES = \
   pcstubs/invert_eigcg_D_f1.c pcstubs/invert_eigcg_D_d1.c \
   pcstubs/invert_gmres2_D_f1.c pcstubs/invert_gmres2_D_d1.c \
   pcstubs/invert_utilities_V_f1.c pcstubs/invert_utilities_V_d1.c \
-  pcstubs/invert_utilities_D_f1.c pcstubs/invert_utilities_D_d1.c \
-  pcstubs/invert_utilities_vD_f1.c pcstubs/invert_utilities_vD_d1.c
+  pcstubs/invert_utilities_D_f1.c pcstubs/invert_utilities_D_d1.c
 
 NC2SOURCES = \
   pcstubs/common_f2.c pcstubs/common_d2.c \
@@ -82,8 +81,7 @@ NC2SOURCES = \
   pcstubs/invert_eigcg_D_f2.c pcstubs/invert_eigcg_D_d2.c \
   pcstubs/invert_gmres2_D_f2.c pcstubs/invert_gmres2_D_d2.c \
   pcstubs/invert_utilities_V_f2.c pcstubs/invert_utilities_V_d2.c \
-  pcstubs/invert_utilities_D_f2.c pcstubs/invert_utilities_D_d2.c \
-  pcstubs/invert_utilities_vD_f2.c pcstubs/invert_utilities_vD_d2.c
+  pcstubs/invert_utilities_D_f2.c pcstubs/invert_utilities_D_d2.c
 
 NC3SOURCES = \
   pcstubs/common_f3.c pcstubs/common_d3.c \
@@ -119,8 +117,7 @@ NC3SOURCES = \
   pcstubs/invert_eigcg_D_f3.c pcstubs/invert_eigcg_D_d3.c \
   pcstubs/invert_gmres2_D_f3.c pcstubs/invert_gmres2_D_d3.c \
   pcstubs/invert_utilities_V_f3.c pcstubs/invert_utilities_V_d3.c \
-  pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c \
-  pcstubs/invert_utilities_vD_f3.c pcstubs/invert_utilities_vD_d3.c
+  pcstubs/invert_utilities_D_f3.c pcstubs/invert_utilities_D_d3.c
 
 NCNSOURCES = \
   pcstubs/common_fn.c pcstubs/common_dn.c \
@@ -158,7 +155,6 @@ NCNSOURCES = \
   pcstubs/invert_gcr_fn.c pcstubs/invert_gcr_dn.c \
   pcstubs/invert_utilities_V_fn.c pcstubs/invert_utilities_V_dn.c \
   pcstubs/invert_utilities_D_fn.c pcstubs/invert_utilities_D_dn.c \
-  pcstubs/invert_utilities_vD_fn.c pcstubs/invert_utilities_vD_dn.c \
   pcstubs/mg_fn.c pcstubs/mg_dn.c \
   pcstubs/mg_dslash_fn.c pcstubs/mg_dslash_dn.c \
   pcstubs/vcycle_fn.c pcstubs/vcycle_dn.c
@@ -207,7 +203,6 @@ EXTRA_DIST = \
   invert_utilities_p.c \
   invert_utilities_V_p.c \
   invert_utilities_D_p.c \
-  invert_utilities_vD_p.c \
   linalg.h \
   mg
 
